@@ -10,15 +10,20 @@
     "@types/node": "^16.18.68",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^2.1.1",
     "lucide-react": "^0.395.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-flow-renderer": "^10.3.17",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^6.21.0",
     "react-scripts": "5.0.1",
     "react-youtube": "^10.1.0",
     "reactflow": "^11.11.4",
+    "remark-gfm": "^4.0.1",
     "typescript": "^4.9.5",
+    "uuid": "^9.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -26,6 +31,10 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "test:coverage": "react-scripts test --coverage --watchAll=false",
+    "test:unit": "react-scripts test --testPathPattern='__tests__/services' --watchAll=false",
+    "test:integration": "react-scripts test --testPathPattern='__tests__/integration' --watchAll=false",
+    "test:all": "react-scripts test --watchAll=false",
+    "test:watch": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -47,9 +56,12 @@
     ]
   },
   "devDependencies": {
+    "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.16",
+    "axios": "^1.10.0",
     "identity-obj-proxy": "^3.0.0",
     "jest-localstorage-mock": "^2.4.26",
+    "openai": "^5.10.1",
     "postcss": "^8.4.33",
     "tailwindcss": "^3.4.0"
   },

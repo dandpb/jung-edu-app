@@ -1,0 +1,2 @@
+export { YouTubeService, type YouTubeVideo, type YouTubeSearchOptions, type YouTubeChannel } from './youtubeService';
+export { VideoEnricher, type VideoMetadata, type EnrichmentOptions } from './videoEnricher';

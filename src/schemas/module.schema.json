@@ -1,0 +1,1181 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://jung-edu-app.com/schemas/educational-module.json",
+  "title": "Educational Module Schema",
+  "description": "Schema for validating educational modules in the Jung Education Application",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "description",
+    "content",
+    "videos",
+    "mindMaps",
+    "quiz",
+    "bibliography",
+    "filmReferences",
+    "tags",
+    "difficultyLevel",
+    "timeEstimate",
+    "metadata"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the module"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Module title"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 1000,
+      "description": "Brief description of the module"
+    },
+    "content": {
+      "type": "object",
+      "required": ["introduction", "sections"],
+      "properties": {
+        "introduction": {
+          "type": "string",
+          "minLength": 50,
+          "description": "Introduction text in markdown format"
+        },
+        "sections": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/section"
+          }
+        },
+        "summary": {
+          "type": "string",
+          "description": "Optional summary of the module"
+        },
+        "keyTakeaways": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Key learning points"
+        }
+      }
+    },
+    "videos": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/video"
+      },
+      "description": "Array of educational videos"
+    },
+    "mindMaps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/mindMap"
+      },
+      "description": "Array of mind maps"
+    },
+    "quiz": {
+      "$ref": "#/definitions/quiz"
+    },
+    "bibliography": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/bibliography"
+      },
+      "description": "Array of bibliographic references"
+    },
+    "filmReferences": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/filmReference"
+      },
+      "description": "Array of film references"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 50
+      },
+      "minItems": 1,
+      "description": "Tags for categorization and search"
+    },
+    "difficultyLevel": {
+      "type": "string",
+      "enum": ["beginner", "intermediate", "advanced"],
+      "description": "Module difficulty level"
+    },
+    "timeEstimate": {
+      "type": "object",
+      "required": ["hours", "minutes"],
+      "properties": {
+        "hours": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 999
+        },
+        "minutes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 59
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description of time estimate"
+        }
+      }
+    },
+    "metadata": {
+      "$ref": "#/definitions/metadata"
+    },
+    "prerequisites": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Module IDs that should be completed first"
+    },
+    "learningObjectives": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Learning objectives for the module"
+    },
+    "icon": {
+      "type": "string",
+      "description": "Icon identifier or URL"
+    }
+  },
+  "definitions": {
+    "section": {
+      "type": "object",
+      "required": ["id", "title", "content", "order"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "content": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Section content in markdown format"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "keyTerms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/keyTerm"
+          }
+        },
+        "images": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/image"
+          }
+        },
+        "interactiveElements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/interactiveElement"
+          }
+        },
+        "estimatedTime": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Estimated time in minutes"
+        }
+      }
+    },
+    "keyTerm": {
+      "type": "object",
+      "required": ["term", "definition"],
+      "properties": {
+        "term": {
+          "type": "string",
+          "minLength": 1
+        },
+        "definition": {
+          "type": "string",
+          "minLength": 10
+        },
+        "relatedTerms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "externalLink": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "image": {
+      "type": "object",
+      "required": ["id", "url", "caption", "alt"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "caption": {
+          "type": "string"
+        },
+        "alt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "credit": {
+          "type": "string"
+        },
+        "license": {
+          "type": "string"
+        }
+      }
+    },
+    "interactiveElement": {
+      "type": "object",
+      "required": ["id", "type", "title", "url", "description"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["simulation", "calculator", "diagram", "timeline", "other"]
+        },
+        "title": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "video": {
+      "type": "object",
+      "required": ["id", "title", "url", "duration", "description"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "duration": {
+          "type": "object",
+          "required": ["hours", "minutes", "seconds"],
+          "properties": {
+            "hours": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minutes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 59
+            },
+            "seconds": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 59
+            }
+          }
+        },
+        "description": {
+          "type": "string"
+        },
+        "thumbnail": {
+          "type": "string",
+          "format": "uri"
+        },
+        "transcript": {
+          "type": "string"
+        },
+        "captions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/caption"
+          }
+        },
+        "chapters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/videoChapter"
+          }
+        },
+        "platform": {
+          "type": "string",
+          "enum": ["youtube", "vimeo", "custom", "local"]
+        },
+        "embedCode": {
+          "type": "string"
+        }
+      }
+    },
+    "caption": {
+      "type": "object",
+      "required": ["language", "url", "format"],
+      "properties": {
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2}$"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "format": {
+          "type": "string",
+          "enum": ["vtt", "srt"]
+        }
+      }
+    },
+    "videoChapter": {
+      "type": "object",
+      "required": ["title", "startTime", "endTime"],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "startTime": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "endTime": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "mindMap": {
+      "type": "object",
+      "required": ["id", "title", "description", "nodes", "edges", "layout", "metadata"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "nodes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/mindMapNode"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/mindMapEdge"
+          }
+        },
+        "layout": {
+          "$ref": "#/definitions/mindMapLayout"
+        },
+        "style": {
+          "$ref": "#/definitions/mindMapStyle"
+        },
+        "metadata": {
+          "$ref": "#/definitions/mindMapMetadata"
+        }
+      }
+    },
+    "mindMapNode": {
+      "type": "object",
+      "required": ["id", "label", "position", "type"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "position": {
+          "type": "object",
+          "required": ["x", "y"],
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            }
+          }
+        },
+        "type": {
+          "type": "string",
+          "enum": ["root", "concept", "example", "definition", "question", "resource"]
+        },
+        "data": {
+          "type": "object"
+        },
+        "style": {
+          "$ref": "#/definitions/nodeStyle"
+        },
+        "moduleId": {
+          "type": "string"
+        },
+        "resourceLinks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/resourceLink"
+          }
+        }
+      }
+    },
+    "nodeStyle": {
+      "type": "object",
+      "properties": {
+        "backgroundColor": {
+          "type": "string"
+        },
+        "textColor": {
+          "type": "string"
+        },
+        "borderColor": {
+          "type": "string"
+        },
+        "borderWidth": {
+          "type": "number"
+        },
+        "fontSize": {
+          "type": "number"
+        },
+        "fontWeight": {
+          "type": "string"
+        },
+        "shape": {
+          "type": "string",
+          "enum": ["rectangle", "circle", "diamond", "hexagon"]
+        }
+      }
+    },
+    "mindMapEdge": {
+      "type": "object",
+      "required": ["id", "source", "target", "type"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["hierarchical", "association", "dependency", "temporal", "causal"]
+        },
+        "style": {
+          "$ref": "#/definitions/edgeStyle"
+        },
+        "animated": {
+          "type": "boolean"
+        }
+      }
+    },
+    "edgeStyle": {
+      "type": "object",
+      "properties": {
+        "strokeColor": {
+          "type": "string"
+        },
+        "strokeWidth": {
+          "type": "number"
+        },
+        "strokeDasharray": {
+          "type": "string"
+        },
+        "arrowType": {
+          "type": "string",
+          "enum": ["arrow", "arrowclosed", "circle", "none"]
+        }
+      }
+    },
+    "mindMapLayout": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["hierarchical", "radial", "force", "grid", "manual"]
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["TB", "BT", "LR", "RL"]
+        },
+        "spacing": {
+          "type": "object",
+          "properties": {
+            "nodeSpacing": {
+              "type": "number"
+            },
+            "levelSpacing": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "mindMapStyle": {
+      "type": "object",
+      "required": ["theme"],
+      "properties": {
+        "theme": {
+          "type": "string",
+          "enum": ["light", "dark", "custom"]
+        },
+        "backgroundColor": {
+          "type": "string"
+        },
+        "defaultNodeStyle": {
+          "$ref": "#/definitions/nodeStyle"
+        },
+        "defaultEdgeStyle": {
+          "$ref": "#/definitions/edgeStyle"
+        }
+      }
+    },
+    "mindMapMetadata": {
+      "type": "object",
+      "required": ["created", "lastModified", "version", "isInteractive", "allowEditing"],
+      "properties": {
+        "created": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastModified": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "version": {
+          "type": "string"
+        },
+        "isInteractive": {
+          "type": "boolean"
+        },
+        "allowEditing": {
+          "type": "boolean"
+        }
+      }
+    },
+    "resourceLink": {
+      "type": "object",
+      "required": ["type", "title"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["module", "video", "document", "external"]
+        },
+        "id": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
+    "quiz": {
+      "type": "object",
+      "required": ["id", "title", "description", "questions", "passingScore"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "questions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/multipleChoiceQuestion"
+              },
+              {
+                "$ref": "#/definitions/trueFalseQuestion"
+              },
+              {
+                "$ref": "#/definitions/openEndedQuestion"
+              }
+            ]
+          }
+        },
+        "passingScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "timeLimit": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "shuffleQuestions": {
+          "type": "boolean"
+        },
+        "showFeedback": {
+          "type": "boolean"
+        },
+        "allowRetries": {
+          "type": "boolean"
+        },
+        "maxRetries": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "baseQuestion": {
+      "type": "object",
+      "required": ["id", "question", "points", "explanation"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "question": {
+          "type": "string",
+          "minLength": 10
+        },
+        "points": {
+          "type": "number",
+          "minimum": 0
+        },
+        "explanation": {
+          "type": "string"
+        },
+        "hint": {
+          "type": "string"
+        },
+        "difficulty": {
+          "type": "string",
+          "enum": ["beginner", "intermediate", "advanced"]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mediaAttachment": {
+          "$ref": "#/definitions/mediaAttachment"
+        }
+      }
+    },
+    "multipleChoiceQuestion": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseQuestion"
+        },
+        {
+          "type": "object",
+          "required": ["type", "options", "correctAnswers", "allowMultiple"],
+          "properties": {
+            "type": {
+              "const": "multiple-choice"
+            },
+            "options": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "$ref": "#/definitions/option"
+              }
+            },
+            "correctAnswers": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              },
+              "minItems": 1
+            },
+            "allowMultiple": {
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    },
+    "option": {
+      "type": "object",
+      "required": ["id", "text", "isCorrect"],
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "text": {
+          "type": "string"
+        },
+        "isCorrect": {
+          "type": "boolean"
+        },
+        "feedback": {
+          "type": "string"
+        }
+      }
+    },
+    "trueFalseQuestion": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseQuestion"
+        },
+        {
+          "type": "object",
+          "required": ["type", "correctAnswer"],
+          "properties": {
+            "type": {
+              "const": "true-false"
+            },
+            "correctAnswer": {
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    },
+    "openEndedQuestion": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseQuestion"
+        },
+        {
+          "type": "object",
+          "required": ["type", "suggestedAnswer"],
+          "properties": {
+            "type": {
+              "const": "open-ended"
+            },
+            "suggestedAnswer": {
+              "type": "string"
+            },
+            "keywords": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "minLength": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "maxLength": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "rubric": {
+              "$ref": "#/definitions/gradingRubric"
+            }
+          }
+        }
+      ]
+    },
+    "gradingRubric": {
+      "type": "object",
+      "required": ["criteria", "totalPoints"],
+      "properties": {
+        "criteria": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/rubricCriterion"
+          }
+        },
+        "totalPoints": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "rubricCriterion": {
+      "type": "object",
+      "required": ["name", "description", "points", "levels"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "points": {
+          "type": "number",
+          "minimum": 0
+        },
+        "levels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/rubricLevel"
+          }
+        }
+      }
+    },
+    "rubricLevel": {
+      "type": "object",
+      "required": ["score", "description"],
+      "properties": {
+        "score": {
+          "type": "number"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "mediaAttachment": {
+      "type": "object",
+      "required": ["type", "url"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["image", "video", "audio", "document"]
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "caption": {
+          "type": "string"
+        }
+      }
+    },
+    "bibliography": {
+      "type": "object",
+      "required": ["id", "title", "authors", "year", "type"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "authors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "year": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 2100
+        },
+        "type": {
+          "type": "string",
+          "enum": ["book", "journal-article", "conference-paper", "thesis", "report", "website", "video", "podcast", "other"]
+        },
+        "publisher": {
+          "type": "string"
+        },
+        "journal": {
+          "type": "string"
+        },
+        "volume": {
+          "type": "string"
+        },
+        "issue": {
+          "type": "string"
+        },
+        "pages": {
+          "type": "string"
+        },
+        "doi": {
+          "type": "string"
+        },
+        "isbn": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "abstract": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "relevanceNote": {
+          "type": "string"
+        }
+      }
+    },
+    "filmReference": {
+      "type": "object",
+      "required": ["id", "title", "director", "year", "duration", "genre", "relevance"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "director": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "year": {
+          "type": "integer",
+          "minimum": 1888,
+          "maximum": 2100
+        },
+        "duration": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "genre": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "relevance": {
+          "type": "string",
+          "minLength": 10
+        },
+        "synopsis": {
+          "type": "string"
+        },
+        "imdbId": {
+          "type": "string"
+        },
+        "trailer": {
+          "type": "string",
+          "format": "uri"
+        },
+        "streamingPlatforms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/streamingPlatform"
+          }
+        },
+        "educationalThemes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "discussionPoints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "clips": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/filmClip"
+          }
+        }
+      }
+    },
+    "streamingPlatform": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "availability": {
+          "type": "string",
+          "enum": ["free", "subscription", "rental", "purchase"]
+        }
+      }
+    },
+    "filmClip": {
+      "type": "object",
+      "required": ["title", "startTime", "endTime", "description"],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "startTime": {
+          "type": "string",
+          "pattern": "^([0-9]{2}):([0-9]{2}):([0-9]{2})$"
+        },
+        "endTime": {
+          "type": "string",
+          "pattern": "^([0-9]{2}):([0-9]{2}):([0-9]{2})$"
+        },
+        "description": {
+          "type": "string"
+        },
+        "relevantConcepts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["createdAt", "updatedAt", "version", "author", "status", "language"],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "author": {
+          "$ref": "#/definitions/author"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "review", "published", "archived"]
+        },
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2}$"
+        },
+        "reviewedBy": {
+          "$ref": "#/definitions/author"
+        },
+        "reviewedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publishedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "analytics": {
+          "$ref": "#/definitions/moduleAnalytics"
+        }
+      }
+    },
+    "author": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "role": {
+          "type": "string"
+        }
+      }
+    },
+    "moduleAnalytics": {
+      "type": "object",
+      "required": ["views", "completions", "averageTime", "averageScore"],
+      "properties": {
+        "views": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "completions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "averageTime": {
+          "type": "number",
+          "minimum": 0
+        },
+        "averageScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "feedback": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/userFeedback"
+          }
+        }
+      }
+    },
+    "userFeedback": {
+      "type": "object",
+      "required": ["userId", "rating", "timestamp"],
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "rating": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "comment": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "helpful": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

@@ -1,26 +1,43 @@
 import React, { useState } from 'react';
 import { useAdmin } from '../../contexts/AdminContext';
-import { Module, Section, Question, Quiz } from '../../types';
+import { Module } from '../../types';
 import { 
   Plus, 
   Edit2, 
   Trash2, 
-  Save, 
-  X, 
   ChevronDown,
   ChevronRight,
   Clock,
   BookOpen,
-  FileText
+  FileText,
+  Sparkles
 } from 'lucide-react';
 import ModuleEditor from '../../components/admin/ModuleEditor';
-import QuizEditor from '../../components/admin/QuizEditor';
+import AIModuleGenerator from '../../components/admin/AIModuleGenerator';
+import GenerationProgress from '../../components/admin/GenerationProgress';
+import ModulePreview from '../../components/admin/ModulePreview';
+import { useModuleGenerator } from '../../hooks/useModuleGenerator';
 
 const AdminModules: React.FC = () => {
   const { modules, updateModules } = useAdmin();
   const [editingModule, setEditingModule] = useState<Module | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [expandedModules, setExpandedModules] = useState<string[]>([]);
+  const [showAIGenerator, setShowAIGenerator] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [isEditingPreview, setIsEditingPreview] = useState(false);
+  
+  const {
+    isGenerating,
+    generatedModule,
+    generationSteps,
+    currentStep,
+    error,
+    generateModule,
+    regenerateSection,
+    updateGeneratedModule,
+    reset
+  } = useModuleGenerator();
 
   const handleCreateModule = () => {
     const newModule: Module = {
@@ -80,6 +97,45 @@ const AdminModules: React.FC = () => {
     }
   };
 
+  const handleAIGenerate = async (config: any) => {
+    setShowAIGenerator(false);
+    await generateModule(config);
+  };
+
+  const handleSaveGeneratedModule = () => {
+    if (generatedModule) {
+      updateModules([...modules, generatedModule]);
+      setShowPreview(false);
+      reset();
+    }
+  };
+
+  const handleCancelGeneration = () => {
+    reset();
+    setShowPreview(false);
+  };
+
+  const handleEditGeneratedModule = (updates: Partial<Module>) => {
+    if (generatedModule) {
+      // Toggle edit mode if no updates provided (just switching mode)
+      if (Object.keys(updates).length === 0) {
+        setIsEditingPreview(!isEditingPreview);
+        return;
+      }
+      
+      // Update the generated module with edits
+      const updatedModule = { ...generatedModule, ...updates };
+      updateGeneratedModule(updatedModule);
+    }
+  };
+
+  // Show preview when module is generated
+  React.useEffect(() => {
+    if (generatedModule && !isGenerating) {
+      setShowPreview(true);
+    }
+  }, [generatedModule, isGenerating]);
+
   return (
     <div className="max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-8">
@@ -91,13 +147,22 @@ const AdminModules: React.FC = () => {
             Create and edit learning modules, sections, and quizzes
           </p>
         </div>
-        <button
-          onClick={handleCreateModule}
-          className="btn-primary flex items-center space-x-2"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add Module</span>
-        </button>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setShowAIGenerator(true)}
+            className="btn-secondary flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>Generate with AI</span>
+          </button>
+          <button
+            onClick={handleCreateModule}
+            className="btn-primary flex items-center space-x-2"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Module</span>
+          </button>
+        </div>
       </div>
 
       <div className="space-y-4">
@@ -224,6 +289,53 @@ const AdminModules: React.FC = () => {
             setEditingModule(null);
             setIsCreating(false);
           }}
+        />
+      )}
+
+      {/* AI Module Generator Modal */}
+      {showAIGenerator && (
+        <AIModuleGenerator
+          onGenerate={handleAIGenerate}
+          onCancel={() => setShowAIGenerator(false)}
+          existingModules={modules}
+        />
+      )}
+
+      {/* Generation Progress Modal */}
+      {isGenerating && (
+        <GenerationProgress
+          steps={generationSteps}
+          currentStep={currentStep}
+          onCancel={handleCancelGeneration}
+          estimatedTime={45}
+        />
+      )}
+
+      {/* Module Preview Modal */}
+      {showPreview && generatedModule && (
+        <ModulePreview
+          module={generatedModule}
+          isEditing={isEditingPreview}
+          onEdit={handleEditGeneratedModule}
+          onSectionRegenerate={regenerateSection}
+          onSave={handleSaveGeneratedModule}
+          onCancel={handleCancelGeneration}
+          aiSuggestions={[
+            {
+              id: 'sug-1',
+              type: 'enhancement',
+              target: 'section',
+              suggestion: 'Consider adding more practical examples to illustrate concepts',
+              priority: 'medium'
+            },
+            {
+              id: 'sug-2',
+              type: 'addition',
+              target: 'quiz',
+              suggestion: 'Add a question about the relationship with other Jungian concepts',
+              priority: 'high'
+            }
+          ]}
         />
       )}
     </div>

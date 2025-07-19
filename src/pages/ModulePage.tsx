@@ -5,6 +5,7 @@ import { ArrowLeft, Clock, BookOpen, PlayCircle, FileText, CheckCircle } from 'l
 import VideoPlayer from '../components/modules/VideoPlayer';
 import QuizComponent from '../components/quiz/QuizComponent';
 import NoteEditor from '../components/notes/NoteEditor';
+import { MarkdownContent } from '../components/common';
 
 interface ModulePageProps {
   modules: Module[];
@@ -149,7 +150,11 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
           <div className="prose prose-lg max-w-none">
             <div className="bg-primary-50 p-6 rounded-lg mb-8">
               <h2 className="text-xl font-semibold text-primary-900 mb-3">Introduction</h2>
-              <p className="text-primary-800">{module.content.introduction}</p>
+              <MarkdownContent 
+                content={module.content.introduction}
+                className="text-primary-800"
+                prose={false}
+              />
             </div>
 
             {module.content.sections.map(section => (
@@ -157,7 +162,11 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
                 <h2 className="text-2xl font-display font-bold text-gray-900 mb-4">
                   {section.title}
                 </h2>
-                <p className="text-gray-700 mb-4">{section.content}</p>
+                <MarkdownContent 
+                  content={section.content}
+                  className="text-gray-700 mb-4"
+                  prose={false}
+                />
                 
                 {section.keyTerms && section.keyTerms.length > 0 && (
                   <div className="bg-gray-50 p-6 rounded-lg">

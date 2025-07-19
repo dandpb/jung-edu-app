@@ -10,6 +10,8 @@ import NotesPage from './pages/NotesPage';
 import ProgressPage from './pages/ProgressPage';
 import BibliographyPage from './pages/BibliographyPage';
 import SearchPage from './pages/SearchPage';
+import TestYouTubeIntegration from './pages/TestYouTubeIntegration';
+import TestYouTubeAPI from './pages/TestYouTubeAPI';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminModules from './pages/admin/AdminModules';
@@ -108,6 +110,14 @@ function AppContent() {
               <Route 
                 path="/search" 
                 element={<SearchPage modules={modules} />} 
+              />
+              <Route 
+                path="/test-youtube" 
+                element={<TestYouTubeIntegration />} 
+              />
+              <Route 
+                path="/test-api" 
+                element={<TestYouTubeAPI />} 
               />
               
               {/* Admin Routes */}
