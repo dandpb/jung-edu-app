@@ -26,24 +26,31 @@ export class ContentGenerator {
     let validObjectives: string[];
     let audience: string;
     let durationMinutes: number;
+    let options: ModuleContentOptions | undefined;
 
     // Handle both parameter styles
     if (typeof topicOrOptions === 'object') {
       // Object parameter style (from tests)
-      const options = topicOrOptions;
+      options = topicOrOptions;
       topic = options.title || options.topic || '';
       validObjectives = options.learningObjectives || options.objectives || [];
       audience = options.targetAudience || options.difficulty || 'intermediate';
       durationMinutes = options.duration || 60;
+      
+      // Validate required fields
+      if (!topic || (options.concepts && options.concepts.length === 0)) {
+        throw new Error('Title and concepts are required');
+      }
     } else {
       // Individual parameters style (from orchestrator)
       topic = topicOrOptions;
       validObjectives = objectives || [];
       audience = targetAudience || 'intermediate';
       durationMinutes = duration || 60;
+      options = undefined;
     }
 
-    const sections = await this.generateSections(topic, validObjectives, audience, durationMinutes);
+    const sections = await this.generateSections(topic, validObjectives, audience, durationMinutes, options);
     
     const conclusion = await this.generateConclusion(topic, validObjectives);
     const keyTakeaways = await this.generateKeyTakeaways(topic, validObjectives, sections);
@@ -93,8 +100,10 @@ Format using Markdown:
     topic: string,
     objectives: string[],
     targetAudience: string,
-    duration: number
+    duration: number,
+    options?: ModuleContentOptions
   ): Promise<ModuleContent['sections']> {
+    const validObjectives = objectives;
     // Calculate number of sections based on duration
     const sectionCount = Math.max(3, Math.min(8, Math.floor(duration / 15)));
     
@@ -150,7 +159,7 @@ Example format (respond with exactly this structure):
       duration: number;
     }>>(structurePrompt, schema, { temperature: 0.2, retries: 3 });
 
-    console.log('Generated structure:', structure, 'Type:', typeof structure, 'Is array:', Array.isArray(structure));
+    // Debug logging removed - structure generation working correctly
     
     if (!structure) {
       throw new Error('Failed to generate module structure: No structure returned');
@@ -195,7 +204,9 @@ Example format (respond with exactly this structure):
           topic,
           section.title,
           section.concepts,
-          targetAudience
+          targetAudience,
+          options?.learningObjectives || validObjectives,
+          options?.prerequisites
         ),
         subsections: [],
         media: [],
@@ -209,12 +220,28 @@ Example format (respond with exactly this structure):
     mainTopic: string,
     sectionTitle: string,
     concepts: string[],
-    targetAudience: string
+    targetAudience: string,
+    learningObjectives?: string[],
+    prerequisites?: string[]
   ): Promise<string> {
-    const prompt = `
+    let prompt = `
 Write detailed content for the section "${sectionTitle}" in a Jungian psychology module about "${mainTopic}".
 
-Target audience: ${targetAudience}
+Target audience: ${targetAudience}`;
+
+    if (targetAudience.toLowerCase() === 'beginner') {
+      prompt += '\nUse simple language and avoid overly technical jargon.';
+    }
+
+    if (learningObjectives && learningObjectives.length > 0) {
+      prompt += '\n\nLearning objectives:\n' + learningObjectives.map(obj => `- ${obj}`).join('\n');
+    }
+
+    if (prerequisites && prerequisites.length > 0) {
+      prompt += '\n\nPrerequisites:\n' + prerequisites.map(pre => `- ${pre}`).join('\n');
+    }
+
+    prompt += `
 
 Key concepts to cover:
 ${concepts.map(c => `- ${c}`).join('\n')}
@@ -312,5 +339,296 @@ Example format: ["Takeaway 1", "Takeaway 2", ...]
     );
 
     return response;
+  }
+
+  async generateConceptExplanation(
+    concept: string,
+    options: {
+      context?: string;
+      depth?: 'beginner' | 'intermediate' | 'advanced';
+      includeExamples?: boolean;
+    } = {}
+  ): Promise<{
+    concept: string;
+    definition?: string;
+    explanation?: string;
+    keyPoints?: string[];
+    examples?: string[];
+    relatedConcepts?: string[];
+  }> {
+    const { context = 'Jungian psychology', depth = 'intermediate', includeExamples = true } = options;
+    
+    let prompt = `Explain the concept "${concept}" in the context of ${context}.
+
+Target depth: ${depth}`;
+
+    if (depth === 'beginner') {
+      prompt += '\nUse simple language and everyday examples.';
+    }
+
+    if (includeExamples) {
+      prompt += '\nInclude practical examples to illustrate the concept.';
+    }
+
+    const response = await this.provider.generateStructuredResponse<{
+      concept: string;
+      definition?: string;
+      explanation?: string;
+      keyPoints?: string[];
+      examples?: string[];
+      relatedConcepts?: string[];
+    }>(prompt, {
+      type: 'object',
+      properties: {
+        concept: { type: 'string' },
+        definition: { type: 'string' },
+        keyPoints: { type: 'array', items: { type: 'string' } },
+        examples: { type: 'array', items: { type: 'string' } },
+        relatedConcepts: { type: 'array', items: { type: 'string' } }
+      },
+      required: ['concept', 'definition', 'keyPoints', 'examples', 'relatedConcepts']
+    });
+
+    return response;
+  }
+
+  async enrichContent(
+    content: string,
+    options: {
+      addExamples?: boolean;
+      addExercises?: boolean;
+      addMetaphors?: boolean;
+      addVisualDescriptions?: boolean;
+      culturalContext?: string;
+    } = {}
+  ): Promise<{
+    originalContent?: string;
+    enrichedContent?: string;
+    enrichments?: {
+      examples?: string[];
+      metaphors?: string[];
+      practicalApplications?: string[];
+      culturalReferences?: string[];
+    };
+    additions?: {
+      examples?: string[];
+      exercises?: string[];
+      visualDescriptions?: string[];
+    };
+  }> {
+    const { addExamples, addExercises, addMetaphors, addVisualDescriptions, culturalContext } = options;
+    
+    let prompt = `Enrich the following content with additional elements:
+
+Original content:
+${content}
+
+Requested additions:`;
+
+    if (addExamples) prompt += '\n- Add practical examples';
+    if (addExercises) prompt += '\n- Add exercises or reflection questions';
+    if (addMetaphors) prompt += '\n- Add metaphors and analogies';
+    if (addVisualDescriptions) prompt += '\n- Add descriptions for visual aids or diagrams';
+    if (culturalContext) prompt += `\n- Add cultural references relevant to ${culturalContext}`;
+
+    const response = await this.provider.generateStructuredResponse<{
+      originalContent?: string;
+      enrichedContent?: string;
+      enrichments?: {
+        examples?: string[];
+        metaphors?: string[];
+        practicalApplications?: string[];
+        culturalReferences?: string[];
+      };
+      additions?: {
+        examples?: string[];
+        exercises?: string[];
+        visualDescriptions?: string[];
+      };
+    }>(prompt, {
+      type: 'object',
+      properties: {
+        enrichedContent: { type: 'string' },
+        additions: {
+          type: 'object',
+          properties: {
+            examples: { type: 'array', items: { type: 'string' } },
+            exercises: { type: 'array', items: { type: 'string' } },
+            visualDescriptions: { type: 'array', items: { type: 'string' } }
+          }
+        }
+      },
+      required: ['enrichedContent', 'additions']
+    });
+
+    return response;
+  }
+
+  async summarizeContent(
+    content: string,
+    options: {
+      maxLength?: number;
+      style?: 'academic' | 'casual' | 'bullet-points';
+      preserveKeyTerms?: boolean;
+    } = {}
+  ): Promise<{
+    mainPoints?: string[];
+    keyTakeaways?: string[];
+    briefSummary?: string;
+    summary?: string;
+    keyPoints?: string[];
+    wordCount?: number;
+  }> {
+    const { maxLength = 300, style = 'academic', preserveKeyTerms = true } = options;
+    
+    let prompt = `Summarize the following content in ${style} style:
+
+${content}
+
+Requirements:
+- Maximum ${maxLength} words
+- Style: ${style}`;
+
+    if (preserveKeyTerms) {
+      prompt += '\n- Preserve key Jungian terminology';
+    }
+
+    const response = await this.provider.generateStructuredResponse<{
+      mainPoints?: string[];
+      keyTakeaways?: string[];
+      briefSummary?: string;
+      summary?: string;
+      keyPoints?: string[];
+      wordCount?: number;
+    }>(prompt, {
+      type: 'object',
+      properties: {
+        summary: { type: 'string' },
+        keyPoints: { type: 'array', items: { type: 'string' } },
+        wordCount: { type: 'number' }
+      },
+      required: ['summary', 'keyPoints', 'wordCount']
+    });
+
+    return response;
+  }
+
+  async generateModuleContentStream(
+    options: {
+      title: string;
+      concepts: string[];
+      difficulty?: string;
+      targetAudience?: string;
+      duration?: number;
+      learningObjectives?: string[];
+      prerequisites?: string[];
+    },
+    onChunk: (chunk: string) => void
+  ): Promise<ModuleContent> {
+    // Generate sections structure first
+    const targetAudience = options.targetAudience || options.difficulty || 'intermediate';
+    const duration = options.duration || 60;
+    const sections = await this.generateSections(
+      options.title,
+      options.learningObjectives || [],
+      targetAudience,
+      duration,
+      options
+    );
+    
+    // Stream introduction
+    const introPrompt = `
+Create an engaging introduction for a Jungian psychology module on "${options.title}".
+
+Target audience: ${targetAudience}
+
+Learning objectives:
+${options.learningObjectives?.map((obj, i) => `${i + 1}. ${obj}`).join('\n') || 'No objectives specified'}
+
+Requirements:
+- Hook the reader with an interesting opening
+- Briefly introduce the main concepts
+- Explain why this topic is important in Jungian psychology
+- Set expectations for what students will learn
+- Keep it between 200-300 words
+
+Format using Markdown:
+- Use **bold** for emphasis on key concepts
+- Use *italics* for subtle emphasis
+- Include a compelling opening paragraph
+- Structure with clear paragraphs
+`;
+
+    let introduction = '';
+    await this.provider.streamCompletion(introPrompt, (chunk) => {
+      introduction += chunk;
+      onChunk(chunk);
+    }, {
+      temperature: 0.7,
+      maxTokens: 500,
+    });
+    
+    // Stream each section content
+    for (let i = 0; i < sections.length; i++) {
+      const section = sections[i];
+      
+      // Add section header
+      onChunk(`\n\n## ${section.title}\n\n`);
+      
+      const sectionPrompt = `
+Write detailed content for the section "${section.title}" in a Jungian psychology module about "${options.title}".
+
+Target audience: ${targetAudience}${targetAudience.toLowerCase() === 'beginner' ? '\nUse simple language and avoid overly technical jargon.' : ''}${options.learningObjectives && options.learningObjectives.length > 0 ? '\n\nLearning objectives:\n' + options.learningObjectives.map(obj => `- ${obj}`).join('\n') : ''}${options.prerequisites && options.prerequisites.length > 0 ? '\n\nPrerequisites:\n' + options.prerequisites.map(pre => `- ${pre}`).join('\n') : ''}
+
+Key concepts to cover:
+${section.concepts?.map(c => `- ${c}`).join('\n') || 'No specific concepts'}
+
+Requirements:
+- Explain concepts clearly with examples
+- Include relevant Jungian terminology
+- Use metaphors or analogies when helpful
+- Reference Jung's original work when applicable
+- Include practical applications or exercises
+- Aim for 400-600 words
+
+IMPORTANT: Format the content using Markdown:
+- Use **bold** for key terms and important concepts
+- Use *italics* for emphasis
+- Use numbered lists (1. 2. 3.) for sequential steps
+- Use bullet points (- or *) for non-sequential items
+- Add double line breaks between paragraphs
+- Use > for important quotes from Jung
+- You can use ### for subheadings within the section
+- Include links where relevant: [text](url)
+- Write in a clear, educational style
+`;
+
+      let sectionContent = '';
+      await this.provider.streamCompletion(sectionPrompt, (chunk) => {
+        sectionContent += chunk;
+        onChunk(chunk);
+      }, {
+        temperature: 0.7,
+        maxTokens: 800,
+      });
+      
+      // Update section content
+      sections[i].content = sectionContent;
+    }
+    
+    // Generate summary and key takeaways
+    const summary = await this.generateSummary(sections);
+    const keyTakeaways = await this.generateKeyTakeaways(
+      options.title,
+      options.learningObjectives || [],
+      sections
+    );
+    
+    return {
+      introduction,
+      sections,
+      summary,
+      keyTakeaways,
+    };
   }
 }

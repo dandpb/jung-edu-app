@@ -1,5 +1,4 @@
 import { MindMapGenerator } from '../../../services/mindmap/mindMapGenerator';
-import { mockMindMapData } from '../../mocks/mockData';
 import { MindMapNode, MindMapEdge } from '../../../types';
 
 describe('MindMapGenerator', () => {

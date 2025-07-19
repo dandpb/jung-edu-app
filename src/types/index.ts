@@ -100,6 +100,12 @@ export interface MindMapNode {
     label: string;
     description?: string;
     moduleId?: string;
+    level?: number;
+    category?: string;
+    expandable?: boolean;
+    onClick?: () => void;
+    onHover?: () => void;
+    interactive?: boolean;
   };
   position: { x: number; y: number };
   type?: string;
@@ -113,6 +119,7 @@ export interface MindMapEdge {
   label?: string;
   type?: string;
   animated?: boolean;
+  style?: React.CSSProperties;
 }
 
 export interface AdminUser {

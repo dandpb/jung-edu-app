@@ -1,6 +1,6 @@
 import { BibliographyEnricher } from '../../../services/bibliography/bibliographyEnricher';
 import { LLMProvider } from '../../../services/llm/provider';
-import { mockBibliographyItem, mockFilmReference } from '../../mocks/mockData';
+import { mockBibliographyItem, mockFilmReference } from '../../../testUtils/mockData';
 
 jest.mock('../../../services/llm/provider');
 
@@ -120,6 +120,7 @@ describe('BibliographyEnricher', () => {
         ...mockFilmReference,
         id: 'film-1',
         title: 'Black Swan',
+        concepts: ['shadow', 'persona', 'dark feminine'],
         relevance: 0.85
       },
       {
@@ -198,7 +199,12 @@ describe('BibliographyEnricher', () => {
       expect(citation).toBe(apaCitation);
       expect(mockProvider.generateStructuredOutput).toHaveBeenCalledWith(
         expect.stringContaining('APA format'),
-        expect.objectContaining({ citation: 'string' })
+        expect.objectContaining({
+          type: 'object',
+          properties: expect.objectContaining({
+            citation: { type: 'string' }
+          })
+        })
       );
     });
     
@@ -232,6 +238,10 @@ describe('BibliographyEnricher', () => {
         authors: ['Carl Jung', 'Marie-Louise von Franz', 'Joseph Henderson']
       };
       
+      mockProvider.generateStructuredOutput.mockResolvedValue({
+        citation: 'Jung, C., von Franz, M.-L., & Henderson, J. (1964). Man and his symbols. Dell Publishing.'
+      });
+      
       await enricher.generateCitation(multiAuthorItem, 'APA');
       
       const prompt = mockProvider.generateStructuredOutput.mock.calls[0][0];
@@ -260,6 +270,9 @@ describe('BibliographyEnricher', () => {
     });
     
     it('should fetch from external APIs when available', async () => {
+      // Create enricher without mock provider to test real API calls
+      const enricherWithoutMock = new BibliographyEnricher();
+      
       // Mock CrossRef API response
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
@@ -272,7 +285,7 @@ describe('BibliographyEnricher', () => {
         })
       });
       
-      const enriched = await enricher.enrichBibliographyItem({
+      const enriched = await enricherWithoutMock.enrichBibliographyItem({
         ...mockBibliographyItem,
         doi: '10.1234/example'
       });
@@ -404,6 +417,17 @@ describe('BibliographyEnricher', () => {
         ...item,
         id: `bib-${i}`
       }));
+      
+      // Mock the batched response
+      mockProvider.generateStructuredOutput.mockResolvedValue({
+        enrichedItems: items.map(item => ({
+          id: item.id,
+          abstract: 'Enriched abstract...',
+          keywords: ['enriched', 'keywords'],
+          openAccess: true,
+          relatedWorks: ['Related Work 1', 'Related Work 2']
+        }))
+      });
       
       await enricher.enrichMultipleItems(items);
       

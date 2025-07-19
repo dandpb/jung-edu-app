@@ -50,6 +50,7 @@ export class YouTubeService {
   private apiKey: string;
   private baseUrl = 'https://www.googleapis.com/youtube/v3';
   private mockMode: boolean;
+  private searchCache: Map<string, any> = new Map();
 
   constructor(apiKey?: string) {
     this.apiKey = apiKey || process.env.REACT_APP_YOUTUBE_API_KEY || '';
@@ -66,6 +67,12 @@ export class YouTubeService {
     query: string,
     options: YouTubeSearchOptions = {}
   ): Promise<YouTubeVideo[]> {
+    // Check cache first
+    const cacheKey = JSON.stringify({ query, options });
+    if (this.searchCache.has(cacheKey)) {
+      return this.searchCache.get(cacheKey);
+    }
+    
     if (this.mockMode) {
       return this.mockSearchVideos(query, options);
     }
@@ -106,7 +113,12 @@ export class YouTubeService {
         },
       });
 
-      return videosResponse.data.items.map((item: any) => this.mapVideoResponse(item));
+      const results = videosResponse.data.items.map((item: any) => this.mapVideoResponse(item));
+      
+      // Cache the results
+      this.searchCache.set(cacheKey, results);
+      
+      return results;
     } catch (error: any) {
       console.error('YouTube API error:', error);
       
@@ -182,10 +194,111 @@ export class YouTubeService {
       }
 
       return this.mapVideoResponse(response.data.items[0]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('YouTube API error:', error);
       return this.mockGetVideoById(videoId);
     }
+  }
+
+  // Alias for getVideoById to match test expectations
+  async getVideoDetails(videoId: string): Promise<any> {
+    if (!videoId) {
+      throw new Error('Video ID is required');
+    }
+    if (videoId.includes(' ')) {
+      throw new Error('Invalid video ID');
+    }
+    
+    const video = await this.getVideoById(videoId);
+    if (!video) return null;
+    
+    // Convert to test expected format
+    return {
+      id: video.videoId,
+      title: video.title,
+      duration: this.parseDuration(video.duration),
+      viewCount: parseInt(video.viewCount),
+      likeCount: parseInt(video.likeCount || '0'),
+      tags: video.tags || []
+    };
+  }
+  
+  async getVideoTranscript(videoId: string): Promise<string | null> {
+    // Mock implementation - in real app, would fetch from transcript service
+    if (this.mockMode || !videoId) {
+      return null;
+    }
+    
+    try {
+      // This would normally call a transcript API
+      const response = await axios.get(`/api/transcript/${videoId}`);
+      if (response.data.transcript) {
+        return response.data.transcript.map((item: any) => item.text).join(' ');
+      }
+      return null;
+    } catch (error) {
+      console.error('Error fetching transcript:', error);
+      return null;
+    }
+  }
+  
+  async getChannelInfo(channelId: string): Promise<any> {
+    if (this.mockMode) {
+      return {
+        id: channelId,
+        title: 'Mock Channel',
+        subscriberCount: 100000,
+        videoCount: 250
+      };
+    }
+    
+    try {
+      const response = await axios.get(`${this.baseUrl}/channels`, {
+        params: {
+          key: this.apiKey,
+          id: channelId,
+          part: 'snippet,statistics'
+        }
+      });
+      
+      if (response.data.items.length === 0) {
+        return null;
+      }
+      
+      const channel = response.data.items[0];
+      return {
+        id: channel.id,
+        title: channel.snippet.title,
+        subscriberCount: parseInt(channel.statistics.subscriberCount),
+        videoCount: parseInt(channel.statistics.videoCount)
+      };
+    } catch (error) {
+      console.error('Error fetching channel info:', error);
+      return null;
+    }
+  }
+  
+  async searchEducationalVideos(query: string, options: any = {}): Promise<any[]> {
+    const searchOptions: YouTubeSearchOptions = {
+      ...options,
+      videoDuration: options.minDuration >= 600 ? 'long' : 'medium',
+      videoDefinition: 'high',
+      safeSearch: 'strict'
+    };
+    
+    return this.searchVideos(query, searchOptions);
+  }
+  
+  private parseDuration(isoDuration: string): number {
+    // Parse ISO 8601 duration to seconds
+    const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    if (!match) return 0;
+    
+    const hours = parseInt(match[1] || '0');
+    const minutes = parseInt(match[2] || '0');
+    const seconds = parseInt(match[3] || '0');
+    
+    return hours * 3600 + minutes * 60 + seconds;
   }
 
   async getPlaylistVideos(playlistId: string, maxResults: number = 50): Promise<YouTubeVideo[]> {

@@ -318,9 +318,11 @@ Difficulty level: ${options.difficulty}`;
   }
 
   private async generateMindMaps(options: GenerationOptions, content: any): Promise<any[]> {
+    const sectionTitles = content?.sections ? content.sections.map((s: any) => s.title).join(', ') : 'General topics';
+    
     const prompt = `Create a mind map structure for the educational content about ${options.topic}. The mind map should visualize the key concepts and their relationships.
 
-Main topics from content: ${content.sections.map((s: any) => s.title).join(', ')}
+Main topics from content: ${sectionTitles}
 
 Generate nodes and edges that represent the conceptual structure.`;
 
@@ -343,6 +345,13 @@ Generate nodes and edges that represent the conceptual structure.`;
       layout: {
         type: 'string',
         direction: 'string'
+      },
+      metadata: {
+        created: 'string',
+        lastModified: 'string',
+        version: 'string',
+        isInteractive: 'boolean',
+        allowEditing: 'boolean'
       }
     };
 
@@ -455,5 +464,20 @@ Generate nodes and edges that represent the conceptual structure.`;
       minutes: remainingMinutes,
       description: `Approximately ${description} including videos and exercises`
     };
+  }
+
+  /**
+   * Resume generation from a saved draft
+   */
+  async resumeFromDraft(draftId: string, options: GenerationOptions): Promise<EducationalModule> {
+    const drafts = await ModuleService.getDrafts();
+    const draft = drafts.find(d => d.id === draftId);
+    
+    if (!draft) {
+      throw new Error(`Draft with ID ${draftId} not found`);
+    }
+
+    // Continue generation using the resumeGeneration method
+    return this.resumeGeneration(draftId, options);
   }
 }

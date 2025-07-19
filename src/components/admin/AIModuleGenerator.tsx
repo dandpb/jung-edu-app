@@ -51,10 +51,14 @@ const AIModuleGenerator: React.FC<AIModuleGeneratorProps> = ({
     if (subject.trim().length < 3) {
       return;
     }
-    onGenerate({
-      ...config,
-      subject: subject.trim()
-    });
+    try {
+      onGenerate({
+        ...config,
+        subject: subject.trim()
+      });
+    } catch (error) {
+      console.error('Error in onGenerate:', error);
+    }
   };
 
   const updateConfig = (updates: Partial<GenerationConfig>) => {
@@ -169,7 +173,16 @@ const AIModuleGenerator: React.FC<AIModuleGeneratorProps> = ({
                     id="estimated-time"
                     type="number"
                     value={config.estimatedTime}
-                    onChange={(e) => updateConfig({ estimatedTime: parseInt(e.target.value) || 30 })}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const parsedValue = parseInt(value);
+                      // Only update if it's a valid number, otherwise keep existing value
+                      if (!isNaN(parsedValue) && parsedValue >= 0) {
+                        updateConfig({ estimatedTime: parsedValue });
+                      } else if (value === '') {
+                        updateConfig({ estimatedTime: 30 }); // Default when cleared
+                      }
+                    }}
                     min="10"
                     max="180"
                     step="10"

@@ -4,32 +4,42 @@
 
 import { OpenAIProvider } from '../provider';
 
-// Mock OpenAI to test the parsing logic
-jest.mock('openai', () => {
-  return {
-    __esModule: true,
-    default: jest.fn().mockImplementation(() => ({
-      chat: {
-        completions: {
-          create: jest.fn()
-        }
-      },
-      models: {
-        list: jest.fn().mockResolvedValue({ data: [] })
-      }
-    }))
-  };
-});
-
 describe('OpenAIProvider JSON Parsing', () => {
   let provider: OpenAIProvider;
   let mockCreate: jest.Mock;
+  let mockList: jest.Mock;
 
   beforeEach(() => {
-    provider = new OpenAIProvider('test-key');
-    const OpenAI = require('openai').default;
-    const mockClient = new OpenAI();
-    mockCreate = mockClient.chat.completions.create;
+    jest.clearAllMocks();
+    
+    // Create mocks
+    mockCreate = jest.fn();
+    mockList = jest.fn().mockResolvedValue({ data: [] });
+    
+    // Mock the OpenAI module
+    jest.doMock('openai', () => ({
+      OpenAI: jest.fn().mockImplementation(() => ({
+        chat: {
+          completions: {
+            create: mockCreate
+          }
+        },
+        models: {
+          list: mockList
+        }
+      }))
+    }));
+    
+    // Clear module cache to ensure fresh mock
+    jest.resetModules();
+    
+    // Import after mocking
+    const { OpenAIProvider: Provider } = require('../provider');
+    provider = new Provider('test-key');
+  });
+
+  afterEach(() => {
+    jest.resetModules();
   });
 
   it('should parse JSON wrapped in markdown code blocks', async () => {

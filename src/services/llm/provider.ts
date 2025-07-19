@@ -1,4 +1,4 @@
-import OpenAI from 'openai';
+import { OpenAI } from 'openai';
 
 /**
  * Interface for LLM providers
@@ -110,19 +110,11 @@ Response format: Return ONLY the JSON ${schema.type === 'array' ? 'array' : 'obj
         }
         
         // Try to parse the JSON
-        console.log('Attempting to parse cleaned response:', cleanedResponse);
         const parsed = JSON.parse(cleanedResponse);
-        console.log('Successfully parsed JSON:', parsed);
         return parsed as T;
         
       } catch (error) {
-        console.warn(`Structured response attempt ${attempt + 1} failed:`, error);
-        
         if (attempt === retries - 1) {
-          console.error('All structured response attempts failed:', {
-            prompt: prompt.substring(0, 200) + '...',
-            lastError: error
-          });
           throw new Error(`Failed to generate valid JSON after ${retries} attempts: ${error}`);
         }
         
@@ -233,6 +225,11 @@ export class MockLLMProvider implements ILLMProvider {
           cognitiveLevel: 'understanding'
         }
       ] as any;
+    }
+    
+    // Generic array response for other cases
+    if (schema && schema.type === 'array') {
+      return ['item1', 'item2', 'item3'] as any;
     }
     
     // Handle video suggestions

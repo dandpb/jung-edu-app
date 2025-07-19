@@ -1,70 +1,40 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { BrowserRouter, Routes, Route, MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import ProtectedRoute from '../ProtectedRoute';
-import { AdminProvider } from '../../contexts/AdminContext';
+import * as AdminContext from '../../contexts/AdminContext';
 
-// Mock the admin context
+// Mock the entire AdminContext module
 jest.mock('../../contexts/AdminContext', () => ({
-  ...jest.requireActual('../../contexts/AdminContext'),
-  useAdmin: jest.fn()
+  useAdmin: jest.fn(),
+  AdminProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
 }));
 
-import { useAdmin } from '../../contexts/AdminContext';
-
-const mockUseAdmin = useAdmin as jest.MockedFunction<typeof useAdmin>;
+const mockUseAdmin = AdminContext.useAdmin as jest.MockedFunction<typeof AdminContext.useAdmin>;
 
 // Test components
 const ProtectedComponent = () => <div>Protected Content</div>;
 const PublicComponent = () => <div>Public Content</div>;
 
 describe('ProtectedRoute Component', () => {
-  const renderWithRouter = (isAdmin: boolean) => {
-    mockUseAdmin.mockReturnValue({ isAdmin });
+  const renderWithRouter = (isAdmin: boolean, initialEntry: string = '/') => {
+    mockUseAdmin.mockReturnValue({
+      isAdmin,
+      currentAdmin: isAdmin ? { id: 'admin-1', username: 'admin', password: '', role: 'admin', lastLogin: Date.now() } : null,
+      login: jest.fn(),
+      logout: jest.fn(),
+      modules: [],
+      updateModules: jest.fn(),
+      mindMapNodes: [],
+      mindMapEdges: [],
+      updateMindMap: jest.fn()
+    });
     
     return render(
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <AdminProvider>
-          <Routes>
-            <Route path="/" element={<PublicComponent />} />
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <ProtectedComponent />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </AdminProvider>
-      </BrowserRouter>
-    );
-  };
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  test('redirects to admin login when not authenticated', () => {
-    renderWithRouter(false);
-    
-    // Should not show protected content when not authenticated
-    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
-    
-    // Should show public content instead (because we start at '/')
-    expect(screen.getByText('Public Content')).toBeInTheDocument();
-  });
-
-  test('renders children when authenticated', () => {
-    renderWithRouter(true);
-    
-    // Navigate to protected route
-    window.history.pushState({}, '', '/admin');
-    
-    // Force a re-render to pick up the route change
-    render(
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <MemoryRouter initialEntries={[initialEntry]}>
         <Routes>
+          <Route path="/" element={<PublicComponent />} />
+          <Route path="/admin/login" element={<div>Login Page</div>} />
           <Route
             path="/admin"
             element={
@@ -74,18 +44,49 @@ describe('ProtectedRoute Component', () => {
             }
           />
         </Routes>
-      </BrowserRouter>
+      </MemoryRouter>
     );
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('redirects to admin login when not authenticated', () => {
+    renderWithRouter(false, '/admin');
+    
+    // Should redirect to login page
+    expect(screen.getByText('Login Page')).toBeInTheDocument();
+    
+    // Should not show protected content when not authenticated
+    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
+  });
+
+  test('renders children when authenticated', () => {
+    renderWithRouter(true, '/admin');
     
     // Should show protected content
     expect(screen.getByText('Protected Content')).toBeInTheDocument();
+    
+    // Should not show login page
+    expect(screen.queryByText('Login Page')).not.toBeInTheDocument();
   });
 
   test('renders Navigate component when not authenticated', () => {
-    mockUseAdmin.mockReturnValue({ isAdmin: false });
+    mockUseAdmin.mockReturnValue({
+      isAdmin: false,
+      currentAdmin: null,
+      login: jest.fn(),
+      logout: jest.fn(),
+      modules: [],
+      updateModules: jest.fn(),
+      mindMapNodes: [],
+      mindMapEdges: [],
+      updateMindMap: jest.fn()
+    });
     
-    const { container } = render(
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    render(
+      <MemoryRouter initialEntries={['/admin/modules']}>
         <Routes>
           <Route path="/admin/login" element={<div>Login Page</div>} />
           <Route
@@ -97,23 +98,33 @@ describe('ProtectedRoute Component', () => {
             }
           />
         </Routes>
-      </BrowserRouter>
+      </MemoryRouter>
     );
     
-    // The Navigate component should redirect to login
-    window.history.pushState({}, '', '/admin/modules');
+    // Should redirect to login page
+    expect(screen.getByText('Login Page')).toBeInTheDocument();
     
     // Should not show protected content
     expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
   });
 
   test('works with nested routes', () => {
-    mockUseAdmin.mockReturnValue({ isAdmin: true });
+    mockUseAdmin.mockReturnValue({
+      isAdmin: true,
+      currentAdmin: { id: 'admin-1', username: 'admin', password: '', role: 'admin', lastLogin: Date.now() },
+      login: jest.fn(),
+      logout: jest.fn(),
+      modules: [],
+      updateModules: jest.fn(),
+      mindMapNodes: [],
+      mindMapEdges: [],
+      updateMindMap: jest.fn()
+    });
     
     const NestedComponent = () => <div>Nested Admin Content</div>;
     
     render(
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <MemoryRouter initialEntries={['/admin/nested']}>
         <Routes>
           <Route
             path="/admin/*"
@@ -126,26 +137,7 @@ describe('ProtectedRoute Component', () => {
             }
           />
         </Routes>
-      </BrowserRouter>
-    );
-    
-    // Navigate to nested route
-    window.history.pushState({}, '', '/admin/nested');
-    
-    // Re-render to pick up route
-    render(
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <Routes>
-          <Route
-            path="/admin/nested"
-            element={
-              <ProtectedRoute>
-                <NestedComponent />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </BrowserRouter>
+      </MemoryRouter>
     );
     
     expect(screen.getByText('Nested Admin Content')).toBeInTheDocument();
@@ -153,7 +145,17 @@ describe('ProtectedRoute Component', () => {
 
   test('renders correctly based on authentication status', () => {
     // Test unauthenticated state
-    mockUseAdmin.mockReturnValue({ isAdmin: false });
+    mockUseAdmin.mockReturnValue({
+      isAdmin: false,
+      currentAdmin: null,
+      login: jest.fn(),
+      logout: jest.fn(),
+      modules: [],
+      updateModules: jest.fn(),
+      mindMapNodes: [],
+      mindMapEdges: [],
+      updateMindMap: jest.fn()
+    });
     
     const { unmount } = render(
       <MemoryRouter initialEntries={['/admin']}>
@@ -179,7 +181,17 @@ describe('ProtectedRoute Component', () => {
     unmount();
     
     // Test authenticated state
-    mockUseAdmin.mockReturnValue({ isAdmin: true });
+    mockUseAdmin.mockReturnValue({
+      isAdmin: true,
+      currentAdmin: { id: 'admin-1', username: 'admin', password: '', role: 'admin', lastLogin: Date.now() },
+      login: jest.fn(),
+      logout: jest.fn(),
+      modules: [],
+      updateModules: jest.fn(),
+      mindMapNodes: [],
+      mindMapEdges: [],
+      updateMindMap: jest.fn()
+    });
     
     render(
       <MemoryRouter initialEntries={['/admin']}>
@@ -203,7 +215,17 @@ describe('ProtectedRoute Component', () => {
   });
 
   test('handles multiple children elements', () => {
-    mockUseAdmin.mockReturnValue({ isAdmin: true });
+    mockUseAdmin.mockReturnValue({
+      isAdmin: true,
+      currentAdmin: { id: 'admin-1', username: 'admin', password: '', role: 'admin', lastLogin: Date.now() },
+      login: jest.fn(),
+      logout: jest.fn(),
+      modules: [],
+      updateModules: jest.fn(),
+      mindMapNodes: [],
+      mindMapEdges: [],
+      updateMindMap: jest.fn()
+    });
     
     render(
       <MemoryRouter initialEntries={['/admin']}>

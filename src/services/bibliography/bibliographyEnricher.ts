@@ -749,8 +749,12 @@ export class BibliographyEnricher {
         prompt += '\nNote: This source has multiple authors.\n';
       }
       
-      const response = await this.provider.generateStructuredOutput(prompt, {
-        citation: 'string'
+      const response = await this.provider.generateStructuredOutput<{ citation: string }>(prompt, {
+        type: 'object',
+        properties: {
+          citation: { type: 'string' }
+        },
+        required: ['citation']
       });
       
       return response.citation;
@@ -814,7 +818,7 @@ export class BibliographyEnricher {
       const enriched = { ...item };
       
       // Try external API first if DOI exists and fetch is available
-      if (item.doi && typeof fetch !== 'undefined' && !this.isTestEnvironment()) {
+      if (item.doi && typeof fetch !== 'undefined') {
         try {
           const response = await fetch(`https://api.crossref.org/works/${item.doi}`);
           if (response.ok) {
@@ -827,11 +831,6 @@ export class BibliographyEnricher {
         } catch (error) {
           // Fallback to mock data
         }
-      }
-      
-      // For test environment, check if global.fetch was called
-      if (item.doi && this.isTestEnvironment() && global.fetch) {
-        await global.fetch(`https://api.crossref.org/works/${item.doi}`);
       }
       
       // Add mock enrichment data

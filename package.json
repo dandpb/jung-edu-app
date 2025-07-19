@@ -67,7 +67,13 @@
   },
   "jest": {
     "moduleNameMapper": {
-      "\\.(css|less|scss|sass)$": "identity-obj-proxy"
-    }
+      "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+      "^react-markdown$": "<rootDir>/src/__mocks__/react-markdown.tsx",
+      "^remark-gfm$": "<rootDir>/src/__mocks__/remark-gfm.ts",
+      "^axios$": "<rootDir>/src/__mocks__/axios.ts"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(react-markdown|remark-gfm|micromark|decode-named-character-reference|character-entities|property-information|hast-util-whitespace|space-separated-tokens|comma-separated-tokens|vfile|unified|bail|is-plain-obj|trough|vfile-message|unist-util-stringify-position|axios)/)"
+    ]
   }
 }

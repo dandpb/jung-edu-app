@@ -37,7 +37,7 @@ export class QuizGenerator {
     const prompt = `Generate exactly ${count} multiple-choice questions for a Jungian psychology quiz on "${topic}".
 
 Learning objectives to assess:
-${objectives.map((obj, i) => `${i + 1}. ${obj}`).join('\n')}
+${objectives && objectives.length > 0 ? objectives.map((obj, i) => `${i + 1}. ${obj}`).join('\n') : 'General understanding of the topic'}
 
 Context content summary:
 ${content.substring(0, 1000)}...
@@ -140,7 +140,7 @@ Respond with exactly ${count} questions following the good example format:`;
       console.error('Raw questions is not an array:', questions);
       
       // Try to handle if questions are wrapped in an object
-      if (typeof questions === 'object' && 'questions' in questions && Array.isArray((questions as any).questions)) {
+      if (typeof questions === 'object' && questions !== null && 'questions' in questions && Array.isArray((questions as any).questions)) {
         console.log('Found questions in wrapper object, using those');
         questions = (questions as any).questions;
       } else {

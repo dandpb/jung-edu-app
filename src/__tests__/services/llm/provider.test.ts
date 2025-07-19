@@ -1,12 +1,19 @@
-import { OpenAIProvider, MockLLMProvider, ILLMProvider } from '../../../services/llm/provider';
-import { mockLLMResponse, mockFetchResponses } from '../../mocks/mockData';
+import { OpenAIProvider, MockLLMProvider } from '../../../services/llm/provider';
+
+// Set timeout for tests that involve retries
+jest.setTimeout(10000);
 
 // Mock openai module
 jest.mock('openai', () => ({
-  Configuration: jest.fn(),
-  OpenAIApi: jest.fn().mockImplementation(() => ({
-    createChatCompletion: jest.fn(),
-    listModels: jest.fn()
+  OpenAI: jest.fn().mockImplementation(() => ({
+    chat: {
+      completions: {
+        create: jest.fn()
+      }
+    },
+    models: {
+      list: jest.fn()
+    }
   }))
 }));
 
@@ -18,14 +25,23 @@ describe('OpenAIProvider', () => {
   beforeEach(() => {
     // Mock OpenAI API instance
     mockOpenAIApi = {
-      createChatCompletion: jest.fn(),
-      listModels: jest.fn()
+      chat: {
+        completions: {
+          create: jest.fn()
+        }
+      },
+      models: {
+        list: jest.fn()
+      }
     };
     
-    const { OpenAIApi } = require('openai');
-    OpenAIApi.mockImplementation(() => mockOpenAIApi);
+    const { OpenAI } = require('openai');
+    OpenAI.mockImplementation(() => mockOpenAIApi);
     
     provider = new OpenAIProvider(mockApiKey, 'gpt-3.5-turbo');
+    
+    // Mock the delay method to speed up tests
+    jest.spyOn(provider as any, 'delay').mockImplementation(() => Promise.resolve());
   });
   
   afterEach(() => {
@@ -41,21 +57,19 @@ describe('OpenAIProvider', () => {
   
   describe('generateCompletion', () => {
     it('should generate completion successfully', async () => {
-      mockOpenAIApi.createChatCompletion.mockResolvedValueOnce({
-        data: {
-          choices: [{
-            message: {
-              content: 'Generated content about Jungian psychology'
-            }
-          }]
-        }
+      mockOpenAIApi.chat.completions.create.mockResolvedValueOnce({
+        choices: [{
+          message: {
+            content: 'Generated content about Jungian psychology'
+          }
+        }]
       });
       
       const result = await provider.generateCompletion('Test prompt');
       
       expect(result).toBeDefined();
       expect(result).toBe('Generated content about Jungian psychology');
-      expect(mockOpenAIApi.createChatCompletion).toHaveBeenCalledWith({
+      expect(mockOpenAIApi.chat.completions.create).toHaveBeenCalledWith({
         model: 'gpt-3.5-turbo',
         messages: [
           { role: 'system', content: expect.any(String) },
@@ -67,25 +81,24 @@ describe('OpenAIProvider', () => {
     });
     
     it('should handle API errors', async () => {
-      mockOpenAIApi.createChatCompletion.mockRejectedValueOnce(
-        new Error('Rate limit exceeded')
-      );
+      mockOpenAIApi.chat.completions.create
+        .mockRejectedValueOnce(new Error('Rate limit exceeded'))
+        .mockRejectedValueOnce(new Error('Rate limit exceeded'))
+        .mockRejectedValueOnce(new Error('Rate limit exceeded'));
       
       await expect(provider.generateCompletion('Test prompt'))
         .rejects.toThrow('Failed after 3 attempts: Rate limit exceeded');
       
-      expect(mockOpenAIApi.createChatCompletion).toHaveBeenCalledTimes(3);
+      expect(mockOpenAIApi.chat.completions.create).toHaveBeenCalledTimes(3);
     });
     
     it('should retry on temporary failures', async () => {
-      mockOpenAIApi.createChatCompletion
+      mockOpenAIApi.chat.completions.create
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValueOnce({
-          data: {
-            choices: [{
-              message: { content: 'Success after retry' }
-            }]
-          }
+          choices: [{
+            message: { content: 'Success after retry' }
+          }]
         });
       
       const result = await provider.generateCompletion('Test prompt', {
@@ -93,16 +106,14 @@ describe('OpenAIProvider', () => {
       });
       
       expect(result).toBe('Success after retry');
-      expect(mockOpenAIApi.createChatCompletion).toHaveBeenCalledTimes(2);
+      expect(mockOpenAIApi.chat.completions.create).toHaveBeenCalledTimes(2);
     });
     
     it('should respect temperature and max tokens options', async () => {
-      mockOpenAIApi.createChatCompletion.mockResolvedValueOnce({
-        data: {
-          choices: [{
-            message: { content: 'Test response' }
-          }]
-        }
+      mockOpenAIApi.chat.completions.create.mockResolvedValueOnce({
+        choices: [{
+          message: { content: 'Test response' }
+        }]
       });
       
       await provider.generateCompletion('Test prompt', {
@@ -110,7 +121,7 @@ describe('OpenAIProvider', () => {
         maxTokens: 1000
       });
       
-      expect(mockOpenAIApi.createChatCompletion).toHaveBeenCalledWith(
+      expect(mockOpenAIApi.chat.completions.create).toHaveBeenCalledWith(
         expect.objectContaining({
           temperature: 0.5,
           max_tokens: 1000
@@ -126,14 +137,12 @@ describe('OpenAIProvider', () => {
         concepts: ['concept1', 'concept2']
       };
       
-      mockOpenAIApi.createChatCompletion.mockResolvedValueOnce({
-        data: {
-          choices: [{
-            message: {
-              content: JSON.stringify(mockStructuredData)
-            }
-          }]
-        }
+      mockOpenAIApi.chat.completions.create.mockResolvedValueOnce({
+        choices: [{
+          message: {
+            content: JSON.stringify(mockStructuredData)
+          }
+        }]
       });
       
       const result = await provider.generateStructuredResponse(
@@ -148,18 +157,31 @@ describe('OpenAIProvider', () => {
     });
     
     it('should handle invalid JSON responses', async () => {
-      mockOpenAIApi.createChatCompletion.mockResolvedValueOnce({
-        data: {
+      mockOpenAIApi.chat.completions.create
+        .mockResolvedValueOnce({
           choices: [{
             message: {
               content: 'Invalid JSON content'
             }
           }]
-        }
-      });
+        })
+        .mockResolvedValueOnce({
+          choices: [{
+            message: {
+              content: 'Still invalid'
+            }
+          }]
+        })
+        .mockResolvedValueOnce({
+          choices: [{
+            message: {
+              content: 'Third try invalid'
+            }
+          }]
+        });
       
       await expect(provider.generateStructuredResponse('Test', {}))
-        .rejects.toThrow('Failed to parse structured response');
+        .rejects.toThrow('Failed to generate valid JSON');
     });
   });
   
@@ -175,16 +197,16 @@ describe('OpenAIProvider', () => {
   
   describe('isAvailable', () => {
     it('should check API availability', async () => {
-      mockOpenAIApi.listModels.mockResolvedValueOnce({ data: { models: [] } });
+      mockOpenAIApi.models.list.mockResolvedValueOnce({ data: [] });
       
       const isAvailable = await provider.isAvailable();
       
       expect(isAvailable).toBe(true);
-      expect(mockOpenAIApi.listModels).toHaveBeenCalled();
+      expect(mockOpenAIApi.models.list).toHaveBeenCalled();
     });
     
     it('should handle unavailable API', async () => {
-      mockOpenAIApi.listModels.mockRejectedValueOnce(new Error('API Error'));
+      mockOpenAIApi.models.list.mockRejectedValueOnce(new Error('API Error'));
       
       const isAvailable = await provider.isAvailable();
       
@@ -213,8 +235,10 @@ describe('MockLLMProvider', () => {
       {}
     );
     
-    expect(result).toHaveProperty('questions');
-    expect(result.questions).toHaveLength(1);
+    expect(Array.isArray(result)).toBe(true);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toHaveProperty('question');
+    expect(result[0]).toHaveProperty('correctAnswer');
   });
   
   it('should always be available', async () => {

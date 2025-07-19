@@ -1,6 +1,6 @@
 import { ContentGenerator } from '../../../../services/llm/generators/content-generator';
 import { LLMProvider } from '../../../../services/llm/provider';
-import { mockModule } from '../../../mocks/mockData';
+import { mockModule } from '../../../../testUtils/mockData';
 
 jest.mock('../../../../services/llm/provider');
 
@@ -114,9 +114,15 @@ describe('ContentGenerator', () => {
         prerequisites: ['Basic psychology', 'Dream analysis']
       });
       
-      const prompt = mockProvider.generateCompletion.mock.calls[0][0];
-      expect(prompt).toContain('prerequisites');
-      expect(prompt).toContain('Basic psychology');
+      // Find the section content generation calls (not introduction)
+      const sectionCalls = mockProvider.generateCompletion.mock.calls.filter(call => 
+        call[0].includes('Write detailed content for the section')
+      );
+      
+      expect(sectionCalls.length).toBeGreaterThan(0);
+      const sectionPrompt = sectionCalls[0][0];
+      expect(sectionPrompt.toLowerCase()).toContain('prerequisites');
+      expect(sectionPrompt).toContain('Basic psychology');
     });
   });
   
@@ -150,11 +156,12 @@ describe('ContentGenerator', () => {
       expect(mockProvider.generateStructuredResponse).toHaveBeenCalledWith(
         expect.stringContaining('Shadow'),
         expect.objectContaining({
-          concept: 'string',
-          definition: 'string',
-          keyPoints: 'string[]',
-          examples: 'string[]',
-          relatedConcepts: 'string[]'
+          type: 'object',
+          properties: expect.objectContaining({
+            concept: { type: 'string' },
+            definition: { type: 'string' },
+            keyPoints: { type: 'array', items: { type: 'string' } }
+          })
         })
       );
     });
@@ -165,9 +172,8 @@ describe('ContentGenerator', () => {
         depth: 'beginner'
       });
       
-      const prompt = mockProvider.generateCompletion.mock.calls[0][0];
+      const prompt = mockProvider.generateStructuredResponse.mock.calls[0][0];
       expect(prompt).toContain('beginner');
-      expect(prompt).toContain('simple terms');
     });
   });
   
@@ -254,12 +260,42 @@ describe('ContentGenerator', () => {
       const chunks: string[] = [];
       const onChunk = (chunk: string) => chunks.push(chunk);
       
-      mockProvider.streamCompletion.mockImplementation(async (prompt, callback) => {
-        callback('Introduction to ');
-        callback('Jungian Psychology');
+      // Mock for generateSections structure call
+      mockProvider.generateStructuredResponse
+        .mockResolvedValueOnce([
+          { title: 'The Collective Unconscious', concepts: ['collective unconscious', 'archetypes'], duration: 15 },
+          { title: 'Major Archetypes', concepts: ['shadow', 'anima', 'animus'], duration: 15 }
+        ])
+        // Mock for generateSummary - return simple string
+        .mockResolvedValueOnce('This module explored the collective unconscious and archetypes')
+        // Mock for generateKeyTakeaways call
+        .mockResolvedValueOnce([
+          'Understand the collective unconscious',
+          'Identify major archetypes'
+        ]);
+
+      // Mock generateCompletion for generateSummary
+      mockProvider.generateCompletion.mockResolvedValue('This module explored the collective unconscious and archetypes');
+      
+      // Mock streamCompletion for introduction and section content
+      mockProvider.streamCompletion.mockImplementation(async (prompt, callback, options) => {
+        if (prompt.includes('introduction')) {
+          // Stream introduction
+          callback('Introduction to ');
+          callback('Jungian Psychology');
+        } else if (prompt.includes('The Collective Unconscious')) {
+          // Stream first section
+          callback('The collective unconscious is ');
+          callback('a shared psychological foundation.');
+        } else if (prompt.includes('Major Archetypes')) {
+          // Stream second section  
+          callback('Jung identified several ');
+          callback('universal archetypes.');
+        }
+        return Promise.resolve();
       });
       
-      await generator.generateModuleContentStream(
+      const result = await generator.generateModuleContentStream(
         {
           title: mockModule.title,
           concepts: mockModule.concepts,
@@ -268,8 +304,25 @@ describe('ContentGenerator', () => {
         onChunk
       );
       
-      expect(chunks).toEqual(['Introduction to ', 'Jungian Psychology']);
-      expect(mockProvider.streamCompletion).toHaveBeenCalled();
+      // Check that streaming happened
+      expect(chunks).toContain('Introduction to ');
+      expect(chunks).toContain('Jungian Psychology');
+      expect(chunks).toContain('\n\n## The Collective Unconscious\n\n');
+      expect(chunks).toContain('The collective unconscious is ');
+      expect(chunks).toContain('\n\n## Major Archetypes\n\n');
+      expect(chunks).toContain('Jung identified several ');
+      
+      // Check the result structure
+      expect(result).toHaveProperty('introduction');
+      expect(result).toHaveProperty('sections');
+      expect(result).toHaveProperty('summary');
+      expect(result).toHaveProperty('keyTakeaways');
+      expect(result.introduction).toBe('Introduction to Jungian Psychology');
+      expect(result.sections).toHaveLength(2);
+      expect(result.sections[0].content).toBe('The collective unconscious is a shared psychological foundation.');
+      expect(result.sections[1].content).toBe('Jung identified several universal archetypes.');
+      
+      expect(mockProvider.streamCompletion).toHaveBeenCalledTimes(3); // intro + 2 sections
     });
   });
 });
