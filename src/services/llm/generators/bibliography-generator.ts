@@ -41,7 +41,8 @@ export class BibliographyGenerator {
     topic: string,
     concepts: string[],
     level: 'introductory' | 'intermediate' | 'advanced',
-    count: number = 10
+    count: number = 10,
+    language: string = 'pt-BR'
   ): Promise<BibliographyEntry[]> {
     // Map level to our bibliography service levels
     const readingLevel = level === 'introductory' ? 'beginner' : level;
@@ -81,7 +82,7 @@ export class BibliographyGenerator {
     // If we need more entries, generate some using LLM
     if (entries.length < count) {
       const additionalCount = count - entries.length;
-      const llmEntries = await this.generateAdditionalSources(topic, concepts, level, additionalCount);
+      const llmEntries = await this.generateAdditionalSources(topic, concepts, level, additionalCount, language);
       entries.push(...llmEntries);
     }
     
@@ -92,9 +93,40 @@ export class BibliographyGenerator {
     topic: string,
     concepts: string[],
     level: string,
-    count: number
+    count: number,
+    language: string = 'pt-BR'
   ): Promise<BibliographyEntry[]> {
-    const prompt = `
+    const prompt = language === 'pt-BR' ? `
+Gere ${count} fontes acadêmicas adicionais sobre "${topic}" em psicologia junguiana que complementem a bibliografia existente.
+
+Conceitos-chave: ${concepts.join(', ')}
+Nível: ${level === 'introductory' ? 'introdutório' : level === 'intermediate' ? 'intermediário' : 'avançado'}
+
+Foque em:
+- Pesquisa interdisciplinar recente
+- Aplicações clínicas
+- Perspectivas transculturais
+- Fontes não tipicamente em bibliografias padrão de Jung
+- Preferência por fontes em português ou traduzidas
+
+Formato de resposta:
+[
+  {
+    "type": "article",
+    "authors": ["Autor, Nome"],
+    "title": "Título em Português",
+    "year": 2020,
+    "journal": "Nome do Periódico",
+    "volume": "45",
+    "issue": "3",
+    "pages": "234-256",
+    "doi": "10.xxxx/xxxxx",
+    "abstract": "Resumo breve em português",
+    "relevance": "Por que isso complementa o trabalho original de Jung",
+    "jungianConcepts": ["conceito1", "conceito2"]
+  }
+]
+` : `
 Generate ${count} additional academic sources about "${topic}" in Jungian psychology that complement the existing bibliography.
 
 Key concepts: ${concepts.join(', ')}
@@ -199,14 +231,14 @@ Response format:
         pages: ref.pages,
         doi: ref.doi,
         url: ref.url,
-        abstract: ref.abstract || `Key Jungian text exploring ${ref.keywords.join(', ')}`,
-        relevance: `Primary source for understanding ${topic}`,
+        abstract: ref.abstract || `Texto junguiano fundamental explorando ${ref.keywords.join(', ')}`,
+        relevance: `Fonte primária para entender ${topic}`,
         jungianConcepts: ref.keywords
       }));
   }
 
 
-  async formatCitation(entry: BibliographyEntry, style: 'APA' | 'MLA' | 'Chicago' = 'APA'): Promise<string> {
+  async formatCitation(entry: BibliographyEntry, style: 'APA' | 'MLA' | 'Chicago' = 'APA', language: string = 'pt-BR'): Promise<string> {
     // If we have pre-formatted citations, use them
     if (entry.formattedCitation) {
       const styleMap = {
@@ -218,7 +250,23 @@ Response format:
     }
     
     // Otherwise, generate citation using LLM
-    const prompt = `
+    const prompt = language === 'pt-BR' ? `
+Formate esta entrada bibliográfica no estilo ${style}:
+
+Tipo: ${entry.type === 'book' ? 'livro' : entry.type === 'article' ? 'artigo' : entry.type}
+Autores: ${entry.authors.join(', ')}
+Título: ${entry.title}
+Ano: ${entry.year}
+${entry.publisher ? `Editora: ${entry.publisher}` : ''}
+${entry.journal ? `Periódico: ${entry.journal}` : ''}
+${entry.volume ? `Volume: ${entry.volume}` : ''}
+${entry.issue ? `Edição: ${entry.issue}` : ''}
+${entry.pages ? `Páginas: ${entry.pages}` : ''}
+${entry.doi ? `DOI: ${entry.doi}` : ''}
+${entry.url ? `URL: ${entry.url}` : ''}
+
+Forneça apenas a citação formatada, nada mais.
+` : `
 Format this bibliographic entry in ${style} style:
 
 Type: ${entry.type}
@@ -244,11 +292,27 @@ Provide only the formatted citation, nothing else.
 
   async generateAnnotatedBibliography(
     entries: BibliographyEntry[],
-    focusAreas: string[]
+    focusAreas: string[],
+    language: string = 'pt-BR'
   ): Promise<Array<{ entry: BibliographyEntry; annotation: string }>> {
     const annotations = await Promise.all(
       entries.map(async entry => {
-        const prompt = `
+        const prompt = language === 'pt-BR' ? `
+Escreva uma anotação de 150-200 palavras para esta fonte sobre "${entry.title}" por ${entry.authors.join(', ')}.
+
+Resumo: ${entry.abstract}
+Relevância: ${entry.relevance}
+
+Áreas de foco para anotação: ${focusAreas.join(', ')}
+
+A anotação deve:
+1. Resumir os principais argumentos ou descobertas
+2. Avaliar a credibilidade e contribuição da fonte
+3. Explicar como se relaciona com as áreas de foco
+4. Observar quaisquer limitações ou vieses
+
+Escreva em português brasileiro.
+` : `
 Write a 150-200 word annotation for this source about "${entry.title}" by ${entry.authors.join(', ')}.
 
 Abstract: ${entry.abstract}
@@ -277,7 +341,8 @@ The annotation should:
 
   async suggestReadingOrder(
     entries: BibliographyEntry[],
-    learningObjectives: string[]
+    learningObjectives: string[],
+    language: string = 'pt-BR'
   ): Promise<BibliographyEntry[]> {
     // If entries have reading levels, we can order them automatically
     const hasReadingLevels = entries.every(e => e.readingLevel);
@@ -299,7 +364,24 @@ The annotation should:
     }
     
     // Otherwise use LLM to suggest order
-    const prompt = `
+    const prompt = language === 'pt-BR' ? `
+Ordene estas entradas bibliográficas para progressão ótima de aprendizagem:
+
+Entradas:
+${entries.map((e, i) => `${i + 1}. "${e.title}" (${e.year}) - ${e.type === 'book' ? 'livro' : e.type === 'article' ? 'artigo' : e.type}, ${e.readingLevel ? (e.readingLevel === 'beginner' ? 'iniciante' : e.readingLevel === 'intermediate' ? 'intermediário' : e.readingLevel === 'advanced' ? 'avançado' : 'acadêmico') : 'Nível desconhecido'}`).join('\n')}
+
+Objetivos de aprendizagem:
+${learningObjectives.map((obj, i) => `${i + 1}. ${obj}`).join('\n')}
+
+Crie uma ordem de leitura que:
+1. Comece com textos fundamentais (como "O Homem e Seus Símbolos")
+2. Construa complexidade gradualmente
+3. Introduza fontes primárias em momentos apropriados
+4. Termine com aplicações contemporâneas
+
+Formato de resposta:
+[3, 1, 5, 2, 4] (índices na ordem sugerida)
+` : `
 Order these bibliography entries for optimal learning progression:
 
 Entries:

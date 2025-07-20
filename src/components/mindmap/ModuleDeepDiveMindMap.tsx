@@ -184,9 +184,9 @@ const ModuleDeepDiveMindMap: React.FC<ModuleDeepDiveMindMapProps> = ({
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-white bg-opacity-90">
           <div className="text-center">
             <Loader2 className="w-12 h-12 animate-spin text-primary-600 mx-auto mb-4" />
-            <p className="text-lg font-semibold text-gray-700">Generating Educational Mind Map...</p>
+            <p className="text-lg font-semibold text-gray-700">Gerando Mapa Mental Educacional...</p>
             <p className="text-sm text-gray-500 mt-2">
-              {usingRealAI ? 'Using OpenAI to analyze module content and create connections' : 'Using demo mode to create structured content'}
+              {usingRealAI ? 'Usando OpenAI para analisar o conteúdo do módulo e criar conexões' : 'Usando modo demonstração para criar conteúdo estruturado'}
             </p>
           </div>
         </div>

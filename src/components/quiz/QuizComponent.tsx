@@ -62,7 +62,7 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
     return (
       <div className="card max-w-2xl mx-auto text-center">
         <h2 className="text-2xl font-display font-bold text-gray-900 mb-4">
-          Quiz Complete!
+          Questionário Concluído!
         </h2>
         
         <div className="mb-6">
@@ -70,15 +70,15 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
             {score}%
           </div>
           <p className="text-gray-600">
-            You got {selectedAnswers.filter((answer, index) => 
+            Você acertou {selectedAnswers.filter((answer, index) => 
               answer === quiz.questions[index].correctAnswer
-            ).length} out of {quiz.questions.length} questions correct
+            ).length} de {quiz.questions.length} questões
           </p>
         </div>
 
         {previousScore !== undefined && (
           <p className="text-sm text-gray-500 mb-4">
-            Previous best: {previousScore}%
+            Melhor resultado anterior: {previousScore}%
           </p>
         )}
 
@@ -96,11 +96,11 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
                   <div className="flex-1">
                     <p className="font-medium text-gray-900">{question.question}</p>
                     <p className="text-sm text-gray-600 mt-1">
-                      Your answer: {question.options[selectedAnswers[index]]}
+                      Sua resposta: {question.options[selectedAnswers[index]]}
                     </p>
                     {!isCorrect && (
                       <p className="text-sm text-green-600 mt-1">
-                        Correct answer: {question.options[question.correctAnswer]}
+                        Resposta correta: {question.options[question.correctAnswer]}
                       </p>
                     )}
                   </div>
@@ -111,7 +111,7 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
         </div>
 
         <button onClick={resetQuiz} className="btn-primary mt-6">
-          Try Again
+          Tentar Novamente
         </button>
       </div>
     );
@@ -123,7 +123,7 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-xl font-semibold text-gray-900">{quiz.title}</h2>
           <span className="text-sm text-gray-500">
-            Question {currentQuestionIndex + 1} of {quiz.questions.length}
+            Questão {currentQuestionIndex + 1} de {quiz.questions.length}
           </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
@@ -188,7 +188,7 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
           disabled={selectedAnswers[currentQuestionIndex] === undefined}
           className="btn-primary flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <span>{isLastQuestion ? 'Finish Quiz' : 'Next Question'}</span>
+          <span>{isLastQuestion ? 'Finalizar Questionário' : 'Próxima Questão'}</span>
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>

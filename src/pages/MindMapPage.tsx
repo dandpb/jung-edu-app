@@ -23,7 +23,7 @@ const MindMapPage: React.FC<MindMapPageProps> = ({ modules }) => {
   const initialNodes: Node[] = [
     {
       id: 'jung-center',
-      data: { label: "Jung's Analytical Psychology" },
+      data: { label: "Psicologia Analítica de Jung" },
       position: { x: 400, y: 300 },
       style: {
         background: '#4c51ea',
@@ -37,7 +37,7 @@ const MindMapPage: React.FC<MindMapPageProps> = ({ modules }) => {
     },
     {
       id: 'conscious',
-      data: { label: 'Conscious Mind' },
+      data: { label: 'Mente Consciente' },
       position: { x: 100, y: 100 },
       style: {
         background: '#fef3f2',
@@ -49,7 +49,7 @@ const MindMapPage: React.FC<MindMapPageProps> = ({ modules }) => {
     },
     {
       id: 'personal-unconscious',
-      data: { label: 'Personal Unconscious' },
+      data: { label: 'Inconsciente Pessoal' },
       position: { x: 700, y: 100 },
       style: {
         background: '#f0f4ff',
@@ -61,7 +61,7 @@ const MindMapPage: React.FC<MindMapPageProps> = ({ modules }) => {
     },
     {
       id: 'collective-unconscious',
-      data: { label: 'Collective Unconscious' },
+      data: { label: 'Inconsciente Coletivo' },
       position: { x: 400, y: 500 },
       style: {
         background: '#f0f4ff',
@@ -95,7 +95,7 @@ const MindMapPage: React.FC<MindMapPageProps> = ({ modules }) => {
     { id: 'e1', source: 'jung-center', target: 'conscious', animated: true },
     { id: 'e2', source: 'jung-center', target: 'personal-unconscious', animated: true },
     { id: 'e3', source: 'jung-center', target: 'collective-unconscious', animated: true },
-    { id: 'e4', source: 'collective-unconscious', target: 'collective-unconscious', label: 'Archetypes' },
+    { id: 'e4', source: 'collective-unconscious', target: 'collective-unconscious', label: 'Arquétipos' },
     { id: 'e5', source: 'personal-unconscious', target: 'intro-jung' },
     { id: 'e6', source: 'collective-unconscious', target: 'archetypes' },
     { id: 'e7', source: 'jung-center', target: 'psychological-types' },
@@ -124,10 +124,10 @@ const MindMapPage: React.FC<MindMapPageProps> = ({ modules }) => {
     <div className="h-[calc(100vh-8rem)]">
       <div className="mb-4">
         <h1 className="text-3xl font-display font-bold text-gray-900 mb-2">
-          Conceptual Mind Map
+          Mapa Mental Conceitual
         </h1>
         <p className="text-gray-600">
-          Explore the interconnected concepts of Jung's analytical psychology. Click on any module to learn more.
+          Explore os conceitos interconectados da psicologia analítica de Jung. Clique em qualquer módulo para saber mais.
         </p>
       </div>
 
@@ -161,15 +161,15 @@ const MindMapPage: React.FC<MindMapPageProps> = ({ modules }) => {
       <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
         <div className="flex items-center space-x-2">
           <div className="w-4 h-4 bg-primary-600 rounded"></div>
-          <span className="text-gray-600">Central Concept</span>
+          <span className="text-gray-600">Conceito Central</span>
         </div>
         <div className="flex items-center space-x-2">
           <div className="w-4 h-4 bg-secondary-500 rounded"></div>
-          <span className="text-gray-600">Conscious Mind</span>
+          <span className="text-gray-600">Mente Consciente</span>
         </div>
         <div className="flex items-center space-x-2">
           <div className="w-4 h-4 bg-primary-400 rounded"></div>
-          <span className="text-gray-600">Unconscious Realms</span>
+          <span className="text-gray-600">Reinos Inconscientes</span>
         </div>
       </div>
     </div>

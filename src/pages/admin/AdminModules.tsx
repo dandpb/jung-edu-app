@@ -42,8 +42,8 @@ const AdminModules: React.FC = () => {
   const handleCreateModule = () => {
     const newModule: Module = {
       id: `module-${Date.now()}`,
-      title: 'New Module',
-      description: 'Module description',
+      title: 'Novo Módulo',
+      description: 'Descrição do módulo',
       icon: '📚',
       estimatedTime: 30,
       difficulty: 'beginner',
@@ -71,7 +71,7 @@ const AdminModules: React.FC = () => {
   };
 
   const handleDeleteModule = (moduleId: string) => {
-    if (window.confirm('Are you sure you want to delete this module?')) {
+    if (window.confirm('Tem certeza que deseja excluir este módulo?')) {
       updateModules(modules.filter(m => m.id !== moduleId));
     }
   };
@@ -141,10 +141,10 @@ const AdminModules: React.FC = () => {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-display font-bold text-gray-900 mb-2">
-            Manage Modules
+            Gerenciar Módulos
           </h1>
           <p className="text-gray-600">
-            Create and edit learning modules, sections, and quizzes
+            Criar e editar módulos de aprendizagem, seções e questionários
           </p>
         </div>
         <div className="flex items-center space-x-3">
@@ -153,14 +153,14 @@ const AdminModules: React.FC = () => {
             className="btn-secondary flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700"
           >
             <Sparkles className="w-4 h-4" />
-            <span>Generate with AI</span>
+            <span>Gerar com IA</span>
           </button>
           <button
             onClick={handleCreateModule}
             className="btn-primary flex items-center space-x-2"
           >
             <Plus className="w-4 h-4" />
-            <span>Add Module</span>
+            <span>Adicionar Módulo</span>
           </button>
         </div>
       </div>
@@ -202,12 +202,12 @@ const AdminModules: React.FC = () => {
                     </span>
                     <span className="flex items-center">
                       <BookOpen className="w-4 h-4 mr-1" />
-                      {module.content.sections.length} sections
+                      {module.content.sections.length} seções
                     </span>
                     {module.content.quiz && (
                       <span className="flex items-center">
                         <FileText className="w-4 h-4 mr-1" />
-                        {module.content.quiz.questions.length} questions
+                        {module.content.quiz.questions.length} questões
                       </span>
                     )}
                   </div>
@@ -232,14 +232,14 @@ const AdminModules: React.FC = () => {
               {isExpanded && (
                 <div className="mt-6 ml-11 space-y-4 border-t pt-4">
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Introduction</h4>
+                    <h4 className="font-medium text-gray-900 mb-2">Introdução</h4>
                     <p className="text-sm text-gray-600 line-clamp-3">
                       {module.content.introduction}
                     </p>
                   </div>
 
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Sections</h4>
+                    <h4 className="font-medium text-gray-900 mb-2">Seções</h4>
                     <div className="space-y-2">
                       {module.content.sections.map((section, index) => (
                         <div key={section.id} className="flex items-center space-x-2 text-sm">
@@ -247,7 +247,7 @@ const AdminModules: React.FC = () => {
                           <span className="text-gray-700">{section.title}</span>
                           {section.keyTerms && (
                             <span className="text-gray-500">
-                              ({section.keyTerms.length} terms)
+                              ({section.keyTerms.length} termos)
                             </span>
                           )}
                         </div>
@@ -257,7 +257,7 @@ const AdminModules: React.FC = () => {
 
                   {module.prerequisites && module.prerequisites.length > 0 && (
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-2">Prerequisites</h4>
+                      <h4 className="font-medium text-gray-900 mb-2">Pré-requisitos</h4>
                       <div className="flex flex-wrap gap-2">
                         {module.prerequisites.map(prereq => {
                           const prereqModule = modules.find(m => m.id === prereq);

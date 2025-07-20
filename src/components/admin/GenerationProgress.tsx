@@ -72,17 +72,17 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
               <Brain className="w-8 h-8 text-purple-600" />
             </div>
             <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-              Generating Your Module
+              Gerando Seu Módulo
             </h2>
             <p className="text-gray-600">
-              Our AI is creating educational content tailored to your specifications
+              Nossa IA está criando conteúdo educacional personalizado para suas especificações
             </p>
           </div>
 
           {/* Progress Bar */}
           <div className="mb-8">
             <div className="flex justify-between text-sm text-gray-600 mb-2">
-              <span>{completedSteps} of {steps.length} steps</span>
+              <span>{completedSteps} de {steps.length} etapas</span>
               <span>{Math.round(progress)}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
@@ -131,8 +131,8 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
 
           {/* Time Estimate */}
           <div className="flex justify-between items-center text-sm text-gray-600 mb-6">
-            <span>Elapsed time: {formatTime(elapsedTime)}</span>
-            <span>Estimated remaining: ~{formatTime(Math.max(0, estimatedTime - elapsedTime))}</span>
+            <span>Tempo decorrido: {formatTime(elapsedTime)}</span>
+            <span>Tempo restante estimado: ~{formatTime(Math.max(0, estimatedTime - elapsedTime))}</span>
           </div>
 
           {/* Actions */}
@@ -141,7 +141,7 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
               onClick={handleCancel}
               className="px-6 py-2 text-gray-700 hover:text-gray-900 font-medium"
             >
-              Cancel Generation
+              Cancelar Geração
             </button>
           </div>
         </div>
@@ -152,18 +152,18 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-60">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              Cancel Module Generation?
+              Cancelar Geração do Módulo?
             </h3>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to cancel? You'll lose the progress made so far.
-              {completedSteps > 0 && ` (${completedSteps} steps completed)`}
+              Tem certeza que deseja cancelar? Você perderá o progresso feito até agora.
+              {completedSteps > 0 && ` (${completedSteps} etapas concluídas)`}
             </p>
             <div className="flex items-center justify-end space-x-3">
               <button
                 onClick={() => setShowCancelConfirm(false)}
                 className="px-4 py-2 text-gray-700 hover:text-gray-900"
               >
-                Continue Generating
+                Continuar Gerando
               </button>
               <button
                 onClick={() => {
@@ -172,7 +172,7 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
                 }}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
               >
-                Yes, Cancel
+                Sim, Cancelar
               </button>
             </div>
           </div>

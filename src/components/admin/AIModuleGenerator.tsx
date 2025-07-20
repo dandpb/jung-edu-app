@@ -35,16 +35,16 @@ const AIModuleGenerator: React.FC<AIModuleGeneratorProps> = ({
     includeQuiz: true,
     includeVideos: true,
     includeBibliography: true,
-    language: 'en'
+    language: 'pt-BR'
   });
 
   const exampleSubjects = [
-    "Introduction to the Shadow",
-    "Jung's Theory of Archetypes",
-    "Dream Analysis Techniques",
-    "The Collective Unconscious",
-    "Individuation Process",
-    "Anima and Animus Concepts"
+    "Introdução à Sombra",
+    "Teoria dos Arquétipos de Jung",
+    "Técnicas de Análise de Sonhos",
+    "O Inconsciente Coletivo",
+    "Processo de Individuação",
+    "Conceitos de Anima e Animus"
   ];
 
   const handleGenerate = () => {
@@ -73,7 +73,7 @@ const AIModuleGenerator: React.FC<AIModuleGeneratorProps> = ({
           <div className="flex items-center space-x-3">
             <Sparkles className="w-6 h-6 text-purple-600" />
             <h2 className="text-2xl font-semibold text-gray-900">
-              Generate Module with AI
+              Gerar Módulo com IA
             </h2>
           </div>
           <button
@@ -89,7 +89,7 @@ const AIModuleGenerator: React.FC<AIModuleGeneratorProps> = ({
           {/* Subject Input */}
           <div>
             <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-              What subject would you like to create a module for?
+              Sobre qual assunto você gostaria de criar um módulo?
             </label>
             <input
               id="subject"
@@ -97,13 +97,13 @@ const AIModuleGenerator: React.FC<AIModuleGeneratorProps> = ({
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-lg"
-              placeholder="Enter a Jung psychology topic..."
+              placeholder="Digite um tópico de psicologia junguiana..."
               autoFocus
             />
             
             {/* Examples */}
             <div className="mt-3">
-              <p className="text-sm text-gray-600 mb-2">Examples:</p>
+              <p className="text-sm text-gray-600 mb-2">Exemplos:</p>
               <div className="flex flex-wrap gap-2">
                 {exampleSubjects.map((example) => (
                   <button
@@ -129,7 +129,7 @@ const AIModuleGenerator: React.FC<AIModuleGeneratorProps> = ({
               ) : (
                 <ChevronDown className="w-4 h-4" />
               )}
-              <span>Advanced Options</span>
+              <span>Opções Avançadas</span>
             </button>
 
             {showAdvanced && (
@@ -137,7 +137,7 @@ const AIModuleGenerator: React.FC<AIModuleGeneratorProps> = ({
                 {/* Difficulty */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Difficulty Level
+                    Nível de Dificuldade
                   </label>
                   <div className="flex space-x-3">
                     {(['beginner', 'intermediate', 'advanced'] as const).map((level) => (
@@ -157,7 +157,7 @@ const AIModuleGenerator: React.FC<AIModuleGeneratorProps> = ({
                             : 'border-gray-200 hover:border-gray-300'
                           }
                         `}>
-                          <span className="capitalize font-medium">{level}</span>
+                          <span className="capitalize font-medium">{level === 'beginner' ? 'Iniciante' : level === 'intermediate' ? 'Intermediário' : 'Avançado'}</span>
                         </div>
                       </label>
                     ))}
@@ -167,7 +167,7 @@ const AIModuleGenerator: React.FC<AIModuleGeneratorProps> = ({
                 {/* Estimated Time */}
                 <div>
                   <label htmlFor="estimated-time" className="block text-sm font-medium text-gray-700 mb-2">
-                    Estimated Time (minutes)
+                    Tempo Estimado (minutos)
                   </label>
                   <input
                     id="estimated-time"
@@ -193,7 +193,7 @@ const AIModuleGenerator: React.FC<AIModuleGeneratorProps> = ({
                 {/* Prerequisites */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Prerequisites
+                    Pré-requisitos
                   </label>
                   <div className="space-y-2 max-h-32 overflow-y-auto">
                     {existingModules.map((module) => (
@@ -223,7 +223,7 @@ const AIModuleGenerator: React.FC<AIModuleGeneratorProps> = ({
                 {/* Include Options */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Include in Generation
+                    Incluir na Geração
                   </label>
                   <div className="space-y-2">
                     <label className="flex items-center space-x-2">
@@ -233,7 +233,7 @@ const AIModuleGenerator: React.FC<AIModuleGeneratorProps> = ({
                         onChange={(e) => updateConfig({ includeQuiz: e.target.checked })}
                         className="rounded text-purple-600"
                       />
-                      <span className="text-sm text-gray-700">Quiz Questions</span>
+                      <span className="text-sm text-gray-700">Questões do Questionário</span>
                     </label>
                     <label className="flex items-center space-x-2">
                       <input
@@ -242,7 +242,7 @@ const AIModuleGenerator: React.FC<AIModuleGeneratorProps> = ({
                         onChange={(e) => updateConfig({ includeVideos: e.target.checked })}
                         className="rounded text-purple-600"
                       />
-                      <span className="text-sm text-gray-700">Video Suggestions</span>
+                      <span className="text-sm text-gray-700">Sugestões de Vídeo</span>
                     </label>
                     <label className="flex items-center space-x-2">
                       <input
@@ -251,7 +251,7 @@ const AIModuleGenerator: React.FC<AIModuleGeneratorProps> = ({
                         onChange={(e) => updateConfig({ includeBibliography: e.target.checked })}
                         className="rounded text-purple-600"
                       />
-                      <span className="text-sm text-gray-700">Bibliography</span>
+                      <span className="text-sm text-gray-700">Bibliografia</span>
                     </label>
                   </div>
                 </div>
@@ -259,7 +259,7 @@ const AIModuleGenerator: React.FC<AIModuleGeneratorProps> = ({
                 {/* Target Audience */}
                 <div>
                   <label htmlFor="target-audience" className="block text-sm font-medium text-gray-700 mb-2">
-                    Target Audience (Optional)
+                    Público-Alvo (Opcional)
                   </label>
                   <input
                     id="target-audience"
@@ -267,7 +267,7 @@ const AIModuleGenerator: React.FC<AIModuleGeneratorProps> = ({
                     value={config.targetAudience || ''}
                     onChange={(e) => updateConfig({ targetAudience: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="e.g., Psychology students, therapists, general audience"
+                    placeholder="ex: Estudantes de psicologia, terapeutas, público geral"
                   />
                 </div>
               </div>
@@ -278,11 +278,11 @@ const AIModuleGenerator: React.FC<AIModuleGeneratorProps> = ({
           <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 flex space-x-3">
             <Info className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-purple-800">
-              <p className="font-medium mb-1">AI-Powered Generation</p>
+              <p className="font-medium mb-1">Geração Alimentada por IA</p>
               <p>
-                Our AI will create a comprehensive module including introduction, 
-                sections with key terms, and optional quiz questions. You can 
-                customize everything after generation.
+                Nossa IA criará um módulo abrangente incluindo introdução, 
+                seções com termos-chave e questões de questionário opcionais. Você pode 
+                personalizar tudo após a geração.
               </p>
             </div>
           </div>
@@ -294,7 +294,7 @@ const AIModuleGenerator: React.FC<AIModuleGeneratorProps> = ({
             onClick={onCancel}
             className="px-4 py-2 text-gray-700 hover:text-gray-900"
           >
-            Cancel
+            Cancelar
           </button>
           <button
             onClick={handleGenerate}
@@ -309,7 +309,7 @@ const AIModuleGenerator: React.FC<AIModuleGeneratorProps> = ({
             `}
           >
             <Sparkles className="w-4 h-4" />
-            <span>Generate Module</span>
+            <span>Gerar Módulo</span>
           </button>
         </div>
       </div>

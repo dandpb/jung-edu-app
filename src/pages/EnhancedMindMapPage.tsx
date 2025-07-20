@@ -39,12 +39,12 @@ const EnhancedMindMapPage: React.FC<EnhancedMindMapPageProps> = ({
               <Brain className="w-8 h-8 text-primary-600 mr-3" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  {showDeepDive && selectedModule ? selectedModule.title : 'Jung Education Mind Map'}
+                  {showDeepDive && selectedModule ? selectedModule.title : 'Mapa Mental Educacional de Jung'}
                 </h1>
                 <p className="text-sm text-gray-600 mt-1">
                   {showDeepDive 
-                    ? 'AI-generated concept map for deeper understanding' 
-                    : 'Click on any module to explore its concepts in detail'}
+                    ? 'Mapa conceitual gerado por IA para compreensão mais profunda' 
+                    : 'Clique em qualquer módulo para explorar seus conceitos em detalhes'}
                 </p>
               </div>
             </div>
@@ -53,7 +53,7 @@ const EnhancedMindMapPage: React.FC<EnhancedMindMapPageProps> = ({
               {showDeepDive && selectedModule && (
                 <div className="flex items-center text-sm text-gray-600">
                   <Layers className="w-4 h-4 mr-1" />
-                  <span>Deep Dive Mode</span>
+                  <span>Modo de Exploração Profunda</span>
                 </div>
               )}
             </div>
@@ -66,7 +66,7 @@ const EnhancedMindMapPage: React.FC<EnhancedMindMapPageProps> = ({
                 onClick={handleBack}
                 className="hover:text-primary-600 transition-colors"
               >
-                Overview
+                Visão Geral
               </button>
               <ChevronRight className="w-4 h-4 mx-2" />
               <span className="text-gray-900 font-medium">{selectedModule.title}</span>
@@ -97,7 +97,7 @@ const EnhancedMindMapPage: React.FC<EnhancedMindMapPageProps> = ({
               <div className="bg-white bg-opacity-95 backdrop-blur-sm rounded-lg shadow-lg px-6 py-3 flex items-center">
                 <Brain className="w-5 h-5 text-primary-600 mr-3" />
                 <span className="text-sm font-medium text-gray-700">
-                  Click on any module to generate an AI-powered detailed concept map
+                  Clique em qualquer módulo para gerar um mapa conceitual detalhado com IA
                 </span>
               </div>
             </div>
@@ -110,30 +110,30 @@ const EnhancedMindMapPage: React.FC<EnhancedMindMapPageProps> = ({
         <div className="absolute top-24 right-6 w-80">
           <div className="bg-white rounded-lg shadow-lg p-4 border border-gray-200">
             <h3 className="font-semibold text-gray-900 mb-3">
-              🧠 AI-Powered Deep Dives
+              🧠 Explorações Profundas com IA
             </h3>
             <ul className="space-y-2 text-sm text-gray-600">
               <li className="flex items-start">
                 <span className="text-primary-600 mr-2">•</span>
-                <span>Click any module to generate a detailed concept map</span>
+                <span>Clique em qualquer módulo para gerar um mapa conceitual detalhado</span>
               </li>
               <li className="flex items-start">
                 <span className="text-primary-600 mr-2">•</span>
-                <span>AI analyzes content to create educational structures</span>
+                <span>IA analisa o conteúdo para criar estruturas educacionais</span>
               </li>
               <li className="flex items-start">
                 <span className="text-primary-600 mr-2">•</span>
-                <span>Shows relationships between concepts</span>
+                <span>Mostra relações entre conceitos</span>
               </li>
               <li className="flex items-start">
                 <span className="text-primary-600 mr-2">•</span>
-                <span>Includes examples and learning paths</span>
+                <span>Inclui exemplos e caminhos de aprendizagem</span>
               </li>
             </ul>
             
             <div className="mt-4 pt-4 border-t border-gray-200">
               <p className="text-xs text-gray-500">
-                {process.env.REACT_APP_OPENAI_API_KEY ? '✅ OpenAI API configured' : '⚠️ Using demo mode (set REACT_APP_OPENAI_API_KEY for full features)'}
+                {process.env.REACT_APP_OPENAI_API_KEY ? '✅ API OpenAI configurada' : '⚠️ Usando modo demonstração (configure REACT_APP_OPENAI_API_KEY para recursos completos)'}
               </p>
             </div>
           </div>

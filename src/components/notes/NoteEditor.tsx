@@ -37,7 +37,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ onSave, onCancel, moduleTitle, 
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Write your notes here..."
+            placeholder="Escreva suas anotações aqui..."
             className="w-full h-full p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             autoFocus
           />

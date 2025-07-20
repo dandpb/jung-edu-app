@@ -3,7 +3,7 @@ import { MindMapNode, MindMapEdge } from '../types';
 export const defaultMindMapNodes: MindMapNode[] = [
   {
     id: 'jung-center',
-    data: { label: "Jung's Analytical Psychology" },
+    data: { label: "Psicologia Analítica de Jung" },
     position: { x: 400, y: 300 },
     style: {
       background: '#4c51ea',
@@ -17,7 +17,7 @@ export const defaultMindMapNodes: MindMapNode[] = [
   },
   {
     id: 'conscious',
-    data: { label: 'Conscious Mind' },
+    data: { label: 'Mente Consciente' },
     position: { x: 100, y: 100 },
     style: {
       background: '#fef3f2',
@@ -29,7 +29,7 @@ export const defaultMindMapNodes: MindMapNode[] = [
   },
   {
     id: 'personal-unconscious',
-    data: { label: 'Personal Unconscious' },
+    data: { label: 'Inconsciente Pessoal' },
     position: { x: 700, y: 100 },
     style: {
       background: '#f0f4ff',
@@ -41,7 +41,7 @@ export const defaultMindMapNodes: MindMapNode[] = [
   },
   {
     id: 'collective-unconscious',
-    data: { label: 'Collective Unconscious' },
+    data: { label: 'Inconsciente Coletivo' },
     position: { x: 400, y: 500 },
     style: {
       background: '#f0f4ff',
@@ -54,7 +54,7 @@ export const defaultMindMapNodes: MindMapNode[] = [
   {
     id: 'intro-jung',
     data: { 
-      label: 'Introduction to Carl Jung',
+      label: 'Introdução a Carl Jung',
       moduleId: 'intro-jung',
     },
     position: { x: 200, y: 200 },
@@ -69,7 +69,7 @@ export const defaultMindMapNodes: MindMapNode[] = [
   {
     id: 'collective-unconscious-module',
     data: { 
-      label: 'The Collective Unconscious',
+      label: 'O Inconsciente Coletivo',
       moduleId: 'collective-unconscious',
     },
     position: { x: 450, y: 200 },
@@ -84,7 +84,7 @@ export const defaultMindMapNodes: MindMapNode[] = [
   {
     id: 'archetypes',
     data: { 
-      label: 'Major Archetypes',
+      label: 'Principais Arquétipos',
       moduleId: 'archetypes',
     },
     position: { x: 700, y: 200 },

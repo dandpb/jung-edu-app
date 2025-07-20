@@ -35,7 +35,7 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
   // }, [startTime, updateProgress]);
 
   if (!module) {
-    return <div>Module not found</div>;
+    return <div>Módulo não encontrado</div>;
   }
 
   const handleQuizComplete = (score: number) => {
@@ -67,9 +67,9 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
   };
 
   const tabs = [
-    { id: 'content', label: 'Content', icon: BookOpen },
-    { id: 'videos', label: 'Videos', icon: PlayCircle, count: module.content.videos?.length },
-    { id: 'quiz', label: 'Quiz', icon: FileText },
+    { id: 'content', label: 'Conteúdo', icon: BookOpen },
+    { id: 'videos', label: 'Vídeos', icon: PlayCircle, count: module.content.videos?.length },
+    { id: 'quiz', label: 'Questionário', icon: FileText },
   ];
 
   return (
@@ -80,7 +80,7 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
           className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-1" />
-          Back to Dashboard
+          Voltar ao Painel
         </button>
 
         <div className="flex items-start justify-between">

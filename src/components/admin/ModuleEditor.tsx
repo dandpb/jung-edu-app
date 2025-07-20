@@ -40,7 +40,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
   const addSection = () => {
     const newSection: Section = {
       id: `section-${Date.now()}`,
-      title: 'New Section',
+      title: 'Nova Seção',
       content: '',
       keyTerms: []
     };
@@ -75,7 +75,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
   const addVideo = () => {
     const newVideo: Video = {
       id: `video-${Date.now()}`,
-      title: 'New Video',
+      title: 'Novo Vídeo',
       youtubeId: '',
       description: '',
       duration: 0
@@ -117,11 +117,11 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
   };
 
   const tabs = [
-    { id: 'basic', label: 'Basic Info', icon: BookOpen },
-    { id: 'content', label: 'Content', icon: BookOpen },
-    { id: 'videos', label: 'Videos', icon: VideoIcon },
-    { id: 'quiz', label: 'Quiz', icon: BookOpen },
-    { id: 'resources', label: 'Resources', icon: Library }
+    { id: 'basic', label: 'Informações Básicas', icon: BookOpen },
+    { id: 'content', label: 'Conteúdo', icon: BookOpen },
+    { id: 'videos', label: 'Vídeos', icon: VideoIcon },
+    { id: 'quiz', label: 'Questionário', icon: BookOpen },
+    { id: 'resources', label: 'Recursos', icon: Library }
   ];
 
   return (
@@ -129,7 +129,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
       <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-2xl font-semibold text-gray-900">
-            {module.id === editedModule.id ? 'Edit Module' : 'Create Module'}
+            {module.id === editedModule.id ? 'Editar Módulo' : 'Criar Módulo'}
           </h2>
           <button
             onClick={onCancel}
@@ -171,7 +171,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                 <div className="grid grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="module-title" className="block text-sm font-medium text-gray-700 mb-2">
-                      Module Title
+                      Título do Módulo
                     </label>
                     <input
                       id="module-title"
@@ -183,7 +183,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                   </div>
                   <div>
                     <label htmlFor="module-icon" className="block text-sm font-medium text-gray-700 mb-2">
-                      Icon
+                      Ícone
                     </label>
                     <input
                       id="module-icon"
@@ -198,7 +198,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
 
                 <div>
                   <label htmlFor="module-description" className="block text-sm font-medium text-gray-700 mb-2">
-                    Description
+                    Descrição
                   </label>
                   <textarea
                     id="module-description"
@@ -212,7 +212,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                 <div className="grid grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="module-estimated-time" className="block text-sm font-medium text-gray-700 mb-2">
-                      Estimated Time (minutes)
+                      Tempo Estimado (minutos)
                     </label>
                     <input
                       id="module-estimated-time"
@@ -224,7 +224,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                   </div>
                   <div>
                     <label htmlFor="module-difficulty" className="block text-sm font-medium text-gray-700 mb-2">
-                      Difficulty
+                      Dificuldade
                     </label>
                     <select
                       id="module-difficulty"
@@ -232,16 +232,16 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                       onChange={(e) => updateModule({ difficulty: e.target.value as any })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     >
-                      <option value="beginner">Beginner</option>
-                      <option value="intermediate">Intermediate</option>
-                      <option value="advanced">Advanced</option>
+                      <option value="beginner">Iniciante</option>
+                      <option value="intermediate">Intermediário</option>
+                      <option value="advanced">Avançado</option>
                     </select>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Prerequisites
+                    Pré-requisitos
                   </label>
                   <div className="space-y-2">
                     {modules
@@ -276,7 +276,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
               <div className="space-y-6">
                 <div>
                   <label htmlFor="module-introduction" className="block text-sm font-medium text-gray-700 mb-2">
-                    Introduction
+                    Introdução
                   </label>
                   <textarea
                     id="module-introduction"
@@ -291,13 +291,13 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
 
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-medium text-gray-900">Sections</h3>
+                    <h3 className="text-lg font-medium text-gray-900">Seções</h3>
                     <button
                       onClick={addSection}
                       className="btn-secondary flex items-center space-x-2"
                     >
                       <Plus className="w-4 h-4" />
-                      <span>Add Section</span>
+                      <span>Adicionar Seção</span>
                     </button>
                   </div>
 
@@ -339,7 +339,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                             <div className="mt-4 space-y-4">
                               <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                  Content
+                                  Conteúdo
                                 </label>
                                 <textarea
                                   value={section.content}
@@ -350,7 +350,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                               </div>
                               <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                  Key Terms
+                                  Termos-Chave
                                 </label>
                                 <div className="space-y-2">
                                   {(section.keyTerms || []).map((keyTerm, termIndex) => (
@@ -364,7 +364,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                                           updateSection(section.id, { keyTerms: newKeyTerms });
                                         }}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                        placeholder="Enter term"
+                                        placeholder="Digite o termo"
                                       />
                                       <input
                                         type="text"
@@ -375,7 +375,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                                           updateSection(section.id, { keyTerms: newKeyTerms });
                                         }}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                        placeholder="Enter definition"
+                                        placeholder="Digite a definição"
                                       />
                                       <button
                                         onClick={() => {
@@ -396,7 +396,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                                     className="text-primary-600 hover:text-primary-700 text-sm flex items-center space-x-1"
                                   >
                                     <Plus className="w-4 h-4" />
-                                    <span>Add Key Term</span>
+                                    <span>Adicionar Termo-Chave</span>
                                   </button>
                                 </div>
                               </div>
@@ -413,13 +413,13 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
             {activeTab === 'videos' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium text-gray-900">Videos</h3>
+                  <h3 className="text-lg font-medium text-gray-900">Vídeos</h3>
                   <button
                     onClick={addVideo}
                     className="btn-secondary flex items-center space-x-2"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>Add Video</span>
+                    <span>Adicionar Vídeo</span>
                   </button>
                 </div>
 
@@ -429,7 +429,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Title
+                            Título
                           </label>
                           <input
                             type="text"
@@ -440,20 +440,20 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            YouTube ID
+                            ID do YouTube
                           </label>
                           <input
                             type="text"
                             value={video.youtubeId}
                             onChange={(e) => updateVideo(video.id, { youtubeId: e.target.value })}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                            placeholder="e.g., dQw4w9WgXcQ"
+                            placeholder="ex.: dQw4w9WgXcQ"
                           />
                         </div>
                       </div>
                       <div className="mt-4">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Description
+                          Descrição
                         </label>
                         <textarea
                           value={video.description}
@@ -465,7 +465,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                       <div className="mt-4 flex items-center justify-between">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Duration (seconds)
+                            Duração (segundos)
                           </label>
                           <input
                             type="number"
@@ -500,12 +500,12 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
               <div className="space-y-6">
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-medium text-gray-900">Bibliography</h3>
+                    <h3 className="text-lg font-medium text-gray-900">Bibliografia</h3>
                     <button
                       onClick={() => {
                         const newBibliography: Bibliography = {
                           id: `bib-${Date.now()}`,
-                          title: 'New Book',
+                          title: 'Novo Livro',
                           author: '',
                           year: new Date().getFullYear(),
                           type: 'book'
@@ -520,7 +520,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                       className="btn-secondary flex items-center space-x-2"
                     >
                       <Plus className="w-4 h-4" />
-                      <span>Add Book</span>
+                      <span>Adicionar Livro</span>
                     </button>
                   </div>
 
@@ -530,7 +530,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Title
+                              Título
                             </label>
                             <input
                               type="text"
@@ -548,7 +548,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Author
+                              Autor
                             </label>
                             <input
                               type="text"
@@ -568,7 +568,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                         <div className="grid grid-cols-2 gap-4 mt-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Year
+                              Ano
                             </label>
                             <input
                               type="number"
@@ -586,7 +586,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Type
+                              Tipo
                             </label>
                             <select
                               value={book.type}
@@ -600,9 +600,9 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                               })}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                             >
-                              <option value="book">Book</option>
-                              <option value="article">Article</option>
-                              <option value="journal">Journal</option>
+                              <option value="book">Livro</option>
+                              <option value="article">Artigo</option>
+                              <option value="journal">Periódico</option>
                             </select>
                           </div>
                         </div>
@@ -626,12 +626,12 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
 
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-medium text-gray-900">Films</h3>
+                    <h3 className="text-lg font-medium text-gray-900">Filmes</h3>
                     <button
                       onClick={() => {
                         const newFilm: Film = {
                           id: `film-${Date.now()}`,
-                          title: 'New Film',
+                          title: 'Novo Filme',
                           director: '',
                           year: new Date().getFullYear(),
                           relevance: ''
@@ -646,7 +646,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                       className="btn-secondary flex items-center space-x-2"
                     >
                       <Plus className="w-4 h-4" />
-                      <span>Add Film</span>
+                      <span>Adicionar Filme</span>
                     </button>
                   </div>
 
@@ -656,7 +656,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Title
+                              Título
                             </label>
                             <input
                               type="text"
@@ -674,7 +674,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Director
+                              Diretor
                             </label>
                             <input
                               type="text"
@@ -694,7 +694,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                         <div className="grid grid-cols-2 gap-4 mt-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Year
+                              Ano
                             </label>
                             <input
                               type="number"
@@ -712,7 +712,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Relevance
+                              Relevância
                             </label>
                             <textarea
                               value={film.relevance}
@@ -726,7 +726,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                               })}
                               rows={2}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                              placeholder="How is this film relevant to Jung's concepts?"
+                              placeholder="Como este filme é relevante para os conceitos de Jung?"
                             />
                           </div>
                         </div>
@@ -757,14 +757,14 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
             onClick={onCancel}
             className="px-4 py-2 text-gray-700 hover:text-gray-900"
           >
-            Cancel
+            Cancelar
           </button>
           <button
             onClick={handleSave}
             className="btn-primary flex items-center space-x-2"
           >
             <Save className="w-4 h-4" />
-            <span>Save Module</span>
+            <span>Salvar Módulo</span>
           </button>
         </div>
       </div>

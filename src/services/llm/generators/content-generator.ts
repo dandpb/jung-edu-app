@@ -11,6 +11,7 @@ interface ModuleContentOptions {
   duration?: number;
   concepts?: string[];
   prerequisites?: string[];
+  language?: string;
 }
 
 export class ContentGenerator {
@@ -20,7 +21,8 @@ export class ContentGenerator {
     topicOrOptions: string | ModuleContentOptions,
     objectives?: string[],
     targetAudience?: string,
-    duration?: number
+    duration?: number,
+    language: string = 'pt-BR'
   ): Promise<ModuleContent> {
     let topic: string;
     let validObjectives: string[];
@@ -50,15 +52,16 @@ export class ContentGenerator {
       options = undefined;
     }
 
-    const sections = await this.generateSections(topic, validObjectives, audience, durationMinutes, options);
+    const lang = options?.language || language;
+    const sections = await this.generateSections(topic, validObjectives, audience, durationMinutes, options, lang);
     
-    const conclusion = await this.generateConclusion(topic, validObjectives);
-    const keyTakeaways = await this.generateKeyTakeaways(topic, validObjectives, sections);
+    const conclusion = await this.generateConclusion(topic, validObjectives, lang);
+    const keyTakeaways = await this.generateKeyTakeaways(topic, validObjectives, sections, lang);
     
     return {
-      introduction: await this.generateIntroduction(topic, validObjectives, audience),
+      introduction: await this.generateIntroduction(topic, validObjectives, audience, lang),
       sections,
-      summary: await this.generateSummary(sections),
+      summary: await this.generateSummary(sections, lang),
       keyTakeaways,
     };
   }
@@ -66,9 +69,31 @@ export class ContentGenerator {
   private async generateIntroduction(
     topic: string,
     objectives: string[],
-    targetAudience: string
+    targetAudience: string,
+    language: string = 'pt-BR'
   ): Promise<string> {
-    const prompt = `
+    const prompt = language === 'pt-BR' ? `
+Crie uma introdução envolvente para um módulo de psicologia junguiana sobre "${topic}".
+
+Público-alvo: ${targetAudience}
+
+Objetivos de aprendizagem:
+${objectives?.map((obj, i) => `${i + 1}. ${obj}`).join('\n') || 'Nenhum objetivo especificado'}
+
+Requisitos:
+- Prenda o leitor com uma abertura interessante
+- Introduza brevemente os principais conceitos
+- Explique por que este tópico é importante na psicologia junguiana
+- Defina expectativas para o que os estudantes aprenderão
+- Mantenha entre 200-300 palavras
+- IMPORTANTE: Escreva TODO o conteúdo em português brasileiro (pt-BR)
+
+Formate usando Markdown:
+- Use **negrito** para enfatizar conceitos-chave
+- Use *itálico* para ênfase sutil
+- Inclua um parágrafo de abertura atraente
+- Estruture com parágrafos claros
+` : `
 Create an engaging introduction for a Jungian psychology module on "${topic}".
 
 Target audience: ${targetAudience}
@@ -101,13 +126,42 @@ Format using Markdown:
     objectives: string[],
     targetAudience: string,
     duration: number,
-    options?: ModuleContentOptions
+    options?: ModuleContentOptions,
+    language: string = 'pt-BR'
   ): Promise<ModuleContent['sections']> {
     const validObjectives = objectives;
     // Calculate number of sections based on duration
     const sectionCount = Math.max(3, Math.min(8, Math.floor(duration / 15)));
     
-    const structurePrompt = `Create a detailed outline for a Jungian psychology module on "${topic}".
+    const structurePrompt = language === 'pt-BR' ? `Crie um esboço detalhado para um módulo de psicologia junguiana sobre "${topic}".
+
+Público-alvo: ${targetAudience}
+Duração: ${duration} minutos
+Número de seções: ${sectionCount}
+
+Objetivos de aprendizagem:
+${objectives?.map((obj, i) => `${i + 1}. ${obj}`).join('\n') || 'Nenhum objetivo especificado'}
+
+Crie exatamente ${sectionCount} seções principais que construam progressivamente o entendimento.
+
+CRÍTICO: Você deve responder com um array JSON contendo exatamente ${sectionCount} objetos. Cada objeto deve ter:
+- title: Um título descritivo da seção (string) - EM PORTUGUÊS
+- concepts: Array de conceitos-chave a cobrir (array de strings) - EM PORTUGUÊS
+- duration: Tempo estimado em minutos (number)
+
+Formato de exemplo (responda exatamente com esta estrutura):
+[
+  {
+    "title": "Entendendo os Fundamentos de ${topic}",
+    "concepts": ["princípios fundamentais", "contexto histórico"],
+    "duration": ${Math.floor(duration / sectionCount)}
+  },
+  {
+    "title": "Conceitos Avançados em ${topic}",
+    "concepts": ["teoria complexa", "aplicações práticas"],
+    "duration": ${Math.ceil(duration / sectionCount)}
+  }
+]` : `Create a detailed outline for a Jungian psychology module on "${topic}".
 
 Target audience: ${targetAudience}
 Duration: ${duration} minutes
@@ -206,7 +260,8 @@ Example format (respond with exactly this structure):
           section.concepts,
           targetAudience,
           options?.learningObjectives || validObjectives,
-          options?.prerequisites
+          options?.prerequisites,
+          language
         ),
         subsections: [],
         media: [],
@@ -222,26 +277,54 @@ Example format (respond with exactly this structure):
     concepts: string[],
     targetAudience: string,
     learningObjectives?: string[],
-    prerequisites?: string[]
+    prerequisites?: string[],
+    language: string = 'pt-BR'
   ): Promise<string> {
-    let prompt = `
+    let prompt = language === 'pt-BR' ? `
+Escreva conteúdo detalhado para a seção "${sectionTitle}" em um módulo de psicologia junguiana sobre "${mainTopic}".
+
+Público-alvo: ${targetAudience}` : `
 Write detailed content for the section "${sectionTitle}" in a Jungian psychology module about "${mainTopic}".
 
 Target audience: ${targetAudience}`;
 
     if (targetAudience.toLowerCase() === 'beginner') {
-      prompt += '\nUse simple language and avoid overly technical jargon.';
+      prompt += language === 'pt-BR' ? '\nUse linguagem simples e evite jargão excessivamente técnico.' : '\nUse simple language and avoid overly technical jargon.';
     }
 
     if (learningObjectives && learningObjectives.length > 0) {
-      prompt += '\n\nLearning objectives:\n' + learningObjectives.map(obj => `- ${obj}`).join('\n');
+      prompt += language === 'pt-BR' ? '\n\nObjetivos de aprendizagem:\n' + learningObjectives.map(obj => `- ${obj}`).join('\n') : '\n\nLearning objectives:\n' + learningObjectives.map(obj => `- ${obj}`).join('\n');
     }
 
     if (prerequisites && prerequisites.length > 0) {
-      prompt += '\n\nPrerequisites:\n' + prerequisites.map(pre => `- ${pre}`).join('\n');
+      prompt += language === 'pt-BR' ? '\n\nPré-requisitos:\n' + prerequisites.map(pre => `- ${pre}`).join('\n') : '\n\nPrerequisites:\n' + prerequisites.map(pre => `- ${pre}`).join('\n');
     }
 
-    prompt += `
+    prompt += language === 'pt-BR' ? `
+
+Conceitos-chave a cobrir:
+${concepts.map(c => `- ${c}`).join('\n')}
+
+Requisitos:
+- Explique conceitos claramente com exemplos
+- Inclua terminologia junguiana relevante
+- Use metáforas ou analogias quando útil
+- Referencie o trabalho original de Jung quando aplicável
+- Inclua aplicações práticas ou exercícios
+- Busque 400-600 palavras
+- IMPORTANTE: Escreva TODO o conteúdo em português brasileiro (pt-BR)
+
+IMPORTANTE: Formate o conteúdo usando Markdown:
+- Use **negrito** para termos-chave e conceitos importantes
+- Use *itálico* para ênfase
+- Use listas numeradas (1. 2. 3.) para passos sequenciais
+- Use pontos de lista (- ou *) para itens não sequenciais
+- Adicione quebras de linha duplas entre parágrafos
+- Use > para citações importantes de Jung
+- Você pode usar ### para subtítulos dentro da seção
+- Inclua links onde relevante: [texto](url)
+- Escreva em um estilo claro e educacional
+` : `
 
 Key concepts to cover:
 ${concepts.map(c => `- ${c}`).join('\n')}
@@ -272,8 +355,21 @@ IMPORTANT: Format the content using Markdown:
     });
   }
 
-  private async generateConclusion(topic: string, objectives: string[]): Promise<string> {
-    const prompt = `
+  private async generateConclusion(topic: string, objectives: string[], language: string = 'pt-BR'): Promise<string> {
+    const prompt = language === 'pt-BR' ? `
+Escreva uma conclusão envolvente para um módulo de psicologia junguiana sobre "${topic}".
+
+Objetivos de aprendizagem cobertos:
+${objectives?.map((obj, i) => `${i + 1}. ${obj}`).join('\n') || 'Nenhum objetivo especificado'}
+
+Requisitos:
+- Resuma os principais aprendizados
+- Conecte os conceitos de volta à teoria junguiana mais ampla
+- Inspire exploração adicional
+- Sugira aplicações práticas
+- Mantenha entre 150-200 palavras
+- IMPORTANTE: Escreva em português brasileiro (pt-BR)
+` : `
 Write a compelling conclusion for a Jungian psychology module on "${topic}".
 
 Learning objectives covered:
@@ -293,10 +389,16 @@ Requirements:
     });
   }
 
-  private async generateSummary(sections: ModuleContent['sections']): Promise<string> {
+  private async generateSummary(sections: ModuleContent['sections'], language: string = 'pt-BR'): Promise<string> {
     const sectionTitles = sections.map(s => s.title).join(', ');
     
-    const prompt = `
+    const prompt = language === 'pt-BR' ? `
+Crie um resumo conciso de um módulo de psicologia junguiana cobrindo estas seções: ${sectionTitles}.
+
+Escreva um resumo de 100-150 palavras que capture os conceitos essenciais e suas relações.
+Foque nos principais insights e aplicações práticas.
+IMPORTANTE: Escreva em português brasileiro (pt-BR)
+` : `
 Create a concise summary of a Jungian psychology module covering these sections: ${sectionTitles}.
 
 Write a 100-150 word summary that captures the essential concepts and their relationships.
@@ -312,11 +414,27 @@ Focus on the main insights and practical applications.
   private async generateKeyTakeaways(
     topic: string,
     objectives: string[],
-    sections: ModuleContent['sections']
+    sections: ModuleContent['sections'],
+    language: string = 'pt-BR'
   ): Promise<string[]> {
     const sectionTitles = sections.map(s => s.title).join(', ');
     
-    const prompt = `
+    const prompt = language === 'pt-BR' ? `
+Gere 5-7 principais aprendizados de um módulo de psicologia junguiana sobre "${topic}".
+
+Objetivos de aprendizagem:
+${objectives?.map((obj, i) => `${i + 1}. ${obj}`).join('\n') || 'Nenhum objetivo especificado'}
+
+Seções cobertas: ${sectionTitles}
+
+Forneça os aprendizados como um array JSON de strings. Cada aprendizado deve ser:
+- Claro e conciso (1-2 frases)
+- Acionável ou perspicaz
+- Diretamente relacionado aos conceitos da psicologia junguiana
+- IMPORTANTE: Escrito em português brasileiro (pt-BR)
+
+Formato de exemplo: ["Aprendizado 1", "Aprendizado 2", ...]
+` : `
 Generate 5-7 key takeaways from a Jungian psychology module on "${topic}".
 
 Learning objectives:
@@ -347,6 +465,7 @@ Example format: ["Takeaway 1", "Takeaway 2", ...]
       context?: string;
       depth?: 'beginner' | 'intermediate' | 'advanced';
       includeExamples?: boolean;
+      language?: string;
     } = {}
   ): Promise<{
     concept: string;
@@ -356,18 +475,30 @@ Example format: ["Takeaway 1", "Takeaway 2", ...]
     examples?: string[];
     relatedConcepts?: string[];
   }> {
-    const { context = 'Jungian psychology', depth = 'intermediate', includeExamples = true } = options;
+    const { context = 'Jungian psychology', depth = 'intermediate', includeExamples = true, language = 'pt-BR' } = options;
     
-    let prompt = `Explain the concept "${concept}" in the context of ${context}.
+    let prompt = language === 'pt-BR' 
+      ? `Explique o conceito "${concept}" no contexto da ${context}.
+
+Profundidade alvo: ${depth === 'beginner' ? 'iniciante' : depth === 'intermediate' ? 'intermediário' : 'avançado'}`
+      : `Explain the concept "${concept}" in the context of ${context}.
 
 Target depth: ${depth}`;
 
     if (depth === 'beginner') {
-      prompt += '\nUse simple language and everyday examples.';
+      prompt += language === 'pt-BR' 
+        ? '\nUse linguagem simples e exemplos cotidianos.'
+        : '\nUse simple language and everyday examples.';
     }
 
     if (includeExamples) {
-      prompt += '\nInclude practical examples to illustrate the concept.';
+      prompt += language === 'pt-BR'
+        ? '\nInclua exemplos práticos para ilustrar o conceito.'
+        : '\nInclude practical examples to illustrate the concept.';
+    }
+    
+    if (language === 'pt-BR') {
+      prompt += '\nIMPORTANTE: Responda em português brasileiro (pt-BR).';
     }
 
     const response = await this.provider.generateStructuredResponse<{
@@ -400,6 +531,7 @@ Target depth: ${depth}`;
       addMetaphors?: boolean;
       addVisualDescriptions?: boolean;
       culturalContext?: string;
+      language?: string;
     } = {}
   ): Promise<{
     originalContent?: string;
@@ -416,20 +548,31 @@ Target depth: ${depth}`;
       visualDescriptions?: string[];
     };
   }> {
-    const { addExamples, addExercises, addMetaphors, addVisualDescriptions, culturalContext } = options;
+    const { addExamples, addExercises, addMetaphors, addVisualDescriptions, culturalContext, language = 'pt-BR' } = options;
     
-    let prompt = `Enrich the following content with additional elements:
+    let prompt = language === 'pt-BR' 
+      ? `Enriqueça o seguinte conteúdo com elementos adicionais:
+
+Conteúdo original:
+${content}
+
+Adições solicitadas:`
+      : `Enrich the following content with additional elements:
 
 Original content:
 ${content}
 
 Requested additions:`;
 
-    if (addExamples) prompt += '\n- Add practical examples';
-    if (addExercises) prompt += '\n- Add exercises or reflection questions';
-    if (addMetaphors) prompt += '\n- Add metaphors and analogies';
-    if (addVisualDescriptions) prompt += '\n- Add descriptions for visual aids or diagrams';
-    if (culturalContext) prompt += `\n- Add cultural references relevant to ${culturalContext}`;
+    if (addExamples) prompt += language === 'pt-BR' ? '\n- Adicione exemplos práticos' : '\n- Add practical examples';
+    if (addExercises) prompt += language === 'pt-BR' ? '\n- Adicione exercícios ou questões de reflexão' : '\n- Add exercises or reflection questions';
+    if (addMetaphors) prompt += language === 'pt-BR' ? '\n- Adicione metáforas e analogias' : '\n- Add metaphors and analogies';
+    if (addVisualDescriptions) prompt += language === 'pt-BR' ? '\n- Adicione descrições para recursos visuais ou diagramas' : '\n- Add descriptions for visual aids or diagrams';
+    if (culturalContext) prompt += language === 'pt-BR' ? `\n- Adicione referências culturais relevantes para ${culturalContext}` : `\n- Add cultural references relevant to ${culturalContext}`;
+    
+    if (language === 'pt-BR') {
+      prompt += '\nIMPORTANTE: Todo o conteúdo deve ser em português brasileiro (pt-BR).';
+    }
 
     const response = await this.provider.generateStructuredResponse<{
       originalContent?: string;
@@ -470,6 +613,7 @@ Requested additions:`;
       maxLength?: number;
       style?: 'academic' | 'casual' | 'bullet-points';
       preserveKeyTerms?: boolean;
+      language?: string;
     } = {}
   ): Promise<{
     mainPoints?: string[];
@@ -479,9 +623,23 @@ Requested additions:`;
     keyPoints?: string[];
     wordCount?: number;
   }> {
-    const { maxLength = 300, style = 'academic', preserveKeyTerms = true } = options;
+    const { maxLength = 300, style = 'academic', preserveKeyTerms = true, language = 'pt-BR' } = options;
     
-    let prompt = `Summarize the following content in ${style} style:
+    const styleTranslation = {
+      'academic': 'acadêmico',
+      'casual': 'casual',
+      'bullet-points': 'pontos de bala'
+    };
+    
+    let prompt = language === 'pt-BR'
+      ? `Resuma o seguinte conteúdo no estilo ${styleTranslation[style]}:
+
+${content}
+
+Requisitos:
+- Máximo de ${maxLength} palavras
+- Estilo: ${styleTranslation[style]}`
+      : `Summarize the following content in ${style} style:
 
 ${content}
 
@@ -490,7 +648,13 @@ Requirements:
 - Style: ${style}`;
 
     if (preserveKeyTerms) {
-      prompt += '\n- Preserve key Jungian terminology';
+      prompt += language === 'pt-BR' 
+        ? '\n- Preserve a terminologia junguiana chave'
+        : '\n- Preserve key Jungian terminology';
+    }
+    
+    if (language === 'pt-BR') {
+      prompt += '\nIMPORTANTE: Escreva o resumo em português brasileiro (pt-BR).';
     }
 
     const response = await this.provider.generateStructuredResponse<{
@@ -522,22 +686,46 @@ Requirements:
       duration?: number;
       learningObjectives?: string[];
       prerequisites?: string[];
+      language?: string;
     },
     onChunk: (chunk: string) => void
   ): Promise<ModuleContent> {
     // Generate sections structure first
     const targetAudience = options.targetAudience || options.difficulty || 'intermediate';
     const duration = options.duration || 60;
+    const language = options.language || 'pt-BR';
     const sections = await this.generateSections(
       options.title,
       options.learningObjectives || [],
       targetAudience,
       duration,
-      options
+      options,
+      language
     );
     
     // Stream introduction
-    const introPrompt = `
+    const introPrompt = language === 'pt-BR' ? `
+Crie uma introdução envolvente para um módulo de psicologia junguiana sobre "${options.title}".
+
+Público-alvo: ${targetAudience}
+
+Objetivos de aprendizagem:
+${options.learningObjectives?.map((obj, i) => `${i + 1}. ${obj}`).join('\n') || 'Nenhum objetivo especificado'}
+
+Requisitos:
+- Prenda o leitor com uma abertura interessante
+- Introduza brevemente os principais conceitos
+- Explique por que este tópico é importante na psicologia junguiana
+- Defina expectativas para o que os estudantes aprenderão
+- Mantenha entre 200-300 palavras
+- IMPORTANTE: Escreva em português brasileiro (pt-BR)
+
+Formate usando Markdown:
+- Use **negrito** para enfatizar conceitos-chave
+- Use *itálico* para ênfase sutil
+- Inclua um parágrafo de abertura atraente
+- Estruture com parágrafos claros
+` : `
 Create an engaging introduction for a Jungian psychology module on "${options.title}".
 
 Target audience: ${targetAudience}
@@ -585,7 +773,34 @@ Format using Markdown:
       // Add section header
       onChunk(`\n\n## ${section.title}\n\n`);
       
-      const sectionPrompt = `
+      const sectionPrompt = language === 'pt-BR' ? `
+Escreva conteúdo detalhado para a seção "${section.title}" em um módulo de psicologia junguiana sobre "${options.title}".
+
+Público-alvo: ${targetAudience}${targetAudience.toLowerCase() === 'beginner' ? '\nUse linguagem simples e evite jargão excessivamente técnico.' : ''}${options.learningObjectives && options.learningObjectives.length > 0 ? '\n\nObjetivos de aprendizagem:\n' + options.learningObjectives.map(obj => `- ${obj}`).join('\n') : ''}${options.prerequisites && options.prerequisites.length > 0 ? '\n\nPré-requisitos:\n' + options.prerequisites.map(pre => `- ${pre}`).join('\n') : ''}
+
+Conceitos-chave a cobrir:
+${(section as any).concepts?.map((c: string) => `- ${c}`).join('\n') || 'Nenhum conceito específico'}
+
+Requisitos:
+- Explique conceitos claramente com exemplos
+- Inclua terminologia junguiana relevante
+- Use metáforas ou analogias quando útil
+- Referencie o trabalho original de Jung quando aplicável
+- Inclua aplicações práticas ou exercícios
+- Busque 400-600 palavras
+- IMPORTANTE: Escreva em português brasileiro (pt-BR)
+
+IMPORTANTE: Formate o conteúdo usando Markdown:
+- Use **negrito** para termos-chave e conceitos importantes
+- Use *itálico* para ênfase
+- Use listas numeradas (1. 2. 3.) para passos sequenciais
+- Use pontos de lista (- ou *) para itens não sequenciais
+- Adicione quebras de linha duplas entre parágrafos
+- Use > para citações importantes de Jung
+- Você pode usar ### para subtítulos dentro da seção
+- Inclua links onde relevante: [texto](url)
+- Escreva em um estilo claro e educacional
+` : `
 Write detailed content for the section "${section.title}" in a Jungian psychology module about "${options.title}".
 
 Target audience: ${targetAudience}${targetAudience.toLowerCase() === 'beginner' ? '\nUse simple language and avoid overly technical jargon.' : ''}${options.learningObjectives && options.learningObjectives.length > 0 ? '\n\nLearning objectives:\n' + options.learningObjectives.map(obj => `- ${obj}`).join('\n') : ''}${options.prerequisites && options.prerequisites.length > 0 ? '\n\nPrerequisites:\n' + options.prerequisites.map(pre => `- ${pre}`).join('\n') : ''}
@@ -637,11 +852,12 @@ IMPORTANT: Format the content using Markdown:
     }
     
     // Generate summary and key takeaways
-    const summary = await this.generateSummary(sections);
+    const summary = await this.generateSummary(sections, language);
     const keyTakeaways = await this.generateKeyTakeaways(
       options.title,
       options.learningObjectives || [],
-      sections
+      sections,
+      language
     );
     
     return {

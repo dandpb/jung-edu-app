@@ -39,16 +39,17 @@ export class MindMapGenerator {
     topic: string,
     concepts: string[],
     depth: number = 3,
-    style: 'comprehensive' | 'simplified' | 'analytical' = 'comprehensive'
+    style: 'comprehensive' | 'simplified' | 'analytical' = 'comprehensive',
+    language: string = 'pt-BR'
   ): Promise<MindMap> {
-    const structure = await this.generateStructure(topic, concepts, depth, style);
-    const nodes = await this.enrichNodes(structure, topic);
-    const connections = await this.generateConnections(nodes, topic);
+    const structure = await this.generateStructure(topic, concepts, depth, style, language);
+    const nodes = await this.enrichNodes(structure, topic, language);
+    const connections = await this.generateConnections(nodes, topic, language);
     
     return {
       id: `mindmap-${Date.now()}`,
-      title: `${topic} - Jungian Perspective`,
-      description: `A visual exploration of ${topic} through Jungian psychological concepts`,
+      title: language === 'pt-BR' ? `${topic} - Perspectiva Junguiana` : `${topic} - Jungian Perspective`,
+      description: language === 'pt-BR' ? `Uma exploração visual de ${topic} através dos conceitos psicológicos junguianos` : `A visual exploration of ${topic} through Jungian psychological concepts`,
       rootNode: structure.rootId,
       nodes,
       connections,
@@ -61,9 +62,40 @@ export class MindMapGenerator {
     topic: string,
     concepts: string[],
     depth: number,
-    style: string
+    style: string,
+    language: string = 'pt-BR'
   ): Promise<{ rootId: string; structure: any }> {
-    const prompt = `
+    const prompt = language === 'pt-BR' ? `
+Crie uma estrutura de mapa mental para "${topic}" em psicologia junguiana com ${depth} níveis de profundidade.
+
+Estilo: ${style === 'comprehensive' ? 'abrangente' : style === 'simplified' ? 'simplificado' : 'analítico'}
+Conceitos-chave a incluir: ${concepts.join(', ')}
+
+Requisitos:
+- Comece com o tópico principal como raiz
+- Ramifique em conceitos e categorias junguianas principais
+- Cada nível deve ter 3-5 ramos (exceto folhas)
+- Inclua aspectos teóricos e práticos
+- Mostre relações entre elementos conscientes e inconscientes
+- IMPORTANTE: Todos os rótulos devem estar em português brasileiro
+
+Formato de resposta:
+{
+  "root": {
+    "id": "root",
+    "label": "Tópico Principal",
+    "children": [
+      {
+        "id": "node1",
+        "label": "Conceito 1",
+        "category": "archetype|complex|process|concept",
+        "importance": "core|supporting|related",
+        "children": [...]
+      }
+    ]
+  }
+}
+` : `
 Create a mind map structure for "${topic}" in Jungian psychology with ${depth} levels of depth.
 
 Style: ${style}
@@ -105,7 +137,8 @@ Response format:
 
   private async enrichNodes(
     structure: any,
-    topic: string
+    topic: string,
+    language: string = 'pt-BR'
   ): Promise<Record<string, MindMapNode>> {
     const nodes: Record<string, MindMapNode> = {};
 
@@ -127,7 +160,8 @@ Response format:
         enrichedNode.description = await this.generateNodeDescription(
           node.label,
           topic,
-          parentId ? nodes[parentId]?.label : undefined
+          parentId ? nodes[parentId]?.label : undefined,
+          language
         );
       }
 
@@ -152,9 +186,21 @@ Response format:
   private async generateNodeDescription(
     nodeLabel: string,
     mainTopic: string,
-    parentLabel?: string
+    parentLabel?: string,
+    language: string = 'pt-BR'
   ): Promise<string> {
-    const prompt = `
+    const prompt = language === 'pt-BR' ? `
+Escreva uma breve descrição (50-75 palavras) de "${nodeLabel}" no contexto de ${mainTopic} na psicologia junguiana.
+${parentLabel ? `Este é um subconceito de "${parentLabel}".` : ''}
+
+Foque em:
+- Significado central na teoria junguiana
+- Relação com o tópico principal
+- Significância prática
+
+Mantenha conciso e educacional.
+Escreva em português brasileiro.
+` : `
 Write a brief (50-75 words) description of "${nodeLabel}" in the context of ${mainTopic} in Jungian psychology.
 ${parentLabel ? `This is a sub-concept of "${parentLabel}".` : ''}
 
@@ -174,10 +220,33 @@ Keep it concise and educational.
 
   private async generateConnections(
     nodes: Record<string, MindMapNode>,
-    topic: string
+    topic: string,
+    language: string = 'pt-BR'
   ): Promise<MindMap['connections']> {
     const nodeList = Object.values(nodes);
-    const prompt = `
+    const prompt = language === 'pt-BR' ? `
+Identifique conexões não hierárquicas entre conceitos neste mapa mental de psicologia junguiana sobre "${topic}".
+
+Nós:
+${nodeList.map(n => `- ${n.id}: ${n.label} (${n.metadata?.jungianCategory})`).join('\n')}
+
+Encontre conexões que mostrem:
+1. Conceitos opostos mas complementares (ex: consciente/inconsciente)
+2. Conceitos associados ou relacionados que não são pai-filho
+3. Conceitos que trabalham juntos em processos psicológicos
+
+Formato de resposta:
+[
+  {
+    "from": "nodeId1",
+    "to": "nodeId2",
+    "type": "opposing|associative|complementary",
+    "label": "Breve descrição do relacionamento em português"
+  }
+]
+
+Limite às 5-8 conexões mais significativas.
+` : `
 Identify non-hierarchical connections between concepts in this Jungian psychology mind map about "${topic}".
 
 Nodes:
@@ -232,16 +301,34 @@ Limit to the most meaningful 5-8 connections.
 
   private getIconForCategory(category?: string): string {
     const iconMap: Record<string, string> = {
-      archetype: '👑', // Crown - universal patterns
-      complex: '💎', // Gem - multifaceted
-      process: '🔄', // Cycle - transformation
-      concept: '💡', // Lightbulb - understanding
+      archetype: '👑', // Coroa - padrões universais
+      complex: '💎', // Gema - multifacetado
+      process: '🔄', // Cíclo - transformação
+      concept: '💡', // Lâmpada - compreensão
     };
     return iconMap[category || 'concept'] || '📍';
   }
 
-  async generateStudyPath(mindMap: MindMap): Promise<string[]> {
-    const prompt = `
+  async generateStudyPath(mindMap: MindMap, language: string = 'pt-BR'): Promise<string[]> {
+    const prompt = language === 'pt-BR' ? `
+Com base nesta estrutura de mapa mental para psicologia junguiana, crie um caminho de estudo ótimo.
+
+Tópico raiz: ${mindMap.title}
+Total de nós: ${Object.keys(mindMap.nodes).length}
+
+Nós por importância:
+Central: ${Object.values(mindMap.nodes).filter(n => n.metadata?.importance === 'core').map(n => n.label).join(', ')}
+Apoio: ${Object.values(mindMap.nodes).filter(n => n.metadata?.importance === 'supporting').map(n => n.label).join(', ')}
+
+Crie uma sequência de aprendizagem que:
+1. Comece com conceitos fundamentais
+2. Construa complexidade gradualmente
+3. Mostre interconexões
+4. Termine com aplicações práticas
+
+Formato de resposta:
+["node-id-1", "node-id-2", ...]
+` : `
 Based on this mind map structure for Jungian psychology, create an optimal study path.
 
 Root topic: ${mindMap.title}

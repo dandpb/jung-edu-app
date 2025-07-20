@@ -17,7 +17,7 @@ const AdminLogin: React.FC = () => {
     if (login(username, password)) {
       navigate('/admin');
     } else {
-      setError('Invalid username or password');
+      setError('Usuário ou senha inválidos');
     }
   };
 
@@ -30,17 +30,17 @@ const AdminLogin: React.FC = () => {
               <Lock className="w-8 h-8 text-primary-600" />
             </div>
             <h2 className="text-2xl font-display font-bold text-gray-900">
-              Admin Login
+              Login de Administrador
             </h2>
             <p className="text-gray-600 mt-2">
-              Sign in to access the administration panel
+              Entre para acessar o painel de administração
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                Username
+                Usuário
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -52,7 +52,7 @@ const AdminLogin: React.FC = () => {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="Enter username"
+                  placeholder="Digite o usuário"
                   required
                 />
               </div>
@@ -60,7 +60,7 @@ const AdminLogin: React.FC = () => {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
+                Senha
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -72,7 +72,7 @@ const AdminLogin: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="Enter password"
+                  placeholder="Digite a senha"
                   required
                 />
               </div>
@@ -89,15 +89,15 @@ const AdminLogin: React.FC = () => {
               type="submit"
               className="w-full btn-primary"
             >
-              Sign In
+              Entrar
             </button>
           </form>
 
           <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
             <p className="text-sm text-amber-800">
-              <strong>Security Notice:</strong><br />
-              This is a demo application. In production, use secure credentials 
-              and proper authentication mechanisms.
+              <strong>Aviso de Segurança:</strong><br />
+              Este é um aplicativo de demonstração. Em produção, use credenciais seguras 
+              e mecanismos adequados de autenticação.
             </p>
           </div>
         </div>

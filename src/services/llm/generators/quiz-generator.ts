@@ -11,15 +11,16 @@ export class QuizGenerator {
     topic: string,
     content: string,
     objectives: string[],
-    questionCount: number = 10
+    questionCount: number = 10,
+    language: string = 'pt-BR'
   ): Promise<Quiz> {
-    const questions = await this.generateQuestions(topic, content, objectives, questionCount);
+    const questions = await this.generateQuestions(topic, content, objectives, questionCount, language);
     
     return {
       id: `quiz-${moduleId}`,
       moduleId,
-      title: `${topic} - Assessment Quiz`,
-      description: `Test your understanding of ${topic} concepts in Jungian psychology`,
+      title: language === 'pt-BR' ? `${topic} - Questionário de Avaliação` : `${topic} - Assessment Quiz`,
+      description: language === 'pt-BR' ? `Teste seu entendimento dos conceitos de ${topic} na psicologia junguiana` : `Test your understanding of ${topic} concepts in Jungian psychology`,
       questions,
       passingScore: 70,
       timeLimit: questionCount * 2, // 2 minutes per question
@@ -32,9 +33,57 @@ export class QuizGenerator {
     topic: string,
     content: string,
     objectives: string[],
-    count: number
+    count: number,
+    language: string = 'pt-BR'
   ): Promise<QuizQuestion[]> {
-    const prompt = `Generate exactly ${count} multiple-choice questions for a Jungian psychology quiz on "${topic}".
+    const prompt = language === 'pt-BR' ? `Gere exatamente ${count} questões de múltipla escolha para um quiz de psicologia junguiana sobre "${topic}".
+
+Objetivos de aprendizagem a avaliar:
+${objectives && objectives.length > 0 ? objectives.map((obj, i) => `${i + 1}. ${obj}`).join('\n') : 'Compreensão geral do tópico'}
+
+Resumo do conteúdo contextual:
+${content.substring(0, 1000)}...
+
+CRÍTICO: Você deve responder com um array JSON contendo exatamente ${count} objetos de questão.
+
+Requisitos para cada questão:
+1. Teste a compreensão, não apenas memorização
+2. Inclua exatamente 4 opções de resposta que sejam TODAS plausíveis e relacionadas ao tópico
+3. Apenas uma resposta correta (índice 0-3)
+4. Forneça explicações claras para a resposta correta
+5. Varie os níveis de dificuldade (fácil, médio, difícil)
+6. Cubra diferentes níveis cognitivos (recordação, compreensão, aplicação, análise)
+
+DIRETRIZES PARA DISTRATORES (MUITO IMPORTANTE):
+- TODOS os distratores devem ser plausíveis e relacionados à psicologia junguiana
+- Use estes tipos de distratores:
+  a) Equívocos comuns sobre o conceito
+  b) Conceitos junguianos relacionados mas distintos
+  c) Conceitos de outras teorias psicológicas (Freud, Adler, etc.)
+  d) Compreensão parcial ou incompleta do conceito
+  e) Versões generalizadas ou simplificadas demais
+- NUNCA use opções obviamente erradas ou não relacionadas
+- Cada distrator deve ter aproximadamente o mesmo tamanho da resposta correta
+- Evite padrões como "todas as anteriores" ou "nenhuma das anteriores"
+
+Exemplo de questão BOA:
+{
+  "question": "De acordo com Jung, o que distingue o inconsciente coletivo do inconsciente pessoal?",
+  "options": [
+    "O inconsciente coletivo contém padrões universais herdados compartilhados por toda a humanidade",
+    "O inconsciente coletivo armazena memórias pessoais reprimidas da infância",
+    "O inconsciente coletivo é formado através da transmissão cultural e aprendizagem social",
+    "O inconsciente coletivo representa os mecanismos de defesa do ego contra a ansiedade"
+  ],
+  "correctAnswer": 0,
+  "explanation": "O inconsciente coletivo contém arquétipos e padrões universais herdados por todos os humanos, diferentemente do inconsciente pessoal que contém conteúdo individual reprimido.",
+  "difficulty": "medium",
+  "cognitiveLevel": "understanding"
+}
+
+IMPORTANTE: Escreva TODAS as questões, opções e explicações em português brasileiro (pt-BR).
+
+Responda com exatamente ${count} questões seguindo o formato do bom exemplo:` : `Generate exactly ${count} multiple-choice questions for a Jungian psychology quiz on "${topic}".
 
 Learning objectives to assess:
 ${objectives && objectives.length > 0 ? objectives.map((obj, i) => `${i + 1}. ${obj}`).join('\n') : 'General understanding of the topic'}
@@ -223,7 +272,8 @@ Respond with exactly ${count} questions following the good example format:`;
   async generateAdaptiveQuestions(
     topic: string,
     previousResponses: Array<{ correct: boolean; difficulty: string }>,
-    count: number = 3
+    count: number = 3,
+    language: string = 'pt-BR'
   ): Promise<QuizQuestion[]> {
     // Analyze performance to determine next difficulty
     const correctRate = previousResponses.filter(r => r.correct).length / previousResponses.length;
@@ -237,7 +287,25 @@ Respond with exactly ${count} questions following the good example format:`;
       targetDifficulty = 'medium';
     }
 
-    const prompt = `
+    const difficultyTerms: Record<string, string> = {
+      'hard': language === 'pt-BR' ? 'difícil' : 'hard',
+      'easy': language === 'pt-BR' ? 'fácil' : 'easy',
+      'medium': language === 'pt-BR' ? 'médio' : 'medium'
+    };
+
+    const prompt = language === 'pt-BR' ? `
+Gere ${count} questões de múltipla escolha de nível ${difficultyTerms[targetDifficulty]} para teste adaptativo sobre "${topic}" em psicologia junguiana.
+
+Desempenho anterior: ${Math.round(correctRate * 100)}% correto
+
+Foque em:
+${targetDifficulty === 'hard' ? 'análise complexa e síntese de conceitos' : 
+  targetDifficulty === 'easy' ? 'conceitos fundamentais e definições' : 
+  'aplicação e compreensão de conceitos'}
+
+IMPORTANTE: Escreva todas as questões em português brasileiro (pt-BR).
+Formato de resposta: mesmo que antes
+` : `
 Generate ${count} ${targetDifficulty} multiple-choice questions for adaptive testing on "${topic}" in Jungian psychology.
 
 Previous performance: ${Math.round(correctRate * 100)}% correct
@@ -272,9 +340,21 @@ Response format: same as before
   async generatePracticeQuestions(
     topic: string,
     specificConcept: string,
-    count: number = 5
+    count: number = 5,
+    language: string = 'pt-BR'
   ): Promise<QuizQuestion[]> {
-    const prompt = `
+    const prompt = language === 'pt-BR' ? `
+Gere ${count} questões práticas focadas em "${specificConcept}" dentro do tópico "${topic}" em psicologia junguiana.
+
+Requisitos:
+- Comece com questões mais fáceis e progrida para as mais difíceis
+- Inclua explicações detalhadas que ensinem o conceito
+- Use exemplos do mundo real quando aplicável
+- Referencie o trabalho original de Jung quando relevante
+- IMPORTANTE: Escreva todas as questões em português brasileiro (pt-BR)
+
+Formato de resposta: mesmo que questões padrão
+` : `
 Generate ${count} practice questions focused on "${specificConcept}" within the topic of "${topic}" in Jungian psychology.
 
 Requirements:

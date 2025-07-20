@@ -168,7 +168,7 @@ const AdminResources: React.FC = () => {
   };
 
   const handleDeleteBibliography = (moduleId: string, itemId: string) => {
-    if (window.confirm('Are you sure you want to delete this bibliography entry?')) {
+    if (window.confirm('Tem certeza que deseja excluir esta entrada de bibliografia?')) {
       updateModules(modules.map(module =>
         module.id === moduleId
           ? {
@@ -184,7 +184,7 @@ const AdminResources: React.FC = () => {
   };
 
   const handleDeleteFilm = (moduleId: string, itemId: string) => {
-    if (window.confirm('Are you sure you want to delete this film entry?')) {
+    if (window.confirm('Tem certeza que deseja excluir esta entrada de filme?')) {
       updateModules(modules.map(module =>
         module.id === moduleId
           ? {
@@ -200,8 +200,8 @@ const AdminResources: React.FC = () => {
   };
 
   const tabs = [
-    { id: 'bibliography', label: 'Bibliography', icon: Book },
-    { id: 'films', label: 'Films', icon: FilmIcon }
+    { id: 'bibliography', label: 'Bibliografia', icon: Book },
+    { id: 'films', label: 'Filmes', icon: FilmIcon }
   ];
 
   return (
@@ -209,10 +209,10 @@ const AdminResources: React.FC = () => {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-display font-bold text-gray-900 mb-2">
-            Manage Resources
+            Gerenciar Recursos
           </h1>
           <p className="text-gray-600">
-            Manage bibliography and film resources across all modules
+            Gerenciar recursos de bibliografia e filmes em todos os módulos
           </p>
         </div>
         <button
@@ -220,7 +220,7 @@ const AdminResources: React.FC = () => {
           className="btn-primary flex items-center space-x-2"
         >
           <Plus className="w-4 h-4" />
-          <span>Add {activeTab === 'bibliography' ? 'Book' : 'Film'}</span>
+          <span>Adicionar {activeTab === 'bibliography' ? 'Livro' : 'Filme'}</span>
         </button>
       </div>
 
@@ -256,7 +256,7 @@ const AdminResources: React.FC = () => {
           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <input
             type="text"
-            placeholder={`Search ${activeTab}...`}
+            placeholder={`Buscar ${activeTab === 'bibliography' ? 'bibliografia' : 'filmes'}...`}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -269,7 +269,7 @@ const AdminResources: React.FC = () => {
             onChange={(e) => setFilterModule(e.target.value)}
             className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
-            <option value="all">All Modules</option>
+            <option value="all">Todos os Módulos</option>
             {modules.map(module => (
               <option key={module.id} value={module.id}>
                 {module.title}
@@ -290,10 +290,10 @@ const AdminResources: React.FC = () => {
                     {book.title}
                   </h3>
                   <p className="text-gray-600">
-                    by {book.author} ({book.year})
+                    por {book.author} ({book.year})
                   </p>
                   <p className="text-sm text-gray-500 mt-1">
-                    Module: {book.moduleTitle}
+                    Módulo: {book.moduleTitle}
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -313,7 +313,7 @@ const AdminResources: React.FC = () => {
               </div>
               
               <div className="space-y-2 text-sm text-gray-600">
-                <p><strong>Type:</strong> {book.type}</p>
+                <p><strong>Tipo:</strong> {book.type === 'book' ? 'Livro' : book.type === 'article' ? 'Artigo' : book.type}</p>
                 {book.url && <p><strong>URL:</strong> <a href={book.url} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:text-primary-700">{book.url}</a></p>}
               </div>
             </div>
@@ -331,10 +331,10 @@ const AdminResources: React.FC = () => {
                     {film.title}
                   </h3>
                   <p className="text-gray-600">
-                    Directed by {film.director} ({film.year})
+                    Dirigido por {film.director} ({film.year})
                   </p>
                   <p className="text-sm text-gray-500 mt-1">
-                    Module: {film.moduleTitle}
+                    Módulo: {film.moduleTitle}
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -429,7 +429,7 @@ const AdminResources: React.FC = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Year *
+                        Ano *
                       </label>
                       <input
                         type="number"
@@ -441,15 +441,15 @@ const AdminResources: React.FC = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Type
+                        Tipo
                       </label>
                       <select
                         value={newBibliography.type}
                         onChange={(e) => setNewBibliography({ ...newBibliography, type: e.target.value as 'book' | 'article' | 'journal' })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                       >
-                        <option value="book">Book</option>
-                        <option value="article">Article</option>
+                        <option value="book">Livro</option>
+                        <option value="article">Artigo</option>
                         <option value="journal">Journal</option>
                       </select>
                     </div>
@@ -472,7 +472,7 @@ const AdminResources: React.FC = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Director *
+                        Diretor *
                       </label>
                       <input
                         type="text"
@@ -486,7 +486,7 @@ const AdminResources: React.FC = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Year *
+                        Ano *
                       </label>
                       <input
                         type="number"
@@ -499,14 +499,14 @@ const AdminResources: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Relevance to Jung's Concepts *
+                      Relevância para os Conceitos de Jung *
                     </label>
                     <textarea
                       value={newFilm.relevance}
                       onChange={(e) => setNewFilm({ ...newFilm, relevance: e.target.value })}
                       rows={3}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      placeholder="How is this film relevant to Jung's theories?"
+                      placeholder="Como este filme é relevante para as teorias de Jung?"
                       required
                     />
                   </div>
@@ -518,7 +518,7 @@ const AdminResources: React.FC = () => {
                   onClick={() => setShowAddForm(false)}
                   className="px-4 py-2 text-gray-700 hover:text-gray-900"
                 >
-                  Cancel
+                  Cancelar
                 </button>
                 <button
                   onClick={() => {
@@ -533,7 +533,7 @@ const AdminResources: React.FC = () => {
                   disabled={!filterModule || filterModule === 'all'}
                   className="btn-primary"
                 >
-                  Add {activeTab === 'bibliography' ? 'Book' : 'Film'}
+                  Adicionar {activeTab === 'bibliography' ? 'Livro' : 'Filme'}
                 </button>
               </div>
             </div>

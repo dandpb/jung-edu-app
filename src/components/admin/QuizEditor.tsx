@@ -13,14 +13,14 @@ const QuizEditor: React.FC<QuizEditorProps> = ({ quiz, onUpdate }) => {
   const createQuiz = () => {
     const newQuiz: Quiz = {
       id: `quiz-${Date.now()}`,
-      title: 'Module Quiz',
+      title: 'Questionário do Módulo',
       questions: []
     };
     onUpdate(newQuiz);
   };
 
   const deleteQuiz = () => {
-    if (window.confirm('Are you sure you want to delete this quiz?')) {
+    if (window.confirm('Tem certeza que deseja excluir este questionário?')) {
       onUpdate(undefined);
     }
   };
@@ -36,8 +36,8 @@ const QuizEditor: React.FC<QuizEditorProps> = ({ quiz, onUpdate }) => {
     
     const newQuestion: Question = {
       id: `question-${Date.now()}`,
-      question: 'New Question',
-      options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
+      question: 'Nova Questão',
+      options: ['Opção 1', 'Opção 2', 'Opção 3', 'Opção 4'],
       correctAnswer: 0,
       explanation: ''
     };
@@ -91,12 +91,12 @@ const QuizEditor: React.FC<QuizEditorProps> = ({ quiz, onUpdate }) => {
   if (!quiz) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500 mb-4">No quiz created for this module yet.</p>
+        <p className="text-gray-500 mb-4">Nenhum questionário criado para este módulo ainda.</p>
         <button
           onClick={createQuiz}
           className="btn-primary"
         >
-          Create Quiz
+          Criar Questionário
         </button>
       </div>
     );
@@ -107,7 +107,7 @@ const QuizEditor: React.FC<QuizEditorProps> = ({ quiz, onUpdate }) => {
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <label htmlFor="quiz-title" className="block text-sm font-medium text-gray-700 mb-2">
-            Quiz Title
+            Título do Questionário
           </label>
           <input
             id="quiz-title"
@@ -127,13 +127,13 @@ const QuizEditor: React.FC<QuizEditorProps> = ({ quiz, onUpdate }) => {
 
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-medium text-gray-900">Questions</h3>
+          <h3 className="text-lg font-medium text-gray-900">Questões</h3>
           <button
             onClick={addQuestion}
             className="btn-secondary flex items-center space-x-2"
           >
             <Plus className="w-4 h-4" />
-            <span>Add Question</span>
+            <span>Adicionar Questão</span>
           </button>
         </div>
 
@@ -156,7 +156,7 @@ const QuizEditor: React.FC<QuizEditorProps> = ({ quiz, onUpdate }) => {
                       )}
                     </button>
                     <div className="flex-1">
-                      <span className="text-sm text-gray-500">Question {qIndex + 1}</span>
+                      <span className="text-sm text-gray-500">Questão {qIndex + 1}</span>
                       <input
                         type="text"
                         value={question.question}
@@ -177,7 +177,7 @@ const QuizEditor: React.FC<QuizEditorProps> = ({ quiz, onUpdate }) => {
                   <div className="mt-4 ml-7 space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Answer Options
+                        Opções de Resposta
                       </label>
                       <div className="space-y-2">
                         {question.options.map((option, optionIndex) => (
@@ -194,26 +194,26 @@ const QuizEditor: React.FC<QuizEditorProps> = ({ quiz, onUpdate }) => {
                               value={option}
                               onChange={(e) => updateOption(question.id, optionIndex, e.target.value)}
                               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                              placeholder={`Option ${optionIndex + 1}`}
+                              placeholder={`Opção ${optionIndex + 1}`}
                             />
                           </div>
                         ))}
                       </div>
                       <p className="text-sm text-gray-500 mt-2">
-                        Select the correct answer by clicking the radio button
+                        Selecione a resposta correta clicando no botão de opção
                       </p>
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Explanation
+                        Explicação
                       </label>
                       <textarea
                         value={question.explanation}
                         onChange={(e) => updateQuestion(question.id, { explanation: e.target.value })}
                         rows={2}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                        placeholder="Explain why this is the correct answer..."
+                        placeholder="Explique por que esta é a resposta correta..."
                       />
                     </div>
                   </div>

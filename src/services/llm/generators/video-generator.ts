@@ -27,17 +27,22 @@ export class VideoGenerator {
     topic: string,
     concepts: string[],
     targetAudience: string,
-    count: number = 5
+    count: number = 5,
+    language: string = 'pt-BR'
   ): Promise<Video[]> {
     // Generate search queries using LLM
-    const searchQueries = await this.generateSearchQueries(topic, concepts, targetAudience);
+    const searchQueries = await this.generateSearchQueries(topic, concepts, targetAudience, language);
     
     // Ensure searchQueries is an array
     let queries = searchQueries;
     if (!Array.isArray(queries)) {
       console.error('Search queries is not an array:', queries);
       // Create fallback search queries
-      queries = [
+      queries = language === 'pt-BR' ? [
+        `${topic} Jung psicologia palestra português`,
+        `${topic} psicologia analítica explicação legendado`,
+        `Jung ${topic} conceitos tutorial Brasil`
+      ] : [
         `${topic} Jung psychology lecture`,
         `${topic} analytical psychology explanation`,
         `Jung ${topic} concepts tutorial`
@@ -96,9 +101,39 @@ export class VideoGenerator {
   private async generateSearchQueries(
     topic: string,
     concepts: string[],
-    targetAudience: string
+    targetAudience: string,
+    language: string = 'pt-BR'
   ): Promise<string[]> {
-    const prompt = `Generate exactly 8 YouTube search queries to find educational videos about "${topic}" in Jungian psychology.
+    const prompt = language === 'pt-BR' ? `Gere exatamente 8 queries de busca do YouTube para encontrar vídeos educacionais sobre "${topic}" em psicologia junguiana.
+
+Conceitos-chave a cobrir:
+${concepts.map(c => `- ${c}`).join('\n')}
+
+Público-alvo: ${targetAudience}
+
+CRÍTICO: Você deve responder com um array JSON contendo exatamente 8 strings de consulta de busca.
+
+Gere consultas de busca específicas que encontrem:
+1. Palestras acadêmicas sobre o tópico
+2. Explicações animadas de conceitos complexos
+3. Estudos de caso ou aplicações práticas
+4. Contexto histórico do trabalho de Jung
+5. Interpretações e desenvolvimentos modernos
+
+Foque em consultas que retornem conteúdo educacional de alta qualidade.
+IMPORTANTE: As queries devem incluir termos em português (legendado, português, Brasil)
+
+Formato de exemplo (responda exatamente com esta estrutura):
+[
+  "Jung ${topic} psicologia palestra português",
+  "psicologia analítica ${topic} explicação legendado",
+  "Carl Jung ${topic} conceitos tutorial Brasil",
+  "${topic} processo de individuação português",
+  "${topic} estudo de caso junguiano legendado",
+  "${topic} inconsciente coletivo português",
+  "${topic} psicologia moderna pesquisa Brasil",
+  "${topic} Jung trabalho com sombra legendado"
+]` : `Generate exactly 8 YouTube search queries to find educational videos about "${topic}" in Jungian psychology.
 
 Key concepts to cover:
 ${concepts.map(c => `- ${c}`).join('\n')}
@@ -149,7 +184,16 @@ Example format (respond with exactly this structure):
     if ((result as any) === schema || (result as any)?.type === 'array') {
       console.error('CRITICAL: generateStructuredResponse returned the schema object instead of a response!');
       // Force a fallback
-      const fallbackQueries = [
+      const fallbackQueries = language === 'pt-BR' ? [
+        `${topic} Jung psicologia palestra português`,
+        `${topic} psicologia analítica explicação legendado`,
+        `Jung ${topic} conceitos tutorial Brasil`,
+        `${topic} processo individuação português`,
+        `${topic} estudo de caso junguiano legendado`,
+        `${topic} inconsciente coletivo português`,
+        `${topic} psicologia moderna pesquisa Brasil`,
+        `${topic} Jung teoria legendado`
+      ] : [
         `${topic} Jung psychology lecture`,
         `${topic} analytical psychology explanation`,
         `Jung ${topic} concepts tutorial`,
@@ -173,7 +217,16 @@ Example format (respond with exactly this structure):
       } else {
         console.warn('Using fallback search queries due to invalid response');
         // Create fallback queries
-        return [
+        return language === 'pt-BR' ? [
+          `${topic} Jung psicologia palestra português`,
+          `${topic} psicologia analítica explicação legendado`,
+          `Jung ${topic} conceitos tutorial Brasil`,
+          `${topic} processo individuação português`,
+          `${topic} estudo de caso junguiano legendado`,
+          `${topic} inconsciente coletivo português`,
+          `${topic} psicologia moderna pesquisa Brasil`,
+          `${topic} Jung teoria legendado`
+        ] : [
           `${topic} Jung psychology lecture`,
           `${topic} analytical psychology explanation`,
           `Jung ${topic} concepts tutorial`,
@@ -193,7 +246,8 @@ Example format (respond with exactly this structure):
     topic: string,
     concepts: string[],
     searchQueries: string[],
-    count: number
+    count: number,
+    language: string = 'pt-BR'
   ): Promise<Array<{
     title: string;
     description: string;
@@ -201,7 +255,37 @@ Example format (respond with exactly this structure):
     duration: number;
     relatedConcepts: string[];
   }>> {
-    const prompt = `
+    const prompt = language === 'pt-BR' ? `
+Com base nestas consultas de pesquisa para vídeos de psicologia junguiana sobre "${topic}":
+${searchQueries.map((q, i) => `${i + 1}. ${q}`).join('\n')}
+
+Gere ${count} sugestões de recursos de vídeo que seriam valiosos para aprender estes conceitos:
+${concepts.map(c => `- ${c}`).join('\n')}
+
+Para cada vídeo, forneça:
+1. Um título educacional que indique claramente o conteúdo
+2. Uma descrição explicando o que os estudantes aprenderão
+3. Duração estimada em minutos (realista para o tipo de conteúdo)
+4. Quais conceitos específicos da lista ele cobre
+
+Torne as sugestões diversas:
+- Misture conteúdo estilo palestra e animado
+- Varie a duração de curto (5-10 min) a mais longo (20-45 min)
+- Inclua conteúdo introdutório e avançado
+
+IMPORTANTE: Todos os títulos e descrições devem estar em português brasileiro (pt-BR).
+
+Formato de resposta:
+[
+  {
+    "title": "Título do vídeo",
+    "description": "O que os estudantes aprenderão",
+    "url": "https://youtube.com/watch?v=PLACEHOLDER",
+    "duration": 15,
+    "relatedConcepts": ["conceito1", "conceito2"]
+  }
+]
+` : `
 Based on these search queries for Jungian psychology videos about "${topic}":
 ${searchQueries.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
@@ -252,7 +336,22 @@ Response format:
       } else {
         console.warn('Using fallback video suggestions due to invalid response');
         // Create fallback suggestions
-        return [
+        return language === 'pt-BR' ? [
+          {
+            title: `Introdução ao ${topic} na Psicologia Junguiana`,
+            description: `Aprenda os conceitos fundamentais do ${topic} e seu papel na psicologia analítica.`,
+            url: 'https://youtube.com/watch?v=dQw4w9WgXcQ',
+            duration: 15,
+            relatedConcepts: concepts.slice(0, 2)
+          },
+          {
+            title: `Conceitos e Aplicações Avançadas de ${topic}`,
+            description: `Explore aspectos mais profundos do ${topic} e aplicações práticas na terapia.`,
+            url: 'https://youtube.com/watch?v=dQw4w9WgXcQ',
+            duration: 25,
+            relatedConcepts: concepts.slice(1, 3)
+          }
+        ] : [
           {
             title: `Introduction to ${topic} in Jungian Psychology`,
             description: `Learn the fundamental concepts of ${topic} and its role in analytical psychology.`,
@@ -370,7 +469,7 @@ Response format:
         // Enhance description with learning path context
         const enhancedVideo: Video = {
           ...video,
-          description: `${video.description}\n\n📍 Learning Path: ${pathStep}`,
+          description: `${video.description}\n\n📍 Caminho de Aprendizagem: ${pathStep}`,
         };
         
         // Remove metadata from final output
@@ -452,14 +551,19 @@ Response format:
   async generateProgressiveLearningPath(
     topic: string,
     concepts: string[],
-    targetAudience: string
+    targetAudience: string,
+    language: string = 'pt-BR'
   ): Promise<{
     beginner: Video[];
     intermediate: Video[];
     advanced: Video[];
   }> {
     // Search for videos across different difficulty levels
-    const queries = [
+    const queries = language === 'pt-BR' ? [
+      `${topic} introdução básico iniciante português`,
+      `${topic} explicado intermediário legendado`,
+      `${topic} avançado teoria clínica Brasil`,
+    ] : [
       `${topic} introduction basics beginner`,
       `${topic} explained intermediate`,
       `${topic} advanced theory clinical`,

@@ -20,13 +20,13 @@ const Navigation: React.FC = () => {
   const { isAdmin, logout } = useAdmin();
 
   const navItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: Home },
-    { path: '/mindmap', label: 'Mind Map', icon: Network },
-    { path: '/enhanced-mindmap', label: 'AI Mind Map', icon: Brain },
-    { path: '/notes', label: 'Notes', icon: FileText },
-    { path: '/progress', label: 'Progress', icon: TrendingUp },
-    { path: '/bibliography', label: 'Resources', icon: Library },
-    { path: '/search', label: 'Search', icon: Search },
+    { path: '/dashboard', label: 'Painel', icon: Home },
+    { path: '/mindmap', label: 'Mapa Mental', icon: Network },
+    { path: '/enhanced-mindmap', label: 'Mapa Mental IA', icon: Brain },
+    { path: '/notes', label: 'Anotações', icon: FileText },
+    { path: '/progress', label: 'Progresso', icon: TrendingUp },
+    { path: '/bibliography', label: 'Recursos', icon: Library },
+    { path: '/search', label: 'Buscar', icon: Search },
   ];
 
   const handleLogout = () => {
@@ -41,7 +41,7 @@ const Navigation: React.FC = () => {
           <Link to="/dashboard" className="flex items-center space-x-3">
             <BookOpen className="w-8 h-8 text-primary-600" />
             <h1 className="text-xl font-display font-bold text-gray-900">
-              Jung's Psychology
+              Psicologia de Jung
             </h1>
           </Link>
           
@@ -83,14 +83,14 @@ const Navigation: React.FC = () => {
                   `}
                 >
                   <Settings className="w-4 h-4" />
-                  <span className="hidden sm:inline">Admin</span>
+                  <span className="hidden sm:inline">Administrador</span>
                 </Link>
                 <button
                   onClick={handleLogout}
                   className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200"
                 >
                   <LogOut className="w-4 h-4" />
-                  <span className="hidden sm:inline">Logout</span>
+                  <span className="hidden sm:inline">Sair</span>
                 </button>
               </>
             ) : (

@@ -3,66 +3,66 @@ import { Module } from '../types';
 export const modules: Module[] = [
   {
     id: 'intro-jung',
-    title: 'Introduction to Carl Jung',
-    description: 'Explore the life and foundational ideas of Carl Gustav Jung, the father of analytical psychology.',
+    title: 'Introdução a Carl Jung',
+    description: 'Explore a vida e as ideias fundamentais de Carl Gustav Jung, o pai da psicologia analítica.',
     icon: '🧠',
     estimatedTime: 30,
     difficulty: 'beginner',
-    category: 'Foundations',
+    category: 'Fundamentos',
     content: {
-      introduction: 'Carl Gustav Jung (1875-1961) was a Swiss psychiatrist and psychoanalyst who founded analytical psychology. His work has been influential in the fields of psychiatry, anthropology, archaeology, literature, philosophy, and religious studies.',
+      introduction: 'Carl Gustav Jung (1875-1961) foi um psiquiatra e psicanalista suíço que fundou a psicologia analítica. Seu trabalho foi influente nos campos da psiquiatria, antropologia, arqueologia, literatura, filosofia e estudos religiosos.',
       sections: [
         {
           id: 'life-overview',
-          title: 'Life and Career',
-          content: 'Jung was born in Kesswil, Switzerland, and studied medicine at the University of Basel. He worked with Eugen Bleuler at the Burghölzli psychiatric hospital in Zurich and later collaborated with Sigmund Freud before developing his own theories.',
+          title: 'Vida e Carreira',
+          content: 'Jung nasceu em Kesswil, Suíça, e estudou medicina na Universidade de Basel. Trabalhou com Eugen Bleuler no hospital psiquiátrico Burghölzli em Zurique e depois colaborou com Sigmund Freud antes de desenvolver suas próprias teorias.',
           keyTerms: [
-            { term: 'Analytical Psychology', definition: 'Jung\'s approach to psychology that emphasizes the importance of balance between conscious and unconscious processes.' },
-            { term: 'Burghölzli', definition: 'The psychiatric hospital in Zurich where Jung began his career.' }
+            { term: 'Psicologia Analítica', definition: 'A abordagem de Jung para a psicologia que enfatiza a importância do equilíbrio entre processos conscientes e inconscientes.' },
+            { term: 'Burghölzli', definition: 'O hospital psiquiátrico em Zurique onde Jung começou sua carreira.' }
           ]
         },
         {
           id: 'break-with-freud',
-          title: 'The Break with Freud',
-          content: 'Jung\'s relationship with Freud began in 1906 and ended in 1913 due to theoretical differences, particularly regarding the nature of the unconscious and the role of sexuality in psychological development.',
+          title: 'O Rompimento com Freud',
+          content: 'O relacionamento de Jung com Freud começou em 1906 e terminou em 1913 devido a diferenças teóricas, particularmente sobre a natureza do inconsciente e o papel da sexualidade no desenvolvimento psicológico.',
           keyTerms: [
-            { term: 'Libido', definition: 'Jung redefined this as general psychic energy, not just sexual energy as Freud proposed.' }
+            { term: 'Libido', definition: 'Jung redefiniu isso como energia psíquica geral, não apenas energia sexual como Freud propôs.' }
           ]
         }
       ],
       videos: [
         {
           id: 'jung-intro-1',
-          title: 'Carl Jung - The Man and His Symbols',
+          title: 'Carl Jung - O Homem e Seus Símbolos',
           youtubeId: 'wreioVJmhAI',
-          description: 'An introduction to Jung\'s life and major concepts.',
+          description: 'Uma introdução à vida de Jung e seus principais conceitos.',
           duration: 1200
         }
       ],
       quiz: {
         id: 'intro-quiz',
-        title: 'Introduction to Jung Quiz',
+        title: 'Questionário de Introdução a Jung',
         questions: [
           {
             id: 'q1',
-            question: 'In which year was Carl Jung born?',
+            question: 'Em que ano Carl Jung nasceu?',
             options: ['1865', '1875', '1885', '1895'],
             correctAnswer: 1,
-            explanation: 'Carl Jung was born in 1875 in Kesswil, Switzerland.'
+            explanation: 'Carl Jung nasceu em 1875 em Kesswil, Suíça.'
           },
           {
             id: 'q2',
-            question: 'What is the name of Jung\'s psychological approach?',
-            options: ['Behavioral Psychology', 'Analytical Psychology', 'Cognitive Psychology', 'Humanistic Psychology'],
+            question: 'Qual é o nome da abordagem psicológica de Jung?',
+            options: ['Psicologia Comportamental', 'Psicologia Analítica', 'Psicologia Cognitiva', 'Psicologia Humanística'],
             correctAnswer: 1,
-            explanation: 'Jung founded Analytical Psychology, which focuses on the balance between conscious and unconscious processes.'
+            explanation: 'Jung fundou a Psicologia Analítica, que foca no equilíbrio entre processos conscientes e inconscientes.'
           }
         ]
       },
       bibliography: [
         {
           id: 'mdm',
-          title: 'Memories, Dreams, Reflections',
+          title: 'Memórias, Sonhos, Reflexões',
           author: 'Carl Jung',
           year: 1963,
           type: 'book'
@@ -72,41 +72,41 @@ export const modules: Module[] = [
   },
   {
     id: 'collective-unconscious',
-    title: 'The Collective Unconscious',
-    description: 'Discover Jung\'s revolutionary concept of the collective unconscious and its archetypal contents.',
+    title: 'O Inconsciente Coletivo',
+    description: 'Descubra o conceito revolucionário de Jung sobre o inconsciente coletivo e seus conteúdos arquetípicos.',
     icon: '🌊',
     estimatedTime: 45,
     difficulty: 'intermediate',
     prerequisites: ['intro-jung'],
-    category: 'Core Concepts',
+    category: 'Conceitos Fundamentais',
     content: {
-      introduction: 'The collective unconscious is one of Jung\'s most significant contributions to psychology. It represents the deepest layer of the psyche, containing universal patterns and images inherited from our ancestral past.',
+      introduction: 'O inconsciente coletivo é uma das contribuições mais significativas de Jung para a psicologia. Representa a camada mais profunda da psique, contendo padrões e imagens universais herdados de nosso passado ancestral.',
       sections: [
         {
           id: 'definition',
-          title: 'Understanding the Collective Unconscious',
-          content: 'Unlike the personal unconscious, which contains forgotten or repressed personal experiences, the collective unconscious holds the experiences of our species. It is populated by archetypes - universal, primordial images and patterns.',
+          title: 'Compreendendo o Inconsciente Coletivo',
+          content: 'Diferentemente do inconsciente pessoal, que contém experiências pessoais esquecidas ou reprimidas, o inconsciente coletivo contém as experiências de nossa espécie. É povoado por arquétipos - imagens e padrões universais e primordiais.',
           keyTerms: [
-            { term: 'Collective Unconscious', definition: 'The part of the unconscious mind derived from ancestral memory and experience, common to all humankind.' },
-            { term: 'Archetypes', definition: 'Universal, inherited patterns or images present in the collective unconscious.' }
+            { term: 'Inconsciente Coletivo', definition: 'A parte da mente inconsciente derivada da memória e experiência ancestral, comum a toda a humanidade.' },
+            { term: 'Arquétipos', definition: 'Padrões ou imagens universais e herdados presentes no inconsciente coletivo.' }
           ]
         },
         {
           id: 'evidence',
-          title: 'Evidence for the Collective Unconscious',
-          content: 'Jung found evidence for the collective unconscious in dreams, myths, fairy tales, and religious symbolism across cultures. Similar themes and symbols appear independently in different societies throughout history.',
+          title: 'Evidências do Inconsciente Coletivo',
+          content: 'Jung encontrou evidências do inconsciente coletivo em sonhos, mitos, contos de fadas e simbolismo religioso em diferentes culturas. Temas e símbolos similares aparecem independentemente em diferentes sociedades ao longo da história.',
           keyTerms: [
-            { term: 'Synchronicity', definition: 'Meaningful coincidences that suggest a deeper pattern of connection.' },
-            { term: 'Mythological Motifs', definition: 'Recurring themes in myths across different cultures.' }
+            { term: 'Sincronicidade', definition: 'Coincidências significativas que sugerem um padrão mais profundo de conexão.' },
+            { term: 'Motivos Mitológicos', definition: 'Temas recorrentes em mitos de diferentes culturas.' }
           ]
         }
       ],
       videos: [
         {
           id: 'collective-unc-1',
-          title: 'Jung\'s Collective Unconscious Explained',
+          title: 'O Inconsciente Coletivo de Jung Explicado',
           youtubeId: '9M0w9FUQZ_k',
-          description: 'A detailed exploration of the collective unconscious concept.',
+          description: 'Uma exploração detalhada do conceito de inconsciente coletivo.',
           duration: 900
         }
       ]
@@ -114,41 +114,41 @@ export const modules: Module[] = [
   },
   {
     id: 'archetypes',
-    title: 'Major Archetypes',
-    description: 'Explore the primary archetypes including the Shadow, Anima/Animus, Self, and more.',
+    title: 'Principais Arquétipos',
+    description: 'Explore os principais arquétipos incluindo a Sombra, Anima/Animus, Si-mesmo e mais.',
     icon: '🎭',
     estimatedTime: 60,
     difficulty: 'intermediate',
     prerequisites: ['collective-unconscious'],
-    category: 'Archetypes',
+    category: 'Arquétipos',
     content: {
-      introduction: 'Archetypes are universal patterns or motifs that arise from the collective unconscious. Jung identified several major archetypes that play crucial roles in human psychology and development.',
+      introduction: 'Arquétipos são padrões ou motivos universais que surgem do inconsciente coletivo. Jung identificou vários arquétipos principais que desempenham papéis cruciais na psicologia e desenvolvimento humano.',
       sections: [
         {
           id: 'shadow',
-          title: 'The Shadow',
-          content: 'The Shadow represents the parts of ourselves that we deny or repress. It contains both negative aspects we wish to hide and positive qualities we have not yet recognized or developed.',
+          title: 'A Sombra',
+          content: 'A Sombra representa as partes de nós mesmos que negamos ou reprimimos. Contém tanto aspectos negativos que desejamos esconder quanto qualidades positivas que ainda não reconhecemos ou desenvolvemos.',
           keyTerms: [
-            { term: 'Shadow', definition: 'The unconscious aspect of personality that the conscious ego doesn\'t identify with.' },
-            { term: 'Shadow Work', definition: 'The process of integrating the shadow through self-awareness.' }
+            { term: 'Sombra', definition: 'O aspecto inconsciente da personalidade com o qual o ego consciente não se identifica.' },
+            { term: 'Trabalho com a Sombra', definition: 'O processo de integração da sombra através da autoconsciência.' }
           ]
         },
         {
           id: 'anima-animus',
-          title: 'Anima and Animus',
-          content: 'The Anima is the feminine aspect within the male psyche, while the Animus is the masculine aspect within the female psyche. These contrasexual archetypes serve as bridges to the unconscious.',
+          title: 'Anima e Animus',
+          content: 'A Anima é o aspecto feminino dentro da psique masculina, enquanto o Animus é o aspecto masculino dentro da psique feminina. Esses arquétipos contrassexuais servem como pontes para o inconsciente.',
           keyTerms: [
-            { term: 'Anima', definition: 'The feminine inner personality in men.' },
-            { term: 'Animus', definition: 'The masculine inner personality in women.' }
+            { term: 'Anima', definition: 'A personalidade interior feminina nos homens.' },
+            { term: 'Animus', definition: 'A personalidade interior masculina nas mulheres.' }
           ]
         },
         {
           id: 'self',
-          title: 'The Self',
-          content: 'The Self represents the unified whole of conscious and unconscious. It is both the totality of the psyche and the archetype of wholeness and self-realization.',
+          title: 'O Si-mesmo',
+          content: 'O Si-mesmo representa o todo unificado de consciente e inconsciente. É tanto a totalidade da psique quanto o arquétipo da totalidade e autorealização.',
           keyTerms: [
-            { term: 'Self', definition: 'The archetype of wholeness and the regulating center of the psyche.' },
-            { term: 'Mandala', definition: 'A circular symbol representing the Self and wholeness.' }
+            { term: 'Si-mesmo', definition: 'O arquétipo da totalidade e o centro regulador da psique.' },
+            { term: 'Mandala', definition: 'Um símbolo circular representando o Si-mesmo e a totalidade.' }
           ]
         }
       ]
@@ -156,23 +156,23 @@ export const modules: Module[] = [
   },
   {
     id: 'individuation',
-    title: 'The Individuation Process',
-    description: 'Learn about the journey toward psychological wholeness and self-realization.',
+    title: 'O Processo de Individuação',
+    description: 'Aprenda sobre a jornada em direção à totalidade psicológica e autorealização.',
     icon: '🌟',
     estimatedTime: 50,
     difficulty: 'advanced',
     prerequisites: ['archetypes'],
-    category: 'Personal Development',
+    category: 'Desenvolvimento Pessoal',
     content: {
-      introduction: 'Individuation is the central process of human psychological development in Jungian psychology. It involves integrating various aspects of the psyche to achieve psychological wholeness.',
+      introduction: 'A individuação é o processo central do desenvolvimento psicológico humano na psicologia junguiana. Envolve integrar vários aspectos da psique para alcançar a totalidade psicológica.',
       sections: [
         {
           id: 'stages',
-          title: 'Stages of Individuation',
-          content: 'The individuation process typically involves confronting the persona, integrating the shadow, encountering the anima/animus, and ultimately realizing the Self.',
+          title: 'Estágios da Individuação',
+          content: 'O processo de individuação tipicamente envolve confrontar a persona, integrar a sombra, encontrar a anima/animus e, finalmente, realizar o Si-mesmo.',
           keyTerms: [
-            { term: 'Individuation', definition: 'The process of psychological integration and self-realization.' },
-            { term: 'Persona', definition: 'The mask or role we present to the outside world.' }
+            { term: 'Individuação', definition: 'O processo de integração psicológica e autorealização.' },
+            { term: 'Persona', definition: 'A máscara ou papel que apresentamos ao mundo exterior.' }
           ]
         }
       ]
@@ -180,22 +180,22 @@ export const modules: Module[] = [
   },
   {
     id: 'psychological-types',
-    title: 'Psychological Types',
-    description: 'Understand Jung\'s theory of personality types, including introversion/extraversion and the four functions.',
+    title: 'Tipos Psicológicos',
+    description: 'Compreenda a teoria de Jung sobre tipos de personalidade, incluindo introversão/extraversão e as quatro funções.',
     icon: '🔄',
     estimatedTime: 40,
     difficulty: 'intermediate',
-    category: 'Personality Theory',
+    category: 'Teoria da Personalidade',
     content: {
-      introduction: 'Jung\'s theory of psychological types describes how people perceive and judge the world differently. This framework has influenced many modern personality assessments.',
+      introduction: 'A teoria de tipos psicológicos de Jung descreve como as pessoas percebem e julgam o mundo de formas diferentes. Esta estrutura influenciou muitas avaliações modernas de personalidade.',
       sections: [
         {
           id: 'attitudes',
-          title: 'Attitudes: Introversion and Extraversion',
-          content: 'Jung identified two fundamental attitudes: introversion (oriented toward the inner world) and extraversion (oriented toward the outer world).',
+          title: 'Atitudes: Introversão e Extraversão',
+          content: 'Jung identificou duas atitudes fundamentais: introversão (orientada para o mundo interior) e extraversão (orientada para o mundo exterior).',
           keyTerms: [
-            { term: 'Introversion', definition: 'An attitude characterized by orientation toward one\'s inner world.' },
-            { term: 'Extraversion', definition: 'An attitude characterized by orientation toward the external world.' }
+            { term: 'Introversão', definition: 'Uma atitude caracterizada pela orientação para o mundo interior.' },
+            { term: 'Extraversão', definition: 'Uma atitude caracterizada pela orientação para o mundo exterior.' }
           ]
         },
         {

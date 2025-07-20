@@ -61,12 +61,12 @@ const TestYouTubeAPI: React.FC = () => {
         {isLoading ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
-            <span>Testing API...</span>
+            <span>Testando API...</span>
           </>
         ) : (
           <>
             <CheckCircle className="w-4 h-4" />
-            <span>Test YouTube API with Fetch</span>
+            <span>Testar API do YouTube com Fetch</span>
           </>
         )}
       </button>
@@ -76,7 +76,7 @@ const TestYouTubeAPI: React.FC = () => {
           <div className="flex items-start space-x-2">
             <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
             <div className="flex-1">
-              <p className="text-red-800 font-semibold">API Error</p>
+              <p className="text-red-800 font-semibold">Erro de API</p>
               <pre className="mt-2 text-sm text-red-700 whitespace-pre-wrap">{error}</pre>
             </div>
           </div>

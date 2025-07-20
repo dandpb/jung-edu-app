@@ -163,7 +163,7 @@ const AdminMindMap: React.FC = () => {
 
   const handleSaveChanges = useCallback(() => {
     updateMindMap(nodes as MindMapNode[], edges as MindMapEdge[]);
-    alert('Mind map saved successfully!');
+    alert('Mapa mental salvo com sucesso!');
   }, [nodes, edges, updateMindMap]);
 
   const handleExport = useCallback(() => {
@@ -192,9 +192,9 @@ const AdminMindMap: React.FC = () => {
           const data = JSON.parse(e.target?.result as string);
           setNodes(data.nodes || []);
           setEdges(data.edges || []);
-          alert('Mind map imported successfully!');
+          alert('Mapa mental importado com sucesso!');
         } catch (error) {
-          alert('Failed to import mind map. Please check the file format.');
+          alert('Falha ao importar o mapa mental. Por favor, verifique o formato do arquivo.');
         }
       };
       reader.readAsText(file);
@@ -206,10 +206,10 @@ const AdminMindMap: React.FC = () => {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-3xl font-display font-bold text-gray-900 mb-2">
-            Mind Map Editor
+            Editor de Mapa Mental
           </h1>
           <p className="text-gray-600">
-            Create and edit the interactive concept mind map
+            Criar e editar o mapa mental interativo de conceitos
           </p>
         </div>
         <div className="flex items-center space-x-3">
@@ -218,14 +218,14 @@ const AdminMindMap: React.FC = () => {
             className="btn-secondary flex items-center space-x-2"
           >
             <Plus className="w-4 h-4" />
-            <span>Add Node</span>
+            <span>Adicionar Nó</span>
           </button>
           <button
             onClick={handleSaveChanges}
             className="btn-primary flex items-center space-x-2"
           >
             <Save className="w-4 h-4" />
-            <span>Save Changes</span>
+            <span>Salvar Alterações</span>
           </button>
         </div>
       </div>
@@ -248,14 +248,14 @@ const AdminMindMap: React.FC = () => {
             
             <Panel position="top-left" className="bg-white rounded-lg shadow-lg p-4">
               <div className="space-y-3">
-                <h3 className="font-medium text-gray-900">Node Categories</h3>
+                <h3 className="font-medium text-gray-900">Categorias de Nós</h3>
                 {Object.entries(nodeCategories).map(([category, style]) => (
                   <div key={category} className="flex items-center space-x-2">
                     <div
                       className="w-4 h-4 rounded"
                       style={{ backgroundColor: style.color }}
                     />
-                    <span className="text-sm capitalize">{category}</span>
+                    <span className="text-sm capitalize">{category === 'central' ? 'Central' : category === 'primary' ? 'Primário' : category === 'secondary' ? 'Secundário' : 'Terciário'}</span>
                   </div>
                 ))}
               </div>
@@ -268,11 +268,11 @@ const AdminMindMap: React.FC = () => {
                   className="flex items-center space-x-2 text-sm text-gray-700 hover:text-gray-900"
                 >
                   <Download className="w-4 h-4" />
-                  <span>Export</span>
+                  <span>Exportar</span>
                 </button>
                 <label className="flex items-center space-x-2 text-sm text-gray-700 hover:text-gray-900 cursor-pointer">
                   <Upload className="w-4 h-4" />
-                  <span>Import</span>
+                  <span>Importar</span>
                   <input
                     type="file"
                     accept=".json"
@@ -286,7 +286,7 @@ const AdminMindMap: React.FC = () => {
             {selectedNode && !editingNode && (
               <Panel position="top-right" className="bg-white rounded-lg shadow-lg p-4">
                 <div className="space-y-3">
-                  <h3 className="font-medium text-gray-900">Selected Node</h3>
+                  <h3 className="font-medium text-gray-900">Nó Selecionado</h3>
                   <p className="text-sm text-gray-600">
                     {(selectedNode.data as NodeData).label}
                   </p>
@@ -316,19 +316,19 @@ const AdminMindMap: React.FC = () => {
             {editingNode && (
               <Panel position="top-right" className="bg-white rounded-lg shadow-lg p-4">
                 <div className="space-y-3">
-                  <h3 className="font-medium text-gray-900">Edit Node</h3>
+                  <h3 className="font-medium text-gray-900">Editar Nó</h3>
                   <input
                     type="text"
                     value={editLabel}
                     onChange={(e) => setEditLabel(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    placeholder="Node label"
+                    placeholder="Rótulo do nó"
                   />
                   <textarea
                     value={editDescription}
                     onChange={(e) => setEditDescription(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    placeholder="Description (optional)"
+                    placeholder="Descrição (opcional)"
                     rows={2}
                   />
                   <div className="flex items-center space-x-2">
@@ -355,23 +355,23 @@ const AdminMindMap: React.FC = () => {
       {showNodeForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Add New Node</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Adicionar Novo Nó</h2>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Label
+                  Rótulo
                 </label>
                 <input
                   type="text"
                   value={newNodeData.label}
                   onChange={(e) => setNewNodeData({ ...newNodeData, label: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  placeholder="Enter node label"
+                  placeholder="Digite o rótulo do nó"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Category
+                  Categoria
                 </label>
                 <select
                   value={newNodeData.category}
@@ -379,20 +379,20 @@ const AdminMindMap: React.FC = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="central">Central</option>
-                  <option value="primary">Primary</option>
-                  <option value="secondary">Secondary</option>
-                  <option value="tertiary">Tertiary</option>
+                  <option value="primary">Primário</option>
+                  <option value="secondary">Secundário</option>
+                  <option value="tertiary">Terciário</option>
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description (optional)
+                  Descrição (opcional)
                 </label>
                 <textarea
                   value={newNodeData.description}
                   onChange={(e) => setNewNodeData({ ...newNodeData, description: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  placeholder="Enter node description"
+                  placeholder="Digite a descrição do nó"
                   rows={3}
                 />
               </div>
@@ -404,14 +404,14 @@ const AdminMindMap: React.FC = () => {
                   }}
                   className="px-4 py-2 text-gray-700 hover:text-gray-900"
                 >
-                  Cancel
+                  Cancelar
                 </button>
                 <button
                   onClick={handleAddNode}
                   disabled={!newNodeData.label}
                   className="btn-primary"
                 >
-                  Add Node
+                  Adicionar Nó
                 </button>
               </div>
             </div>

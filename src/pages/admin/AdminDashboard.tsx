@@ -16,52 +16,52 @@ const AdminDashboard: React.FC = () => {
 
   const adminCards = [
     {
-      title: 'Manage Modules',
-      description: 'Create, edit, and organize learning modules',
+      title: 'Gerenciar Módulos',
+      description: 'Criar, editar e organizar módulos de aprendizagem',
       icon: BookOpen,
       path: '/admin/modules',
-      stats: `${modules.length} modules`,
+      stats: `${modules.length} módulos`,
       color: 'bg-blue-500'
     },
     {
-      title: 'Mind Map Editor',
-      description: 'Configure the interactive concept mind map',
+      title: 'Editor de Mapa Mental',
+      description: 'Configurar o mapa mental interativo de conceitos',
       icon: Network,
       path: '/admin/mindmap',
-      stats: 'Interactive editor',
+      stats: 'Editor interativo',
       color: 'bg-purple-500'
     },
     {
-      title: 'Resources & Media',
-      description: 'Manage bibliography, films, and videos',
+      title: 'Recursos e Mídia',
+      description: 'Gerenciar bibliografia, filmes e vídeos',
       icon: Library,
       path: '/admin/resources',
-      stats: 'Books, Films, Videos',
+      stats: 'Livros, Filmes, Vídeos',
       color: 'bg-green-500'
     }
   ];
 
   const stats = [
     {
-      label: 'Total Modules',
+      label: 'Total de Módulos',
       value: modules.length,
       icon: BookOpen,
       color: 'text-blue-600'
     },
     {
-      label: 'Total Quizzes',
+      label: 'Total de Questionários',
       value: modules.filter(m => m.content.quiz).length,
       icon: BarChart3,
       color: 'text-purple-600'
     },
     {
-      label: 'Video Content',
+      label: 'Conteúdo de Vídeo',
       value: modules.reduce((acc, m) => acc + (m.content.videos?.length || 0), 0),
       icon: Library,
       color: 'text-green-600'
     },
     {
-      label: 'Active Users',
+      label: 'Usuários Ativos',
       value: '1',
       icon: Users,
       color: 'text-orange-600'
@@ -72,10 +72,10 @@ const AdminDashboard: React.FC = () => {
     <div className="max-w-7xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-display font-bold text-gray-900 mb-2">
-          Admin Dashboard
+          Painel Administrativo
         </h1>
         <p className="text-gray-600">
-          Welcome back, {currentAdmin?.username}! Manage your educational content here.
+          Bem-vindo de volta, {currentAdmin?.username}! Gerencie seu conteúdo educacional aqui.
         </p>
       </div>
 
@@ -132,26 +132,26 @@ const AdminDashboard: React.FC = () => {
       {/* Quick Actions */}
       <div className="mt-8 card bg-gray-50">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Quick Actions
+          Ações Rápidas
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
             to="/admin/modules"
             className="btn-secondary text-center"
           >
-            Add New Module
+            Adicionar Novo Módulo
           </Link>
           <Link
             to="/admin/mindmap"
             className="btn-secondary text-center"
           >
-            Edit Mind Map
+            Editar Mapa Mental
           </Link>
           <Link
             to="/admin/resources"
             className="btn-secondary text-center"
           >
-            Add Resources
+            Adicionar Recursos
           </Link>
         </div>
       </div>
@@ -161,8 +161,8 @@ const AdminDashboard: React.FC = () => {
         <div className="flex items-center space-x-2 text-blue-800">
           <Settings className="w-5 h-5" />
           <p className="text-sm">
-            <strong>System Status:</strong> All systems operational. 
-            Last login: {currentAdmin?.lastLogin ? new Date(currentAdmin.lastLogin).toLocaleString() : 'Never'}
+            <strong>Status do Sistema:</strong> Todos os sistemas operacionais. 
+            Último login: {currentAdmin?.lastLogin ? new Date(currentAdmin.lastLogin).toLocaleString('pt-BR') : 'Nunca'}
           </p>
         </div>
       </div>

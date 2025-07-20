@@ -130,7 +130,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ modules }) => {
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-6 h-6" />
           <input
             type="text"
-            placeholder="Search for concepts, terms, or topics..."
+            placeholder="Buscar conceitos, termos ou tópicos..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-12 pr-4 py-4 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -190,17 +190,17 @@ const SearchPage: React.FC<SearchPageProps> = ({ modules }) => {
         <div className="text-center py-12">
           <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <p className="text-gray-500">
-            No results found for "{searchQuery}"
+            Nenhum resultado encontrado para "{searchQuery}"
           </p>
           <p className="text-sm text-gray-400 mt-2">
-            Try searching for different keywords or check your spelling
+            Tente buscar com palavras-chave diferentes ou verifique a ortografia
           </p>
         </div>
       ) : (
         <div className="text-center py-12">
           <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <p className="text-gray-500">
-            Start typing to search across all content
+            Comece a digitar para buscar em todo o conteúdo
           </p>
         </div>
       )}
