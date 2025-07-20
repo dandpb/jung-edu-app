@@ -4,7 +4,6 @@ import {
   BookOpen, 
   Network, 
   FileText, 
-  TrendingUp, 
   Library, 
   Search,
   Home,
@@ -24,7 +23,6 @@ const Navigation: React.FC = () => {
     { path: '/mindmap', label: 'Mapa Mental', icon: Network },
     { path: '/enhanced-mindmap', label: 'Mapa Mental IA', icon: Brain },
     { path: '/notes', label: 'Anotações', icon: FileText },
-    { path: '/progress', label: 'Progresso', icon: TrendingUp },
     { path: '/bibliography', label: 'Recursos', icon: Library },
     { path: '/search', label: 'Buscar', icon: Search },
   ];

@@ -8,7 +8,6 @@ import Dashboard from '../../pages/Dashboard';
 import NotesPage from '../../pages/NotesPage';
 import SearchPage from '../../pages/SearchPage';
 import BibliographyPage from '../../pages/BibliographyPage';
-import ProgressPage from '../../pages/ProgressPage';
 import AdminLogin from '../../pages/admin/AdminLogin';
 import AdminDashboard from '../../pages/admin/AdminDashboard';
 import Navigation from '../../components/Navigation';
@@ -90,7 +89,6 @@ describe('User Workflow Integration Tests', () => {
                 <Route path="/notes" element={<NotesPage modules={mockModules} userProgress={mockUserProgress} updateProgress={() => {}} />} />
                 <Route path="/search" element={<SearchPage modules={mockModules} />} />
                 <Route path="/bibliography" element={<BibliographyPage modules={mockModules} />} />
-                <Route path="/progress" element={<ProgressPage userProgress={mockUserProgress} modules={mockModules} />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin" element={<AdminDashboard />} />
               </Routes>
@@ -144,12 +142,7 @@ describe('User Workflow Integration Tests', () => {
         expect(screen.getByText(/notes/i)).toBeInTheDocument();
       });
       
-      // 7. Check progress
-      await user.click(screen.getByRole('link', { name: /progress/i }));
-      
-      await waitFor(() => {
-        expect(screen.getByText(/learning progress/i)).toBeInTheDocument();
-      });
+      // Progress page has been removed from the application
     });
 
     it('should handle note-taking workflow', async () => {

@@ -33,4 +33,40 @@
   .module-card {
     @apply card cursor-pointer transform hover:scale-[1.02] hover:border-primary-300;
   }
+  
+  /* Enhanced list styles for module content */
+  .module-content ol,
+  .prose ol {
+    @apply list-decimal pl-8 space-y-3;
+  }
+  
+  .module-content ul,
+  .prose ul {
+    @apply list-disc pl-8 space-y-3;
+  }
+  
+  .module-content li,
+  .prose li {
+    @apply leading-relaxed;
+  }
+  
+  /* Nested lists */
+  .module-content li ol,
+  .module-content li ul,
+  .prose li ol,
+  .prose li ul {
+    @apply mt-2 pl-6;
+  }
+  
+  /* Strong text at the beginning of list items */
+  .module-content li > strong:first-child,
+  .prose li > strong:first-child {
+    @apply text-gray-900 font-semibold;
+  }
+  
+  /* Better spacing for list items with bold titles */
+  .module-content li > strong:first-child + *,
+  .prose li > strong:first-child + * {
+    @apply inline;
+  }
 }

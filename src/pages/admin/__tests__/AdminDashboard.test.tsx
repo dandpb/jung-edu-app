@@ -76,10 +76,7 @@ const mockUseAdmin = () => ({
   login: jest.fn(),
   logout: jest.fn(),
   modules: mockModules,
-  updateModules: jest.fn(),
-  mindMapNodes: [],
-  mindMapEdges: [],
-  updateMindMap: jest.fn()
+  updateModules: jest.fn()
 });
 
 const renderWithRouter = (component: React.ReactElement) => {
@@ -105,31 +102,31 @@ describe('AdminDashboard Component', () => {
   test('renders admin dashboard with correct title and welcome message', () => {
     renderWithRouter(<AdminDashboard />);
     
-    expect(screen.getByText('Admin Dashboard')).toBeInTheDocument();
-    expect(screen.getByText(/Welcome back, testadmin!/)).toBeInTheDocument();
+    expect(screen.getByText('Painel Administrativo')).toBeInTheDocument();
+    expect(screen.getByText(/Bem-vindo de volta, testadmin!/)).toBeInTheDocument();
   });
 
   test('displays correct statistics', () => {
     renderWithRouter(<AdminDashboard />);
     
     // Total Modules
-    expect(screen.getByText('Total Modules')).toBeInTheDocument();
-    const moduleStats = screen.getByText('Total Modules').closest('div')?.parentElement;
+    expect(screen.getByText('Total de Módulos')).toBeInTheDocument();
+    const moduleStats = screen.getByText('Total de Módulos').closest('div')?.parentElement;
     expect(moduleStats?.textContent).toContain('3');
     
     // Total Quizzes (2 modules have quizzes)
-    expect(screen.getByText('Total Quizzes')).toBeInTheDocument();
-    const quizStats = screen.getByText('Total Quizzes').closest('div')?.parentElement;
+    expect(screen.getByText('Total de Questionários')).toBeInTheDocument();
+    const quizStats = screen.getByText('Total de Questionários').closest('div')?.parentElement;
     expect(quizStats?.textContent).toContain('2');
     
     // Video Content (3 videos total)
-    expect(screen.getByText('Video Content')).toBeInTheDocument();
-    const videoStats = screen.getByText('Video Content').closest('div')?.parentElement;
+    expect(screen.getByText('Conteúdo de Vídeo')).toBeInTheDocument();
+    const videoStats = screen.getByText('Conteúdo de Vídeo').closest('div')?.parentElement;
     expect(videoStats?.textContent).toContain('3');
     
     // Active Users
-    expect(screen.getByText('Active Users')).toBeInTheDocument();
-    const userStats = screen.getByText('Active Users').closest('div')?.parentElement;
+    expect(screen.getByText('Usuários Ativos')).toBeInTheDocument();
+    const userStats = screen.getByText('Usuários Ativos').closest('div')?.parentElement;
     expect(userStats?.textContent).toContain('1');
   });
 
@@ -137,55 +134,44 @@ describe('AdminDashboard Component', () => {
     renderWithRouter(<AdminDashboard />);
     
     // Manage Modules card
-    expect(screen.getByText('Manage Modules')).toBeInTheDocument();
-    expect(screen.getByText('Create, edit, and organize learning modules')).toBeInTheDocument();
-    expect(screen.getByText('3 modules')).toBeInTheDocument();
-    
-    // Mind Map Editor card
-    expect(screen.getByText('Mind Map Editor')).toBeInTheDocument();
-    expect(screen.getByText('Configure the interactive concept mind map')).toBeInTheDocument();
-    expect(screen.getByText('Interactive editor')).toBeInTheDocument();
+    expect(screen.getByText('Gerenciar Módulos')).toBeInTheDocument();
+    expect(screen.getByText('Criar, editar e organizar módulos de aprendizagem')).toBeInTheDocument();
+    expect(screen.getByText('3 módulos')).toBeInTheDocument();
     
     // Resources & Media card
-    expect(screen.getByText('Resources & Media')).toBeInTheDocument();
-    expect(screen.getByText('Manage bibliography, films, and videos')).toBeInTheDocument();
-    expect(screen.getByText('Books, Films, Videos')).toBeInTheDocument();
+    expect(screen.getByText('Recursos e Mídia')).toBeInTheDocument();
+    expect(screen.getByText('Gerenciar bibliografia, filmes e vídeos')).toBeInTheDocument();
+    expect(screen.getByText('Livros, Filmes, Vídeos')).toBeInTheDocument();
   });
 
   test('admin cards are clickable links with correct paths', () => {
     renderWithRouter(<AdminDashboard />);
     
-    const manageModulesLink = screen.getByRole('link', { name: /Manage Modules/i });
+    const manageModulesLink = screen.getByRole('link', { name: /Gerenciar Módulos/i });
     expect(manageModulesLink).toHaveAttribute('href', '/admin/modules');
     
-    const mindMapLink = screen.getByRole('link', { name: /Mind Map Editor/i });
-    expect(mindMapLink).toHaveAttribute('href', '/admin/mindmap');
-    
-    const resourcesLink = screen.getByRole('link', { name: /Resources & Media/i });
+    const resourcesLink = screen.getByRole('link', { name: /Recursos e Mídia/i });
     expect(resourcesLink).toHaveAttribute('href', '/admin/resources');
   });
 
   test('renders quick action buttons', () => {
     renderWithRouter(<AdminDashboard />);
     
-    expect(screen.getByText('Quick Actions')).toBeInTheDocument();
+    expect(screen.getByText('Ações Rápidas')).toBeInTheDocument();
     
-    const addModuleBtn = screen.getByRole('link', { name: 'Add New Module' });
+    const addModuleBtn = screen.getByRole('link', { name: 'Adicionar Novo Módulo' });
     expect(addModuleBtn).toHaveAttribute('href', '/admin/modules');
     
-    const editMindMapBtn = screen.getByRole('link', { name: 'Edit Mind Map' });
-    expect(editMindMapBtn).toHaveAttribute('href', '/admin/mindmap');
-    
-    const addResourcesBtn = screen.getByRole('link', { name: 'Add Resources' });
+    const addResourcesBtn = screen.getByRole('link', { name: 'Adicionar Recursos' });
     expect(addResourcesBtn).toHaveAttribute('href', '/admin/resources');
   });
 
   test('displays system status with last login information', () => {
     renderWithRouter(<AdminDashboard />);
     
-    expect(screen.getByText(/System Status:/)).toBeInTheDocument();
-    expect(screen.getByText(/All systems operational/)).toBeInTheDocument();
-    expect(screen.getByText(/Last login:/)).toBeInTheDocument();
+    expect(screen.getByText(/Status do Sistema:/)).toBeInTheDocument();
+    expect(screen.getByText(/Todos os sistemas operacionais/)).toBeInTheDocument();
+    expect(screen.getByText(/Último login:/)).toBeInTheDocument();
     // The component uses toLocaleString() which includes time
     const expectedDate = new Date('2024-01-15T10:00:00').toLocaleString();
     expect(screen.getByText(new RegExp(expectedDate.split(',')[0]))).toBeInTheDocument();
@@ -200,8 +186,8 @@ describe('AdminDashboard Component', () => {
     
     renderWithRouter(<AdminDashboard />);
     
-    expect(screen.getByText(/Welcome back, !/)).toBeInTheDocument();
-    expect(screen.getByText(/Last login: Never/)).toBeInTheDocument();
+    expect(screen.getByText(/Bem-vindo de volta, !/)).toBeInTheDocument();
+    expect(screen.getByText(/Último login: Nunca/)).toBeInTheDocument();
   });
 
   test('calculates statistics correctly with empty modules', () => {
@@ -233,9 +219,9 @@ describe('AdminDashboard Component', () => {
     renderWithRouter(<AdminDashboard />);
     
     // Video count should be 0
-    expect(screen.getByText('Video Content')).toBeInTheDocument();
+    expect(screen.getByText('Conteúdo de Vídeo')).toBeInTheDocument();
     const videoCount = screen.getAllByText('0').find(el => 
-      el.closest('div')?.textContent?.includes('Video Content')
+      el.closest('div')?.textContent?.includes('Conteúdo de Vídeo')
     );
     expect(videoCount).toBeInTheDocument();
   });
@@ -244,7 +230,7 @@ describe('AdminDashboard Component', () => {
     const user = userEvent.setup();
     renderWithRouter(<AdminDashboard />);
     
-    const manageModulesCard = screen.getByRole('link', { name: /Manage Modules/i });
+    const manageModulesCard = screen.getByRole('link', { name: /Gerenciar Módulos/i });
     
     // Check initial state
     expect(manageModulesCard).toHaveClass('card');
@@ -261,10 +247,10 @@ describe('AdminDashboard Component', () => {
     renderWithRouter(<AdminDashboard />);
     
     // Check for presence of lucide icons by their SVG elements
-    const container = screen.getByText('Admin Dashboard').closest('div')?.parentElement;
+    const container = screen.getByText('Painel Administrativo').closest('div')?.parentElement;
     const svgIcons = container?.querySelectorAll('svg.lucide');
     
-    // We expect multiple icons: stat icons (4), card icons (3), arrow icons (3), settings icon (1)
-    expect(svgIcons?.length).toBeGreaterThanOrEqual(11);
+    // We expect multiple icons: stat icons (4), card icons (2), arrow icons (2), settings icon (1)
+    expect(svgIcons?.length).toBeGreaterThanOrEqual(9);
   });
 });

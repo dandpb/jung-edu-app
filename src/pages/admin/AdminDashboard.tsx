@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
   BookOpen, 
-  Network, 
   Library, 
   Users, 
   BarChart3, 
@@ -22,14 +21,6 @@ const AdminDashboard: React.FC = () => {
       path: '/admin/modules',
       stats: `${modules.length} módulos`,
       color: 'bg-blue-500'
-    },
-    {
-      title: 'Editor de Mapa Mental',
-      description: 'Configurar o mapa mental interativo de conceitos',
-      icon: Network,
-      path: '/admin/mindmap',
-      stats: 'Editor interativo',
-      color: 'bg-purple-500'
     },
     {
       title: 'Recursos e Mídia',
@@ -100,7 +91,7 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Admin Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {adminCards.map((card) => {
           const Icon = card.icon;
           return (
@@ -134,18 +125,12 @@ const AdminDashboard: React.FC = () => {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
           Ações Rápidas
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link
             to="/admin/modules"
             className="btn-secondary text-center"
           >
             Adicionar Novo Módulo
-          </Link>
-          <Link
-            to="/admin/mindmap"
-            className="btn-secondary text-center"
-          >
-            Editar Mapa Mental
           </Link>
           <Link
             to="/admin/resources"

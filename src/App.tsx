@@ -10,7 +10,6 @@ import MiniMapDemo from './pages/MiniMapDemo';
 import EnhancedMindMapPage from './pages/EnhancedMindMapPage';
 import AIDemo from './pages/AIDemo';
 import NotesPage from './pages/NotesPage';
-import ProgressPage from './pages/ProgressPage';
 import BibliographyPage from './pages/BibliographyPage';
 import SearchPage from './pages/SearchPage';
 import TestYouTubeIntegration from './pages/TestYouTubeIntegration';
@@ -18,7 +17,6 @@ import TestYouTubeAPI from './pages/TestYouTubeAPI';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminModules from './pages/admin/AdminModules';
-import AdminMindMap from './pages/admin/AdminMindMap';
 import AdminResources from './pages/admin/AdminResources';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -110,15 +108,6 @@ function AppContent() {
                 } 
               />
               <Route 
-                path="/progress" 
-                element={
-                  <ProgressPage 
-                    userProgress={userProgress}
-                    modules={modules}
-                  />
-                } 
-              />
-              <Route 
                 path="/bibliography" 
                 element={<BibliographyPage modules={modules} />} 
               />
@@ -150,14 +139,6 @@ function AppContent() {
                 element={
                   <ProtectedRoute>
                     <AdminModules />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/mindmap"
-                element={
-                  <ProtectedRoute>
-                    <AdminMindMap />
                   </ProtectedRoute>
                 }
               />

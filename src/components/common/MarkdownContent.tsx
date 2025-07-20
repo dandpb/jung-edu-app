@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { processContentForMarkdown } from '../../utils/contentProcessor';
 
 interface MarkdownContentProps {
   content: string;
@@ -54,17 +55,17 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({
       </p>
     ),
     ul: ({ children, ...props }: any) => (
-      <ul className="list-disc list-inside mb-4 space-y-1 text-gray-700" {...props}>
+      <ul className="list-disc pl-6 mb-4 space-y-2 text-gray-700" {...props}>
         {children}
       </ul>
     ),
     ol: ({ children, ...props }: any) => (
-      <ol className="list-decimal list-inside mb-4 space-y-1 text-gray-700" {...props}>
+      <ol className="list-decimal pl-6 mb-4 space-y-2 text-gray-700" {...props}>
         {children}
       </ol>
     ),
     li: ({ children, ...props }: any) => (
-      <li className="ml-4" {...props}>
+      <li className="mb-2 leading-relaxed" {...props}>
         {children}
       </li>
     ),
@@ -146,13 +147,16 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({
     ? `prose prose-lg max-w-none ${className}`
     : className;
 
+  // Process content to fix list formatting
+  const processedContent = processContentForMarkdown(content);
+
   return (
     <div className={baseClassName}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={components}
       >
-        {content}
+        {processedContent}
       </ReactMarkdown>
     </div>
   );

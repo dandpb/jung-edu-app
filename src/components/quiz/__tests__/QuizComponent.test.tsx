@@ -36,7 +36,7 @@ describe('QuizComponent', () => {
     
     expect(screen.getByText('Test Quiz')).toBeInTheDocument();
     expect(screen.getByText('What is 2 + 2?')).toBeInTheDocument();
-    expect(screen.getByText('Question 1 of 2')).toBeInTheDocument();
+    expect(screen.getByText('Questão 1 de 2')).toBeInTheDocument();
   });
 
   test('displays all answer options', () => {
@@ -79,10 +79,10 @@ describe('QuizComponent', () => {
     render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
     
     fireEvent.click(screen.getByText('4'));
-    fireEvent.click(screen.getByText('Next Question'));
+    fireEvent.click(screen.getByText('Próxima Questão'));
     
     expect(screen.getByText('What is the capital of France?')).toBeInTheDocument();
-    expect(screen.getByText('Question 2 of 2')).toBeInTheDocument();
+    expect(screen.getByText('Questão 2 de 2')).toBeInTheDocument();
   });
 
   test('completes quiz and shows results', () => {
@@ -90,15 +90,15 @@ describe('QuizComponent', () => {
     
     // Answer first question correctly
     fireEvent.click(screen.getByText('4'));
-    fireEvent.click(screen.getByText('Next Question'));
+    fireEvent.click(screen.getByText('Próxima Questão'));
     
     // Answer second question correctly
     fireEvent.click(screen.getByText('Paris'));
-    fireEvent.click(screen.getByText('Finish Quiz'));
+    fireEvent.click(screen.getByText('Finalizar Questionário'));
     
-    expect(screen.getByText('Quiz Complete!')).toBeInTheDocument();
+    expect(screen.getByText('Questionário Concluído!')).toBeInTheDocument();
     expect(screen.getByText('100%')).toBeInTheDocument();
-    expect(screen.getByText('You got 2 out of 2 questions correct')).toBeInTheDocument();
+    expect(screen.getByText('Você acertou 2 de 2 questões')).toBeInTheDocument();
     expect(mockOnComplete).toHaveBeenCalledWith(100);
   });
 
@@ -107,17 +107,17 @@ describe('QuizComponent', () => {
     
     // Complete the quiz
     fireEvent.click(screen.getByText('4'));
-    fireEvent.click(screen.getByText('Next Question'));
+    fireEvent.click(screen.getByText('Próxima Questão'));
     fireEvent.click(screen.getByText('Paris'));
-    fireEvent.click(screen.getByText('Finish Quiz'));
+    fireEvent.click(screen.getByText('Finalizar Questionário'));
     
-    expect(screen.getByText('Previous best: 85%')).toBeInTheDocument();
+    expect(screen.getByText('Melhor resultado anterior: 85%')).toBeInTheDocument();
   });
 
   test('disables next button until answer is selected', () => {
     render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
     
-    const nextButton = screen.getByRole('button', { name: /next question/i });
+    const nextButton = screen.getByRole('button', { name: /próxima questão/i });
     expect(nextButton).toBeDisabled();
     
     fireEvent.click(screen.getByText('4'));
@@ -131,7 +131,7 @@ describe('QuizComponent', () => {
     expect(progressBar).toHaveStyle('width: 50%'); // 1 of 2 questions
     
     fireEvent.click(screen.getByText('4'));
-    fireEvent.click(screen.getByText('Next Question'));
+    fireEvent.click(screen.getByText('Próxima Questão'));
     
     expect(progressBar).toHaveStyle('width: 100%'); // 2 of 2 questions
   });
@@ -141,15 +141,15 @@ describe('QuizComponent', () => {
     
     // Complete quiz
     fireEvent.click(screen.getByText('4'));
-    fireEvent.click(screen.getByText('Next Question'));
+    fireEvent.click(screen.getByText('Próxima Questão'));
     fireEvent.click(screen.getByText('Paris'));
-    fireEvent.click(screen.getByText('Finish Quiz'));
+    fireEvent.click(screen.getByText('Finalizar Questionário'));
     
     // Click Try Again
-    fireEvent.click(screen.getByText('Try Again'));
+    fireEvent.click(screen.getByText('Tentar Novamente'));
     
     expect(screen.getByText('What is 2 + 2?')).toBeInTheDocument();
-    expect(screen.getByText('Question 1 of 2')).toBeInTheDocument();
+    expect(screen.getByText('Questão 1 de 2')).toBeInTheDocument();
   });
 
   test('shows detailed results for each question', () => {
@@ -157,14 +157,14 @@ describe('QuizComponent', () => {
     
     // Answer first question wrong, second correct
     fireEvent.click(screen.getByText('3'));
-    fireEvent.click(screen.getByText('Next Question'));
+    fireEvent.click(screen.getByText('Próxima Questão'));
     fireEvent.click(screen.getByText('Paris'));
-    fireEvent.click(screen.getByText('Finish Quiz'));
+    fireEvent.click(screen.getByText('Finalizar Questionário'));
     
     expect(screen.getByText('50%')).toBeInTheDocument();
     
     // Check individual question results
-    const results = screen.getAllByText(/Your answer:/);
+    const results = screen.getAllByText(/Sua resposta:/);
     expect(results).toHaveLength(2);
   });
 });

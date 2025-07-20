@@ -31,7 +31,7 @@ describe('App Component', () => {
 
   test('renders without crashing', () => {
     render(<App />);
-    expect(screen.getByText(/Jung's Psychology/i)).toBeInTheDocument();
+    expect(screen.getByText(/Psicologia de Jung/i)).toBeInTheDocument();
   });
 
   test('initializes user progress from localStorage', () => {
@@ -83,11 +83,10 @@ describe('App Component', () => {
   test('navigation renders all required links', () => {
     render(<App />);
     
-    expect(screen.getByText('Dashboard')).toBeInTheDocument();
-    expect(screen.getByText('Mind Map')).toBeInTheDocument();
-    expect(screen.getByText('Notes')).toBeInTheDocument();
-    expect(screen.getByText('Progress')).toBeInTheDocument();
-    expect(screen.getByText('Resources')).toBeInTheDocument();
-    expect(screen.getByText('Search')).toBeInTheDocument();
+    expect(screen.getByText('Painel')).toBeInTheDocument();
+    expect(screen.getByText('Mapa Mental')).toBeInTheDocument();
+    expect(screen.getByText('Anotações')).toBeInTheDocument();
+    expect(screen.getByText('Recursos')).toBeInTheDocument();
+    expect(screen.getByText('Buscar')).toBeInTheDocument();
   });
 });

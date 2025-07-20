@@ -319,6 +319,10 @@ IMPORTANTE: Formate o conteúdo usando Markdown:
 - Use *itálico* para ênfase
 - Use listas numeradas (1. 2. 3.) para passos sequenciais
 - Use pontos de lista (- ou *) para itens não sequenciais
+- IMPORTANTE: Para listas, use o formato Markdown correto:
+  - Para listas numeradas: "1. Item um" (com espaço após o ponto)
+  - Para listas com marcadores: "- Item" ou "* Item" (com espaço após o marcador)
+  - NÃO use "1." ou "•" em linhas separadas do conteúdo
 - Adicione quebras de linha duplas entre parágrafos
 - Use > para citações importantes de Jung
 - Você pode usar ### para subtítulos dentro da seção
@@ -795,6 +799,10 @@ IMPORTANTE: Formate o conteúdo usando Markdown:
 - Use *itálico* para ênfase
 - Use listas numeradas (1. 2. 3.) para passos sequenciais
 - Use pontos de lista (- ou *) para itens não sequenciais
+- IMPORTANTE: Para listas, use o formato Markdown correto:
+  - Para listas numeradas: "1. Item um" (com espaço após o ponto)
+  - Para listas com marcadores: "- Item" ou "* Item" (com espaço após o marcador)
+  - NÃO use "1." ou "•" em linhas separadas do conteúdo
 - Adicione quebras de linha duplas entre parágrafos
 - Use > para citações importantes de Jung
 - Você pode usar ### para subtítulos dentro da seção

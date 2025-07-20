@@ -76,22 +76,26 @@ describe('ModulePage Component', () => {
   test('switches between tabs correctly', () => {
     renderWithRouter();
     
-    const videosTab = screen.getByText('Videos');
+    const videosTab = screen.getByText('Vídeos');
     fireEvent.click(videosTab);
     
     expect(screen.getByTestId('youtube-player')).toBeInTheDocument();
     
-    const quizTab = screen.getByText('Quiz');
+    const quizTab = screen.getByText('Questionário');
     fireEvent.click(quizTab);
     
-    expect(screen.getByText('Introduction to Jung Quiz')).toBeInTheDocument();
+    expect(screen.getByText('Questionário de Introdução a Jung')).toBeInTheDocument();
   });
 
   test('displays key terms in content sections', () => {
     renderWithRouter();
     
-    expect(screen.getByText('Analytical Psychology')).toBeInTheDocument();
-    expect(screen.getByText(/Jung's approach to psychology/)).toBeInTheDocument();
+    // Check for Key Terms section headers (there are multiple sections with key terms)
+    const keyTermHeaders = screen.getAllByText('Key Terms');
+    expect(keyTermHeaders.length).toBeGreaterThan(0);
+    
+    // Check for specific key terms from the module data
+    expect(screen.getByText('Psicologia Analítica')).toBeInTheDocument();
   });
 
   test('opens note editor when Add Note is clicked', () => {
@@ -100,7 +104,7 @@ describe('ModulePage Component', () => {
     const addNoteButton = screen.getByText('Add Note');
     fireEvent.click(addNoteButton);
     
-    expect(screen.getByPlaceholderText('Write your notes here...')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Escreva suas anotações aqui...')).toBeInTheDocument();
   });
 
   test('saves note correctly', async () => {
@@ -109,7 +113,7 @@ describe('ModulePage Component', () => {
     const addNoteButton = screen.getByText('Add Note');
     fireEvent.click(addNoteButton);
     
-    const noteTextarea = screen.getByPlaceholderText('Write your notes here...');
+    const noteTextarea = screen.getByPlaceholderText('Escreva suas anotações aqui...');
     fireEvent.change(noteTextarea, { target: { value: 'Test note content' } });
     
     const saveButton = screen.getByText('Save Note');
@@ -132,21 +136,21 @@ describe('ModulePage Component', () => {
   test('handles quiz completion', () => {
     renderWithRouter();
     
-    const quizTab = screen.getByText('Quiz');
+    const quizTab = screen.getByText('Questionário');
     fireEvent.click(quizTab);
     
     // Answer first question
     const firstOption = screen.getByText('1875');
     fireEvent.click(firstOption);
     
-    const nextButton = screen.getByText('Next Question');
+    const nextButton = screen.getByText('Próxima Questão');
     fireEvent.click(nextButton);
     
     // Answer second question
-    const secondOption = screen.getByText('Analytical Psychology');
+    const secondOption = screen.getByText('Psicologia Analítica');
     fireEvent.click(secondOption);
     
-    const finishButton = screen.getByText('Finish Quiz');
+    const finishButton = screen.getByText('Finalizar Questionário');
     fireEvent.click(finishButton);
     
     expect(mockUpdateProgress).toHaveBeenCalledWith(
@@ -183,6 +187,6 @@ describe('ModulePage Component', () => {
   test('handles non-existent module gracefully', () => {
     renderWithRouter('/module/non-existent');
     
-    expect(screen.getByText('Module not found')).toBeInTheDocument();
+    expect(screen.getByText('Módulo não encontrado')).toBeInTheDocument();
   });
 });
