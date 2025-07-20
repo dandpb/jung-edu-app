@@ -7,6 +7,7 @@ export interface Module {
   prerequisites?: string[];
   estimatedTime: number;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
+  category?: string;
 }
 
 export interface ModuleContent {
@@ -24,6 +25,7 @@ export interface Section {
   content: string;
   keyTerms?: KeyTerm[];
   images?: Image[];
+  concepts?: string[];
 }
 
 export interface KeyTerm {
@@ -106,6 +108,11 @@ export interface MindMapNode {
     onClick?: () => void;
     onHover?: () => void;
     interactive?: boolean;
+    moduleCategory?: string;
+    categoryColor?: string;
+    difficulty?: string;
+    moduleInfo?: string;
+    examples?: string[];
   };
   position: { x: number; y: number };
   type?: string;

@@ -1,5 +1,5 @@
 // Mock for axios
-const axios = {
+const axios: any = {
   get: jest.fn(() => Promise.resolve({ data: {} })),
   post: jest.fn(() => Promise.resolve({ data: {} })),
   put: jest.fn(() => Promise.resolve({ data: {} })),

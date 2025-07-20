@@ -4,9 +4,45 @@ import * as React from 'react';
 
 // No need to mock react-router-dom - let tests use real routing
 
-// Setup localStorage mock
+// Setup localStorage and sessionStorage mocks
+const mockStorage = () => {
+  let store: Record<string, string> = {};
+  
+  return {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => {
+      store[key] = value.toString();
+    },
+    clear: () => {
+      store = {};
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    get length() {
+      return Object.keys(store).length;
+    },
+    key: (index: number) => {
+      const keys = Object.keys(store);
+      return keys[index] || null;
+    }
+  };
+};
+
+// Apply mocks to both localStorage and sessionStorage
+Object.defineProperty(window, 'localStorage', {
+  value: mockStorage(),
+  writable: true
+});
+
+Object.defineProperty(window, 'sessionStorage', {
+  value: mockStorage(),
+  writable: true
+});
+
 beforeEach(() => {
   localStorage.clear();
+  sessionStorage.clear();
   jest.clearAllMocks();
 });
 

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -15,6 +15,8 @@ import { Module } from '../../types';
 import { ReactFlowAdapter } from '../../services/mindmap/reactFlowAdapter';
 import { LayoutType } from '../../services/mindmap/mindMapLayouts';
 import { useNavigate } from 'react-router-dom';
+import { MiniMapSector, ModuleNode, MiniMapLegend, getDifficultyColor } from '../MiniMapSector';
+import { modules as defaultModules } from '../../data/modules';
 
 interface InteractiveMindMapProps {
   modules: Module[];
@@ -39,6 +41,11 @@ const InteractiveMindMap: React.FC<InteractiveMindMapProps> = ({
   const [studyPath, setStudyPath] = useState<string[]>([]);
   const [showStudyPath, setShowStudyPath] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  
+  // Define custom node types
+  const nodeTypes = useMemo(() => ({
+    module: ModuleNode,
+  }), []);
 
   // Initialize nodes and edges
   const generateInitialData = useCallback(() => {
@@ -126,6 +133,109 @@ const InteractiveMindMap: React.FC<InteractiveMindMapProps> = ({
   // Get layout recommendations
   const layoutRecommendations = adapter.getLayoutRecommendations(nodes, edges);
 
+  // Calculate module sectors for mini map
+  const moduleSectors = useMemo(() => {
+    const sectorMap = new Map<string, any>();
+    
+    // Group nodes by module category
+    nodes.forEach(node => {
+      const moduleId = node.data.moduleId;
+      const module = modules.find(m => m.id === moduleId);
+      if (!module) return;
+      
+      const category = module.category || 'general';
+      const difficulty = module.difficulty || 'beginner';
+      
+      if (!sectorMap.has(category)) {
+        sectorMap.set(category, {
+          id: category,
+          title: category,
+          category: category,
+          difficulty: difficulty,
+          nodes: [],
+          bounds: { x: Infinity, y: Infinity, width: 0, height: 0 },
+          color: node.style?.background || '#6b7280',
+          nodeCount: 0
+        });
+      }
+      
+      const sector = sectorMap.get(category);
+      sector.nodes.push(node);
+      sector.nodeCount++;
+      
+      // Update bounds
+      const nodeX = node.position.x;
+      const nodeY = node.position.y;
+      const nodeWidth = 150; // Default node width
+      const nodeHeight = 50; // Default node height
+      
+      sector.bounds.x = Math.min(sector.bounds.x, nodeX);
+      sector.bounds.y = Math.min(sector.bounds.y, nodeY);
+      sector.bounds.width = Math.max(sector.bounds.width, nodeX + nodeWidth - sector.bounds.x);
+      sector.bounds.height = Math.max(sector.bounds.height, nodeY + nodeHeight - sector.bounds.y);
+    });
+    
+    // Add padding to bounds
+    sectorMap.forEach(sector => {
+      sector.bounds.x -= 20;
+      sector.bounds.y -= 20;
+      sector.bounds.width += 40;
+      sector.bounds.height += 40;
+    });
+    
+    return Array.from(sectorMap.values());
+  }, [nodes, modules]);
+
+  // Category and difficulty definitions for legend
+  const categoryDefinitions = useMemo(() => {
+    const categories = new Set<string>();
+    modules.forEach(m => {
+      if (m.category) categories.add(m.category);
+    });
+    
+    return Array.from(categories).map(cat => ({
+      name: cat,
+      color: (nodes.find(n => {
+        const mod = modules.find(m => m.id === n.data.moduleId);
+        return mod?.category === cat;
+      })?.style?.background as string) || '#6b7280'
+    }));
+  }, [nodes, modules]);
+
+  const difficultyDefinitions = [
+    { name: 'Beginner', color: getDifficultyColor('beginner') },
+    { name: 'Intermediate', color: getDifficultyColor('intermediate') },
+    { name: 'Advanced', color: getDifficultyColor('advanced') }
+  ];
+
+  // Handle sector click in mini map
+  const handleSectorClick = useCallback((sectorId: string) => {
+    // Find all nodes in this sector
+    const sectorNodes = nodes.filter(node => {
+      const module = modules.find(m => m.id === node.data.moduleId);
+      return module?.category === sectorId;
+    });
+    
+    if (sectorNodes.length > 0) {
+      // Highlight nodes in this sector
+      const highlightedNodes = nodes.map(node => {
+        const module = modules.find(m => m.id === node.data.moduleId);
+        const isInSector = module?.category === sectorId;
+        
+        return {
+          ...node,
+          style: {
+            ...node.style,
+            opacity: isInSector ? 1 : 0.3,
+            border: isInSector ? '2px solid #4f46e5' : node.style?.border
+          }
+        };
+      });
+      
+      setNodes(highlightedNodes);
+    }
+  }, [nodes, modules]);
+
   return (
     <div className="h-full w-full relative">
       <ReactFlow
@@ -134,6 +244,7 @@ const InteractiveMindMap: React.FC<InteractiveMindMapProps> = ({
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={handleNodeClick}
+        nodeTypes={nodeTypes}
         fitView
         attributionPosition="bottom-left"
       >
@@ -142,16 +253,40 @@ const InteractiveMindMap: React.FC<InteractiveMindMapProps> = ({
         {showControls && <Controls />}
         
         {showMiniMap && (
-          <MiniMap
-            nodeColor={(node) => {
-              const style = node.style as any;
-              return style?.background || '#9ca3af';
-            }}
-            style={{
-              backgroundColor: '#f3f4f6',
-              border: '1px solid #e5e7eb',
-            }}
-          />
+          <>
+            <MiniMap
+              nodeColor={(node) => {
+                const module = modules.find(m => m.id === node.data.moduleId);
+                const style = node.style as any;
+                
+                // Color by module category if available
+                if (module?.category) {
+                  const categoryColor = categoryDefinitions.find(c => c.name === module.category)?.color;
+                  if (categoryColor) return categoryColor;
+                }
+                
+                return style?.background || '#9ca3af';
+              }}
+              style={{
+                backgroundColor: '#f3f4f6',
+                border: '1px solid #e5e7eb',
+                position: 'absolute',
+                bottom: 20,
+                left: 20,
+              }}
+            >
+              <MiniMapSector
+                sectors={moduleSectors}
+                viewBox={{ x: 0, y: 0, width: 1000, height: 800 }}
+                onSectorClick={handleSectorClick}
+              />
+            </MiniMap>
+            
+            <MiniMapLegend
+              categories={categoryDefinitions}
+              difficulties={difficultyDefinitions}
+            />
+          </>
         )}
 
         <Panel position="top-left" className="bg-white p-4 rounded-lg shadow-lg">

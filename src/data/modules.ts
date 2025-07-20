@@ -8,6 +8,7 @@ export const modules: Module[] = [
     icon: '🧠',
     estimatedTime: 30,
     difficulty: 'beginner',
+    category: 'Foundations',
     content: {
       introduction: 'Carl Gustav Jung (1875-1961) was a Swiss psychiatrist and psychoanalyst who founded analytical psychology. His work has been influential in the fields of psychiatry, anthropology, archaeology, literature, philosophy, and religious studies.',
       sections: [
@@ -77,6 +78,7 @@ export const modules: Module[] = [
     estimatedTime: 45,
     difficulty: 'intermediate',
     prerequisites: ['intro-jung'],
+    category: 'Core Concepts',
     content: {
       introduction: 'The collective unconscious is one of Jung\'s most significant contributions to psychology. It represents the deepest layer of the psyche, containing universal patterns and images inherited from our ancestral past.',
       sections: [
@@ -118,6 +120,7 @@ export const modules: Module[] = [
     estimatedTime: 60,
     difficulty: 'intermediate',
     prerequisites: ['collective-unconscious'],
+    category: 'Archetypes',
     content: {
       introduction: 'Archetypes are universal patterns or motifs that arise from the collective unconscious. Jung identified several major archetypes that play crucial roles in human psychology and development.',
       sections: [
@@ -159,6 +162,7 @@ export const modules: Module[] = [
     estimatedTime: 50,
     difficulty: 'advanced',
     prerequisites: ['archetypes'],
+    category: 'Personal Development',
     content: {
       introduction: 'Individuation is the central process of human psychological development in Jungian psychology. It involves integrating various aspects of the psyche to achieve psychological wholeness.',
       sections: [
@@ -181,6 +185,7 @@ export const modules: Module[] = [
     icon: '🔄',
     estimatedTime: 40,
     difficulty: 'intermediate',
+    category: 'Personality Theory',
     content: {
       introduction: 'Jung\'s theory of psychological types describes how people perceive and judge the world differently. This framework has influenced many modern personality assessments.',
       sections: [
@@ -215,6 +220,7 @@ export const modules: Module[] = [
     estimatedTime: 55,
     difficulty: 'advanced',
     prerequisites: ['collective-unconscious', 'archetypes'],
+    category: 'Dream Analysis',
     content: {
       introduction: 'For Jung, dreams are the psyche\'s way of communicating important messages from the unconscious. Unlike Freud, Jung saw dreams as compensatory, helping to balance conscious attitudes.',
       sections: [

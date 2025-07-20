@@ -560,13 +560,23 @@ Format using Markdown:
 `;
 
     let introduction = '';
-    await this.provider.streamCompletion(introPrompt, (chunk) => {
-      introduction += chunk;
-      onChunk(chunk);
-    }, {
-      temperature: 0.7,
-      maxTokens: 500,
-    });
+    if ('streamCompletion' in this.provider && this.provider.streamCompletion) {
+      await (this.provider as any).streamCompletion(introPrompt, (chunk: string) => {
+        introduction += chunk;
+        onChunk(chunk);
+      }, {
+        temperature: 0.7,
+        maxTokens: 500,
+      });
+    } else {
+      // Fallback to regular completion
+      const response = await this.provider.generateCompletion(introPrompt, {
+        temperature: 0.7,
+        maxTokens: 500,
+      });
+      introduction = (response as any).content;
+      onChunk(introduction);
+    }
     
     // Stream each section content
     for (let i = 0; i < sections.length; i++) {
@@ -581,7 +591,7 @@ Write detailed content for the section "${section.title}" in a Jungian psycholog
 Target audience: ${targetAudience}${targetAudience.toLowerCase() === 'beginner' ? '\nUse simple language and avoid overly technical jargon.' : ''}${options.learningObjectives && options.learningObjectives.length > 0 ? '\n\nLearning objectives:\n' + options.learningObjectives.map(obj => `- ${obj}`).join('\n') : ''}${options.prerequisites && options.prerequisites.length > 0 ? '\n\nPrerequisites:\n' + options.prerequisites.map(pre => `- ${pre}`).join('\n') : ''}
 
 Key concepts to cover:
-${section.concepts?.map(c => `- ${c}`).join('\n') || 'No specific concepts'}
+${(section as any).concepts?.map((c: string) => `- ${c}`).join('\n') || 'No specific concepts'}
 
 Requirements:
 - Explain concepts clearly with examples
@@ -604,13 +614,23 @@ IMPORTANT: Format the content using Markdown:
 `;
 
       let sectionContent = '';
-      await this.provider.streamCompletion(sectionPrompt, (chunk) => {
-        sectionContent += chunk;
-        onChunk(chunk);
-      }, {
-        temperature: 0.7,
-        maxTokens: 800,
-      });
+      if ('streamCompletion' in this.provider && this.provider.streamCompletion) {
+        await (this.provider as any).streamCompletion(sectionPrompt, (chunk: string) => {
+          sectionContent += chunk;
+          onChunk(chunk);
+        }, {
+          temperature: 0.7,
+          maxTokens: 800,
+        });
+      } else {
+        // Fallback to regular completion
+        const response = await this.provider.generateCompletion(sectionPrompt, {
+          temperature: 0.7,
+          maxTokens: 800,
+        });
+        sectionContent = (response as any).content;
+        onChunk(sectionContent);
+      }
       
       // Update section content
       sections[i].content = sectionContent;

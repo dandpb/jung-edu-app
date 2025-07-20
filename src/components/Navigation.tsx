@@ -9,7 +9,8 @@ import {
   Search,
   Home,
   Settings,
-  LogOut
+  LogOut,
+  Brain
 } from 'lucide-react';
 import { useAdmin } from '../contexts/AdminContext';
 
@@ -21,6 +22,7 @@ const Navigation: React.FC = () => {
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: Home },
     { path: '/mindmap', label: 'Mind Map', icon: Network },
+    { path: '/enhanced-mindmap', label: 'AI Mind Map', icon: Brain },
     { path: '/notes', label: 'Notes', icon: FileText },
     { path: '/progress', label: 'Progress', icon: TrendingUp },
     { path: '/bibliography', label: 'Resources', icon: Library },

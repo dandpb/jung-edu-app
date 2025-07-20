@@ -35,7 +35,7 @@ export enum JungianCategory {
 /**
  * Category color mapping for visual representation
  */
-const CATEGORY_COLORS: Record<JungianCategory, string> = {
+export const CATEGORY_COLORS: Record<JungianCategory, string> = {
   [JungianCategory.SELF]: '#4c51ea',
   [JungianCategory.SHADOW]: '#374151',
   [JungianCategory.ANIMA_ANIMUS]: '#ec4899',
@@ -284,6 +284,7 @@ export class MindMapGenerator {
 
     return {
       id: nodeId,
+      type: moduleId ? 'module' : 'default',
       data: {
         label,
         description,
@@ -293,14 +294,20 @@ export class MindMapGenerator {
         expandable: false,
         onClick: undefined,
         onHover: undefined,
-        interactive: false
+        interactive: false,
+        // Additional module metadata for custom node
+        moduleCategory: category.toString(),
+        categoryColor: style.background,
+        difficulty: importance === NodeImportance.CORE ? 'intermediate' : 
+                   importance === NodeImportance.PRIMARY ? 'beginner' : 'advanced',
+        moduleInfo: description ? description.substring(0, 50) + '...' : undefined
       },
       position,
       style: {
         ...style,
         backgroundColor: style.background || '#ffffff',
         strokeWidth: 2
-      }
+      } as any
     };
   }
 

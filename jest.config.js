@@ -53,10 +53,49 @@ module.exports = {
   ],
   coverageThreshold: {
     global: {
-      branches: 70,
-      functions: 70,
-      lines: 70,
-      statements: 70
+      branches: 90,
+      functions: 90,
+      lines: 90,
+      statements: 90
+    },
+    './src/services/**/*.ts': {
+      branches: 95,
+      functions: 95,
+      lines: 95,
+      statements: 95
+    },
+    './src/components/**/*.tsx': {
+      branches: 85,
+      functions: 85,
+      lines: 85,
+      statements: 85
+    },
+    './src/utils/**/*.ts': {
+      branches: 90,
+      functions: 90,
+      lines: 90,
+      statements: 90
     }
-  }
+  },
+  coverageReporters: [
+    'text',
+    'text-summary',
+    'lcov',
+    'clover',
+    'json',
+    'json-summary',
+    'html'
+  ],
+  collectCoverageFrom: [
+    'src/**/*.{js,jsx,ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/index.tsx',
+    '!src/reportWebVitals.ts',
+    '!src/react-app-env.d.ts',
+    '!src/__tests__/mocks/**',
+    '!src/**/*.example.ts',
+    '!src/**/*.demo.ts',
+    '!src/**/example-usage.ts',
+    '!src/test-*.ts'
+  ]
 };

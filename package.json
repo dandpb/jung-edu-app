@@ -33,8 +33,13 @@
     "test:coverage": "react-scripts test --coverage --watchAll=false",
     "test:unit": "react-scripts test --testPathPattern='__tests__/services' --watchAll=false",
     "test:integration": "react-scripts test --testPathPattern='__tests__/integration' --watchAll=false",
+    "test:components": "react-scripts test --testPathPattern='components/__tests__' --watchAll=false",
+    "test:utils": "react-scripts test --testPathPattern='utils/__tests__' --watchAll=false",
     "test:all": "react-scripts test --watchAll=false",
     "test:watch": "react-scripts test",
+    "test:validate-coverage": "node scripts/coverage-validation.js",
+    "test:coverage-report": "npm run test:coverage && npm run test:validate-coverage",
+    "test:critical": "react-scripts test --testPathPattern='(provider|moduleService|enhancedQuizGenerator|auth|AIModuleGenerator)' --watchAll=false",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

@@ -1,4 +1,4 @@
-import { Node, Edge } from 'react-flow-renderer';
+import { Node, Edge } from 'reactflow';
 import { MindMapNode, MindMapEdge, Module } from '../../types';
 import { MindMapGenerator, GeneratedMindMap } from './mindMapGenerator';
 import { MindMapLayouts, LayoutType } from './mindMapLayouts';

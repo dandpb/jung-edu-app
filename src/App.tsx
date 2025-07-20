@@ -6,6 +6,9 @@ import Navigation from './components/Navigation';
 import Dashboard from './pages/Dashboard';
 import ModulePage from './pages/ModulePage';
 import MindMapPage from './pages/MindMapPage';
+import MiniMapDemo from './pages/MiniMapDemo';
+import EnhancedMindMapPage from './pages/EnhancedMindMapPage';
+import AIDemo from './pages/AIDemo';
 import NotesPage from './pages/NotesPage';
 import ProgressPage from './pages/ProgressPage';
 import BibliographyPage from './pages/BibliographyPage';
@@ -83,6 +86,18 @@ function AppContent() {
               <Route 
                 path="/mindmap" 
                 element={<MindMapPage modules={modules} />} 
+              />
+              <Route 
+                path="/minimap-demo" 
+                element={<MiniMapDemo />} 
+              />
+              <Route 
+                path="/enhanced-mindmap" 
+                element={<EnhancedMindMapPage modules={modules} />} 
+              />
+              <Route 
+                path="/ai-demo" 
+                element={<AIDemo />} 
               />
               <Route 
                 path="/notes" 

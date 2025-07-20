@@ -749,7 +749,7 @@ export class BibliographyEnricher {
         prompt += '\nNote: This source has multiple authors.\n';
       }
       
-      const response = await this.provider.generateStructuredOutput<{ citation: string }>(prompt, {
+      const response = await this.provider.generateStructuredOutput(prompt, {
         type: 'object',
         properties: {
           citation: { type: 'string' }
@@ -757,7 +757,7 @@ export class BibliographyEnricher {
         required: ['citation']
       });
       
-      return response.citation;
+      return (response as any).citation;
     } else {
       // Use our built-in formatters for production
       const ref: Reference = {
