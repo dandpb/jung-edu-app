@@ -11,26 +11,26 @@ const MiniMapDemo: React.FC = () => {
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">
-          Jung Education Mini Map Sectors Demo
+          Demonstração de Setores do Minimapa - Educação Jung
         </h1>
         
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">What's New?</h2>
+          <h2 className="text-xl font-semibold mb-4">O Que Há de Novo?</h2>
           <ul className="list-disc list-inside space-y-2 text-gray-700">
             <li>
-              <strong>Module Sectors:</strong> The mini map now displays visual sectors that group related modules by category
+              <strong>Setores de Módulos:</strong> O minimapa agora exibe setores visuais que agrupam módulos relacionados por categoria
             </li>
             <li>
-              <strong>Category Colors:</strong> Each module category has its own color in the mini map for easy identification
+              <strong>Cores por Categoria:</strong> Cada categoria de módulo tem sua própria cor no minimapa para fácil identificação
             </li>
             <li>
-              <strong>Difficulty Indicators:</strong> Small colored circles show the difficulty level of modules
+              <strong>Indicadores de Dificuldade:</strong> Pequenos círculos coloridos mostram o nível de dificuldade dos módulos
             </li>
             <li>
-              <strong>Interactive Sectors:</strong> Click on a sector in the mini map to highlight all modules in that category
+              <strong>Setores Interativos:</strong> Clique em um setor no minimapa para destacar todos os módulos daquela categoria
             </li>
             <li>
-              <strong>Legend:</strong> A comprehensive legend shows all categories and difficulty levels
+              <strong>Legenda:</strong> Uma legenda abrangente mostra todas as categorias e níveis de dificuldade
             </li>
           </ul>
         </div>
@@ -46,14 +46,14 @@ const MiniMapDemo: React.FC = () => {
         
         <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-blue-900 mb-2">
-            How to Use the Enhanced Mini Map
+            Como Usar o Minimapa Aprimorado
           </h3>
           <ol className="list-decimal list-inside space-y-2 text-blue-800">
-            <li>Look at the mini map in the bottom-left corner</li>
-            <li>Notice the colored sectors representing different module categories</li>
-            <li>Click on any sector to highlight those modules in the main view</li>
-            <li>Use the legend to understand category colors and difficulty levels</li>
-            <li>Navigate the mind map as usual - the mini map updates in real-time</li>
+            <li>Observe o minimapa no canto inferior esquerdo</li>
+            <li>Note os setores coloridos representando diferentes categorias de módulos</li>
+            <li>Clique em qualquer setor para destacar esses módulos na visão principal</li>
+            <li>Use a legenda para entender as cores das categorias e níveis de dificuldade</li>
+            <li>Navegue pelo mapa mental normalmente - o minimapa atualiza em tempo real</li>
           </ol>
         </div>
       </div>

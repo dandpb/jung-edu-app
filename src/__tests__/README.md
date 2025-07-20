@@ -132,10 +132,6 @@ npm test -- --no-coverage # Skip coverage for faster runs
 it.only('should debug this test', () => {
   // This test runs in isolation
 });
-
-it.skip('should skip this test', () => {
-  // This test is skipped
-});
 ```
 
 ### Check Coverage Gaps

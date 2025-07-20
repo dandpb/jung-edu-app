@@ -6,7 +6,7 @@ import { EnhancedQuizGenerator, EnhancedQuizOptions } from './enhancedQuizGenera
 import { quizEnhancer } from './quizEnhancer';
 import { getQuestionTemplate, topicTemplates } from './quizTemplates';
 import { OpenAIProvider } from '../llm/provider';
-import { Quiz, QuizQuestion } from '../../types/schema';
+import { Quiz, Question } from '../../types';
 
 // Initialize the enhanced quiz generator
 const quizGenerator = new EnhancedQuizGenerator(new OpenAIProvider(process.env.REACT_APP_OPENAI_API_KEY || ''));
@@ -82,7 +82,7 @@ export async function generateAdvancedQuiz(): Promise<Quiz> {
 export async function generateAdaptiveFollowUp(
   topic: string,
   previousPerformance: Array<{ questionId: string; correct: boolean; difficulty: string }>
-): Promise<QuizQuestion[]> {
+): Promise<Question[]> {
   // Convert to format expected by generator
   const responses = previousPerformance.map(p => ({
     correct: p.correct,
@@ -117,7 +117,7 @@ export async function generateAdaptiveFollowUp(
 export async function generateConceptPractice(
   topic: string,
   concept: string
-): Promise<QuizQuestion[]> {
+): Promise<Question[]> {
   const practiceQuestions = await quizGenerator.generatePracticeQuestions(
     topic,
     concept,
@@ -227,12 +227,18 @@ export async function completeQuizWorkflow(moduleId: string, topic: string) {
  */
 export function demonstrateQuestionValidation() {
   // Multiple choice validation
-  const mcQuestion: QuizQuestion = {
+  const mcQuestion: Question = {
     id: 'q1',
     type: 'multiple-choice',
     question: 'Which archetype represents the wise old man?',
-    options: ['Shadow', 'Anima', 'Senex', 'Persona'],
+    options: [
+      { id: 'q1-a', text: 'Shadow', isCorrect: false },
+      { id: 'q1-b', text: 'Anima', isCorrect: false },
+      { id: 'q1-c', text: 'Senex', isCorrect: true },
+      { id: 'q1-d', text: 'Persona', isCorrect: false }
+    ],
     correctAnswer: 2,
+    explanation: 'The Senex (wise old man) is an archetype representing wisdom and authority.',
     points: 10,
     order: 1
   };
@@ -242,10 +248,13 @@ export function demonstrateQuestionValidation() {
   console.log('Multiple choice:', mcCorrect ? 'Correct!' : 'Incorrect');
 
   // Short answer validation
-  const saQuestion: QuizQuestion = {
+  const saQuestion: Question = {
     id: 'q2',
     type: 'short-answer',
     question: 'What is individuation?',
+    options: [], // Not applicable for short-answer questions
+    correctAnswer: -1, // Not applicable for short-answer questions
+    explanation: 'Individuation is the process of psychological integration and self-realization.',
     expectedKeywords: ['wholeness', 'integration', 'self', 'process'],
     points: 15,
     order: 2
@@ -253,14 +262,17 @@ export function demonstrateQuestionValidation() {
 
   const saAnswer = 'Individuation is the process of integrating unconscious parts to achieve wholeness and realize the Self.';
   const keywords = saQuestion.expectedKeywords || [];
-  const saCorrect = keywords.filter(k => saAnswer.toLowerCase().includes(k)).length >= keywords.length * 0.75;
+  const saCorrect = keywords.filter((k: string) => saAnswer.toLowerCase().includes(k)).length >= keywords.length * 0.75;
   console.log('Short answer:', saCorrect ? 'Good answer!' : 'Missing key concepts');
 
   // Essay scoring with rubric
-  const essayQuestion: QuizQuestion = {
+  const essayQuestion: Question = {
     id: 'q3',
     type: 'essay',
     question: 'Discuss the role of the shadow in personal development.',
+    options: [], // Not applicable for essay questions
+    correctAnswer: -1, // Not applicable for essay questions
+    explanation: 'A good essay should discuss shadow projection, integration, and unconscious aspects.',
     rubric: {
       required: ['projection', 'integration', 'unconscious'],
       optional: ['gold in shadow', 'collective shadow', 'examples'],
@@ -272,10 +284,10 @@ export function demonstrateQuestionValidation() {
 
   const essayAnswer = `The shadow plays a crucial role in personal development...`; // abbreviated
   const wordCount = essayAnswer.split(/\s+/).length;
-  const requiredFound = essayQuestion.rubric?.required.filter(r => 
+  const requiredFound = essayQuestion.rubric?.required.filter((r: string) => 
     essayAnswer.toLowerCase().includes(r)
   ).length || 0;
-  const score = (requiredFound / (essayQuestion.rubric?.required.length || 1)) * essayQuestion.points;
+  const score = (requiredFound / (essayQuestion.rubric?.required.length || 1)) * (essayQuestion.points || 0);
   console.log('Essay score:', score, 'points');
 }
 

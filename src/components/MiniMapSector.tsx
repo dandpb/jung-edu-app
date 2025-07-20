@@ -97,6 +97,7 @@ export const MiniMapSector: React.FC<MiniMapSectorProps> = ({
             <text
               x={scaledX + 5}
               y={scaledY + scaledHeight - 5}
+              textAnchor="start"
               fontSize="6"
               fill={sector.color}
               fillOpacity={0.6}

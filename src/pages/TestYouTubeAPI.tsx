@@ -15,7 +15,7 @@ const TestYouTubeAPI: React.FC = () => {
     console.log('Using API Key:', apiKey?.substring(0, 7) + '...');
 
     if (!apiKey) {
-      setError('No API key found in environment variables');
+      setError('Nenhuma chave de API encontrada nas variáveis de ambiente');
       setIsLoading(false);
       return;
     }
@@ -45,11 +45,11 @@ const TestYouTubeAPI: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">YouTube API Direct Test</h1>
+      <h1 className="text-2xl font-bold mb-6">Teste Direto da API do YouTube</h1>
       
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
         <p className="text-blue-800">
-          This page tests the YouTube API directly using fetch to isolate any axios issues.
+          Esta página testa a API do YouTube diretamente usando fetch para isolar problemas do axios.
         </p>
       </div>
 
@@ -88,20 +88,20 @@ const TestYouTubeAPI: React.FC = () => {
           <div className="flex items-start space-x-2">
             <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
             <div className="flex-1">
-              <p className="text-green-800 font-semibold mb-3">✅ API Key is Working!</p>
+              <p className="text-green-800 font-semibold mb-3">✅ Chave de API está Funcionando!</p>
               <div className="space-y-3">
                 {result.items?.map((item: any, index: number) => (
                   <div key={item.id.videoId} className="bg-white p-3 rounded border border-green-300">
                     <p className="font-semibold">{index + 1}. {item.snippet.title}</p>
-                    <p className="text-sm text-gray-600 mt-1">Channel: {item.snippet.channelTitle}</p>
-                    <p className="text-sm text-gray-600">Video ID: {item.id.videoId}</p>
+                    <p className="text-sm text-gray-600 mt-1">Canal: {item.snippet.channelTitle}</p>
+                    <p className="text-sm text-gray-600">ID do Vídeo: {item.id.videoId}</p>
                     <a 
                       href={`https://www.youtube.com/watch?v=${item.id.videoId}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm text-blue-600 hover:underline"
                     >
-                      Watch on YouTube →
+                      Assistir no YouTube →
                     </a>
                   </div>
                 ))}
@@ -112,15 +112,15 @@ const TestYouTubeAPI: React.FC = () => {
       )}
 
       <div className="mt-8 bg-gray-50 rounded-lg p-4">
-        <h3 className="font-semibold mb-2">Debug Info:</h3>
+        <h3 className="font-semibold mb-2">Informações de Debug:</h3>
         <p className="text-sm text-gray-700">
-          API Key present: {process.env.REACT_APP_YOUTUBE_API_KEY ? '✅ Yes' : '❌ No'}
+          Chave de API presente: {process.env.REACT_APP_YOUTUBE_API_KEY ? '✅ Sim' : '❌ Não'}
         </p>
         <p className="text-sm text-gray-700">
-          API Key prefix: {process.env.REACT_APP_YOUTUBE_API_KEY?.substring(0, 7) || 'Not found'}...
+          Prefixo da chave de API: {process.env.REACT_APP_YOUTUBE_API_KEY?.substring(0, 7) || 'Não encontrada'}...
         </p>
         <p className="text-sm text-gray-700 mt-2">
-          Open browser console (F12) for detailed logs.
+          Abra o console do navegador (F12) para logs detalhados.
         </p>
       </div>
     </div>

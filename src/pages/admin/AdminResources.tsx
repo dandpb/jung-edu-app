@@ -24,7 +24,7 @@ const AdminResources: React.FC = () => {
   const [newBibliography, setNewBibliography] = useState<Bibliography>({
     id: '',
     title: '',
-    author: '',
+    authors: [''],
     year: new Date().getFullYear(),
     type: 'book'
   });
@@ -67,7 +67,7 @@ const AdminResources: React.FC = () => {
 
   const filteredBibliography = getAllBibliography().filter(book => {
     const matchesSearch = book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         book.author.toLowerCase().includes(searchTerm.toLowerCase());
+                         book.authors.join(' ').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesModule = filterModule === 'all' || book.moduleId === filterModule;
     return matchesSearch && matchesModule;
   });
@@ -100,7 +100,7 @@ const AdminResources: React.FC = () => {
     setNewBibliography({
       id: '',
       title: '',
-      author: '',
+      authors: [''],
       year: new Date().getFullYear(),
       type: 'book'
     });
@@ -290,7 +290,7 @@ const AdminResources: React.FC = () => {
                     {book.title}
                   </h3>
                   <p className="text-gray-600">
-                    por {book.author} ({book.year})
+                    por {book.authors.join(', ')} ({book.year})
                   </p>
                   <p className="text-sm text-gray-500 mt-1">
                     Módulo: {book.moduleTitle}
@@ -419,8 +419,8 @@ const AdminResources: React.FC = () => {
                       </label>
                       <input
                         type="text"
-                        value={newBibliography.author}
-                        onChange={(e) => setNewBibliography({ ...newBibliography, author: e.target.value })}
+                        value={newBibliography.authors[0] || ''}
+                        onChange={(e) => setNewBibliography({ ...newBibliography, authors: [e.target.value] })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                         required
                       />

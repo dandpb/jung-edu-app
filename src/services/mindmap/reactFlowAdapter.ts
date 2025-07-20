@@ -23,18 +23,23 @@ export class ReactFlowAdapter {
     layoutType: LayoutType = LayoutType.RADIAL,
     layoutConfig?: any
   ): { nodes: Node[]; edges: Edge[] } {
-    const generatedMap = this.generator.generateFromModule(module);
-    const layoutedNodes = this.layouts.applyLayout(
-      generatedMap.nodes,
-      generatedMap.edges,
-      layoutType,
-      layoutConfig
-    );
+    try {
+      const generatedMap = this.generator.generateFromModule(module);
+      const layoutResult = this.layouts.applyLayout(
+        generatedMap.nodes,
+        generatedMap.edges,
+        layoutType,
+        layoutConfig
+      );
 
-    return {
-      nodes: this.convertNodesToReactFlow(layoutedNodes),
-      edges: this.convertEdgesToReactFlow(generatedMap.edges)
-    };
+      return {
+        nodes: this.convertNodesToReactFlow(layoutResult.nodes),
+        edges: this.convertEdgesToReactFlow(layoutResult.edges)
+      };
+    } catch (error) {
+      // Fallback for modules without mind map data
+      return { nodes: [], edges: [] };
+    }
   }
 
   /**
@@ -53,7 +58,7 @@ export class ReactFlowAdapter {
       generatedMap.edges
     );
 
-    const layoutedNodes = this.layouts.applyLayout(
+    const layoutResult = this.layouts.applyLayout(
       generatedMap.nodes,
       generatedMap.edges,
       optimalLayout,
@@ -61,8 +66,8 @@ export class ReactFlowAdapter {
     );
 
     return {
-      nodes: this.convertNodesToReactFlow(layoutedNodes),
-      edges: this.convertEdgesToReactFlow(generatedMap.edges)
+      nodes: this.convertNodesToReactFlow(layoutResult.nodes),
+      edges: this.convertEdgesToReactFlow(layoutResult.edges)
     };
   }
 
@@ -70,28 +75,71 @@ export class ReactFlowAdapter {
    * Convert MindMapNode to React Flow Node
    */
   private convertNodesToReactFlow(mindMapNodes: MindMapNode[]): Node[] {
-    return mindMapNodes.map(node => ({
-      id: node.id,
-      data: node.data,
-      position: node.position,
-      type: node.type || 'default',
-      style: node.style
-    }));
+    return mindMapNodes.map((node, index) => {
+      // Ensure valid position with fallback
+      let position = node.position;
+      if (!position || isNaN(position.x) || isNaN(position.y)) {
+        position = { 
+          x: 100 + (index % 3) * 150, 
+          y: 100 + Math.floor(index / 3) * 100 
+        };
+      }
+
+      return {
+        id: node.id,
+        data: {
+          ...node.data // Include all data properties from MindMapNode (including label)
+        },
+        position,
+        type: node.type || 'default',
+        style: this.getNodeStyle(node),
+        className: 'mindmap-node'
+      };
+    });
+  }
+
+  /**
+   * Get styling for a node based on its category
+   */
+  private getNodeStyle(node: MindMapNode): any {
+    const baseStyle = {
+      backgroundColor: '#ffffff',
+      border: '2px solid #ddd',
+      borderRadius: '8px',
+      padding: '10px',
+      fontSize: '14px',
+      ...node.style
+    };
+
+    // Apply category-specific styling - check both node.category and node.data.category
+    const category = (node.data && node.data.category) || 'concept';
+    switch (category) {
+      case 'concept':
+        return { ...baseStyle, borderColor: '#3b82f6', backgroundColor: '#eff6ff' };
+      case 'theory':
+        return { ...baseStyle, borderColor: '#059669', backgroundColor: '#ecfdf5' };
+      case 'archetype':
+        return { ...baseStyle, borderColor: '#dc2626', backgroundColor: '#fef2f2' };
+      default:
+        return baseStyle;
+    }
   }
 
   /**
    * Convert MindMapEdge to React Flow Edge
    */
   private convertEdgesToReactFlow(mindMapEdges: MindMapEdge[]): Edge[] {
-    return mindMapEdges.map(edge => ({
-      id: edge.id,
-      source: edge.source,
-      target: edge.target,
-      label: typeof edge.label === 'string' ? edge.label : undefined,
-      type: edge.type || 'default',
-      animated: edge.animated || false,
-      style: edge.type === 'dashed' ? { strokeDasharray: '5 5' } : undefined
-    }));
+    return mindMapEdges
+      .filter(edge => edge.source && edge.target) // Filter out malformed edges
+      .map(edge => ({
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+        label: typeof edge.label === 'string' ? edge.label : undefined,
+        type: edge.type === 'dashed' ? 'default' : (edge.type || 'default'),
+        animated: edge.animated || false,
+        style: edge.type === 'dashed' ? { strokeDasharray: '5 5' } : edge.style
+      }));
   }
 
   /**
@@ -120,14 +168,61 @@ export class ReactFlowAdapter {
       animated: edge.animated
     }));
 
-    const layoutedNodes = this.layouts.applyLayout(
+    const layoutResult = this.layouts.applyLayout(
       mindMapNodes,
       mindMapEdges,
       layoutType,
       layoutConfig
     );
 
-    return this.convertNodesToReactFlow(layoutedNodes);
+    return this.convertNodesToReactFlow(layoutResult.nodes);
+  }
+
+  /**
+   * Convert MindMapNodes and MindMapEdges to React Flow format
+   */
+  convertToReactFlow(mindMapNodes: MindMapNode[], mindMapEdges: MindMapEdge[]): { nodes: Node[]; edges: Edge[] } {
+    return {
+      nodes: this.convertNodesToReactFlow(mindMapNodes),
+      edges: this.convertEdgesToReactFlow(mindMapEdges)
+    };
+  }
+
+  /**
+   * Apply layout to React Flow nodes and edges
+   */
+  applyLayout(nodes: Node[], edges: Edge[], layoutType: LayoutType, layoutConfig?: any): { nodes: Node[]; edges: Edge[] } {
+    // Convert React Flow format to MindMap format
+    const mindMapNodes: MindMapNode[] = nodes.map(node => ({
+      id: node.id,
+      data: node.data,
+      position: node.position,
+      type: node.type,
+      style: node.style
+    }));
+
+    const mindMapEdges: MindMapEdge[] = edges.map(edge => ({
+      id: edge.id,
+      source: edge.source,
+      target: edge.target,
+      label: typeof edge.label === 'string' ? edge.label : edge.label ? String(edge.label) : undefined,
+      type: edge.type,
+      animated: edge.animated
+    }));
+
+    // Apply layout
+    const layoutResult = this.layouts.applyLayout(
+      mindMapNodes,
+      mindMapEdges,
+      layoutType,
+      layoutConfig
+    );
+
+    // Convert back to React Flow format
+    return {
+      nodes: this.convertNodesToReactFlow(layoutResult.nodes),
+      edges: this.convertEdgesToReactFlow(layoutResult.edges)
+    };
   }
 
   /**
@@ -137,7 +232,9 @@ export class ReactFlowAdapter {
     // Convert to our format
     const mindMapNodes: MindMapNode[] = nodes.map(node => ({
       id: node.id,
-      data: node.data,
+      label: node.data?.label || '',
+      category: 'concept',
+      data: { ...(node.data || {}), moduleId: node.data?.moduleId || node.id },
       position: node.position,
       style: node.style
     }));
@@ -171,7 +268,7 @@ export class ReactFlowAdapter {
       const node = mindMapNodes.find(n => n.id === nodeId);
       
       // Only add nodes with moduleId to the study path
-      if (node?.data.moduleId) {
+      if (node?.data?.moduleId) {
         path.push(node.data.moduleId);
       }
 
@@ -197,13 +294,13 @@ export class ReactFlowAdapter {
   ): { nodes: Node[]; edges: Edge[] } {
     const pathSet = new Set(pathNodeIds);
     
-    // Highlight nodes in path
+    // Add highlighted class to nodes in path
     const highlightedNodes = nodes.map(node => ({
       ...node,
+      className: pathSet.has(node.id) ? 'mindmap-node highlighted' : 'mindmap-node',
       style: {
         ...node.style,
-        opacity: pathSet.has(node.id) ? 1 : 0.3,
-        border: pathSet.has(node.id) ? '3px solid #4c51ea' : node.style?.border
+        opacity: pathSet.has(node.id) ? 1 : 0.3
       }
     }));
 
@@ -218,8 +315,7 @@ export class ReactFlowAdapter {
         style: {
           ...edge.style,
           opacity: edgeInPath ? 1 : 0.3,
-          stroke: edgeInPath ? '#4c51ea' : undefined,
-          strokeWidth: edgeInPath ? 3 : undefined
+          stroke: edgeInPath ? '#4c51ea' : undefined
         },
         animated: edgeInPath
       };
@@ -241,10 +337,13 @@ export class ReactFlowAdapter {
   ): { nodes: Node[]; edges: Edge[] } {
     const categorySet = new Set(categories);
     
-    // Filter nodes
+    // Filter nodes by category based on border color
     const filteredNodes = nodes.filter(node => {
-      const category = (node.style as any)?.category;
-      return !category || categorySet.has(category);
+      let category = 'concept';
+      if (node.style?.borderColor === '#059669') category = 'theory';
+      else if (node.style?.borderColor === '#dc2626') category = 'archetype';
+      
+      return categorySet.has(category);
     });
 
     const filteredNodeIds = new Set(filteredNodes.map(n => n.id));
@@ -308,4 +407,67 @@ export class ReactFlowAdapter {
 
     return recommendations;
   }
+
+  /**
+   * Convert React Flow nodes back to mind map format
+   */
+  convertFromReactFlow(nodes: Node[], edges: Edge[]): { nodes: MindMapNode[]; edges: MindMapEdge[] } {
+    const mindMapNodes: MindMapNode[] = nodes.map(node => {
+      // Extract category from the original node's style
+      let category = 'concept';
+      if (node.style?.borderColor === '#059669') category = 'theory';
+      else if (node.style?.borderColor === '#dc2626') category = 'archetype';
+      
+      return {
+        id: node.id,
+        label: node.data.label || '',
+        category,
+        position: node.position,
+        data: node.data,
+        type: node.type,
+        style: node.style
+      };
+    });
+
+    const mindMapEdges: MindMapEdge[] = edges.map(edge => ({
+      id: edge.id,
+      source: edge.source,
+      target: edge.target,
+      label: typeof edge.label === 'string' ? edge.label : undefined,
+      type: edge.type,
+      animated: edge.animated
+    }));
+
+    return {
+      nodes: mindMapNodes,
+      edges: mindMapEdges
+    };
+  }
+
+  /**
+   * Suggest layout based on graph structure
+   */
+  suggestLayout(nodes: MindMapNode[], edges: MindMapEdge[]): LayoutType {
+    const nodeCount = nodes.length;
+    const edgeCount = edges.length;
+
+    // Tree-like structure
+    if (edgeCount < nodeCount) {
+      return LayoutType.TREE;
+    }
+
+    // Dense network
+    if (edgeCount > nodeCount * 1.5) {
+      return LayoutType.FORCE_DIRECTED;
+    }
+
+    // Small graphs
+    if (nodeCount < 10) {
+      return LayoutType.CIRCULAR;
+    }
+
+    // Default to radial for medium-sized graphs
+    return LayoutType.RADIAL;
+  }
+
 }

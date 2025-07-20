@@ -173,6 +173,37 @@ export class MockLLMProvider implements ILLMProvider {
   async generateStructuredResponse<T>(prompt: string, schema: any, options: LLMGenerationOptions = {}): Promise<T> {
     await this.simulateDelay();
     
+    // Handle quiz questions first - they pass an empty array as schema
+    if ((Array.isArray(schema) && schema.length === 0) || 
+        prompt.toLowerCase().includes('quiz') || 
+        prompt.toLowerCase().includes('questões')) {
+      // Extract the number of questions requested from the prompt
+      const countMatch = prompt.match(/(\d+)\s+(questions?|questões)/i);
+      const count = countMatch ? parseInt(countMatch[1]) : 5;
+      
+      const mockQuestions = [];
+      const difficulties = ['easy', 'medium', 'hard'];
+      const cognitiveLevels = ['recall', 'understanding', 'application', 'analysis'];
+      
+      for (let i = 0; i < count; i++) {
+        mockQuestions.push({
+          question: `Mock question ${i + 1} about Jungian psychology?`,
+          options: [
+            `Correct answer for question ${i + 1}`,
+            `Distractor A for question ${i + 1}`,
+            `Distractor B for question ${i + 1}`,
+            `Distractor C for question ${i + 1}`
+          ],
+          correctAnswer: 0,
+          explanation: `This is the explanation for question ${i + 1} about Jungian concepts.`,
+          difficulty: difficulties[i % difficulties.length],
+          cognitiveLevel: cognitiveLevels[i % cognitiveLevels.length]
+        });
+      }
+      
+      return mockQuestions as any;
+    }
+    
     // Return mock structured data based on schema type
     if (schema && schema.type === 'array') {
       // Handle array schemas
@@ -213,19 +244,6 @@ export class MockLLMProvider implements ILLMProvider {
       return ['item1', 'item2', 'item3'] as any;
     }
     
-    // Handle quiz questions
-    if (prompt.toLowerCase().includes('quiz')) {
-      return [
-        {
-          question: 'What is the collective unconscious?',
-          options: ['Shared unconscious content', 'Personal memories', 'Conscious thoughts', 'Dreams'],
-          correctAnswer: 0,
-          explanation: 'The collective unconscious contains universal patterns shared by all humanity.',
-          difficulty: 'medium',
-          cognitiveLevel: 'understanding'
-        }
-      ] as any;
-    }
     
     // Generic array response for other cases
     if (schema && schema.type === 'array') {
@@ -241,6 +259,36 @@ export class MockLLMProvider implements ILLMProvider {
           url: 'https://youtube.com/watch?v=dQw4w9WgXcQ',
           duration: 15,
           relatedConcepts: ['introduction', 'basics']
+        }
+      ] as any;
+    }
+    
+    // Handle bibliography generation
+    if (prompt.toLowerCase().includes('gere') && prompt.toLowerCase().includes('recursos educacionais')) {
+      return [
+        {
+          type: 'book',
+          authors: ['Jung, Carl Gustav'],
+          title: 'O Homem e Seus Símbolos',
+          year: 2016,
+          publisher: 'Nova Fronteira',
+          url: 'https://books.google.com.br/books?id=exemplo123',
+          abstract: 'Introdução acessível aos conceitos fundamentais da psicologia junguiana',
+          relevance: 'Obra fundamental recomendada para iniciantes',
+          jungianConcepts: ['arquétipos', 'inconsciente coletivo', 'símbolos'],
+          readingLevel: 'beginner'
+        },
+        {
+          type: 'article',
+          authors: ['Silva, Maria'],
+          title: 'A Sombra na Psicologia Junguiana: Uma Revisão',
+          year: 2022,
+          journal: 'Revista Brasileira de Psicologia Analítica',
+          url: 'https://scielo.br/exemplo456',
+          abstract: 'Revisão sistemática sobre o conceito de sombra',
+          relevance: 'Artigo atual com perspectiva brasileira',
+          jungianConcepts: ['sombra', 'projeção'],
+          readingLevel: 'intermediate'
         }
       ] as any;
     }

@@ -1,5 +1,5 @@
 import { ILLMProvider, LLMGenerationOptions } from '../provider';
-import { ModuleContent } from '../../../types/schema';
+import { ModuleContent } from '../../../types';
 
 interface ModuleContentOptions {
   title?: string;
@@ -263,6 +263,7 @@ Example format (respond with exactly this structure):
           options?.prerequisites,
           language
         ),
+        order: index,
         subsections: [],
         media: [],
       }))

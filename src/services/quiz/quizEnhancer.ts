@@ -3,7 +3,7 @@
  * Improves generated questions with better distractors, explanations, and educational value
  */
 
-import { QuizQuestion } from '../../types/schema';
+import { Question } from '../../types';
 import { getTopicMisconceptions, getTopicConcepts, questionStemVariations } from './quizTemplates';
 
 export interface EnhancementOptions {
@@ -19,7 +19,7 @@ export class QuizEnhancer {
    * Enhance a set of quiz questions with better educational features
    */
   async enhanceQuestions(
-    questions: QuizQuestion[],
+    questions: Question[],
     topic: string,
     options: EnhancementOptions = {
       addExplanations: true,
@@ -28,7 +28,7 @@ export class QuizEnhancer {
       addReferences: true,
       contextualizeQuestions: true
     }
-  ): Promise<QuizQuestion[]> {
+  ): Promise<Question[]> {
     return Promise.all(
       questions.map(q => this.enhanceQuestion(q, topic, options))
     );
@@ -38,10 +38,10 @@ export class QuizEnhancer {
    * Enhance a single question
    */
   private async enhanceQuestion(
-    question: QuizQuestion,
+    question: Question,
     topic: string,
     options: EnhancementOptions
-  ): Promise<QuizQuestion> {
+  ): Promise<Question> {
     let enhanced = { ...question };
 
     if (options.varyQuestionStems) {
@@ -70,7 +70,7 @@ export class QuizEnhancer {
   /**
    * Vary question stems for better engagement
    */
-  private varyQuestionStem(question: QuizQuestion): QuizQuestion {
+  private varyQuestionStem(question: Question): Question {
     const questionType = this.identifyQuestionType(question.question);
     const stems = questionStemVariations[questionType as keyof typeof questionStemVariations];
     
@@ -98,7 +98,7 @@ export class QuizEnhancer {
   /**
    * Improve distractors for multiple choice questions
    */
-  private improveDistractors(question: QuizQuestion, topic: string): QuizQuestion {
+  private improveDistractors(question: Question, topic: string): Question {
     if (!question.options || question.correctAnswer === undefined) return question;
 
     const misconceptions = getTopicMisconceptions(topic);
@@ -107,11 +107,23 @@ export class QuizEnhancer {
     
     // Generate better distractors
     const improvedOptions = question.options.map((option, index) => {
-      if (index === question.correctAnswer) return option; // Keep correct answer
+      if (index === question.correctAnswer) {
+        // Keep correct answer but ensure it's an Option object
+        return typeof option === 'string' ? 
+          { id: `option-${index}`, text: option, isCorrect: true } : 
+          option;
+      }
       
       // Categorize and improve distractor
-      const distractorType = this.categorizeDistractor(option, correctOption, misconceptions);
-      return this.generateBetterDistractor(option, distractorType, correctOption, concepts, misconceptions);
+      const optionText = typeof option === 'string' ? option : option.text || option.toString();
+      const correctText = typeof correctOption === 'string' ? correctOption : correctOption.text || correctOption.toString();
+      const distractorType = this.categorizeDistractor(optionText, correctText, misconceptions);
+      const improvedText = this.generateBetterDistractor(optionText, distractorType, correctText, concepts, misconceptions);
+      
+      // Always return an Option object
+      return typeof option === 'string' ? 
+        { id: `option-${index}`, text: improvedText, isCorrect: false } : 
+        { ...option, text: improvedText };
     });
 
     return {
@@ -123,7 +135,7 @@ export class QuizEnhancer {
   /**
    * Enhance explanations with more educational content
    */
-  private enhanceExplanation(question: QuizQuestion, topic: string): QuizQuestion {
+  private enhanceExplanation(question: Question, topic: string): Question {
     if (!question.explanation) return question;
 
     const enhanced = {
@@ -146,7 +158,7 @@ export class QuizEnhancer {
   /**
    * Add references to Jung's work
    */
-  private addReferences(question: QuizQuestion): QuizQuestion {
+  private addReferences(question: Question): Question {
     const references = this.findRelevantReferences(question.question);
     
     if (references.length === 0) return question;
@@ -164,7 +176,7 @@ export class QuizEnhancer {
   /**
    * Contextualize questions with real-world examples
    */
-  private contextualizeQuestion(question: QuizQuestion, topic: string): QuizQuestion {
+  private contextualizeQuestion(question: Question, topic: string): Question {
     const context = this.generateContext(question.question, topic);
     
     if (!context) return question;
@@ -248,15 +260,17 @@ export class QuizEnhancer {
   }
 
   private makePartialMoreObvious(partial: string, correct: string): string {
+    // partial is already a string, no need to check
+    const partialText = partial;
     // Add qualifiers that make it incomplete
     const qualifiers = ['only', 'simply', 'merely', 'just'];
     const qualifier = qualifiers[Math.floor(Math.random() * qualifiers.length)];
     
-    if (!partial.includes(qualifier)) {
-      return partial.replace(/is|are|was|were/, `$& ${qualifier}`);
+    if (!partialText.includes(qualifier)) {
+      return partialText.replace(/is|are|was|were/, `$& ${qualifier}`);
     }
     
-    return partial;
+    return partialText;
   }
 
   private createPlausibleDistractor(correct: string, concepts: string[], misconceptions: string[]): string {
@@ -379,7 +393,7 @@ export class QuizEnhancer {
     return generalDistracters[Math.floor(Math.random() * generalDistracters.length)];
   }
 
-  private buildEnhancedExplanation(question: QuizQuestion, topic: string): string {
+  private buildEnhancedExplanation(question: Question, topic: string): string {
     const base = question.explanation || '';
     const concepts = getTopicConcepts(topic);
     
@@ -391,7 +405,10 @@ export class QuizEnhancer {
       enhanced += '\n\nWhy other options are incorrect:';
       question.options.forEach((option, index) => {
         if (index !== question.correctAnswer) {
-          enhanced += `\n- Option ${String.fromCharCode(65 + index)}: ${this.explainWhyWrong(option, question.options![question.correctAnswer!])}`;
+          const optionText = typeof option === 'string' ? option : option.text || option.toString();
+          const correctOption = question.options![question.correctAnswer!];
+          const correctText = typeof correctOption === 'string' ? correctOption : (correctOption.text || correctOption.toString());
+          enhanced += `\n- Option ${String.fromCharCode(65 + index)}: ${this.explainWhyWrong(optionText, correctText as string)}`;
         }
       });
     }
@@ -454,7 +471,7 @@ export class QuizEnhancer {
     );
   }
 
-  private determineCognitiveLevel(question: QuizQuestion): string {
+  private determineCognitiveLevel(question: Question): string {
     const q = question.question.toLowerCase();
     
     if (q.includes('define') || q.includes('what is') || q.includes('identify')) {
@@ -474,7 +491,7 @@ export class QuizEnhancer {
     return 'understand';
   }
 
-  private assessEducationalValue(question: QuizQuestion): number {
+  private assessEducationalValue(question: Question): number {
     let value = 0;
     
     // Has explanation
@@ -482,9 +499,10 @@ export class QuizEnhancer {
     
     // Has good distractors (for MC)
     if (question.type === 'multiple-choice' && question.options) {
-      const hasGoodDistractors = question.options.some(opt => 
-        opt.length > 20 && opt !== question.options![question.correctAnswer!]
-      );
+      const hasGoodDistractors = question.options.some((opt, index) => {
+        const optText = typeof opt === 'string' ? opt : opt.text || '';
+        return optText.length > 20 && index !== question.correctAnswer!;
+      });
       if (hasGoodDistractors) value += 2;
     }
     

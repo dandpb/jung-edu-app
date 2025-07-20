@@ -4,7 +4,7 @@
  */
 
 import { ILLMProvider } from '../llm/provider';
-import { Quiz, QuizQuestion } from '../../types/schema';
+import { Quiz, Question } from '../../types';
 import { QuizGenerator } from '../llm/generators/quiz-generator';
 import { quizEnhancer, EnhancementOptions } from './quizEnhancer';
 import { 
@@ -49,7 +49,7 @@ export class EnhancedQuizGenerator extends QuizGenerator {
     }
   ): Promise<Quiz> {
     // Generate base questions using templates if enabled
-    let questions: QuizQuestion[];
+    let questions: Question[];
     
     if (options.useTemplates) {
       questions = await this.generateTemplatedQuestions(
@@ -105,7 +105,7 @@ export class EnhancedQuizGenerator extends QuizGenerator {
     objectives: string[],
     count: number,
     options: EnhancedQuizOptions
-  ): Promise<QuizQuestion[]> {
+  ): Promise<Question[]> {
     const topicTemplate = topicTemplates.find(t => t.topic === topic);
     const progression = difficultyProgressions[options.userLevel];
     
@@ -113,7 +113,7 @@ export class EnhancedQuizGenerator extends QuizGenerator {
     const distribution = this.calculateQuestionDistribution(count, progression.questionDistribution);
     
     // Generate questions for each difficulty level
-    const allQuestions: QuizQuestion[] = [];
+    const allQuestions: Question[] = [];
     
     for (const [difficulty, questionCount] of Object.entries(distribution)) {
       if (questionCount > 0) {
@@ -155,7 +155,7 @@ export class EnhancedQuizGenerator extends QuizGenerator {
     difficulty: string,
     count: number,
     topicTemplate: any
-  ): Promise<QuizQuestion[]> {
+  ): Promise<Question[]> {
     const template = getQuestionTemplate(topic, difficulty);
     const concepts = getTopicConcepts(topic);
     
@@ -249,17 +249,19 @@ For each question provide:
   }
 
   /**
-   * Format a templated question into QuizQuestion format
+   * Format a templated question into Question format
    */
   private formatTemplatedQuestion(
     rawQuestion: any,
     index: number,
     difficulty: string
-  ): QuizQuestion {
-    const baseQuestion: QuizQuestion = {
+  ): Question {
+    const baseQuestion: Question = {
       id: `q-${difficulty}-${index + 1}`,
       type: rawQuestion.type || 'multiple-choice',
       question: rawQuestion.question,
+      options: [], // Default empty array, will be overridden below
+      correctAnswer: 0, // Default value, will be overridden below
       explanation: rawQuestion.explanation,
       points: difficulty === 'hard' ? 15 : difficulty === 'medium' ? 10 : 5,
       order: index,
@@ -294,7 +296,7 @@ For each question provide:
     topic: string,
     objectives: string[],
     count: number
-  ): Promise<QuizQuestion[]> {
+  ): Promise<Question[]> {
     const essayTemplate = jungQuestionTypes.individuationProcess;
     
     const prompt = `
@@ -346,6 +348,8 @@ For each question provide:
         id: `essay-${index + 1}`,
         type: 'essay' as const,
         question: q.question,
+        options: [], // Essay questions don't have options
+        correctAnswer: -1, // Not applicable for essay questions
         rubric: q.rubric,
         explanation: q.explanation,
         points: 20,
@@ -357,6 +361,8 @@ For each question provide:
       id: `essay-${index + 1}`,
       type: 'essay' as const,
       question: q.question,
+      options: [], // Essay questions don't have options
+      correctAnswer: -1, // Not applicable for essay questions
       rubric: q.rubric,
       explanation: q.explanation,
       points: 25,
@@ -382,7 +388,7 @@ For each question provide:
     };
   }
 
-  private calculateTimeLimit(questions: QuizQuestion[]): number {
+  private calculateTimeLimit(questions: Question[]): number {
     let totalMinutes = 0;
     
     questions.forEach(q => {
@@ -405,19 +411,19 @@ For each question provide:
     return totalMinutes;
   }
 
-  private extractQuizConcepts(questions: QuizQuestion[]): string[] {
+  private extractQuizConcepts(questions: Question[]): string[] {
     const concepts = new Set<string>();
     
     questions.forEach(q => {
       if (q.metadata?.concepts) {
-        q.metadata.concepts.forEach(c => concepts.add(c));
+        q.metadata.concepts.forEach((c: string) => concepts.add(c));
       }
     });
     
     return Array.from(concepts);
   }
 
-  private analyzeDifficultyDistribution(questions: QuizQuestion[]): Record<string, number> {
+  private analyzeDifficultyDistribution(questions: Question[]): Record<string, number> {
     const distribution: Record<string, number> = {
       easy: 0,
       medium: 0,
@@ -451,12 +457,12 @@ For each question provide:
     return studyPlan;
   }
 
-  private identifyWeakConcepts(incorrectQuestions: (QuizQuestion | undefined)[]): string[] {
+  private identifyWeakConcepts(incorrectQuestions: (Question | undefined)[]): string[] {
     const concepts = new Map<string, number>();
     
     incorrectQuestions.forEach(q => {
       if (q?.metadata?.concepts) {
-        q.metadata.concepts.forEach(c => {
+        q.metadata.concepts.forEach((c: string) => {
           concepts.set(c, (concepts.get(c) || 0) + 1);
         });
       }

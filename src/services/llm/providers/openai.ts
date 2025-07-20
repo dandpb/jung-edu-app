@@ -63,29 +63,55 @@ export class OpenAIProvider implements ILLMProvider {
     options?: LLMGenerationOptions
   ): Promise<T> {
     // Add JSON formatting instructions to the prompt
-    const structuredPrompt = `${prompt}\n\nPlease respond with valid JSON that matches this schema:\n${JSON.stringify(schema, null, 2)}`;
+    const structuredPrompt = `${prompt}\n\nIMPORTANT: Responda APENAS com JSON válido, sem markdown ou formatação adicional. O JSON deve corresponder a este schema:\n${JSON.stringify(schema, null, 2)}`;
 
     const response = await this.generateCompletion(structuredPrompt, {
       ...options,
       temperature: 0.3 // Lower temperature for structured output
     });
 
+    // Clean the response content
+    let cleanContent = response.content.trim();
+    
+    // Remove markdown code blocks if present
+    const codeBlockMatch = cleanContent.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+    if (codeBlockMatch) {
+      cleanContent = codeBlockMatch[1].trim();
+    }
+    
+    // Remove any leading/trailing backticks or other markdown
+    cleanContent = cleanContent.replace(/^`+|`+$/g, '');
+    
     try {
-      const parsed = JSON.parse(response.content);
+      const parsed = JSON.parse(cleanContent);
       return parsed as T;
     } catch (error) {
-      console.error('Failed to parse structured output:', error);
-      // Try to extract JSON from the response
-      const jsonMatch = response.content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        try {
-          const parsed = JSON.parse(jsonMatch[0]);
-          return parsed as T;
-        } catch (e) {
-          throw new Error('Failed to parse structured output from response');
+      console.error('Falha ao analisar saída estruturada:', error);
+      console.error('Conteúdo recebido:', response.content);
+      
+      // Try to extract JSON from the response using more aggressive patterns
+      const jsonPatterns = [
+        /\{[\s\S]*?\}/,  // Basic JSON object
+        /\[[\s\S]*?\]/,  // JSON array
+        /```json\s*([\s\S]*?)\s*```/i,  // JSON in code blocks
+        /```\s*([\s\S]*?)\s*```/,  // Any code block
+      ];
+      
+      for (const pattern of jsonPatterns) {
+        const match = response.content.match(pattern);
+        if (match) {
+          try {
+            const jsonString = match[1] || match[0];
+            const parsed = JSON.parse(jsonString.trim());
+            return parsed as T;
+          } catch (e) {
+            // Continue to next pattern
+            continue;
+          }
         }
       }
-      throw new Error('No valid JSON found in response');
+      
+      throw new Error(`Nenhum JSON válido encontrado na resposta. Conteúdo: ${response.content.substring(0, 200)}...`);
     }
   }
 

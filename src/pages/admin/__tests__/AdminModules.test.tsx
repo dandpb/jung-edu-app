@@ -139,14 +139,14 @@ describe('AdminModules Component', () => {
   test('renders admin modules page with correct title and description', () => {
     render(<AdminModules />);
     
-    expect(screen.getByText('Manage Modules')).toBeInTheDocument();
-    expect(screen.getByText('Create and edit learning modules, sections, and quizzes')).toBeInTheDocument();
+    expect(screen.getByText('Gerenciar Módulos')).toBeInTheDocument();
+    expect(screen.getByText('Criar e editar módulos de aprendizagem, seções e questionários')).toBeInTheDocument();
   });
 
   test('renders add module button', () => {
     render(<AdminModules />);
     
-    const addButton = screen.getByRole('button', { name: /Add Module/i });
+    const addButton = screen.getByRole('button', { name: /Adicionar Módulo/i });
     expect(addButton).toBeInTheDocument();
     expect(addButton).toHaveClass('btn-primary');
   });
@@ -184,12 +184,12 @@ describe('AdminModules Component', () => {
     expect(screen.getByText('60 min')).toBeInTheDocument();
     
     // Check sections count
-    expect(screen.getByText('2 sections')).toBeInTheDocument();
-    expect(screen.getByText('1 sections')).toBeInTheDocument();
-    expect(screen.getByText('0 sections')).toBeInTheDocument();
+    expect(screen.getByText('2 seções')).toBeInTheDocument();
+    expect(screen.getByText('1 seções')).toBeInTheDocument();
+    expect(screen.getByText('0 seções')).toBeInTheDocument();
     
     // Check questions count (only for modules with quizzes)
-    expect(screen.getByText('1 questions')).toBeInTheDocument();
+    expect(screen.getByText('1 questões')).toBeInTheDocument();
   });
 
   test('difficulty badges have correct styling', () => {
@@ -224,11 +224,11 @@ describe('AdminModules Component', () => {
     await waitFor(() => {
       expect(screen.getByText(/This module introduces the fundamental concepts/)).toBeInTheDocument();
     });
-    expect(screen.getByText('Introduction')).toBeInTheDocument();
-    expect(screen.getByText('Sections')).toBeInTheDocument();
+    expect(screen.getByText('Introdução')).toBeInTheDocument();
+    expect(screen.getByText('Seções')).toBeInTheDocument();
     expect(screen.getByText('1.')).toBeInTheDocument();
     expect(screen.getByText('The Psyche')).toBeInTheDocument();
-    expect(screen.getByText('(2 terms)')).toBeInTheDocument();
+    expect(screen.getByText('(2 termos)')).toBeInTheDocument();
   });
 
   test('collapsing expanded module hides details', async () => {
@@ -277,7 +277,7 @@ describe('AdminModules Component', () => {
     
     // Check prerequisites section
     await waitFor(() => {
-      expect(screen.getByText('Prerequisites')).toBeInTheDocument();
+      expect(screen.getByText('Pré-requisitos')).toBeInTheDocument();
     });
     // Should show the prerequisite module titles
     expect(screen.getAllByText('Introduction to Jung').length).toBeGreaterThan(1);
@@ -287,7 +287,7 @@ describe('AdminModules Component', () => {
   test('clicking add module button opens module editor for new module', async () => {
     render(<AdminModules />);
     
-    const addButton = screen.getByRole('button', { name: /Add Module/i });
+    const addButton = screen.getByRole('button', { name: /Adicionar Módulo/i });
     
     await act(async () => {
       await user.click(addButton);
@@ -297,7 +297,7 @@ describe('AdminModules Component', () => {
       expect(screen.getByText('Module Editor')).toBeInTheDocument();
     });
     expect(screen.getByTestId('module-editor')).toBeInTheDocument();
-    expect(screen.getByText('New Module')).toBeInTheDocument();
+    expect(screen.getByText('Novo Módulo')).toBeInTheDocument();
   });
 
   test('clicking edit button opens module editor with existing module', async () => {
@@ -363,7 +363,7 @@ describe('AdminModules Component', () => {
     render(<AdminModules />);
     
     // Open editor
-    const addButton = screen.getByRole('button', { name: /Add Module/i });
+    const addButton = screen.getByRole('button', { name: /Adicionar Módulo/i });
     
     await act(async () => {
       await user.click(addButton);
@@ -404,7 +404,7 @@ describe('AdminModules Component', () => {
     await user.click(deleteButtons[0]);
     
     // Verify confirmation was shown
-    expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to delete this module?');
+    expect(window.confirm).toHaveBeenCalledWith('Tem certeza que deseja excluir este módulo?');
     
     // Verify updateModules was called without the deleted module
     expect(mockUpdateModules).toHaveBeenCalledWith(
@@ -448,16 +448,16 @@ describe('AdminModules Component', () => {
     
     render(<AdminModules />);
     
-    expect(screen.getByText('Manage Modules')).toBeInTheDocument();
+    expect(screen.getByText('Gerenciar Módulos')).toBeInTheDocument();
     // Should still show the add button
-    expect(screen.getByRole('button', { name: /Add Module/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Adicionar Módulo/i })).toBeInTheDocument();
   });
 
   test('creating a new module adds it to the list', async () => {
     render(<AdminModules />);
     
     // Click add module
-    const addButton = screen.getByRole('button', { name: /Add Module/i });
+    const addButton = screen.getByRole('button', { name: /Adicionar Módulo/i });
     
     await act(async () => {
       await user.click(addButton);

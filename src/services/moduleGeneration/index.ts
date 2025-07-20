@@ -6,7 +6,7 @@
 // Export specific services to avoid naming conflicts
 export { BibliographyEnricher, generateBibliography, generateReadingPath } from '../bibliography';
 export { MindMapGenerator as RealMindMapGenerator } from '../mindmap';
-export { EnhancedQuizGenerator, QuizEnhancer } from '../quiz';
+export { EnhancedQuizGenerator, quizEnhancer } from '../quiz';
 export { VideoEnricher } from '../video';
 export { ModuleGenerator, ModuleService } from '../modules';
 export { ModuleGenerationOrchestrator } from '../llm';
@@ -19,7 +19,7 @@ import { EnhancedQuizGenerator } from '../quiz/enhancedQuizGenerator';
 import { VideoEnricher } from '../video/videoEnricher';
 import { BibliographyEnricher } from '../bibliography/bibliographyEnricher';
 import { allReferences } from '../bibliography/referenceDatabase';
-import { QuizEnhancer } from '../quiz/quizEnhancer';
+import { quizEnhancer } from '../quiz/quizEnhancer';
 import { ILLMProvider, OpenAIProvider } from '../llm/provider';
 import { defaultConfig } from '../llm/config';
 
@@ -68,7 +68,7 @@ export class UnifiedModuleGenerator {
   private videoEnricher: VideoEnricher;
   private bibliographyEnricher: BibliographyEnricher;
   // References are imported as allReferences
-  private quizEnhancer: QuizEnhancer;
+  private quizEnhancer: typeof quizEnhancer;
 
   constructor() {
     // Initialize LLM provider
@@ -83,7 +83,7 @@ export class UnifiedModuleGenerator {
     this.videoEnricher = new VideoEnricher();
     this.bibliographyEnricher = new BibliographyEnricher();
     // Using allReferences directly
-    this.quizEnhancer = new QuizEnhancer();
+    this.quizEnhancer = quizEnhancer;
   }
 
   /**
@@ -171,7 +171,7 @@ export class UnifiedModuleGenerator {
           
           // Enhance quiz with explanations
           if (basicQuiz) {
-            const enhancedQuestions = await this.quizEnhancer.enhanceQuestions(basicQuiz.questions, config.topic);
+            const enhancedQuestions = await this.quizEnhancer.enhanceQuestions(basicQuiz.questions as any, config.topic);
             quiz = { ...basicQuiz, questions: enhancedQuestions };
           }
           componentsIncluded.push('quiz');

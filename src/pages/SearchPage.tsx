@@ -47,7 +47,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ modules }) => {
           type: 'content',
           moduleId: module.id,
           moduleTitle: module.title,
-          title: 'Introduction',
+          title: 'Introdução',
           content: module.content.introduction,
           matches: (module.content.introduction.toLowerCase().match(new RegExp(query, 'g')) || []).length
         });
@@ -118,10 +118,10 @@ const SearchPage: React.FC<SearchPageProps> = ({ modules }) => {
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-display font-bold text-gray-900 mb-4">
-          Search
+          Buscar
         </h1>
         <p className="text-gray-600">
-          Search across all modules, sections, and key terms
+          Busque em todos os módulos, seções e termos-chave
         </p>
       </div>
 
@@ -142,7 +142,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ modules }) => {
       {searchQuery && (
         <div className="mb-4">
           <p className="text-sm text-gray-600">
-            Found {searchResults.length} results for "{searchQuery}"
+            {searchResults.length} {searchResults.length === 1 ? 'resultado encontrado' : 'resultados encontrados'} para "{searchQuery}"
           </p>
         </div>
       )}
@@ -167,12 +167,14 @@ const SearchPage: React.FC<SearchPageProps> = ({ modules }) => {
                         {highlightText(result.title, searchQuery)}
                       </h3>
                       <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-600">
-                        {result.type}
+                        {result.type === 'module' ? 'módulo' : 
+                         result.type === 'section' ? 'seção' :
+                         result.type === 'term' ? 'termo' : 'conteúdo'}
                       </span>
                     </div>
                     
                     <p className="text-sm text-gray-500 mb-2">
-                      in {result.moduleTitle}
+                      em {result.moduleTitle}
                     </p>
                     
                     <p className="text-gray-700 line-clamp-2">

@@ -59,11 +59,11 @@ describe('Module Generation Integration', () => {
       renderComponent();
       
       // Fill in the subject
-      const subjectInput = screen.getByLabelText(/what subject would you like/i);
+      const subjectInput = screen.getByLabelText(/Sobre qual assunto/i);
       await user.type(subjectInput, 'Introduction to Jungian Psychology');
       
       // Start generation
-      const generateButton = screen.getByRole('button', { name: /generate module/i });
+      const generateButton = screen.getByRole('button', { name: /gerar módulo/i });
       await user.click(generateButton);
       
       // Check that onGenerate was called with correct config
@@ -77,7 +77,7 @@ describe('Module Generation Integration', () => {
             includeQuiz: true,
             includeVideos: true,
             includeBibliography: true,
-            language: 'en'
+            language: 'pt-BR'
           })
         );
       });
@@ -89,11 +89,11 @@ describe('Module Generation Integration', () => {
       renderComponent();
       
       // Try to generate without enough input
-      const generateButton = screen.getByRole('button', { name: /generate module/i });
+      const generateButton = screen.getByRole('button', { name: /gerar módulo/i });
       expect(generateButton).toBeDisabled();
       
       // Type just 2 characters (less than minimum)
-      const subjectInput = screen.getByLabelText(/what subject/i);
+      const subjectInput = screen.getByLabelText(/Sobre qual assunto/i);
       await user.type(subjectInput, 'ab');
       
       // Button should still be disabled
@@ -126,14 +126,14 @@ describe('Module Generation Integration', () => {
       renderComponent();
       
       // Open advanced options
-      await user.click(screen.getByText(/advanced options/i));
+      await user.click(screen.getByText(/opções avançadas/i));
       
       // Change difficulty to intermediate
-      const intermediateRadio = screen.getByRole('radio', { name: /intermediate/i });
+      const intermediateRadio = screen.getByRole('radio', { name: /intermediário/i });
       await user.click(intermediateRadio);
       
       // Change estimated time - need to handle controlled input properly
-      const timeInput = screen.getByLabelText(/estimated time/i);
+      const timeInput = screen.getByLabelText(/tempo estimado/i);
       // First, select all and delete the current value
       await user.click(timeInput);
       await user.keyboard('{Control>}a{/Control}');
@@ -141,7 +141,7 @@ describe('Module Generation Integration', () => {
       await user.type(timeInput, '60');
       
       // Uncheck quiz option
-      const includeQuizCheckbox = screen.getByLabelText(/quiz questions/i);
+      const includeQuizCheckbox = screen.getByLabelText(/questões do questionário/i);
       await user.click(includeQuizCheckbox);
       
       // Add prerequisite
@@ -149,13 +149,13 @@ describe('Module Generation Integration', () => {
       await user.click(prerequisiteCheckbox);
       
       // Set target audience
-      const audienceInput = screen.getByLabelText(/target audience/i);
+      const audienceInput = screen.getByLabelText(/público-alvo/i);
       await user.type(audienceInput, 'Psychology students');
       
       // Fill subject and generate
-      const subjectInput = screen.getByLabelText(/what subject/i);
+      const subjectInput = screen.getByLabelText(/sobre qual assunto/i);
       await user.type(subjectInput, 'Custom Module');
-      await user.click(screen.getByRole('button', { name: /generate module/i }));
+      await user.click(screen.getByRole('button', { name: /gerar módulo/i }));
       
       await waitFor(() => {
         expect(mockOnGenerate).toHaveBeenCalledWith(
@@ -184,7 +184,7 @@ describe('Module Generation Integration', () => {
       renderComponent();
       
       // Open advanced options
-      await user.click(screen.getByText(/advanced options/i));
+      await user.click(screen.getByText(/opções avançadas/i));
       
       // Select both prerequisites
       const prereq1 = screen.getByLabelText(/introduction to jung/i);
@@ -194,9 +194,9 @@ describe('Module Generation Integration', () => {
       await user.click(prereq2);
       
       // Fill subject and generate
-      const subjectInput = screen.getByLabelText(/what subject/i);
+      const subjectInput = screen.getByLabelText(/sobre qual assunto/i);
       await user.type(subjectInput, 'Advanced Concepts');
-      await user.click(screen.getByRole('button', { name: /generate module/i }));
+      await user.click(screen.getByRole('button', { name: /gerar módulo/i }));
       
       await waitFor(() => {
         expect(mockOnGenerate).toHaveBeenCalledWith(
@@ -215,15 +215,15 @@ describe('Module Generation Integration', () => {
       renderComponent();
       
       // Click on an example subject
-      const exampleButton = screen.getByRole('button', { name: /introduction to the shadow/i });
+      const exampleButton = screen.getByRole('button', { name: /introdução à sombra/i });
       await user.click(exampleButton);
       
       // Check that the input was populated
-      const subjectInput = screen.getByLabelText(/what subject/i);
-      expect(subjectInput).toHaveValue('Introduction to the Shadow');
+      const subjectInput = screen.getByLabelText(/sobre qual assunto/i);
+      expect(subjectInput).toHaveValue('Introdução à Sombra');
       
       // Should be able to generate
-      const generateButton = screen.getByRole('button', { name: /generate module/i });
+      const generateButton = screen.getByRole('button', { name: /gerar módulo/i });
       expect(generateButton).toBeEnabled();
     });
     
@@ -233,15 +233,15 @@ describe('Module Generation Integration', () => {
       renderComponent();
       
       // Click example
-      await user.click(screen.getByRole('button', { name: /jung's theory of archetypes/i }));
+      await user.click(screen.getByRole('button', { name: /teoria dos arquétipos de jung/i }));
       
       // Edit the populated text
-      const subjectInput = screen.getByLabelText(/what subject/i);
+      const subjectInput = screen.getByLabelText(/sobre qual assunto/i);
       await user.clear(subjectInput);
       await user.type(subjectInput, 'Modified Archetypes Theory');
       
       // Generate
-      await user.click(screen.getByRole('button', { name: /generate module/i }));
+      await user.click(screen.getByRole('button', { name: /gerar módulo/i }));
       
       await waitFor(() => {
         expect(mockOnGenerate).toHaveBeenCalledWith(
@@ -260,16 +260,16 @@ describe('Module Generation Integration', () => {
       renderComponent();
       
       // Open advanced options
-      await user.click(screen.getByText(/advanced options/i));
+      await user.click(screen.getByText(/opções avançadas/i));
       
       // Toggle all options off
-      await user.click(screen.getByLabelText(/quiz questions/i));
-      await user.click(screen.getByLabelText(/video suggestions/i));
-      await user.click(screen.getByLabelText(/bibliography/i));
+      await user.click(screen.getByLabelText(/questões do questionário/i));
+      await user.click(screen.getByLabelText(/sugestões de vídeo/i));
+      await user.click(screen.getByLabelText(/bibliografia/i));
       
       // Fill and generate
-      await user.type(screen.getByLabelText(/what subject/i), 'Minimal Module');
-      await user.click(screen.getByRole('button', { name: /generate module/i }));
+      await user.type(screen.getByLabelText(/sobre qual assunto/i), 'Minimal Module');
+      await user.click(screen.getByRole('button', { name: /gerar módulo/i }));
       
       await waitFor(() => {
         expect(mockOnGenerate).toHaveBeenCalledWith(

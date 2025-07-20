@@ -14,8 +14,28 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
   const [showResult, setShowResult] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
 
+  // Early return if quiz data is invalid
+  if (!quiz || !quiz.questions || quiz.questions.length === 0) {
+    return (
+      <div className="card max-w-2xl mx-auto text-center">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Questionário Indisponível</h2>
+        <p className="text-gray-600">Este módulo ainda não possui um questionário disponível.</p>
+      </div>
+    );
+  }
+
   const currentQuestion = quiz.questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === quiz.questions.length - 1;
+
+  // Additional safety check for currentQuestion
+  if (!currentQuestion) {
+    return (
+      <div className="card max-w-2xl mx-auto text-center">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Erro no Questionário</h2>
+        <p className="text-gray-600">Houve um problema ao carregar as questões. Tente recarregar a página.</p>
+      </div>
+    );
+  }
 
   const handleAnswerSelect = (answerIndex: number) => {
     const newAnswers = [...selectedAnswers];
@@ -36,7 +56,7 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
   const calculateScore = () => {
     let correct = 0;
     quiz.questions.forEach((question, index) => {
-      if (selectedAnswers[index] === question.correctAnswer) {
+      if (question && selectedAnswers[index] === question.correctAnswer) {
         correct++;
       }
     });
@@ -55,7 +75,7 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
   if (showResult) {
     const score = Math.round(
       (selectedAnswers.filter((answer, index) => 
-        answer === quiz.questions[index].correctAnswer
+        quiz.questions[index] && answer === quiz.questions[index].correctAnswer
       ).length / quiz.questions.length) * 100
     );
 
@@ -71,7 +91,7 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
           </div>
           <p className="text-gray-600">
             Você acertou {selectedAnswers.filter((answer, index) => 
-              answer === quiz.questions[index].correctAnswer
+              quiz.questions[index] && answer === quiz.questions[index].correctAnswer
             ).length} de {quiz.questions.length} questões
           </p>
         </div>
@@ -84,9 +104,12 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
 
         <div className="space-y-4">
           {quiz.questions.map((question, index) => {
+            // Skip rendering if question is undefined
+            if (!question) return null;
+            
             const isCorrect = selectedAnswers[index] === question.correctAnswer;
             return (
-              <div key={question.id} className="text-left p-4 bg-gray-50 rounded-lg">
+              <div key={question.id || index} className="text-left p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-start space-x-2">
                   {isCorrect ? (
                     <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
@@ -94,13 +117,21 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
                     <XCircle className="w-5 h-5 text-red-600 mt-0.5" />
                   )}
                   <div className="flex-1">
-                    <p className="font-medium text-gray-900">{question.question}</p>
+                    <p className="font-medium text-gray-900">{question.question || 'Questão sem texto'}</p>
                     <p className="text-sm text-gray-600 mt-1">
-                      Sua resposta: {question.options[selectedAnswers[index]]}
+                      Sua resposta: {(() => {
+                        if (!question.options || selectedAnswers[index] === undefined) return 'N/A';
+                        const option = question.options[selectedAnswers[index]];
+                        return typeof option === 'string' ? option : option?.text || 'N/A';
+                      })()}
                     </p>
                     {!isCorrect && (
                       <p className="text-sm text-green-600 mt-1">
-                        Resposta correta: {question.options[question.correctAnswer]}
+                        Resposta correta: {(() => {
+                          if (!question.options || question.correctAnswer === undefined) return 'N/A';
+                          const option = question.options[question.correctAnswer];
+                          return typeof option === 'string' ? option : option?.text || 'N/A';
+                        })()}
                       </p>
                     )}
                   </div>
@@ -136,11 +167,11 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
 
       <div className="mb-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">
-          {currentQuestion.question}
+          {currentQuestion.question || 'Questão sem texto'}
         </h3>
 
         <div className="space-y-3">
-          {currentQuestion.options.map((option, index) => {
+          {(currentQuestion.options || []).map((option, index) => {
             const isSelected = selectedAnswers[currentQuestionIndex] === index;
             const isCorrect = index === currentQuestion.correctAnswer;
             const showFeedback = showExplanation && isSelected;
@@ -161,7 +192,7 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
                 `}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">{option}</span>
+                  <span className="font-medium">{typeof option === 'string' ? option : (option?.text || 'Opção sem texto')}</span>
                   {showFeedback && (
                     isCorrect ? (
                       <CheckCircle className="w-5 h-5 text-green-600" />
@@ -177,7 +208,7 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
 
         {showExplanation && (
           <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800">{currentQuestion.explanation}</p>
+            <p className="text-sm text-blue-800">{currentQuestion.explanation || 'Explicação não disponível'}</p>
           </div>
         )}
       </div>

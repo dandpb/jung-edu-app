@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import ModuleEditor from '../../components/admin/ModuleEditor';
 import AIModuleGenerator from '../../components/admin/AIModuleGenerator';
+import AutomaticQuizGenerator from '../../components/admin/AutomaticQuizGenerator';
 import GenerationProgress from '../../components/admin/GenerationProgress';
 import ModulePreview from '../../components/admin/ModulePreview';
 import { useModuleGenerator } from '../../hooks/useModuleGenerator';
@@ -24,6 +25,8 @@ const AdminModules: React.FC = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [expandedModules, setExpandedModules] = useState<string[]>([]);
   const [showAIGenerator, setShowAIGenerator] = useState(false);
+  const [showQuizGenerator, setShowQuizGenerator] = useState(false);
+  const [quizGenerationModule, setQuizGenerationModule] = useState<Module | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [isEditingPreview, setIsEditingPreview] = useState(false);
   
@@ -113,6 +116,31 @@ const AdminModules: React.FC = () => {
   const handleCancelGeneration = () => {
     reset();
     setShowPreview(false);
+  };
+
+  const handleGenerateQuiz = (module: Module) => {
+    setQuizGenerationModule(module);
+    setShowQuizGenerator(true);
+  };
+
+  const handleQuizGenerated = (quiz: any) => {
+    if (quizGenerationModule) {
+      const updatedModule = {
+        ...quizGenerationModule,
+        content: {
+          ...quizGenerationModule.content,
+          quiz: quiz
+        }
+      };
+      updateModules(modules.map(m => m.id === quizGenerationModule.id ? updatedModule : m));
+      setShowQuizGenerator(false);
+      setQuizGenerationModule(null);
+    }
+  };
+
+  const handleCancelQuizGeneration = () => {
+    setShowQuizGenerator(false);
+    setQuizGenerationModule(null);
   };
 
   const handleEditGeneratedModule = (updates: Partial<Module>) => {
@@ -217,12 +245,21 @@ const AdminModules: React.FC = () => {
                   <button
                     onClick={() => setEditingModule(module)}
                     className="p-2 text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg"
+                    title="Editar módulo"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
+                    onClick={() => handleGenerateQuiz(module)}
+                    className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
+                    title="Gerar quiz automático"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                  </button>
+                  <button
                     onClick={() => handleDeleteModule(module.id)}
                     className="p-2 text-gray-600 hover:text-red-600 hover:bg-gray-50 rounded-lg"
+                    title="Excluir módulo"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -299,6 +336,37 @@ const AdminModules: React.FC = () => {
           onCancel={() => setShowAIGenerator(false)}
           existingModules={modules}
         />
+      )}
+
+      {/* Automatic Quiz Generator Modal */}
+      {showQuizGenerator && quizGenerationModule && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Gerar Quiz para: {quizGenerationModule.title}
+                </h2>
+                <button
+                  onClick={handleCancelQuizGeneration}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <span className="sr-only">Fechar</span>
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <AutomaticQuizGenerator
+                onQuizGenerated={handleQuizGenerated}
+                moduleContent={quizGenerationModule.content.introduction + ' ' + 
+                              (quizGenerationModule.content.sections || []).map(s => s.content).join(' ')}
+                moduleTopic={quizGenerationModule.title}
+                learningObjectives={[quizGenerationModule.description]}
+              />
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Generation Progress Modal */}

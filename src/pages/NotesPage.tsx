@@ -36,12 +36,12 @@ const NotesPage: React.FC<NotesPageProps> = ({ userProgress, updateProgress, mod
   };
 
   const getModuleTitle = (moduleId: string) => {
-    return modules.find(m => m.id === moduleId)?.title || 'Unknown Module';
+    return modules.find(m => m.id === moduleId)?.title || 'Módulo Desconhecido';
   };
 
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString('pt-BR', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -54,10 +54,10 @@ const NotesPage: React.FC<NotesPageProps> = ({ userProgress, updateProgress, mod
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-display font-bold text-gray-900 mb-4">
-          My Notes
+          Minhas Anotações
         </h1>
         <p className="text-gray-600">
-          All your learning notes in one place. Search, filter, and organize your thoughts.
+          Todas as suas anotações de aprendizagem em um só lugar. Pesquise, filtre e organize seus pensamentos.
         </p>
       </div>
 
@@ -79,7 +79,7 @@ const NotesPage: React.FC<NotesPageProps> = ({ userProgress, updateProgress, mod
             onChange={(e) => setSelectedModule(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           >
-            <option value="all">All Modules</option>
+            <option value="all">Todos os Módulos</option>
             {modules.map(module => (
               <option key={module.id} value={module.id}>
                 {module.title}
@@ -90,7 +90,7 @@ const NotesPage: React.FC<NotesPageProps> = ({ userProgress, updateProgress, mod
 
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-500">
-            {sortedNotes.length} {sortedNotes.length === 1 ? 'note' : 'notes'} found
+            {sortedNotes.length} {sortedNotes.length === 1 ? 'anotação encontrada' : 'anotações encontradas'}
           </p>
         </div>
       </div>
@@ -100,8 +100,8 @@ const NotesPage: React.FC<NotesPageProps> = ({ userProgress, updateProgress, mod
           <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <p className="text-gray-500">
             {searchTerm || selectedModule !== 'all' 
-              ? 'No notes found matching your criteria.'
-              : 'No notes yet. Start by adding notes while studying modules!'}
+              ? 'Nenhuma anotação encontrada com os critérios selecionados.'
+              : 'Ainda não há anotações. Comece adicionando notas enquanto estuda os módulos!'}
           </p>
         </div>
       ) : (
@@ -129,14 +129,14 @@ const NotesPage: React.FC<NotesPageProps> = ({ userProgress, updateProgress, mod
                     <button
                       onClick={() => setEditingNote(note)}
                       className="text-gray-400 hover:text-gray-600 transition-colors"
-                      title="Edit note"
+                      title="Editar anotação"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteNote(note.id)}
                       className="text-gray-400 hover:text-red-600 transition-colors"
-                      title="Delete note"
+                      title="Excluir anotação"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

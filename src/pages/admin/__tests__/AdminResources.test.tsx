@@ -25,14 +25,14 @@ const mockModules: Module[] = [
         {
           id: 'bib-1',
           title: 'Memories, Dreams, Reflections',
-          author: 'Carl Jung',
+          authors: ['Carl Jung'],
           year: 1963,
           type: 'book'
         },
         {
           id: 'bib-2',
           title: 'Man and His Symbols',
-          author: 'Carl Jung',
+          authors: ['Carl Jung'],
           year: 1964,
           type: 'book'
         }
@@ -64,7 +64,7 @@ const mockModules: Module[] = [
         {
           id: 'bib-3',
           title: 'Meeting the Shadow',
-          author: 'Connie Zweig',
+          authors: ['Connie Zweig'],
           year: 1991,
           type: 'book'
         }
@@ -130,21 +130,21 @@ describe('AdminResources Component', () => {
   test('renders admin resources page with correct title and description', () => {
     render(<AdminResources />);
     
-    expect(screen.getByText('Manage Resources')).toBeInTheDocument();
-    expect(screen.getByText('Manage bibliography and film resources across all modules')).toBeInTheDocument();
+    expect(screen.getByText('Gerenciar Recursos')).toBeInTheDocument();
+    expect(screen.getByText('Gerenciar recursos de bibliografia e filmes em todos os módulos')).toBeInTheDocument();
   });
 
   test('renders tabs for bibliography and films', () => {
     render(<AdminResources />);
     
-    expect(screen.getByRole('button', { name: /Bibliography/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Films/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Bibliografia/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Filmes/i })).toBeInTheDocument();
   });
 
   test('bibliography tab is active by default', () => {
     render(<AdminResources />);
     
-    const bibliographyTab = screen.getByRole('button', { name: /Bibliography/i });
+    const bibliographyTab = screen.getByRole('button', { name: /Bibliografia/i });
     expect(bibliographyTab).toHaveClass('border-primary-600', 'text-primary-600');
   });
 
@@ -155,10 +155,10 @@ describe('AdminResources Component', () => {
     expect(screen.getByText('Man and His Symbols')).toBeInTheDocument();
     expect(screen.getByText('Meeting the Shadow')).toBeInTheDocument();
     
-    // Check authors (displayed as "by Author (Year)")
-    expect(screen.getByText('by Carl Jung (1963)')).toBeInTheDocument();
-    expect(screen.getByText('by Carl Jung (1964)')).toBeInTheDocument();
-    expect(screen.getByText('by Connie Zweig (1991)')).toBeInTheDocument();
+    // Check authors (displayed as "por Author (Year)")
+    expect(screen.getByText('por Carl Jung (1963)')).toBeInTheDocument();
+    expect(screen.getByText('por Carl Jung (1964)')).toBeInTheDocument();
+    expect(screen.getByText('por Connie Zweig (1991)')).toBeInTheDocument();
   });
 
   test('displays module association for each bibliography entry', () => {
@@ -171,34 +171,34 @@ describe('AdminResources Component', () => {
   test('switching to films tab shows film entries', async () => {
     render(<AdminResources />);
     
-    const filmsTab = screen.getByRole('button', { name: /Films/i });
+    const filmsTab = screen.getByRole('button', { name: /Filmes/i });
     await user.click(filmsTab);
     
     expect(screen.getByText('Matter of Heart')).toBeInTheDocument();
-    expect(screen.getByText('Directed by Mark Whitney (1986)')).toBeInTheDocument();
+    expect(screen.getByText('Dirigido por Mark Whitney (1986)')).toBeInTheDocument();
     expect(screen.getByText('Documentary about Jung\'s life')).toBeInTheDocument();
     
     expect(screen.getByText('The Shadow Effect')).toBeInTheDocument();
-    expect(screen.getByText('Directed by Scott Cervine (2010)')).toBeInTheDocument();
+    expect(screen.getByText('Dirigido por Scott Cervine (2010)')).toBeInTheDocument();
   });
 
   test('add button text changes based on active tab', async () => {
     render(<AdminResources />);
     
-    // Initially shows "Add Book"
-    expect(screen.getByRole('button', { name: /Add Book/i })).toBeInTheDocument();
+    // Initially shows "Adicionar Livro"
+    expect(screen.getByRole('button', { name: /Adicionar Livro/i })).toBeInTheDocument();
     
     // Switch to films tab
-    await user.click(screen.getByRole('button', { name: /Films/i }));
+    await user.click(screen.getByRole('button', { name: /Filmes/i }));
     
-    // Now shows "Add Film"
-    expect(screen.getByRole('button', { name: /Add Film/i })).toBeInTheDocument();
+    // Now shows "Adicionar Filme"
+    expect(screen.getByRole('button', { name: /Adicionar Filme/i })).toBeInTheDocument();
   });
 
   test('search functionality filters bibliography entries', async () => {
     render(<AdminResources />);
     
-    const searchInput = screen.getByPlaceholderText(/Search bibliography/i);
+    const searchInput = screen.getByPlaceholderText(/Buscar bibliografia/i);
     await user.type(searchInput, 'Memories');
     
     expect(screen.getByText('Memories, Dreams, Reflections')).toBeInTheDocument();
@@ -209,7 +209,7 @@ describe('AdminResources Component', () => {
   test('search by author works correctly', async () => {
     render(<AdminResources />);
     
-    const searchInput = screen.getByPlaceholderText(/Search bibliography/i);
+    const searchInput = screen.getByPlaceholderText(/Buscar bibliografia/i);
     await user.type(searchInput, 'Zweig');
     
     expect(screen.getByText('Meeting the Shadow')).toBeInTheDocument();
@@ -230,21 +230,21 @@ describe('AdminResources Component', () => {
   test('clicking add book opens add form modal', async () => {
     render(<AdminResources />);
     
-    const addButton = screen.getByRole('button', { name: /Add Book/i });
+    const addButton = screen.getByRole('button', { name: /Adicionar Livro/i });
     await user.click(addButton);
     
     expect(screen.getByText('Add Bibliography')).toBeInTheDocument();
     expect(screen.getByText('Title *')).toBeInTheDocument();
     expect(screen.getByText('Author *')).toBeInTheDocument();
-    expect(screen.getByText('Year *')).toBeInTheDocument();
-    expect(screen.getByText('Type')).toBeInTheDocument(); // No asterisk for Type
+    expect(screen.getByText('Ano *')).toBeInTheDocument(); // Portuguese for "Year *"
+    expect(screen.getByText('Tipo')).toBeInTheDocument(); // Portuguese for "Type"
     expect(screen.getByText('Select Module')).toBeInTheDocument();
   });
 
   test('can fill and submit bibliography form', async () => {
     render(<AdminResources />);
     
-    await user.click(screen.getByRole('button', { name: /Add Book/i }));
+    await user.click(screen.getByRole('button', { name: /Adicionar Livro/i }));
     
     // Get form inputs after modal is fully rendered
     await waitFor(() => {
@@ -273,7 +273,7 @@ describe('AdminResources Component', () => {
     }
     
     // Submit - find the submit button in the modal (it's the one without an icon)
-    const submitButtons = screen.getAllByRole('button', { name: 'Add Book' });
+    const submitButtons = screen.getAllByRole('button', { name: 'Adicionar Livro' });
     const modalSubmitButton = submitButtons.find(btn => !btn.querySelector('svg'));
     expect(modalSubmitButton).toBeDefined();
     await user.click(modalSubmitButton!);
@@ -288,7 +288,7 @@ describe('AdminResources Component', () => {
               bibliography: expect.arrayContaining([
                 expect.objectContaining({
                   title: 'The Red Book',
-                  author: 'Carl Jung',
+                  authors: ['Carl Jung'],
                   year: 2009
                 })
               ])
@@ -302,8 +302,8 @@ describe('AdminResources Component', () => {
   test('clicking add film opens film form modal', async () => {
     render(<AdminResources />);
     
-    await user.click(screen.getByRole('button', { name: /Films/i }));
-    await user.click(screen.getByRole('button', { name: /Add Film/i }));
+    await user.click(screen.getByRole('button', { name: /Filmes/i }));
+    await user.click(screen.getByRole('button', { name: /Adicionar Filme/i }));
     
     await waitFor(() => {
       // Look for the heading "Add Film" in the modal
@@ -313,23 +313,23 @@ describe('AdminResources Component', () => {
     });
     
     expect(screen.getByText('Title *')).toBeInTheDocument();
-    expect(screen.getByText('Director *')).toBeInTheDocument();
-    expect(screen.getByText('Year *')).toBeInTheDocument();
+    expect(screen.getByText('Diretor *')).toBeInTheDocument();
+    expect(screen.getByText('Ano *')).toBeInTheDocument();
     // Check for the label text that's actually in the component
     const headings = screen.getAllByText('Add Film');
     const modalHeading = headings.find(el => el.tagName === 'H2');
     const modal = modalHeading?.closest('.bg-white');
-    expect(within(modal!).getByText(/Relevance/)).toBeInTheDocument();
+    expect(within(modal!).getByText(/Relevância para os Conceitos de Jung/)).toBeInTheDocument();
     expect(screen.getByText('Select Module')).toBeInTheDocument();
   });
 
   test('can cancel adding a resource', async () => {
     render(<AdminResources />);
     
-    await user.click(screen.getByRole('button', { name: /Add Book/i }));
+    await user.click(screen.getByRole('button', { name: /Adicionar Livro/i }));
     expect(screen.getByText('Add Bibliography')).toBeInTheDocument();
     
-    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    await user.click(screen.getByRole('button', { name: 'Cancelar' }));
     expect(screen.queryByText('Add Bibliography')).not.toBeInTheDocument();
   });
 
@@ -345,7 +345,7 @@ describe('AdminResources Component', () => {
     );
     await user.click(deleteButtons[0]);
     
-    expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to delete this bibliography entry?');
+    expect(window.confirm).toHaveBeenCalledWith('Tem certeza que deseja excluir esta entrada de bibliografia?');
     
     expect(mockUpdateModules).toHaveBeenCalledWith(
       expect.arrayContaining([
@@ -390,13 +390,13 @@ describe('AdminResources Component', () => {
     
     // Should render without crashing but no entries shown
     // Check that the container is rendered but empty
-    const container = screen.getByText('Manage Resources').closest('.max-w-7xl');
+    const container = screen.getByText('Gerenciar Recursos').closest('.max-w-7xl');
     expect(container).toBeInTheDocument();
     // Check that no bibliography cards are shown
-    expect(screen.queryByText('by Carl Jung')).not.toBeInTheDocument();
+    expect(screen.queryByText('por Carl Jung')).not.toBeInTheDocument();
     
     // Switch to films
-    await user.click(screen.getByRole('button', { name: /Films/i }));
+    await user.click(screen.getByRole('button', { name: /Filmes/i }));
     // Check that no film cards are shown
     expect(screen.queryByText('Matter of Heart')).not.toBeInTheDocument();
   });
@@ -418,10 +418,10 @@ describe('AdminResources Component', () => {
     render(<AdminResources />);
     
     // Should not crash and render the component
-    const container = screen.getByText('Manage Resources').closest('.max-w-7xl');
+    const container = screen.getByText('Gerenciar Recursos').closest('.max-w-7xl');
     expect(container).toBeInTheDocument();
     // Tabs should still be present
-    expect(screen.getByRole('button', { name: /Bibliography/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Bibliografia/i })).toBeInTheDocument();
   });
 
   test('displays correct resource counts', () => {

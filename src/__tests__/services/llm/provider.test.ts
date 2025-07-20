@@ -236,7 +236,7 @@ describe('MockLLMProvider', () => {
     );
     
     expect(Array.isArray(result)).toBe(true);
-    expect(result).toHaveLength(1);
+    expect(result).toHaveLength(5); // Default is 5 questions when no count is specified
     expect(result[0]).toHaveProperty('question');
     expect(result[0]).toHaveProperty('correctAnswer');
   });

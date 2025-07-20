@@ -18,7 +18,7 @@ const mockModules: Module[] = [
         {
           id: 'bib-1',
           title: 'Test Book',
-          author: 'Test Author',
+          authors: ['Test Author'],
           year: 2020,
           type: 'book',
           url: 'https://example.com'
@@ -26,7 +26,7 @@ const mockModules: Module[] = [
         {
           id: 'bib-2',
           title: 'Test Article',
-          author: 'Another Author',
+          authors: ['Another Author'],
           year: 2021,
           type: 'article'
         }
@@ -49,15 +49,15 @@ describe('BibliographyPage Component', () => {
   test('renders page title and description', () => {
     render(<BibliographyPage modules={mockModules} />);
     
-    expect(screen.getByText('Resources & References')).toBeInTheDocument();
-    expect(screen.getByText(/Explore books, articles, and films/)).toBeInTheDocument();
+    expect(screen.getByText('Recursos e Referências')).toBeInTheDocument();
+    expect(screen.getByText(/Explore livros, artigos e filmes/)).toBeInTheDocument();
   });
 
   test('displays tabs for books and films', () => {
     render(<BibliographyPage modules={mockModules} />);
     
-    expect(screen.getByText('Books & Articles')).toBeInTheDocument();
-    expect(screen.getByText('Films')).toBeInTheDocument();
+    expect(screen.getByText('Livros e Artigos')).toBeInTheDocument();
+    expect(screen.getByText('Filmes')).toBeInTheDocument();
   });
 
   test('shows count badges for each tab', () => {
@@ -84,7 +84,7 @@ describe('BibliographyPage Component', () => {
   test('switches to films tab when clicked', () => {
     render(<BibliographyPage modules={mockModules} />);
     
-    const filmsTab = screen.getByText('Films');
+    const filmsTab = screen.getByText('Filmes');
     fireEvent.click(filmsTab);
     
     expect(screen.getByText('Test Film')).toBeInTheDocument();
@@ -103,7 +103,7 @@ describe('BibliographyPage Component', () => {
   test('shows external link for resources with URLs', () => {
     render(<BibliographyPage modules={mockModules} />);
     
-    const viewLink = screen.getByText('View Resource');
+    const viewLink = screen.getByText('Ver Recurso');
     expect(viewLink).toBeInTheDocument();
     expect(viewLink.closest('a')).toHaveAttribute('href', 'https://example.com');
     expect(viewLink.closest('a')).toHaveAttribute('target', '_blank');
@@ -112,9 +112,9 @@ describe('BibliographyPage Component', () => {
   test('shows trailer link for films', () => {
     render(<BibliographyPage modules={mockModules} />);
     
-    fireEvent.click(screen.getByText('Films'));
+    fireEvent.click(screen.getByText('Filmes'));
     
-    const trailerLink = screen.getByText('Watch Trailer');
+    const trailerLink = screen.getByText('Assistir Trailer');
     expect(trailerLink).toBeInTheDocument();
     expect(trailerLink.closest('a')).toHaveAttribute('href', 'https://youtube.com/watch?v=test');
   });
@@ -130,9 +130,9 @@ describe('BibliographyPage Component', () => {
   test('displays recommended starting points', () => {
     render(<BibliographyPage modules={mockModules} />);
     
-    expect(screen.getByText('Recommended Starting Points')).toBeInTheDocument();
-    expect(screen.getByText(/Memories, Dreams, Reflections/)).toBeInTheDocument();
-    expect(screen.getByText(/Man and His Symbols/)).toBeInTheDocument();
+    expect(screen.getByText('Pontos de Partida Recomendados')).toBeInTheDocument();
+    expect(screen.getByText(/Memórias, Sonhos, Reflexões/)).toBeInTheDocument();
+    expect(screen.getByText(/O Homem e Seus Símbolos/)).toBeInTheDocument();
   });
 
   test('handles empty bibliography gracefully', () => {
@@ -147,7 +147,7 @@ describe('BibliographyPage Component', () => {
     
     render(<BibliographyPage modules={emptyModules} />);
     
-    expect(screen.getByText('No bibliography entries available yet.')).toBeInTheDocument();
+    expect(screen.getByText(/Nenhuma.*bibliográfica.*disponível|Nenhum.*recurso.*encontrado/)).toBeInTheDocument();
   });
 
   test('removes duplicate entries', () => {
@@ -173,8 +173,8 @@ describe('BibliographyPage Component', () => {
   test('highlights active tab', () => {
     render(<BibliographyPage modules={mockModules} />);
     
-    const booksTab = screen.getByText('Books & Articles').closest('button');
-    const filmsTab = screen.getByText('Films').closest('button');
+    const booksTab = screen.getByText('Livros e Artigos').closest('button');
+    const filmsTab = screen.getByText('Filmes').closest('button');
     
     expect(booksTab).toHaveClass('border-primary-600', 'text-primary-600');
     expect(filmsTab).not.toHaveClass('border-primary-600');

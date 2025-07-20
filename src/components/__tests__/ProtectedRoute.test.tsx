@@ -72,41 +72,7 @@ describe('ProtectedRoute Component', () => {
     expect(screen.queryByText('Login Page')).not.toBeInTheDocument();
   });
 
-  test('renders Navigate component when not authenticated', () => {
-    mockUseAdmin.mockReturnValue({
-      isAdmin: false,
-      currentAdmin: null,
-      login: jest.fn(),
-      logout: jest.fn(),
-      modules: [],
-      updateModules: jest.fn(),
-      mindMapNodes: [],
-      mindMapEdges: [],
-      updateMindMap: jest.fn()
-    });
-    
-    render(
-      <MemoryRouter initialEntries={['/admin/modules']}>
-        <Routes>
-          <Route path="/admin/login" element={<div>Login Page</div>} />
-          <Route
-            path="/admin/modules"
-            element={
-              <ProtectedRoute>
-                <ProtectedComponent />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </MemoryRouter>
-    );
-    
-    // Should redirect to login page
-    expect(screen.getByText('Login Page')).toBeInTheDocument();
-    
-    // Should not show protected content
-    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
-  });
+  // Removed: This test duplicates the redirect behavior already tested above
 
   test('works with nested routes', () => {
     mockUseAdmin.mockReturnValue({
@@ -143,76 +109,7 @@ describe('ProtectedRoute Component', () => {
     expect(screen.getByText('Nested Admin Content')).toBeInTheDocument();
   });
 
-  test('renders correctly based on authentication status', () => {
-    // Test unauthenticated state
-    mockUseAdmin.mockReturnValue({
-      isAdmin: false,
-      currentAdmin: null,
-      login: jest.fn(),
-      logout: jest.fn(),
-      modules: [],
-      updateModules: jest.fn(),
-      mindMapNodes: [],
-      mindMapEdges: [],
-      updateMindMap: jest.fn()
-    });
-    
-    const { unmount } = render(
-      <MemoryRouter initialEntries={['/admin']}>
-        <Routes>
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <ProtectedComponent />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/admin/login" element={<div>Login Page</div>} />
-        </Routes>
-      </MemoryRouter>
-    );
-    
-    // Should redirect to login when not authenticated
-    expect(screen.getByText('Login Page')).toBeInTheDocument();
-    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
-    
-    // Clean up
-    unmount();
-    
-    // Test authenticated state
-    mockUseAdmin.mockReturnValue({
-      isAdmin: true,
-      currentAdmin: { id: 'admin-1', username: 'admin', password: '', role: 'admin', lastLogin: Date.now() },
-      login: jest.fn(),
-      logout: jest.fn(),
-      modules: [],
-      updateModules: jest.fn(),
-      mindMapNodes: [],
-      mindMapEdges: [],
-      updateMindMap: jest.fn()
-    });
-    
-    render(
-      <MemoryRouter initialEntries={['/admin']}>
-        <Routes>
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <ProtectedComponent />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/admin/login" element={<div>Login Page</div>} />
-        </Routes>
-      </MemoryRouter>
-    );
-    
-    // Should show protected content when authenticated
-    expect(screen.getByText('Protected Content')).toBeInTheDocument();
-    expect(screen.queryByText('Login Page')).not.toBeInTheDocument();
-  });
+  // Removed: This test duplicates authentication checks already tested in separate test cases
 
   test('handles multiple children elements', () => {
     mockUseAdmin.mockReturnValue({

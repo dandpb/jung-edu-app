@@ -3,7 +3,7 @@
  * Validates and improves quiz quality before returning to users
  */
 
-import { Quiz, QuizQuestion } from '../../types/schema';
+import { Quiz, Question } from '../../types';
 
 export interface ValidationResult {
   isValid: boolean;
@@ -67,7 +67,7 @@ export class QuizValidator {
   /**
    * Validate a single question
    */
-  private validateQuestion(question: QuizQuestion): QuestionValidationResult {
+  private validateQuestion(question: Question): QuestionValidationResult {
     const result: QuestionValidationResult = {
       questionId: question.id,
       isValid: true,
@@ -125,7 +125,7 @@ export class QuizValidator {
   /**
    * Assess the quality of distractors in a multiple choice question
    */
-  private assessDistractorQuality(question: QuizQuestion): { score: number; warnings: string[] } {
+  private assessDistractorQuality(question: Question): { score: number; warnings: string[] } {
     const warnings: string[] = [];
     let score = 100;
 
@@ -154,23 +154,28 @@ export class QuizValidator {
     options.forEach((option, index) => {
       if (index === question.correctAnswer) return; // Skip correct answer
 
+      const optionText = typeof option === 'string' ? option : (option.text || option.toString());
+
       // Check for generic patterns
-      if (genericPatterns.some(pattern => pattern.test(option))) {
-        warnings.push(`Distractor "${option}" is generic or low quality`);
+      if (genericPatterns.some(pattern => pattern.test(optionText))) {
+        warnings.push(`Distractor "${optionText}" is generic or low quality`);
         score -= 20;
       }
 
       // Check for very short distractors
-      if (option.length < 10) {
-        warnings.push(`Distractor "${option}" is too short`);
+      if (optionText.length < 10) {
+        warnings.push(`Distractor "${optionText}" is too short`);
         score -= 10;
       }
 
       // Check for repeated content
-      const optionLower = option.toLowerCase();
-      const otherOptions = options.filter((_, i) => i !== index).map(o => o.toLowerCase());
+      const optionLower = optionText.toLowerCase();
+      const otherOptions = options.filter((_, i) => i !== index).map(o => {
+        const text = typeof o === 'string' ? o : (o.text || o.toString());
+        return text.toLowerCase();
+      });
       if (otherOptions.some(other => other === optionLower)) {
-        warnings.push(`Duplicate option found: "${option}"`);
+        warnings.push(`Duplicate option found: "${optionText}"`);
         score -= 25;
       }
 
@@ -182,14 +187,17 @@ export class QuizValidator {
         /unrelated concept/i
       ];
 
-      if (obviousWrongPatterns.some(pattern => pattern.test(option))) {
-        warnings.push(`Distractor "${option}" is too obviously wrong`);
+      if (obviousWrongPatterns.some(pattern => pattern.test(optionText))) {
+        warnings.push(`Distractor "${optionText}" is too obviously wrong`);
         score -= 15;
       }
     });
 
     // Check length consistency
-    const lengths = options.map(o => o.length);
+    const lengths = options.map(o => {
+      const text = typeof o === 'string' ? o : (o.text || o.toString());
+      return text.length;
+    });
     const avgLength = lengths.reduce((a, b) => a + b, 0) / lengths.length;
     const lengthVariance = lengths.map(l => Math.abs(l - avgLength)).reduce((a, b) => a + b, 0) / lengths.length;
     
@@ -206,8 +214,9 @@ export class QuizValidator {
     options.forEach((option, index) => {
       if (index === question.correctAnswer) return;
       
-      const hasJungianContent = jungianTerms.some(term => option.toLowerCase().includes(term));
-      const hasPsychologicalContent = /psycholog|mental|conscious|personality|behavior|cognitive|emotional/i.test(option);
+      const optionText = typeof option === 'string' ? option : (option.text || option.toString());
+      const hasJungianContent = jungianTerms.some(term => optionText.toLowerCase().includes(term));
+      const hasPsychologicalContent = /psycholog|mental|conscious|personality|behavior|cognitive|emotional/i.test(optionText);
       
       if (hasJungianContent || hasPsychologicalContent) {
         plausibleCount++;
@@ -225,7 +234,7 @@ export class QuizValidator {
   /**
    * Assess question complexity and cognitive level
    */
-  private assessQuestionComplexity(question: QuizQuestion): number {
+  private assessQuestionComplexity(question: Question): number {
     let score = 50; // Base score
 
     const questionLower = question.question.toLowerCase();

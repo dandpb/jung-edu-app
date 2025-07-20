@@ -436,7 +436,7 @@ Return the same JSON structure but with updated parent relationships and potenti
       target: target.startsWith('node-') ? target : `node-${target}`,
       label,
       animated,
-      type: type || 'default',
+      type: type === 'dashed' ? 'default' : (type || 'default'),
       style: type === 'dashed' ? { strokeDasharray: '5 5' } : {}
     };
   }

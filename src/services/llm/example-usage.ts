@@ -54,7 +54,7 @@ async function generateJungianModule() {
     if (result.quiz) {
       console.log('\n=== Quiz ===');
       console.log('Questions:', result.quiz.questions.length);
-      console.log('Passing score:', result.quiz.passingScore, '%');
+      console.log('Passing score:', (result.quiz as any).passingScore || 70, '%');
     }
 
     if (result.videos) {
@@ -142,8 +142,8 @@ async function generatePracticeQuestions() {
   practiceQuestions.forEach((q, i) => {
     console.log(`\nQ${i + 1}: ${q.question}`);
     if (q.options) {
-      q.options.forEach((opt, j) => {
-        console.log(`  ${String.fromCharCode(65 + j)}. ${opt}`);
+      q.options.forEach((opt: any, j: number) => {
+        console.log(`  ${String.fromCharCode(65 + j)}. ${opt.text}`);
       });
     }
   });

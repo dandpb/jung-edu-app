@@ -49,16 +49,16 @@ describe('AdminLogin Component', () => {
     renderWithProviders();
     
     // Check for heading
-    expect(screen.getByRole('heading', { name: /admin login/i })).toBeInTheDocument();
-    expect(screen.getByText(/sign in to access the administration panel/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /login de administrador/i })).toBeInTheDocument();
+    expect(screen.getByText(/entre para acessar o painel de administração/i)).toBeInTheDocument();
     
     // Check for form elements
-    expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/usuário/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/senha/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /entrar/i })).toBeInTheDocument();
     
     // Check for security notice
-    expect(screen.getByText(/security notice/i)).toBeInTheDocument();
+    expect(screen.getByText(/aviso de segurança/i)).toBeInTheDocument();
   });
 
   test('shows error message for invalid credentials', async () => {
@@ -67,9 +67,9 @@ describe('AdminLogin Component', () => {
     
     renderWithProviders();
     
-    const usernameInput = screen.getByLabelText(/username/i);
-    const passwordInput = screen.getByLabelText(/password/i);
-    const submitButton = screen.getByRole('button', { name: /sign in/i });
+    const usernameInput = screen.getByLabelText(/usuário/i);
+    const passwordInput = screen.getByLabelText(/senha/i);
+    const submitButton = screen.getByRole('button', { name: /entrar/i });
     
     // Enter invalid credentials
     fireEvent.change(usernameInput, { target: { value: 'wronguser' } });
@@ -78,7 +78,7 @@ describe('AdminLogin Component', () => {
     
     // Check for error message
     await waitFor(() => {
-      expect(screen.getByText(/invalid username or password/i)).toBeInTheDocument();
+      expect(screen.getByText(/usuário ou senha inválidos/i)).toBeInTheDocument();
     });
   });
 
@@ -88,9 +88,9 @@ describe('AdminLogin Component', () => {
     
     renderWithProviders();
     
-    const usernameInput = screen.getByLabelText(/username/i);
-    const passwordInput = screen.getByLabelText(/password/i);
-    const submitButton = screen.getByRole('button', { name: /sign in/i });
+    const usernameInput = screen.getByLabelText(/usuário/i);
+    const passwordInput = screen.getByLabelText(/senha/i);
+    const submitButton = screen.getByRole('button', { name: /entrar/i });
     
     // Enter valid credentials
     fireEvent.change(usernameInput, { target: { value: 'admin' } });
@@ -109,8 +109,8 @@ describe('AdminLogin Component', () => {
   test('form validation requires both fields', () => {
     renderWithProviders();
     
-    const usernameInput = screen.getByLabelText(/username/i);
-    const passwordInput = screen.getByLabelText(/password/i);
+    const usernameInput = screen.getByLabelText(/usuário/i);
+    const passwordInput = screen.getByLabelText(/senha/i);
     
     // Check required attributes
     expect(usernameInput).toHaveAttribute('required');
@@ -120,7 +120,7 @@ describe('AdminLogin Component', () => {
   test('password field is of type password', () => {
     renderWithProviders();
     
-    const passwordInput = screen.getByLabelText(/password/i);
+    const passwordInput = screen.getByLabelText(/senha/i);
     expect(passwordInput).toHaveAttribute('type', 'password');
   });
 
@@ -130,9 +130,9 @@ describe('AdminLogin Component', () => {
     
     renderWithProviders();
     
-    const usernameInput = screen.getByLabelText(/username/i);
-    const passwordInput = screen.getByLabelText(/password/i);
-    const submitButton = screen.getByRole('button', { name: /sign in/i });
+    const usernameInput = screen.getByLabelText(/usuário/i);
+    const passwordInput = screen.getByLabelText(/senha/i);
+    const submitButton = screen.getByRole('button', { name: /entrar/i });
     
     // Trigger error
     fireEvent.change(usernameInput, { target: { value: 'wrong' } });
@@ -141,7 +141,7 @@ describe('AdminLogin Component', () => {
     
     // Wait for error to appear
     await waitFor(() => {
-      expect(screen.getByText(/invalid username or password/i)).toBeInTheDocument();
+      expect(screen.getByText(/usuário ou senha inválidos/i)).toBeInTheDocument();
     });
     
     // Mock successful login for next submission
@@ -162,7 +162,7 @@ describe('AdminLogin Component', () => {
     renderWithProviders();
     
     // Check for User and Lock icons (Lucide icons) using their SVG classes
-    const container = screen.getByRole('heading', { name: /admin login/i }).closest('div')?.parentElement;
+    const container = screen.getByRole('heading', { name: /login de administrador/i }).closest('div')?.parentElement;
     const userIcons = container?.querySelectorAll('svg.lucide-user');
     const lockIcons = container?.querySelectorAll('svg.lucide-lock');
     
@@ -174,7 +174,7 @@ describe('AdminLogin Component', () => {
   test('form prevents default submission', () => {
     renderWithProviders();
     
-    const form = screen.getByRole('button', { name: /sign in/i }).closest('form');
+    const form = screen.getByRole('button', { name: /entrar/i }).closest('form');
     expect(form).toBeInTheDocument();
     
     // Create a submit event and check it's prevented
@@ -188,8 +188,8 @@ describe('AdminLogin Component', () => {
   test('updates input values on change', () => {
     renderWithProviders();
     
-    const usernameInput = screen.getByLabelText(/username/i) as HTMLInputElement;
-    const passwordInput = screen.getByLabelText(/password/i) as HTMLInputElement;
+    const usernameInput = screen.getByLabelText(/usuário/i) as HTMLInputElement;
+    const passwordInput = screen.getByLabelText(/senha/i) as HTMLInputElement;
     
     fireEvent.change(usernameInput, { target: { value: 'testuser' } });
     fireEvent.change(passwordInput, { target: { value: 'testpass' } });
@@ -201,7 +201,7 @@ describe('AdminLogin Component', () => {
   test('shows security notice with proper styling', () => {
     renderWithProviders();
     
-    const notice = screen.getByText(/security notice/i).closest('div');
+    const notice = screen.getByText(/aviso de segurança/i).closest('div');
     expect(notice).toHaveClass('bg-amber-50', 'border', 'border-amber-200');
   });
 });

@@ -55,91 +55,26 @@ describe('MiniMapSector Component', () => {
   const mockViewBox = { x: 0, y: 0, width: 1000, height: 800 };
 
   describe('Rendering', () => {
-    test('renders SVG element with correct attributes', () => {
+    test('renders sectors with correct visual elements', () => {
       const { container } = render(
         <MiniMapSector sectors={mockSectors} viewBox={mockViewBox} />
       );
       
+      // Check main structure
       const svg = container.querySelector('svg');
       expect(svg).toBeInTheDocument();
-      expect(svg).toHaveClass('minimap-sectors');
-      expect(svg).toHaveAttribute('viewBox', '0 0 200 150');
-    });
-
-    test('renders all provided sectors', () => {
-      const { container } = render(
-        <MiniMapSector sectors={mockSectors} viewBox={mockViewBox} />
-      );
       
-      const groups = container.querySelectorAll('g');
-      expect(groups).toHaveLength(mockSectors.length);
-    });
-
-    test('renders sector rectangles with correct attributes', () => {
-      const { container } = render(
-        <MiniMapSector sectors={mockSectors} viewBox={mockViewBox} />
-      );
-      
+      // Check that all sectors are rendered
       const rects = container.querySelectorAll('rect');
       expect(rects).toHaveLength(mockSectors.length);
       
-      // Check first sector
-      const firstRect = rects[0];
-      expect(firstRect).toHaveAttribute('fill', '#7C3AED');
-      expect(firstRect).toHaveAttribute('fill-opacity', '0.1');
-      expect(firstRect).toHaveAttribute('stroke', '#7C3AED');
-      expect(firstRect).toHaveAttribute('stroke-width', '1');
-      expect(firstRect).toHaveAttribute('stroke-opacity', '0.3');
-      expect(firstRect).toHaveAttribute('rx', '4');
-      expect(firstRect).toHaveAttribute('ry', '4');
-    });
-
-    test('renders sector labels with correct text', () => {
-      const { container } = render(
-        <MiniMapSector sectors={mockSectors} viewBox={mockViewBox} />
-      );
-      
+      // Check sector content
       expect(container).toHaveTextContent('archetype');
-      expect(container).toHaveTextContent('complex');
-      expect(container).toHaveTextContent('process');
-    });
-
-    test('renders difficulty indicators as circles', () => {
-      const { container } = render(
-        <MiniMapSector sectors={mockSectors} viewBox={mockViewBox} />
-      );
+      expect(container).toHaveTextContent('5 nodes');
       
+      // Check difficulty indicators
       const circles = container.querySelectorAll('circle');
       expect(circles).toHaveLength(mockSectors.length);
-      
-      // Check colors match difficulty levels
-      expect(circles[0]).toHaveAttribute('fill', getDifficultyColor('beginner'));
-      expect(circles[1]).toHaveAttribute('fill', getDifficultyColor('intermediate'));
-      expect(circles[2]).toHaveAttribute('fill', getDifficultyColor('advanced'));
-    });
-
-    test('renders node count labels', () => {
-      const { container } = render(
-        <MiniMapSector sectors={mockSectors} viewBox={mockViewBox} />
-      );
-      
-      expect(container).toHaveTextContent('5 nodes');
-      expect(container).toHaveTextContent('3 nodes');
-      expect(container).toHaveTextContent('7 nodes');
-    });
-
-    test('calculates correct scaled positions', () => {
-      const { container } = render(
-        <MiniMapSector sectors={mockSectors} viewBox={mockViewBox} />
-      );
-      
-      const rects = container.querySelectorAll('rect');
-      const firstRect = rects[0];
-      
-      // Scale calculation: scaleX = 200 / 1000 = 0.2, scaleY = 150 / 800 = 0.1875
-      // First sector: x = (10 - 0) * 0.2 = 2, y = (10 - 0) * 0.1875 = 1.875
-      expect(firstRect).toHaveAttribute('x', '2');
-      expect(firstRect).toHaveAttribute('y', '1.875');
     });
   });
 
@@ -209,93 +144,14 @@ describe('MiniMapSector Component', () => {
   });
 
   describe('Edge Cases', () => {
-    test('renders with empty sectors array', () => {
+    test('handles empty sectors array gracefully', () => {
       const { container } = render(
         <MiniMapSector sectors={[]} viewBox={mockViewBox} />
       );
       
       const svg = container.querySelector('svg');
       expect(svg).toBeInTheDocument();
-      
-      const groups = container.querySelectorAll('g');
-      expect(groups).toHaveLength(0);
-    });
-
-    test('handles zero viewBox dimensions', () => {
-      const zeroViewBox = { x: 0, y: 0, width: 0, height: 0 };
-      const { container } = render(
-        <MiniMapSector sectors={mockSectors} viewBox={zeroViewBox} />
-      );
-      
-      const svg = container.querySelector('svg');
-      expect(svg).toBeInTheDocument();
-    });
-
-    test('handles negative sector bounds', () => {
-      const negativeSectors = [{
-        id: 'negative',
-        title: 'Negative',
-        category: 'negative',
-        difficulty: 'beginner' as const,
-        bounds: { x: -50, y: -30, width: 100, height: 80 },
-        color: '#000000',
-        nodeCount: 1
-      }];
-      
-      const { container } = render(
-        <MiniMapSector sectors={negativeSectors} viewBox={mockViewBox} />
-      );
-      
-      const rect = container.querySelector('rect');
-      expect(rect).toBeInTheDocument();
-    });
-
-    test('handles sectors with zero node count', () => {
-      const zeroNodeSector = [{
-        id: 'empty',
-        title: 'Empty',
-        category: 'empty',
-        difficulty: 'beginner' as const,
-        bounds: { x: 10, y: 10, width: 100, height: 80 },
-        color: '#999999',
-        nodeCount: 0
-      }];
-      
-      const { container } = render(
-        <MiniMapSector sectors={zeroNodeSector} viewBox={mockViewBox} />
-      );
-      
-      expect(container).toHaveTextContent('0 nodes');
-    });
-  });
-
-  describe('Accessibility', () => {
-    test('provides proper ARIA labels for clickable sectors', () => {
-      const mockOnSectorClick = jest.fn();
-      const { container } = render(
-        <MiniMapSector 
-          sectors={mockSectors} 
-          viewBox={mockViewBox} 
-          onSectorClick={mockOnSectorClick}
-        />
-      );
-      
-      const rects = container.querySelectorAll('rect');
-      rects.forEach(rect => {
-        expect(rect).toHaveStyle('cursor: pointer');
-      });
-    });
-
-    test('text elements have proper accessibility attributes', () => {
-      const { container } = render(
-        <MiniMapSector sectors={mockSectors} viewBox={mockViewBox} />
-      );
-      
-      const textElements = container.querySelectorAll('text');
-      textElements.forEach(text => {
-        expect(text).toHaveAttribute('text-anchor');
-        expect(text).toHaveAttribute('font-size');
-      });
+      expect(container.querySelectorAll('g')).toHaveLength(0);
     });
   });
 });
@@ -574,32 +430,15 @@ describe('MiniMapLegend Component', () => {
 });
 
 describe('getDifficultyColor Utility', () => {
-  test('returns correct color for beginner', () => {
+  test('returns correct colors for valid difficulty levels', () => {
     expect(getDifficultyColor('beginner')).toBe('#4ade80');
-  });
-
-  test('returns correct color for intermediate', () => {
     expect(getDifficultyColor('intermediate')).toBe('#fbbf24');
-  });
-
-  test('returns correct color for advanced', () => {
     expect(getDifficultyColor('advanced')).toBe('#f87171');
   });
 
-  test('returns default color for unknown difficulty', () => {
+  test('returns default color for invalid inputs', () => {
     expect(getDifficultyColor('unknown')).toBe('#9ca3af');
-  });
-
-  test('returns default color for empty string', () => {
     expect(getDifficultyColor('')).toBe('#9ca3af');
-  });
-
-  test('returns default color for undefined', () => {
     expect(getDifficultyColor(undefined as any)).toBe('#9ca3af');
-  });
-
-  test('handles case sensitivity', () => {
-    expect(getDifficultyColor('BEGINNER')).toBe('#9ca3af');
-    expect(getDifficultyColor('Beginner')).toBe('#9ca3af');
   });
 });

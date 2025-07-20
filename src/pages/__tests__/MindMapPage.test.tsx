@@ -30,8 +30,8 @@ describe('MindMapPage Component', () => {
   test('renders mind map title and description', () => {
     renderWithRouter(<MindMapPage modules={modules} />);
     
-    expect(screen.getByText('Conceptual Mind Map')).toBeInTheDocument();
-    expect(screen.getByText(/Explore the interconnected concepts/)).toBeInTheDocument();
+    expect(screen.getByText('Mapa Mental Conceitual')).toBeInTheDocument();
+    expect(screen.getByText(/Explore os conceitos interconectados/)).toBeInTheDocument();
   });
 
   test('renders ReactFlow component', () => {
@@ -51,9 +51,9 @@ describe('MindMapPage Component', () => {
   test('displays legend for node types', () => {
     renderWithRouter(<MindMapPage modules={modules} />);
     
-    expect(screen.getByText('Central Concept')).toBeInTheDocument();
-    expect(screen.getByText('Conscious Mind')).toBeInTheDocument();
-    expect(screen.getByText('Unconscious Realms')).toBeInTheDocument();
+    expect(screen.getByText('Conceito Central')).toBeInTheDocument();
+    expect(screen.getByText('Mente Consciente')).toBeInTheDocument();
+    expect(screen.getByText('Reinos Inconscientes')).toBeInTheDocument();
   });
 
   test('creates nodes for all modules', () => {

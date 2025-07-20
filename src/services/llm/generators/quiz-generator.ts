@@ -1,5 +1,5 @@
 import { ILLMProvider } from '../provider';
-import { Quiz, QuizQuestion } from '../../../types/schema';
+import { Quiz, Question } from '../../../types';
 import { quizEnhancer } from '../../../services/quiz/quizEnhancer';
 import { quizValidator } from '../../../services/quiz/quizValidator';
 
@@ -35,7 +35,7 @@ export class QuizGenerator {
     objectives: string[],
     count: number,
     language: string = 'pt-BR'
-  ): Promise<QuizQuestion[]> {
+  ): Promise<Question[]> {
     const prompt = language === 'pt-BR' ? `Gere exatamente ${count} questões de múltipla escolha para um quiz de psicologia junguiana sobre "${topic}".
 
 Objetivos de aprendizagem a avaliar:
@@ -56,29 +56,50 @@ Requisitos para cada questão:
 
 DIRETRIZES PARA DISTRATORES (MUITO IMPORTANTE):
 - TODOS os distratores devem ser plausíveis e relacionados à psicologia junguiana
-- Use estes tipos de distratores:
-  a) Equívocos comuns sobre o conceito
-  b) Conceitos junguianos relacionados mas distintos
-  c) Conceitos de outras teorias psicológicas (Freud, Adler, etc.)
-  d) Compreensão parcial ou incompleta do conceito
-  e) Versões generalizadas ou simplificadas demais
-- NUNCA use opções obviamente erradas ou não relacionadas
+- NUNCA repita opções - cada uma deve ser ÚNICA e ESPECÍFICA
+- Todas as opções devem ter comprimento similar (30-80 caracteres)
+- Use estes tipos de distratores ESPECÍFICOS:
+  a) Conceitos junguianos relacionados mas distintos (ex: anima vs animus, persona vs sombra)
+  b) Aplicação incorreta de teorias freudianas no contexto junguiano
+  c) Características de outros arquétipos junguianos
+  d) Interpretações parciais ou incompletas do conceito principal
+  e) Confusões com conceitos de psicologia cognitiva ou comportamental
+- EVITE termos genéricos como: "fenômeno social", "princípio humanista", "teoria psicológica"
+- Use sempre CONCEITOS ESPECÍFICOS da psicologia junguiana
 - Cada distrator deve ter aproximadamente o mesmo tamanho da resposta correta
 - Evite padrões como "todas as anteriores" ou "nenhuma das anteriores"
 
-Exemplo de questão BOA:
+VERIFICAÇÃO OBRIGATÓRIA ANTES DE RESPONDER:
+1. Todas as 4 opções são DIFERENTES entre si?
+2. Todas mencionam conceitos ESPECÍFICOS da psicologia?
+3. Todas têm tamanho similar (30-80 caracteres)?
+4. Não há termos genéricos demais?
+
+Exemplo de questão BOA (note as opções específicas e únicas):
 {
-  "question": "De acordo com Jung, o que distingue o inconsciente coletivo do inconsciente pessoal?",
+  "question": "De acordo com Jung, o que caracteriza fundamentalmente o arquétipo da Sombra?",
   "options": [
-    "O inconsciente coletivo contém padrões universais herdados compartilhados por toda a humanidade",
-    "O inconsciente coletivo armazena memórias pessoais reprimidas da infância",
-    "O inconsciente coletivo é formado através da transmissão cultural e aprendizagem social",
-    "O inconsciente coletivo representa os mecanismos de defesa do ego contra a ansiedade"
+    "Representa os aspectos reprimidos e negados da personalidade consciente",
+    "Manifesta-se como a imagem idealizada do parceiro romântico perfeito",
+    "Constitui a máscara social usada para interagir com o mundo externo",
+    "Expressa os impulsos criativos do inconsciente coletivo durante sonhos"
   ],
   "correctAnswer": 0,
-  "explanation": "O inconsciente coletivo contém arquétipos e padrões universais herdados por todos os humanos, diferentemente do inconsciente pessoal que contém conteúdo individual reprimido.",
+  "explanation": "A Sombra representa os aspectos da personalidade que foram reprimidos ou negados pela consciência, diferindo da anima/animus (imagem do parceiro), persona (máscara social) ou função transcendente (impulsos criativos).",
   "difficulty": "medium",
   "cognitiveLevel": "understanding"
+}
+
+EXEMPLO de questão RUIM (NÃO FAÇA ASSIM):
+{
+  "question": "O que é importante na psicologia?",
+  "options": [
+    "Um conceito fundamental",
+    "Um princípio humanista",
+    "Um fenômeno social",
+    "Uma teoria psicológica"
+  ]
+  // ❌ PROBLEMAS: Opções muito genéricas, sem especificidade junguiana
 }
 
 IMPORTANTE: Escreva TODAS as questões, opções e explicações em português brasileiro (pt-BR).
@@ -103,40 +124,50 @@ Requirements for each question:
 
 DISTRACTOR GUIDELINES (VERY IMPORTANT):
 - ALL distractors must be plausible and related to Jungian psychology
-- Use these types of distractors:
-  a) Common misconceptions about the concept
-  b) Related but distinct Jungian concepts
-  c) Concepts from other psychological theories (Freud, Adler, etc.)
-  d) Partial or incomplete understanding of the concept
-  e) Overgeneralized or oversimplified versions
-- NEVER use obviously wrong or unrelated options
+- NEVER repeat options - each must be UNIQUE and SPECIFIC
+- All options should have similar length (30-80 characters)
+- Use these SPECIFIC types of distractors:
+  a) Related but distinct Jungian concepts (e.g., anima vs animus, persona vs shadow)
+  b) Incorrect application of Freudian theories in Jungian context
+  c) Characteristics of other Jungian archetypes
+  d) Partial or incomplete interpretations of the main concept
+  e) Confusion with cognitive or behavioral psychology concepts
+- AVOID generic terms like: "social phenomenon", "humanistic principle", "psychological theory"
+- Always use SPECIFIC concepts from Jungian psychology
 - Each distractor should be approximately the same length as the correct answer
 - Avoid patterns like "all of the above" or "none of the above"
 
-Example of GOOD question:
+MANDATORY VERIFICATION BEFORE RESPONDING:
+1. Are all 4 options DIFFERENT from each other?
+2. Do all mention SPECIFIC psychological concepts?
+3. Are all similar in length (30-80 characters)?
+4. Are there no overly generic terms?
+
+Example of GOOD question (note specific and unique options):
 {
-  "question": "According to Jung, what distinguishes the collective unconscious from the personal unconscious?",
+  "question": "According to Jung, what fundamentally characterizes the Shadow archetype?",
   "options": [
-    "The collective unconscious contains universal, inherited patterns shared by all humanity",
-    "The collective unconscious stores repressed personal memories from childhood",
-    "The collective unconscious is formed through cultural transmission and social learning",
-    "The collective unconscious represents the ego's defense mechanisms against anxiety"
+    "Represents repressed and denied aspects of the conscious personality",
+    "Manifests as the idealized image of the perfect romantic partner",
+    "Constitutes the social mask used to interact with the external world",
+    "Expresses creative impulses from the collective unconscious during dreams"
   ],
   "correctAnswer": 0,
-  "explanation": "The collective unconscious contains archetypes and universal patterns inherited by all humans, unlike the personal unconscious which contains individual repressed content.",
+  "explanation": "The Shadow represents aspects of personality that have been repressed or denied by consciousness, differing from anima/animus (partner image), persona (social mask), or transcendent function (creative impulses).",
   "difficulty": "medium",
   "cognitiveLevel": "understanding"
 }
 
-Example of BAD question (DO NOT CREATE LIKE THIS):
+Example of BAD question (DON'T DO THIS):
 {
-  "question": "What is the Shadow?",
+  "question": "What is important in psychology?",
   "options": [
-    "The dark side of personality",
-    "A type of food",
-    "A weather phenomenon",
-    "None of the above"
+    "A fundamental concept",
+    "A humanistic principle", 
+    "A social phenomenon",
+    "A psychological theory"
   ]
+  // ❌ PROBLEMS: Too generic options, no Jungian specificity
 }
 
 Respond with exactly ${count} questions following the good example format:`;
@@ -197,18 +228,18 @@ Respond with exactly ${count} questions following the good example format:`;
         // Create fallback questions
         questions = [
           {
-            question: `What is a key concept in ${topic}?`,
-            options: ['Option A', 'Option B', 'Option C', 'Option D'],
+            question: `Qual é um conceito-chave em ${topic}?`,
+            options: ['Opção A', 'Opção B', 'Opção C', 'Opção D'],
             correctAnswer: 1,
-            explanation: 'This is a fundamental concept in the topic.',
+            explanation: 'Este é um conceito fundamental no tópico.',
             difficulty: 'medium',
             cognitiveLevel: 'understanding'
           },
           {
-            question: `How does ${topic} relate to Jungian psychology?`,
-            options: ['Option A', 'Option B', 'Option C', 'Option D'],
+            question: `Como ${topic} se relaciona com a psicologia junguiana?`,
+            options: ['Opção A', 'Opção B', 'Opção C', 'Opção D'],
             correctAnswer: 0,
-            explanation: 'This demonstrates the connection to Jungian theory.',
+            explanation: 'Isso demonstra a conexão com a teoria junguiana.',
             difficulty: 'medium',
             cognitiveLevel: 'application'
           }
@@ -216,12 +247,19 @@ Respond with exactly ${count} questions following the good example format:`;
       }
     }
 
-    // Convert to QuizQuestion format
-    const quizQuestions: QuizQuestion[] = questions.map((q, index) => ({
+    // Pre-validate and clean questions before conversion
+    const cleanedQuestions = this.preValidateQuestions(questions);
+    
+    // Convert to Question format
+    const quizQuestions: Question[] = cleanedQuestions.map((q, index) => ({
       id: `q-${index + 1}`,
       type: 'multiple-choice' as const,
       question: q.question,
-      options: q.options,
+      options: q.options.map((option: string, optIndex: number) => ({
+        id: `q-${index + 1}-opt-${optIndex + 1}`,
+        text: option,
+        isCorrect: optIndex === q.correctAnswer
+      })),
       correctAnswer: q.correctAnswer,
       explanation: q.explanation,
       points: q.difficulty === 'hard' ? 15 : q.difficulty === 'medium' ? 10 : 5,
@@ -262,11 +300,259 @@ Respond with exactly ${count} questions following the good example format:`;
       console.warn('Validation errors:', validationResult.errors);
       console.warn('Validation warnings:', validationResult.warnings);
       
-      // For now, log the issues but still return the questions
-      // In a production system, you might want to retry generation
+      // Try to fix validation issues
+      const fixedQuestions = await this.fixValidationIssues(enhancedQuestions, validationResult, topic, content, objectives, language);
+      return fixedQuestions;
     }
 
     return enhancedQuestions;
+  }
+
+  /**
+   * Pre-validate questions and fix obvious issues before full validation
+   */
+  private preValidateQuestions(questions: any[]): any[] {
+    return questions.map((q, index) => {
+      // Check for duplicate options
+      if (q.options && Array.isArray(q.options)) {
+        const uniqueOptions = new Set(q.options);
+        if (uniqueOptions.size !== q.options.length) {
+          console.warn(`Question ${index + 1} has duplicate options, generating fallback`);
+          return this.createPreValidationFallback(q, index);
+        }
+        
+        // Check for generic options
+        const genericTerms = ['fenômeno social', 'princípio humanista', 'teoria psicológica', 'conceito fundamental', 
+                             'social phenomenon', 'humanistic principle', 'psychological theory', 'fundamental concept'];
+        const hasGenericTerms = q.options.some((opt: string) => 
+          genericTerms.some(term => opt.toLowerCase().includes(term.toLowerCase()))
+        );
+        
+        if (hasGenericTerms) {
+          console.warn(`Question ${index + 1} has generic terms, generating fallback`);
+          return this.createPreValidationFallback(q, index);
+        }
+      }
+      
+      return q;
+    });
+  }
+
+  /**
+   * Create a pre-validation fallback question
+   */
+  private createPreValidationFallback(originalQuestion: any, index: number): any {
+    const topics = ['arquétipos', 'inconsciente coletivo', 'individuação', 'sombra', 'anima', 'animus', 'persona'];
+    const randomTopic = topics[index % topics.length];
+    
+    return {
+      question: `Qual é uma característica específica de ${randomTopic} na psicologia junguiana?`,
+      options: [
+        `Representa um padrão universal presente no inconsciente coletivo`,
+        `Manifesta-se exclusivamente através de sonhos recorrentes específicos`,
+        `Desenvolve-se apenas durante a fase de maturidade psicológica`,
+        `Origina-se da repressão de impulsos sexuais na primeira infância`
+      ],
+      correctAnswer: 0,
+      explanation: `${randomTopic} é um conceito fundamental na psicologia junguiana que representa padrões universais do inconsciente coletivo.`,
+      difficulty: originalQuestion.difficulty || 'medium',
+      cognitiveLevel: originalQuestion.cognitiveLevel || 'understanding'
+    };
+  }
+
+  /**
+   * Fix validation issues in generated questions
+   */
+  private async fixValidationIssues(
+    questions: Question[],
+    validationResult: any,
+    topic: string,
+    content: string,
+    objectives: string[],
+    language: string
+  ): Promise<Question[]> {
+    const fixedQuestions = [...questions];
+    
+    // Identify questions with issues
+    const issuePattern = /Q(\d+):/;
+    const questionIssues: { [key: number]: string[] } = {};
+    
+    validationResult.warnings.forEach((warning: string) => {
+      const match = warning.match(issuePattern);
+      if (match) {
+        const questionIndex = parseInt(match[1]) - 1;
+        if (!questionIssues[questionIndex]) {
+          questionIssues[questionIndex] = [];
+        }
+        questionIssues[questionIndex].push(warning);
+      }
+    });
+
+    // Fix questions with issues
+    for (const [questionIndexStr, issues] of Object.entries(questionIssues)) {
+      const questionIndex = parseInt(questionIndexStr);
+      if (questionIndex >= 0 && questionIndex < fixedQuestions.length) {
+        const hasduplicateOptions = issues.some(issue => issue.includes('Duplicate option'));
+        const hasInconsistentLengths = issues.some(issue => issue.includes('inconsistent lengths'));
+        const hasPoorDistractors = issues.some(issue => issue.includes('Not enough plausible distractors'));
+        
+        if (hasduplicateOptions || hasInconsistentLengths || hasPoorDistractors) {
+          console.log(`🔧 Fixing question ${questionIndex + 1} with issues:`, issues);
+          
+          try {
+            const fixedQuestion = await this.regenerateQuestion(
+              fixedQuestions[questionIndex],
+              topic,
+              content,
+              objectives,
+              language,
+              issues
+            );
+            
+            if (fixedQuestion) {
+              fixedQuestions[questionIndex] = fixedQuestion;
+              console.log(`✅ Successfully fixed question ${questionIndex + 1}`);
+            }
+          } catch (error) {
+            console.error(`❌ Failed to fix question ${questionIndex + 1}:`, error);
+            // Keep the original question if fixing fails
+          }
+        }
+      }
+    }
+
+    return fixedQuestions;
+  }
+
+  /**
+   * Regenerate a single question with better quality
+   */
+  private async regenerateQuestion(
+    originalQuestion: Question,
+    topic: string,
+    content: string,
+    objectives: string[],
+    language: string,
+    issues: string[]
+  ): Promise<Question | null> {
+    const isPortuguese = language === 'pt-BR';
+    
+    const issueDescription = issues.join(', ');
+    
+    const prompt = `
+Regenere esta questão de múltipla escolha sobre "${topic}" corrigindo os seguintes problemas:
+${issueDescription}
+
+Questão original: ${originalQuestion.question}
+Opções originais: ${originalQuestion.options.map((opt: any) => typeof opt === 'string' ? opt : opt.text).join(' | ')}
+
+REGRAS CRÍTICAS PARA EVITAR PROBLEMAS:
+1. NUNCA repita opções - cada uma deve ser ÚNICA
+2. Todas as opções devem ter comprimento similar (30-80 caracteres)
+3. TODAS as opções devem ser relacionadas à psicologia junguiana
+4. Use conceitos junguianos ESPECÍFICOS para cada distrator
+5. Evite termos genéricos como "fenômeno social" ou "princípio humanista"
+
+ESTRATÉGIA DE DISTRATORES MELHORADA:
+- Opção correta: Resposta verdadeira sobre ${topic}
+- Distrator 1: Conceito junguiano relacionado mas diferente (ex: arquétipo diferente)
+- Distrator 2: Conceito de outra teoria psicológica aplicada incorretamente
+- Distrator 3: Equívoco comum sobre ${topic} na psicologia junguiana
+
+Contexto: ${content.substring(0, 500)}...
+
+IMPORTANTE: Responda apenas com um objeto JSON:
+{
+  "question": "Nova pergunta melhorada",
+  "options": ["Resposta correta específica", "Distrator 1 específico", "Distrator 2 específico", "Distrator 3 específico"],
+  "correctAnswer": 0,
+  "explanation": "Explicação detalhada da resposta correta",
+  "difficulty": "medium",
+  "cognitiveLevel": "understanding"
+}
+`;
+
+    try {
+      const response = await this.provider.generateStructuredResponse<{
+        question: string;
+        options: string[];
+        correctAnswer: number;
+        explanation: string;
+        difficulty: string;
+        cognitiveLevel: string;
+      }>(prompt, {
+        type: "object",
+        properties: {
+          question: { type: "string" },
+          options: { 
+            type: "array",
+            items: { type: "string" },
+            minItems: 4,
+            maxItems: 4
+          },
+          correctAnswer: { type: "number", minimum: 0, maximum: 3 },
+          explanation: { type: "string" },
+          difficulty: { type: "string", enum: ["easy", "medium", "hard"] },
+          cognitiveLevel: { type: "string", enum: ["recall", "understanding", "application", "analysis"] }
+        },
+        required: ["question", "options", "correctAnswer", "explanation"]
+      }, { temperature: 0.2, maxTokens: 1000 });
+
+      // Validate the regenerated question doesn't have duplicates
+      const optionTexts = response.options;
+      const uniqueOptions = new Set(optionTexts);
+      
+      if (uniqueOptions.size !== optionTexts.length) {
+        console.warn('Regenerated question still has duplicate options, using fallback');
+        return this.createFallbackQuestion(originalQuestion, topic);
+      }
+
+      // Convert to Question format
+      return {
+        ...originalQuestion,
+        question: response.question,
+        options: response.options.map((option: string, optIndex: number) => ({
+          id: `${originalQuestion.id}-fixed-opt-${optIndex + 1}`,
+          text: option,
+          isCorrect: optIndex === response.correctAnswer
+        })),
+        correctAnswer: response.correctAnswer,
+        explanation: response.explanation,
+        metadata: {
+          ...originalQuestion.metadata,
+          difficulty: response.difficulty,
+          cognitiveLevel: response.cognitiveLevel,
+          regenerated: true
+        }
+      };
+      
+    } catch (error) {
+      console.error('Error regenerating question:', error);
+      return this.createFallbackQuestion(originalQuestion, topic);
+    }
+  }
+
+  /**
+   * Create a fallback question when regeneration fails
+   */
+  private createFallbackQuestion(originalQuestion: Question, topic: string): Question {
+    return {
+      ...originalQuestion,
+      question: `Qual é uma característica fundamental de ${topic} na psicologia junguiana?`,
+      options: [
+        { id: `${originalQuestion.id}-fallback-1`, text: `É um conceito central na teoria analítica de Jung`, isCorrect: true },
+        { id: `${originalQuestion.id}-fallback-2`, text: `Representa apenas aspectos inconscientes da personalidade`, isCorrect: false },
+        { id: `${originalQuestion.id}-fallback-3`, text: `Funciona exclusivamente no nível individual da psique`, isCorrect: false },
+        { id: `${originalQuestion.id}-fallback-4`, text: `Manifesta-se apenas durante processos terapêuticos específicos`, isCorrect: false }
+      ],
+      correctAnswer: 0,
+      explanation: `${topic} é um conceito fundamental na psicologia analítica de Jung, com aplicações amplas na compreensão da psique humana.`,
+      metadata: {
+        ...originalQuestion.metadata,
+        fallback: true,
+        regenerated: true
+      }
+    };
   }
 
   async generateAdaptiveQuestions(
@@ -274,7 +560,7 @@ Respond with exactly ${count} questions following the good example format:`;
     previousResponses: Array<{ correct: boolean; difficulty: string }>,
     count: number = 3,
     language: string = 'pt-BR'
-  ): Promise<QuizQuestion[]> {
+  ): Promise<Question[]> {
     // Analyze performance to determine next difficulty
     const correctRate = previousResponses.filter(r => r.correct).length / previousResponses.length;
     let targetDifficulty: string;
@@ -293,7 +579,7 @@ Respond with exactly ${count} questions following the good example format:`;
       'medium': language === 'pt-BR' ? 'médio' : 'medium'
     };
 
-    const prompt = language === 'pt-BR' ? `
+    const prompt = `
 Gere ${count} questões de múltipla escolha de nível ${difficultyTerms[targetDifficulty]} para teste adaptativo sobre "${topic}" em psicologia junguiana.
 
 Desempenho anterior: ${Math.round(correctRate * 100)}% correto
@@ -305,17 +591,6 @@ ${targetDifficulty === 'hard' ? 'análise complexa e síntese de conceitos' :
 
 IMPORTANTE: Escreva todas as questões em português brasileiro (pt-BR).
 Formato de resposta: mesmo que antes
-` : `
-Generate ${count} ${targetDifficulty} multiple-choice questions for adaptive testing on "${topic}" in Jungian psychology.
-
-Previous performance: ${Math.round(correctRate * 100)}% correct
-
-Focus on:
-${targetDifficulty === 'hard' ? 'complex analysis and synthesis of concepts' : 
-  targetDifficulty === 'easy' ? 'fundamental concepts and definitions' : 
-  'application and understanding of concepts'}
-
-Response format: same as before
 `;
 
     const questions = await this.provider.generateStructuredResponse<Array<{
@@ -329,7 +604,11 @@ Response format: same as before
       id: `adaptive-q-${Date.now()}-${index}`,
       type: 'multiple-choice' as const,
       question: q.question,
-      options: q.options,
+      options: q.options.map((option: string, optIndex: number) => ({
+        id: `adaptive-q-${Date.now()}-${index}-opt-${optIndex + 1}`,
+        text: option,
+        isCorrect: optIndex === q.correctAnswer
+      })),
       correctAnswer: q.correctAnswer,
       explanation: q.explanation,
       points: targetDifficulty === 'hard' ? 15 : targetDifficulty === 'medium' ? 10 : 5,
@@ -342,8 +621,8 @@ Response format: same as before
     specificConcept: string,
     count: number = 5,
     language: string = 'pt-BR'
-  ): Promise<QuizQuestion[]> {
-    const prompt = language === 'pt-BR' ? `
+  ): Promise<Question[]> {
+    const prompt = `
 Gere ${count} questões práticas focadas em "${specificConcept}" dentro do tópico "${topic}" em psicologia junguiana.
 
 Requisitos:
@@ -354,16 +633,6 @@ Requisitos:
 - IMPORTANTE: Escreva todas as questões em português brasileiro (pt-BR)
 
 Formato de resposta: mesmo que questões padrão
-` : `
-Generate ${count} practice questions focused on "${specificConcept}" within the topic of "${topic}" in Jungian psychology.
-
-Requirements:
-- Start with easier questions and progress to harder ones
-- Include detailed explanations that teach the concept
-- Use real-world examples where applicable
-- Reference Jung's original work when relevant
-
-Response format: same as standard questions
 `;
 
     const questions = await this.provider.generateStructuredResponse<Array<{
@@ -377,7 +646,11 @@ Response format: same as standard questions
       id: `practice-q-${Date.now()}-${index}`,
       type: 'multiple-choice' as const,
       question: q.question,
-      options: q.options,
+      options: q.options.map((option: string, optIndex: number) => ({
+        id: `practice-q-${Date.now()}-${index}-opt-${optIndex + 1}`,
+        text: option,
+        isCorrect: optIndex === q.correctAnswer
+      })),
       correctAnswer: q.correctAnswer,
       explanation: q.explanation,
       points: 5,

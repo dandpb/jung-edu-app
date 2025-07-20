@@ -98,7 +98,7 @@ export class YouTubeService {
         },
         headers: {
           'Accept': 'application/json',
-          'Referer': window.location.origin,
+          // Removed Referer header that causes CORS issues
         }
       });
 

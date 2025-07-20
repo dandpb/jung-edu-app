@@ -40,6 +40,17 @@ export class ModuleService {
     const newModule: EducationalModule = {
       ...moduleData,
       id: moduleData.id || uuidv4(),
+      title: moduleData.title || 'Untitled Module',
+      description: moduleData.description || '',
+      content: moduleData.content || { introduction: '', sections: [] },
+      videos: moduleData.videos || [],
+      mindMaps: moduleData.mindMaps || [],
+      quiz: moduleData.quiz || { id: '', title: '', questions: [] },
+      bibliography: moduleData.bibliography || [],
+      filmReferences: moduleData.filmReferences || [],
+      tags: moduleData.tags || [],
+      difficultyLevel: moduleData.difficultyLevel || DifficultyLevel.BEGINNER,
+      timeEstimate: moduleData.timeEstimate || { hours: 0, minutes: 30 },
       metadata: {
         ...moduleData.metadata,
         createdAt: new Date().toISOString(),
@@ -149,7 +160,9 @@ export class ModuleService {
       }
 
       // Filter by duration
-      const totalMinutes = module.timeEstimate.hours * 60 + module.timeEstimate.minutes;
+      const totalMinutes = module.timeEstimate ? 
+        (module.timeEstimate.hours * 60 + module.timeEstimate.minutes) : 
+        0;
       if (criteria.minDuration && totalMinutes < criteria.minDuration) {
         return false;
       }

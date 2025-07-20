@@ -1,18 +1,8 @@
 import { ILLMProvider } from '../provider';
-import {
-  generateBibliography as generateRealBibliography,
-  generateReadingPath,
-  EnrichedReference,
-  BibliographyOptions,
-  exportBibliography,
-  findReferencesByKeywords,
-  jungCollectedWorks,
-  contemporaryJungian
-} from '../../bibliography';
 
 export interface BibliographyEntry {
   id: string;
-  type: 'book' | 'article' | 'chapter' | 'website' | 'video' | 'film' | 'interview' | 'lecture';
+  type: 'book' | 'article' | 'chapter' | 'website' | 'video' | 'film' | 'interview' | 'lecture' | 'podcast' | 'course';
   authors: string[];
   title: string;
   year: number;
@@ -44,115 +34,79 @@ export class BibliographyGenerator {
     count: number = 10,
     language: string = 'pt-BR'
   ): Promise<BibliographyEntry[]> {
-    // Map level to our bibliography service levels
     const readingLevel = level === 'introductory' ? 'beginner' : level;
     
-    // Generate real bibliography using our service
-    const bibliographyOptions: BibliographyOptions = {
-      topic,
-      keywords: concepts,
-      maxResults: count,
-      readingLevel: readingLevel as any,
-      sortBy: 'relevance'
-    };
-    
-    const enrichedRefs = generateRealBibliography(bibliographyOptions);
-    
-    // Convert enriched references to BibliographyEntry format
-    const entries: BibliographyEntry[] = enrichedRefs.map(ref => ({
-      id: ref.id,
-      type: ref.type,
-      authors: Array.isArray(ref.author) ? ref.author : [ref.author],
-      title: ref.title,
-      year: ref.year,
-      publisher: ref.publisher,
-      journal: ref.journal,
-      volume: ref.volume?.toString(),
-      issue: ref.issue?.toString(),
-      pages: ref.pages,
-      doi: ref.doi,
-      url: ref.url,
-      abstract: ref.abstract || '',
-      relevance: `Relevance score: ${ref.relevanceScore}%`,
-      jungianConcepts: ref.keywords,
-      readingLevel: ref.readingLevel,
-      formattedCitation: ref.formattedCitation
-    }));
-    
-    // If we need more entries, generate some using LLM
-    if (entries.length < count) {
-      const additionalCount = count - entries.length;
-      const llmEntries = await this.generateAdditionalSources(topic, concepts, level, additionalCount, language);
-      entries.push(...llmEntries);
-    }
-    
-    return entries;
-  }
-
-  private async generateAdditionalSources(
-    topic: string,
-    concepts: string[],
-    level: string,
-    count: number,
-    language: string = 'pt-BR'
-  ): Promise<BibliographyEntry[]> {
     const prompt = language === 'pt-BR' ? `
-Gere ${count} fontes acadêmicas adicionais sobre "${topic}" em psicologia junguiana que complementem a bibliografia existente.
+Gere ${count} recursos educacionais sobre "${topic}" em psicologia junguiana com LINKS ACESSÍVEIS.
 
 Conceitos-chave: ${concepts.join(', ')}
 Nível: ${level === 'introductory' ? 'introdutório' : level === 'intermediate' ? 'intermediário' : 'avançado'}
 
-Foque em:
-- Pesquisa interdisciplinar recente
-- Aplicações clínicas
-- Perspectivas transculturais
-- Fontes não tipicamente em bibliografias padrão de Jung
-- Preferência por fontes em português ou traduzidas
+IMPORTANTE: 
+- Cada recurso DEVE ter um URL funcional e acessível
+- Priorize recursos em português ou com tradução disponível
+- Inclua uma mistura de tipos: livros digitais, artigos acadêmicos, vídeos, cursos online, podcasts
+- Para livros, prefira links para: Google Books, Amazon, Archive.org, sites de editoras
+- Para artigos: SciELO, PePSIC, ResearchGate, Academia.edu, repositórios universitários
+- Para vídeos: YouTube (aulas, palestras, documentários)
+- Para cursos: Coursera, edX, plataformas educacionais
 
-Formato de resposta:
+Foque em:
+- Obras fundamentais de Jung traduzidas
+- Comentadores brasileiros e latino-americanos
+- Recursos didáticos e introdutórios
+- Material audiovisual complementar
+- Cursos e palestras online gratuitos
+
+Formato de resposta (JSON):
 [
   {
-    "type": "article",
-    "authors": ["Autor, Nome"],
-    "title": "Título em Português",
-    "year": 2020,
-    "journal": "Nome do Periódico",
-    "volume": "45",
-    "issue": "3",
-    "pages": "234-256",
-    "doi": "10.xxxx/xxxxx",
-    "abstract": "Resumo breve em português",
-    "relevance": "Por que isso complementa o trabalho original de Jung",
-    "jungianConcepts": ["conceito1", "conceito2"]
+    "type": "book",
+    "authors": ["Jung, Carl Gustav"],
+    "title": "O Homem e Seus Símbolos",
+    "year": 2016,
+    "publisher": "Nova Fronteira",
+    "url": "https://books.google.com.br/books?id=exemplo",
+    "abstract": "Introdução acessível aos conceitos fundamentais da psicologia junguiana",
+    "relevance": "Obra fundamental recomendada para iniciantes, escrita para o público geral",
+    "jungianConcepts": ["arquétipos", "inconsciente coletivo", "símbolos"],
+    "readingLevel": "beginner"
   }
 ]
 ` : `
-Generate ${count} additional academic sources about "${topic}" in Jungian psychology that complement the existing bibliography.
+Generate ${count} educational resources about "${topic}" in Jungian psychology with ACCESSIBLE LINKS.
 
 Key concepts: ${concepts.join(', ')}
 Level: ${level}
 
-Focus on:
-- Recent interdisciplinary research
-- Clinical applications
-- Cross-cultural perspectives
-- Sources not typically in standard Jung bibliographies
+IMPORTANT:
+- Each resource MUST have a functional and accessible URL
+- Include a mix of types: digital books, academic articles, videos, online courses, podcasts
+- For books: Google Books, Amazon, Archive.org, publisher sites
+- For articles: JSTOR, PubMed, ResearchGate, Academia.edu, university repositories
+- For videos: YouTube (lectures, documentaries)
+- For courses: Coursera, edX, educational platforms
 
-Response format:
+Focus on:
+- Jung's fundamental works
+- Contemporary Jungian scholars
+- Educational and introductory resources
+- Audiovisual materials
+- Free online courses and lectures
+
+Response format (JSON):
 [
   {
-    "type": "article",
-    "authors": ["Author, Name"],
-    "title": "Title",
-    "year": 2020,
-    "journal": "Journal name",
-    "volume": "45",
-    "issue": "3",
-    "pages": "234-256",
-    "doi": "10.xxxx/xxxxx",
-    "abstract": "Brief abstract",
-    "relevance": "Why this complements Jung's original work",
-    "jungianConcepts": ["concept1", "concept2"]
+    "type": "book",
+    "authors": ["Jung, Carl Gustav"],
+    "title": "Man and His Symbols",
+    "year": 1964,
+    "publisher": "Dell Publishing",
+    "url": "https://archive.org/details/example",
+    "abstract": "Accessible introduction to fundamental Jungian concepts",
+    "relevance": "Essential introductory work written for general audience",
+    "jungianConcepts": ["archetypes", "collective unconscious", "symbols"],
+    "readingLevel": "beginner"
   }
 ]
 `;
@@ -163,93 +117,179 @@ Response format:
       items: {
         type: "object",
         properties: {
-          type: { type: "string", enum: ["book", "article", "chapter", "website", "video", "film", "interview", "lecture"] },
+          type: { 
+            type: "string", 
+            enum: ["book", "article", "chapter", "website", "video", "film", "interview", "lecture", "podcast", "course"] 
+          },
           authors: { type: "array", items: { type: "string" } },
           title: { type: "string" },
           year: { type: "number" },
+          publisher: { type: "string" },
           journal: { type: "string" },
           volume: { type: "string" },
           issue: { type: "string" },
           pages: { type: "string" },
           doi: { type: "string" },
+          url: { type: "string" },
           abstract: { type: "string" },
           relevance: { type: "string" },
-          jungianConcepts: { type: "array", items: { type: "string" } }
+          jungianConcepts: { type: "array", items: { type: "string" } },
+          readingLevel: { type: "string", enum: ["beginner", "intermediate", "advanced", "scholar"] }
         },
-        required: ["type", "authors", "title", "year", "relevance", "jungianConcepts"]
+        required: ["type", "authors", "title", "year", "url", "relevance", "jungianConcepts"]
       }
     };
 
-    let sources: Array<Omit<BibliographyEntry, 'id' | 'readingLevel' | 'formattedCitation'>>;
+    let sources: Array<Omit<BibliographyEntry, 'id' | 'formattedCitation'>>;
     
     try {
-      sources = await this.provider.generateStructuredResponse<Array<Omit<BibliographyEntry, 'id' | 'readingLevel' | 'formattedCitation'>>>(
+      sources = await this.provider.generateStructuredResponse<Array<Omit<BibliographyEntry, 'id' | 'formattedCitation'>>>(
         prompt,
         schema,
-        { temperature: 0.5 }
+        { temperature: 0.7 }
       );
     } catch (error) {
-      console.error('Error generating additional sources:', error);
-      // Return empty array if generation fails
+      console.error('Error generating bibliography:', error);
       return [];
     }
 
-    // Ensure sources is an array before calling map
+    // Ensure sources is an array
     if (!Array.isArray(sources)) {
       console.error('generateStructuredResponse did not return an array, got:', sources);
       return [];
     }
 
+    // Add IDs and ensure reading level
     return sources.map((source, index) => ({
-      id: `additional-${index + 1}`,
+      id: `bib-${Date.now()}-${index}`,
       ...source,
-      readingLevel: level === 'introductory' ? 'beginner' : level as any,
+      readingLevel: source.readingLevel || readingLevel as any,
+      formattedCitation: undefined
     }));
   }
 
-  async generatePrimarySourcesFromDatabase(
+  async generateFilmSuggestions(
     topic: string,
-    concepts: string[]
-  ): Promise<BibliographyEntry[]> {
-    // Find relevant Jung Collected Works
-    const relevantCW = findReferencesByKeywords(concepts);
+    concepts: string[],
+    count: number = 5,
+    language: string = 'pt-BR'
+  ): Promise<Array<{
+    id: string;
+    title: string;
+    director: string;
+    year: number;
+    relevance: string;
+    streamingUrl?: string;
+    trailerUrl?: string;
+    type: 'documentary' | 'fiction' | 'educational' | 'biographical';
+  }>> {
+    const prompt = language === 'pt-BR' ? `
+Gere ${count} sugestões de filmes e documentários relacionados a "${topic}" em psicologia junguiana com LINKS PARA ASSISTIR.
+
+Conceitos relacionados: ${concepts.join(', ')}
+
+IMPORTANTE:
+- Cada filme DEVE ter pelo menos um link (streaming ou trailer)
+- Priorize filmes disponíveis em plataformas de streaming ou YouTube
+- Inclua documentários educacionais sobre Jung e psicologia analítica
+- Filmes que ilustrem conceitos junguianos (jornada do herói, sombra, anima/animus)
+- Biografias e entrevistas com Jung
+
+Tipos de links preferidos:
+- YouTube (filmes completos, documentários)
+- Netflix, Prime Video, HBO Max (se disponível)
+- Vimeo (documentários educacionais)
+- Sites educacionais com conteúdo gratuito
+
+Formato de resposta (JSON):
+[
+  {
+    "title": "A Sabedoria dos Sonhos",
+    "director": "Stephen Segaller",
+    "year": 1989,
+    "type": "documentary",
+    "relevance": "Documentário em 3 partes sobre a vida e obra de Jung, essencial para iniciantes",
+    "streamingUrl": "https://www.youtube.com/watch?v=exemplo",
+    "trailerUrl": "https://www.youtube.com/watch?v=trailer"
+  }
+]
+` : `
+Generate ${count} film and documentary suggestions related to "${topic}" in Jungian psychology with STREAMING LINKS.
+
+Related concepts: ${concepts.join(', ')}
+
+IMPORTANT:
+- Each film MUST have at least one link (streaming or trailer)
+- Prioritize films available on streaming platforms or YouTube
+- Include educational documentaries about Jung and analytical psychology
+- Films that illustrate Jungian concepts (hero's journey, shadow, anima/animus)
+- Jung biographies and interviews
+
+Preferred link types:
+- YouTube (full films, documentaries)
+- Netflix, Prime Video, HBO Max (if available)
+- Vimeo (educational documentaries)
+- Educational sites with free content
+
+Response format (JSON):
+[
+  {
+    "title": "The Wisdom of the Dream",
+    "director": "Stephen Segaller",
+    "year": 1989,
+    "type": "documentary",
+    "relevance": "3-part documentary about Jung's life and work, essential for beginners",
+    "streamingUrl": "https://www.youtube.com/watch?v=example",
+    "trailerUrl": "https://www.youtube.com/watch?v=trailer"
+  }
+]
+`;
+
+    const schema = {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          director: { type: "string" },
+          year: { type: "number" },
+          type: { type: "string", enum: ["documentary", "fiction", "educational", "biographical"] },
+          relevance: { type: "string" },
+          streamingUrl: { type: "string" },
+          trailerUrl: { type: "string" }
+        },
+        required: ["title", "director", "year", "type", "relevance"]
+      }
+    };
+
+    let films: Array<any>;
     
-    // Convert to BibliographyEntry format
-    return relevantCW
-      .filter(ref => ref.id.startsWith('cw'))
-      .slice(0, 5)
-      .map(ref => ({
-        id: ref.id,
-        type: ref.type,
-        authors: Array.isArray(ref.author) ? ref.author : [ref.author],
-        title: ref.title,
-        year: ref.year,
-        publisher: ref.publisher,
-        journal: ref.journal,
-        volume: ref.volume?.toString(),
-        issue: ref.issue?.toString(),
-        pages: ref.pages,
-        doi: ref.doi,
-        url: ref.url,
-        abstract: ref.abstract || `Texto junguiano fundamental explorando ${ref.keywords.join(', ')}`,
-        relevance: `Fonte primária para entender ${topic}`,
-        jungianConcepts: ref.keywords
+    try {
+      films = await this.provider.generateStructuredResponse<Array<any>>(
+        prompt,
+        schema,
+        { temperature: 0.7 }
+      );
+    } catch (error) {
+      console.error('Error generating film suggestions:', error);
+      return [];
+    }
+
+    if (!Array.isArray(films)) {
+      console.error('generateStructuredResponse did not return an array for films, got:', films);
+      return [];
+    }
+
+    // Add IDs and ensure at least one URL exists
+    return films
+      .filter(film => film.streamingUrl || film.trailerUrl)
+      .map((film, index) => ({
+        id: `film-${Date.now()}-${index}`,
+        ...film
       }));
   }
 
-
   async formatCitation(entry: BibliographyEntry, style: 'APA' | 'MLA' | 'Chicago' = 'APA', language: string = 'pt-BR'): Promise<string> {
-    // If we have pre-formatted citations, use them
-    if (entry.formattedCitation) {
-      const styleMap = {
-        'APA': 'apa',
-        'MLA': 'mla',
-        'Chicago': 'chicago'
-      };
-      return entry.formattedCitation[styleMap[style] as keyof typeof entry.formattedCitation];
-    }
-    
-    // Otherwise, generate citation using LLM
     const prompt = language === 'pt-BR' ? `
 Formate esta entrada bibliográfica no estilo ${style}:
 
@@ -302,6 +342,7 @@ Escreva uma anotação de 150-200 palavras para esta fonte sobre "${entry.title}
 
 Resumo: ${entry.abstract}
 Relevância: ${entry.relevance}
+Link: ${entry.url}
 
 Áreas de foco para anotação: ${focusAreas.join(', ')}
 
@@ -309,7 +350,7 @@ A anotação deve:
 1. Resumir os principais argumentos ou descobertas
 2. Avaliar a credibilidade e contribuição da fonte
 3. Explicar como se relaciona com as áreas de foco
-4. Observar quaisquer limitações ou vieses
+4. Mencionar como acessar o recurso (se está disponível gratuitamente, etc.)
 
 Escreva em português brasileiro.
 ` : `
@@ -317,6 +358,7 @@ Write a 150-200 word annotation for this source about "${entry.title}" by ${entr
 
 Abstract: ${entry.abstract}
 Relevance: ${entry.relevance}
+Link: ${entry.url}
 
 Focus areas for annotation: ${focusAreas.join(', ')}
 
@@ -324,7 +366,7 @@ The annotation should:
 1. Summarize the main arguments or findings
 2. Evaluate the source's credibility and contribution
 3. Explain how it relates to the focus areas
-4. Note any limitations or biases
+4. Mention how to access the resource (if freely available, etc.)
 `;
 
         const annotation = await this.provider.generateCompletion(prompt, {
@@ -344,7 +386,7 @@ The annotation should:
     learningObjectives: string[],
     language: string = 'pt-BR'
   ): Promise<BibliographyEntry[]> {
-    // If entries have reading levels, we can order them automatically
+    // If entries have reading levels, order them automatically
     const hasReadingLevels = entries.every(e => e.readingLevel);
     
     if (hasReadingLevels) {
@@ -356,9 +398,6 @@ The annotation should:
         if (levelDiff !== 0) return levelDiff;
         
         // Within same level, put older foundational texts first
-        if (a.id.startsWith('mams') || a.id.startsWith('mdrs')) return -1;
-        if (b.id.startsWith('mams') || b.id.startsWith('mdrs')) return 1;
-        
         return a.year - b.year;
       });
     }
@@ -374,9 +413,9 @@ Objetivos de aprendizagem:
 ${learningObjectives.map((obj, i) => `${i + 1}. ${obj}`).join('\n')}
 
 Crie uma ordem de leitura que:
-1. Comece com textos fundamentais (como "O Homem e Seus Símbolos")
+1. Comece com textos introdutórios e vídeos educacionais
 2. Construa complexidade gradualmente
-3. Introduza fontes primárias em momentos apropriados
+3. Alterne entre diferentes tipos de mídia
 4. Termine com aplicações contemporâneas
 
 Formato de resposta:
@@ -391,9 +430,9 @@ Learning objectives:
 ${learningObjectives.map((obj, i) => `${i + 1}. ${obj}`).join('\n')}
 
 Create a reading order that:
-1. Starts with foundational texts (like "Man and His Symbols")
+1. Starts with introductory texts and educational videos
 2. Builds complexity gradually
-3. Introduces primary sources at appropriate times
+3. Alternates between different media types
 4. Ends with contemporary applications
 
 Response format:
@@ -416,11 +455,10 @@ Response format:
       );
     } catch (error) {
       console.error('Error generating reading order:', error);
-      // Return original order if generation fails
       return entries;
     }
 
-    // Ensure order is an array before calling map
+    // Ensure order is an array
     if (!Array.isArray(order)) {
       console.error('generateStructuredResponse did not return an array for order, got:', order);
       return entries;
@@ -433,41 +471,5 @@ Response format:
     }
 
     return validOrder.map(index => entries[index - 1]);
-  }
-
-  // New method to generate reading paths using our service
-  async generateReadingPaths(topic: string): Promise<{
-    beginner: BibliographyEntry[];
-    intermediate: BibliographyEntry[];
-    advanced: BibliographyEntry[];
-    scholar?: BibliographyEntry[];
-  }> {
-    const paths = generateReadingPath(topic);
-    const result: any = {};
-    
-    paths.forEach(path => {
-      const levelKey = path.level.toLowerCase();
-      result[levelKey] = path.references.map(ref => ({
-        id: ref.id,
-        type: ref.type,
-        authors: Array.isArray(ref.author) ? ref.author : [ref.author],
-        title: ref.title,
-        year: ref.year,
-        publisher: ref.publisher,
-        journal: ref.journal,
-        volume: ref.volume?.toString(),
-        issue: ref.issue?.toString(),
-        pages: ref.pages,
-        doi: ref.doi,
-        url: ref.url,
-        abstract: ref.abstract || '',
-        relevance: `Relevance score: ${ref.relevanceScore}%`,
-        jungianConcepts: ref.keywords,
-        readingLevel: ref.readingLevel,
-        formattedCitation: ref.formattedCitation
-      }));
-    });
-    
-    return result;
   }
 }

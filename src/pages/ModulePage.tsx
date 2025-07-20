@@ -27,6 +27,21 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
   const module = modules.find(m => m.id === moduleId);
   const isCompleted = userProgress.completedModules.includes(moduleId || '');
 
+  // Reset active tab if current tab is not available
+  useEffect(() => {
+    if (module) {
+      const availableTabIds = [
+        'content', 
+        'videos', 
+        ...(module.content.quiz && module.content.quiz.questions && module.content.quiz.questions.length > 0 ? ['quiz'] : []),
+        'resources'
+      ];
+      if (!availableTabIds.includes(activeTab)) {
+        setActiveTab('content');
+      }
+    }
+  }, [module, activeTab]);
+
   // Temporarily disabled time tracking to fix infinite loop
   // TODO: Implement time tracking with a different approach
   // useEffect(() => {
@@ -86,7 +101,10 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
   const tabs = [
     { id: 'content', label: 'Conteúdo', icon: BookOpen },
     { id: 'videos', label: 'Vídeos', icon: PlayCircle, count: module.content.videos?.length },
-    { id: 'quiz', label: 'Questionário', icon: FileText },
+    ...(module.content.quiz && module.content.quiz.questions && module.content.quiz.questions.length > 0 
+      ? [{ id: 'quiz', label: 'Questionário', icon: FileText }] 
+      : []
+    ),
     { 
       id: 'resources', 
       label: 'Recursos', 
@@ -121,10 +139,12 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
             <div className="flex items-center space-x-4 text-sm text-gray-500">
               <span className="flex items-center">
                 <Clock className="w-4 h-4 mr-1" />
-                {module.estimatedTime} minutes
+                {module.estimatedTime} minutos
               </span>
               <span className="capitalize px-2 py-1 bg-gray-100 rounded">
-                {module.difficulty}
+                {module.difficulty === 'beginner' ? 'Iniciante' :
+                 module.difficulty === 'intermediate' ? 'Intermediário' :
+                 module.difficulty === 'advanced' ? 'Avançado' : module.difficulty}
               </span>
             </div>
           </div>
@@ -133,7 +153,7 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
             onClick={() => setShowNoteEditor(true)}
             className="btn-secondary"
           >
-            Add Note
+            Adicionar Anotação
           </button>
         </div>
       </div>
@@ -172,7 +192,7 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
         {activeTab === 'content' && (
           <div className="prose prose-lg max-w-none">
             <div className="bg-primary-50 p-6 rounded-lg mb-8">
-              <h2 className="text-xl font-semibold text-primary-900 mb-3">Introduction</h2>
+              <h2 className="text-xl font-semibold text-primary-900 mb-3">Introdução</h2>
               <MarkdownContent 
                 content={module.content.introduction}
                 className="text-primary-800"
@@ -193,7 +213,7 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
                 
                 {section.keyTerms && section.keyTerms.length > 0 && (
                   <div className="bg-gray-50 p-6 rounded-lg">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Key Terms</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Termos-Chave</h3>
                     <dl className="space-y-3">
                       {section.keyTerms.map(term => (
                         <div key={term.term}>
@@ -217,7 +237,7 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
               ))
             ) : (
               <p className="text-gray-500 text-center py-12">
-                No videos available for this module yet.
+                Ainda não há vídeos disponíveis para este módulo.
               </p>
             )}
           </div>
@@ -225,7 +245,7 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
 
         {activeTab === 'quiz' && (
           <div>
-            {module.content.quiz ? (
+            {module.content.quiz && module.content.quiz.questions && module.content.quiz.questions.length > 0 ? (
               <QuizComponent
                 quiz={module.content.quiz}
                 onComplete={handleQuizComplete}
@@ -233,7 +253,7 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
               />
             ) : (
               <p className="text-gray-500 text-center py-12">
-                No quiz available for this module yet.
+                Ainda não há questionário disponível para este módulo.
               </p>
             )}
           </div>
@@ -259,7 +279,7 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
                           </div>
                           <p className="text-gray-600 mb-2">
                             <User className="w-4 h-4 inline mr-1" />
-                            {item.author}
+                            {item.authors.join(', ')}
                           </p>
                           <div className="flex items-center space-x-4 text-sm text-gray-500">
                             <span className="flex items-center">
@@ -308,17 +328,30 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
                             {film.relevance}
                           </p>
                         </div>
-                        {film.trailer && (
-                          <a
-                            href={film.trailer}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn-secondary flex items-center space-x-2"
-                          >
-                            <PlayCircle className="w-4 h-4" />
-                            <span>Trailer</span>
-                          </a>
-                        )}
+                        <div className="flex items-center space-x-2">
+                          {film.streamingUrl && (
+                            <a
+                              href={film.streamingUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn-primary flex items-center space-x-2"
+                            >
+                              <PlayCircle className="w-4 h-4" />
+                              <span>Assistir</span>
+                            </a>
+                          )}
+                          {film.trailer && (
+                            <a
+                              href={film.trailer}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn-secondary flex items-center space-x-2"
+                            >
+                              <PlayCircle className="w-4 h-4" />
+                              <span>Trailer</span>
+                            </a>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}

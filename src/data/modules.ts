@@ -16,6 +16,7 @@ export const modules: Module[] = [
           id: 'life-overview',
           title: 'Vida e Carreira',
           content: 'Jung nasceu em Kesswil, Suíça, e estudou medicina na Universidade de Basel. Trabalhou com Eugen Bleuler no hospital psiquiátrico Burghölzli em Zurique e depois colaborou com Sigmund Freud antes de desenvolver suas próprias teorias.',
+          order: 0,
           keyTerms: [
             { term: 'Psicologia Analítica', definition: 'A abordagem de Jung para a psicologia que enfatiza a importância do equilíbrio entre processos conscientes e inconscientes.' },
             { term: 'Burghölzli', definition: 'O hospital psiquiátrico em Zurique onde Jung começou sua carreira.' }
@@ -25,6 +26,7 @@ export const modules: Module[] = [
           id: 'break-with-freud',
           title: 'O Rompimento com Freud',
           content: 'O relacionamento de Jung com Freud começou em 1906 e terminou em 1913 devido a diferenças teóricas, particularmente sobre a natureza do inconsciente e o papel da sexualidade no desenvolvimento psicológico.',
+          order: 1,
           keyTerms: [
             { term: 'Libido', definition: 'Jung redefiniu isso como energia psíquica geral, não apenas energia sexual como Freud propôs.' }
           ]
@@ -46,14 +48,26 @@ export const modules: Module[] = [
           {
             id: 'q1',
             question: 'Em que ano Carl Jung nasceu?',
-            options: ['1865', '1875', '1885', '1895'],
+            type: 'multiple-choice',
+            options: [
+              { id: 'q1-a', text: '1865', isCorrect: false },
+              { id: 'q1-b', text: '1875', isCorrect: true },
+              { id: 'q1-c', text: '1885', isCorrect: false },
+              { id: 'q1-d', text: '1895', isCorrect: false }
+            ],
             correctAnswer: 1,
             explanation: 'Carl Jung nasceu em 1875 em Kesswil, Suíça.'
           },
           {
             id: 'q2',
             question: 'Qual é o nome da abordagem psicológica de Jung?',
-            options: ['Psicologia Comportamental', 'Psicologia Analítica', 'Psicologia Cognitiva', 'Psicologia Humanística'],
+            type: 'multiple-choice',
+            options: [
+              { id: 'q2-a', text: 'Psicologia Comportamental', isCorrect: false },
+              { id: 'q2-b', text: 'Psicologia Analítica', isCorrect: true },
+              { id: 'q2-c', text: 'Psicologia Cognitiva', isCorrect: false },
+              { id: 'q2-d', text: 'Psicologia Humanística', isCorrect: false }
+            ],
             correctAnswer: 1,
             explanation: 'Jung fundou a Psicologia Analítica, que foca no equilíbrio entre processos conscientes e inconscientes.'
           }
@@ -63,7 +77,7 @@ export const modules: Module[] = [
         {
           id: 'mdm',
           title: 'Memórias, Sonhos, Reflexões',
-          author: 'Carl Jung',
+          authors: ['Carl Jung'],
           year: 1963,
           type: 'book'
         }
@@ -86,6 +100,7 @@ export const modules: Module[] = [
           id: 'definition',
           title: 'Compreendendo o Inconsciente Coletivo',
           content: 'Diferentemente do inconsciente pessoal, que contém experiências pessoais esquecidas ou reprimidas, o inconsciente coletivo contém as experiências de nossa espécie. É povoado por arquétipos - imagens e padrões universais e primordiais.',
+          order: 0,
           keyTerms: [
             { term: 'Inconsciente Coletivo', definition: 'A parte da mente inconsciente derivada da memória e experiência ancestral, comum a toda a humanidade.' },
             { term: 'Arquétipos', definition: 'Padrões ou imagens universais e herdados presentes no inconsciente coletivo.' }
@@ -95,6 +110,7 @@ export const modules: Module[] = [
           id: 'evidence',
           title: 'Evidências do Inconsciente Coletivo',
           content: 'Jung encontrou evidências do inconsciente coletivo em sonhos, mitos, contos de fadas e simbolismo religioso em diferentes culturas. Temas e símbolos similares aparecem independentemente em diferentes sociedades ao longo da história.',
+          order: 1,
           keyTerms: [
             { term: 'Sincronicidade', definition: 'Coincidências significativas que sugerem um padrão mais profundo de conexão.' },
             { term: 'Motivos Mitológicos', definition: 'Temas recorrentes em mitos de diferentes culturas.' }
@@ -128,6 +144,7 @@ export const modules: Module[] = [
           id: 'shadow',
           title: 'A Sombra',
           content: 'A Sombra representa as partes de nós mesmos que negamos ou reprimimos. Contém tanto aspectos negativos que desejamos esconder quanto qualidades positivas que ainda não reconhecemos ou desenvolvemos.',
+          order: 0,
           keyTerms: [
             { term: 'Sombra', definition: 'O aspecto inconsciente da personalidade com o qual o ego consciente não se identifica.' },
             { term: 'Trabalho com a Sombra', definition: 'O processo de integração da sombra através da autoconsciência.' }
@@ -137,6 +154,7 @@ export const modules: Module[] = [
           id: 'anima-animus',
           title: 'Anima e Animus',
           content: 'A Anima é o aspecto feminino dentro da psique masculina, enquanto o Animus é o aspecto masculino dentro da psique feminina. Esses arquétipos contrassexuais servem como pontes para o inconsciente.',
+          order: 1,
           keyTerms: [
             { term: 'Anima', definition: 'A personalidade interior feminina nos homens.' },
             { term: 'Animus', definition: 'A personalidade interior masculina nas mulheres.' }
@@ -146,6 +164,7 @@ export const modules: Module[] = [
           id: 'self',
           title: 'O Si-mesmo',
           content: 'O Si-mesmo representa o todo unificado de consciente e inconsciente. É tanto a totalidade da psique quanto o arquétipo da totalidade e autorealização.',
+          order: 2,
           keyTerms: [
             { term: 'Si-mesmo', definition: 'O arquétipo da totalidade e o centro regulador da psique.' },
             { term: 'Mandala', definition: 'Um símbolo circular representando o Si-mesmo e a totalidade.' }
@@ -170,6 +189,7 @@ export const modules: Module[] = [
           id: 'stages',
           title: 'Estágios da Individuação',
           content: 'O processo de individuação tipicamente envolve confrontar a persona, integrar a sombra, encontrar a anima/animus e, finalmente, realizar o Si-mesmo.',
+          order: 0,
           keyTerms: [
             { term: 'Individuação', definition: 'O processo de integração psicológica e autorealização.' },
             { term: 'Persona', definition: 'A máscara ou papel que apresentamos ao mundo exterior.' }
@@ -193,6 +213,7 @@ export const modules: Module[] = [
           id: 'attitudes',
           title: 'Atitudes: Introversão e Extraversão',
           content: 'Jung identificou duas atitudes fundamentais: introversão (orientada para o mundo interior) e extraversão (orientada para o mundo exterior).',
+          order: 0,
           keyTerms: [
             { term: 'Introversão', definition: 'Uma atitude caracterizada pela orientação para o mundo interior.' },
             { term: 'Extraversão', definition: 'Uma atitude caracterizada pela orientação para o mundo exterior.' }
@@ -202,6 +223,7 @@ export const modules: Module[] = [
           id: 'functions',
           title: 'The Four Functions',
           content: 'Jung described four psychological functions: thinking, feeling, sensation, and intuition. Each person has a dominant function that shapes their perception and judgment.',
+          order: 1,
           keyTerms: [
             { term: 'Thinking', definition: 'A rational function that judges based on logic and objective criteria.' },
             { term: 'Feeling', definition: 'A rational function that judges based on values and subjective criteria.' },
@@ -228,6 +250,7 @@ export const modules: Module[] = [
           id: 'dream-interpretation',
           title: 'Jungian Dream Analysis',
           content: 'Jung\'s approach to dreams focuses on their prospective function and symbolic content rather than wish fulfillment. Dreams often contain guidance for individuation.',
+          order: 0,
           keyTerms: [
             { term: 'Amplification', definition: 'A method of dream interpretation that explores cultural and mythological parallels.' },
             { term: 'Compensation', definition: 'The psyche\'s tendency to balance conscious one-sidedness through dreams.' }

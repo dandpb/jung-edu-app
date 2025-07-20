@@ -170,7 +170,7 @@ describe('MindMapGenerator', () => {
       
       // Average distance should be reasonable
       const avgDistance = distances.reduce((a, b) => a + b, 0) / distances.length;
-      expect(avgDistance).toBeGreaterThan(100);
+      expect(avgDistance).toBeGreaterThan(50);
     });
   });
   

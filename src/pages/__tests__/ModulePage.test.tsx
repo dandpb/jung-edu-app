@@ -63,13 +63,13 @@ describe('ModulePage Component', () => {
     
     const introModule = modules.find(m => m.id === 'intro-jung');
     expect(screen.getByText(introModule!.icon)).toBeInTheDocument();
-    expect(screen.getByText(`${introModule!.estimatedTime} minutes`)).toBeInTheDocument();
+    expect(screen.getByText(`${introModule!.estimatedTime} minutos`)).toBeInTheDocument();
   });
 
   test('shows content tab by default', () => {
     renderWithRouter();
     
-    expect(screen.getByText('Introduction')).toBeInTheDocument();
+    expect(screen.getByText('Introdução')).toBeInTheDocument();
     expect(screen.getByText(/Carl Gustav Jung \(1875-1961\)/)).toBeInTheDocument();
   });
 
@@ -91,7 +91,7 @@ describe('ModulePage Component', () => {
     renderWithRouter();
     
     // Check for Key Terms section headers (there are multiple sections with key terms)
-    const keyTermHeaders = screen.getAllByText('Key Terms');
+    const keyTermHeaders = screen.getAllByText('Termos-Chave');
     expect(keyTermHeaders.length).toBeGreaterThan(0);
     
     // Check for specific key terms from the module data
@@ -101,7 +101,7 @@ describe('ModulePage Component', () => {
   test('opens note editor when Add Note is clicked', () => {
     renderWithRouter();
     
-    const addNoteButton = screen.getByText('Add Note');
+    const addNoteButton = screen.getByText('Adicionar Anotação');
     fireEvent.click(addNoteButton);
     
     expect(screen.getByPlaceholderText('Escreva suas anotações aqui...')).toBeInTheDocument();
@@ -110,13 +110,13 @@ describe('ModulePage Component', () => {
   test('saves note correctly', async () => {
     renderWithRouter();
     
-    const addNoteButton = screen.getByText('Add Note');
+    const addNoteButton = screen.getByText('Adicionar Anotação');
     fireEvent.click(addNoteButton);
     
     const noteTextarea = screen.getByPlaceholderText('Escreva suas anotações aqui...');
     fireEvent.change(noteTextarea, { target: { value: 'Test note content' } });
     
-    const saveButton = screen.getByText('Save Note');
+    const saveButton = screen.getByText('Salvar');
     fireEvent.click(saveButton);
     
     await waitFor(() => {

@@ -51,10 +51,10 @@ const BibliographyPage: React.FC<BibliographyPageProps> = ({ modules }) => {
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-display font-bold text-gray-900 mb-4">
-          Resources & References
+          Recursos e Referências
         </h1>
         <p className="text-gray-600">
-          Explore books, articles, and films related to Jung's analytical psychology
+          Explore livros, artigos e filmes relacionados à psicologia analítica de Jung
         </p>
       </div>
 
@@ -72,7 +72,7 @@ const BibliographyPage: React.FC<BibliographyPageProps> = ({ modules }) => {
             `}
           >
             <Book className="w-4 h-4" />
-            <span>Books & Articles</span>
+            <span>Livros e Artigos</span>
             <span className="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">
               {uniqueBibliography.length}
             </span>
@@ -90,7 +90,7 @@ const BibliographyPage: React.FC<BibliographyPageProps> = ({ modules }) => {
             `}
           >
             <FilmIcon className="w-4 h-4" />
-            <span>Films</span>
+            <span>Filmes</span>
             <span className="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">
               {uniqueFilms.length}
             </span>
@@ -102,7 +102,7 @@ const BibliographyPage: React.FC<BibliographyPageProps> = ({ modules }) => {
         <div className="space-y-4">
           {sortedBibliography.length === 0 ? (
             <p className="text-gray-500 text-center py-12">
-              No bibliography entries available yet.
+              Nenhuma entrada bibliográfica disponível ainda.
             </p>
           ) : (
             sortedBibliography.map(item => (
@@ -118,7 +118,7 @@ const BibliographyPage: React.FC<BibliographyPageProps> = ({ modules }) => {
                     <div className="flex items-center space-x-4 text-sm text-gray-600 mb-2">
                       <span className="flex items-center">
                         <User className="w-3 h-3 mr-1" />
-                        {item.author}
+                        {item.authors.join(', ')}
                       </span>
                       <span className="flex items-center">
                         <Calendar className="w-3 h-3 mr-1" />
@@ -137,7 +137,7 @@ const BibliographyPage: React.FC<BibliographyPageProps> = ({ modules }) => {
                         className="inline-flex items-center text-primary-600 hover:text-primary-700 text-sm"
                       >
                         <ExternalLink className="w-3 h-3 mr-1" />
-                        View Resource
+                        Ver Recurso
                       </a>
                     )}
                   </div>
@@ -152,7 +152,7 @@ const BibliographyPage: React.FC<BibliographyPageProps> = ({ modules }) => {
         <div className="space-y-4">
           {sortedFilms.length === 0 ? (
             <p className="text-gray-500 text-center py-12">
-              No film entries available yet.
+              Nenhuma entrada de filme disponível ainda.
             </p>
           ) : (
             sortedFilms.map(film => (
@@ -186,7 +186,7 @@ const BibliographyPage: React.FC<BibliographyPageProps> = ({ modules }) => {
                         className="inline-flex items-center text-primary-600 hover:text-primary-700 text-sm"
                       >
                         <ExternalLink className="w-3 h-3 mr-1" />
-                        Watch Trailer
+                        Assistir Trailer
                       </a>
                     )}
                   </div>
@@ -199,13 +199,13 @@ const BibliographyPage: React.FC<BibliographyPageProps> = ({ modules }) => {
 
       <div className="mt-12 p-6 bg-gray-50 rounded-lg">
         <h2 className="text-lg font-semibold text-gray-900 mb-3">
-          Recommended Starting Points
+          Pontos de Partida Recomendados
         </h2>
         <div className="space-y-2 text-sm text-gray-700">
-          <p>• <strong>Memories, Dreams, Reflections</strong> - Jung's autobiography</p>
-          <p>• <strong>Man and His Symbols</strong> - Jung's last work, written for general audience</p>
-          <p>• <strong>The Red Book</strong> - Jung's personal exploration of his unconscious</p>
-          <p>• <strong>Psychological Types</strong> - Jung's theory of personality types</p>
+          <p>• <strong>Memórias, Sonhos, Reflexões</strong> - A autobiografia de Jung</p>
+          <p>• <strong>O Homem e Seus Símbolos</strong> - Última obra de Jung, escrita para o público geral</p>
+          <p>• <strong>O Livro Vermelho</strong> - Exploração pessoal de Jung de seu inconsciente</p>
+          <p>• <strong>Tipos Psicológicos</strong> - Teoria de Jung sobre tipos de personalidade</p>
         </div>
       </div>
     </div>

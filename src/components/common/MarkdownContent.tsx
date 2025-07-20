@@ -151,7 +151,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({
   const processedContent = processContentForMarkdown(content);
 
   return (
-    <div className={baseClassName}>
+    <div className={baseClassName} data-testid="markdown-content">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={components}

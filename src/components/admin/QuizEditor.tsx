@@ -37,7 +37,13 @@ const QuizEditor: React.FC<QuizEditorProps> = ({ quiz, onUpdate }) => {
     const newQuestion: Question = {
       id: `question-${Date.now()}`,
       question: 'Nova Questão',
-      options: ['Opção 1', 'Opção 2', 'Opção 3', 'Opção 4'],
+      options: [
+        { id: '1', text: 'Opção 1' },
+        { id: '2', text: 'Opção 2' },
+        { id: '3', text: 'Opção 3' },
+        { id: '4', text: 'Opção 4' }
+      ],
+      type: 'multiple-choice',
       correctAnswer: 0,
       explanation: ''
     };
@@ -74,8 +80,16 @@ const QuizEditor: React.FC<QuizEditorProps> = ({ quiz, onUpdate }) => {
     const question = quiz.questions.find(q => q.id === questionId);
     if (!question) return;
     
-    const newOptions = [...question.options];
-    newOptions[optionIndex] = value;
+    const newOptions = [...question.options].map((opt, idx) => {
+      if (idx === optionIndex) {
+        return typeof opt === 'string' 
+          ? { id: `${idx + 1}`, text: value }
+          : { ...opt, text: value };
+      }
+      return typeof opt === 'string' 
+        ? { id: `${idx + 1}`, text: opt }
+        : opt;
+    });
     
     updateQuestion(questionId, { options: newOptions });
   };
@@ -191,7 +205,7 @@ const QuizEditor: React.FC<QuizEditorProps> = ({ quiz, onUpdate }) => {
                             />
                             <input
                               type="text"
-                              value={option}
+                              value={typeof option === 'string' ? option : option.text}
                               onChange={(e) => updateOption(question.id, optionIndex, e.target.value)}
                               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                               placeholder={`Opção ${optionIndex + 1}`}

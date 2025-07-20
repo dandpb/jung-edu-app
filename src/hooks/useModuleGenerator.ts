@@ -4,7 +4,7 @@ import { GenerationConfig } from '../components/admin/AIModuleGenerator';
 import { GenerationStep } from '../components/admin/GenerationProgress';
 import { ModuleGenerationOrchestrator, GenerationOptions, GenerationProgress } from '../services/llm/orchestrator';
 
-// Helper function to extract YouTube video ID from URL
+// Função auxiliar para extrair ID do vídeo do YouTube da URL
 const extractYouTubeId = (url: string): string | null => {
   const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
   const match = url.match(regex);
@@ -23,32 +23,32 @@ interface UseModuleGeneratorReturn {
   reset: () => void;
 }
 
-// Real AI generation function using LLM orchestrator
+// Função real de geração de IA usando orquestrador LLM
 const generateAIModule = async (
   config: GenerationConfig,
   onProgress?: (progress: GenerationProgress) => void
 ): Promise<Module> => {
   const orchestrator = new ModuleGenerationOrchestrator();
   
-  // Set up progress listener if provided
+  // Configura listener de progresso se fornecido
   if (onProgress) {
     orchestrator.on('progress', onProgress);
   }
   
-  // Convert UI config to orchestrator options
+  // Converte configuração da UI para opções do orquestrador
   const generationOptions: GenerationOptions = {
     topic: config.subject,
     objectives: [
-      `Understand the fundamental concepts of ${config.subject}`,
-      `Apply ${config.subject} principles in practical contexts`,
-      `Analyze the role of ${config.subject} in Jungian psychology`
+      `Compreender os conceitos fundamentais de ${config.subject}`,
+      `Aplicar os princípios de ${config.subject} em contextos práticos`,
+      `Analisar o papel de ${config.subject} na psicologia junguiana`
     ],
-    targetAudience: config.targetAudience || 'psychology students',
+    targetAudience: config.targetAudience || 'estudantes de psicologia',
     duration: config.estimatedTime,
     difficulty: config.difficulty,
     includeVideos: config.includeVideos,
     includeBibliography: config.includeBibliography,
-    includeMindMap: false, // Mind maps are handled separately
+    includeMindMap: false, // Mapas mentais são tratados separadamente
     quizQuestions: config.includeQuiz ? 5 : 0,
     videoCount: config.includeVideos ? 3 : 0,
     bibliographyCount: config.includeBibliography ? 8 : 0,
@@ -56,51 +56,101 @@ const generateAIModule = async (
   };
   
   try {
-    // Check if the provider is available before starting generation
+    // Verifica se o provedor está disponível antes de iniciar a geração
     const isProviderAvailable = await orchestrator.checkProviderAvailability();
-    console.log('Provider availability check:', isProviderAvailable);
+    console.log('Verificação de disponibilidade do provedor:', isProviderAvailable);
     
     if (!isProviderAvailable) {
-      throw new Error('LLM provider is not available. Please check your API key configuration.');
+      throw new Error('O provedor LLM não está disponível. Verifique a configuração da sua chave de API.');
     }
     
     const result = await orchestrator.generateModule(generationOptions);
     
-    // Convert orchestrator result to expected Module format
+    // Converte resultado do orquestrador para formato Module esperado
     const module: Module = {
       ...result.module,
-      icon: '🧠', // Default icon
+      icon: '🧠', // Ícone padrão
       content: {
         ...result.content,
         videos: (result.videos || []).map(video => ({
           id: video.id,
           title: video.title,
-          youtubeId: extractYouTubeId(video.url) || 'dQw4w9WgXcQ', // Fallback to a default video
+          youtubeId: video.youtubeId || extractYouTubeId((video as any).url || '') || 'dQw4w9WgXcQ', // Fallback para vídeo padrão
           description: video.description,
-          duration: typeof video.duration === 'object' ? video.duration.minutes : video.duration || 15
+          duration: typeof (video as any).duration === 'object' ? (video as any).duration.minutes : video.duration || 15
         })),
         bibliography: result.bibliography || [],
-        films: [], // Not currently generated
-        quiz: result.quiz ? {
+        films: [], // Não gerado atualmente
+        quiz: result.quiz ? (() => {
+          console.log('🎯 Debug: Quiz received from orchestrator:', {
+            hasQuiz: !!result.quiz,
+            questionCount: result.quiz?.questions?.length || 0,
+            questions: result.quiz?.questions?.map((q: any) => ({
+              id: q.id,
+              hasQuestion: !!q.question,
+              hasOptions: !!q.options,
+              optionsCount: q.options?.length || 0,
+              type: q.type
+            }))
+          });
+          return {
           id: result.quiz.id,
           title: result.quiz.title,
           questions: result.quiz.questions
-            .filter(q => q.type === 'multiple-choice' && q.options && q.options.length > 0)
-            .map(q => ({
-              id: q.id,
-              question: q.question,
-              options: q.options!, // We filtered to ensure this exists
-              correctAnswer: q.correctAnswer || 0,
-              explanation: q.explanation || 'No explanation provided'
-            }))
-        } : undefined
+            .map((q: any, index: number) => {
+              // Ensure we have proper question format
+              const questionData = {
+                id: q.id || `q-${index + 1}`,
+                question: q.question || `Questão ${index + 1}`,
+                type: q.type || 'multiple-choice',
+                correctAnswer: q.correctAnswer || 0,
+                explanation: q.explanation || 'Nenhuma explicação fornecida'
+              };
+
+              // Handle options - ensure we always have at least 4 options
+              if (q.options && Array.isArray(q.options) && q.options.length >= 2) {
+                return {
+                  ...questionData,
+                  options: q.options.map((opt: any, optIndex: number) => ({
+                    id: `${questionData.id}-opt-${optIndex + 1}`,
+                    text: typeof opt === 'string' ? opt : opt.text || `Opção ${optIndex + 1}`,
+                    isCorrect: optIndex === questionData.correctAnswer
+                  }))
+                };
+              } else {
+                // Create fallback options if none exist or malformed
+                const fallbackOptions = [
+                  'Conceito fundamental da psicologia junguiana',
+                  'Aplicação específica da teoria analítica',
+                  'Aspecto secundário do desenvolvimento pessoal',
+                  'Elemento não relacionado à individuação'
+                ];
+                
+                return {
+                  ...questionData,
+                  options: fallbackOptions.map((opt, optIndex) => ({
+                    id: `${questionData.id}-opt-${optIndex + 1}`,
+                    text: opt,
+                    isCorrect: optIndex === 0 // First option is correct by default
+                  }))
+                };
+              }
+            })
+            .filter(q => q && q.question && q.options && q.options.length >= 2) // Only filter out completely invalid questions
+          };
+        })() : undefined
       }
     };
     
+    console.log('🎯 Debug: Final module quiz:', {
+      hasQuiz: !!module.content.quiz,
+      finalQuestionCount: module.content.quiz?.questions?.length || 0
+    });
+    
     return module;
   } catch (error) {
-    console.error('Module generation failed:', error);
-    throw new Error(`Failed to generate module: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error('Falha na geração do módulo:', error);
+    throw new Error(`Falha ao gerar módulo: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
   }
 };
 
@@ -111,7 +161,7 @@ export const useModuleGenerator = (): UseModuleGeneratorReturn => {
   const [currentStep, setCurrentStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
   
-  // Add a method to directly set the generated module (for edits)
+  // Adiciona método para definir diretamente o módulo gerado (para edições)
   const setModule = useCallback((module: Module) => {
     setGeneratedModule(module);
   }, []);
@@ -120,36 +170,36 @@ export const useModuleGenerator = (): UseModuleGeneratorReturn => {
     setIsGenerating(true);
     setError(null);
     
-    // Define generation steps that map to the orchestrator stages
+    // Define etapas de geração que mapeiam para os estágios do orquestrador
     const steps: GenerationStep[] = [
       {
         id: 'initializing',
-        label: 'Initializing generation process',
+        label: 'Inicializando processo de geração',
         status: 'pending'
       },
       {
         id: 'content',
-        label: 'Generating educational content',
+        label: 'Gerando conteúdo educacional',
         status: 'pending'
       },
       ...(config.includeQuiz ? [{
         id: 'quiz',
-        label: 'Creating assessment questions',
+        label: 'Criando questões de avaliação',
         status: 'pending' as const
       }] : []),
       ...(config.includeVideos ? [{
         id: 'videos',
-        label: 'Finding video resources',
+        label: 'Buscando recursos de vídeo',
         status: 'pending' as const
       }] : []),
       ...(config.includeBibliography ? [{
         id: 'bibliography',
-        label: 'Compiling bibliography',
+        label: 'Compilando bibliografia',
         status: 'pending' as const
       }] : []),
       {
         id: 'finalizing',
-        label: 'Finalizing module',
+        label: 'Finalizando módulo',
         status: 'pending'
       }
     ];
@@ -158,9 +208,9 @@ export const useModuleGenerator = (): UseModuleGeneratorReturn => {
     setCurrentStep(0);
     
     try {
-      // Generate the module with real LLM calls
+      // Gera o módulo com chamadas reais de LLM
       const module = await generateAIModule(config, (progress: GenerationProgress) => {
-        // Update steps based on orchestrator progress
+        // Atualiza etapas baseado no progresso do orquestrador
         const stageToStepMap: Record<string, string> = {
           'initializing': 'initializing',
           'content': 'content',
@@ -185,7 +235,7 @@ export const useModuleGenerator = (): UseModuleGeneratorReturn => {
         }
       });
       
-      // Mark all steps as completed
+      // Marca todas as etapas como concluídas
       setGenerationSteps(prev => prev.map(step => ({
         ...step,
         status: 'completed'
@@ -193,12 +243,12 @@ export const useModuleGenerator = (): UseModuleGeneratorReturn => {
       
       setGeneratedModule(module);
     } catch (err) {
-      console.error('Module generation error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to generate module');
+      console.error('Erro na geração do módulo:', err);
+      setError(err instanceof Error ? err.message : 'Falha ao gerar módulo');
       setGenerationSteps(prev => prev.map((step, idx) => ({
         ...step,
         status: idx === currentStep ? 'error' : step.status,
-        message: idx === currentStep ? 'Generation failed' : step.message
+        message: idx === currentStep ? 'Falha na geração' : step.message
       })));
     } finally {
       setIsGenerating(false);
@@ -208,19 +258,19 @@ export const useModuleGenerator = (): UseModuleGeneratorReturn => {
   const regenerateSection = useCallback(async (sectionId: string) => {
     if (!generatedModule) return;
     
-    // Simulate regenerating a section
+    // Simula regeneração de uma seção
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     const updatedSections = generatedModule.content.sections.map(section => {
       if (section.id === sectionId) {
         return {
           ...section,
-          content: `[Regenerated] ${section.content}`,
+          content: `[Regenerado] ${section.content}`,
           keyTerms: [
             ...section.keyTerms || [],
             {
-              term: 'New Concept',
-              definition: 'A newly discovered aspect from regeneration'
+              term: 'Novo Conceito',
+              definition: 'Um aspecto recém-descoberto da regeneração'
             }
           ]
         };

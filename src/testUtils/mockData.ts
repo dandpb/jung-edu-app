@@ -26,7 +26,11 @@ export const mockModule = {
           'Archetypes and their role',
           'Universal symbols'
         ],
-        keyTerms: ['collective unconscious', 'archetype', 'symbol'],
+        keyTerms: [
+          { term: 'collective unconscious', definition: 'The part of the unconscious mind shared by humanity' },
+          { term: 'archetype', definition: 'Universal patterns or images from the collective unconscious' },
+          { term: 'symbol', definition: 'Representations that carry deep psychological meaning' }
+        ],
         suggestedActivities: ['Reflection exercise on personal archetypes']
       }
     ],

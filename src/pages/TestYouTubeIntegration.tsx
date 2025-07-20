@@ -87,34 +87,34 @@ const TestYouTubeIntegration: React.FC = () => {
   const formatViewCount = (count: string) => {
     const num = parseInt(count);
     if (num >= 1000000) {
-      return `${(num / 1000000).toFixed(1)}M views`;
+      return `${(num / 1000000).toFixed(1)}M visualizações`;
     } else if (num >= 1000) {
-      return `${(num / 1000).toFixed(1)}K views`;
+      return `${(num / 1000).toFixed(1)}K visualizações`;
     }
-    return `${num} views`;
+    return `${num} visualizações`;
   };
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">YouTube Integration Test</h1>
+      <h1 className="text-3xl font-bold mb-6">Teste de Integração do YouTube</h1>
       
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-        <h2 className="text-lg font-semibold text-blue-900 mb-2">Testing YouTube Integration</h2>
+        <h2 className="text-lg font-semibold text-blue-900 mb-2">Testando Integração do YouTube</h2>
         <p className="text-blue-800">
-          This page demonstrates the YouTube integration working with both direct search and AI-generated video suggestions.
+          Esta página demonstra a integração do YouTube funcionando com busca direta e sugestões de vídeo geradas por IA.
         </p>
       </div>
 
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Enter a Jungian Psychology Topic
+          Digite um Tópico de Psicologia Junguiana
         </label>
         <div className="flex space-x-2">
           <input
             type="text"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            placeholder="e.g., Shadow Self, Anima and Animus, Individuation"
+            placeholder="ex: Sombra, Anima e Animus, Individuação"
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             onKeyPress={(e) => {
               if (e.key === 'Enter') {
@@ -135,7 +135,7 @@ const TestYouTubeIntegration: React.FC = () => {
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
-            Direct YouTube Search
+            Busca Direta no YouTube
           </button>
           <button
             onClick={() => setActiveTab('generate')}
@@ -145,7 +145,7 @@ const TestYouTubeIntegration: React.FC = () => {
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
-            AI-Generated Videos
+            Vídeos Gerados por IA
           </button>
         </nav>
       </div>
@@ -160,12 +160,12 @@ const TestYouTubeIntegration: React.FC = () => {
             {isSearching ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Searching YouTube...</span>
+                <span>Buscando no YouTube...</span>
               </>
             ) : (
               <>
                 <Search className="w-4 h-4" />
-                <span>Search YouTube</span>
+                <span>Buscar no YouTube</span>
               </>
             )}
           </button>
@@ -173,7 +173,7 @@ const TestYouTubeIntegration: React.FC = () => {
           {searchResults.length > 0 && (
             <div>
               <h3 className="text-xl font-semibold mb-4">
-                YouTube Search Results ({searchResults.length} videos)
+                Resultados da Busca no YouTube ({searchResults.length} vídeos)
               </h3>
               <div className="grid gap-4">
                 {searchResults.map((video) => (
@@ -219,12 +219,12 @@ const TestYouTubeIntegration: React.FC = () => {
             {isSearching ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Generating Videos...</span>
+                <span>Gerando Vídeos...</span>
               </>
             ) : (
               <>
                 <Video className="w-4 h-4" />
-                <span>Generate Video Suggestions</span>
+                <span>Gerar Sugestões de Vídeo</span>
               </>
             )}
           </button>
@@ -232,7 +232,7 @@ const TestYouTubeIntegration: React.FC = () => {
           {generatedVideos.length > 0 && (
             <div>
               <h3 className="text-xl font-semibold mb-4">
-                AI-Generated Video Resources ({generatedVideos.length} videos)
+                Recursos de Vídeo Gerados por IA ({generatedVideos.length} vídeos)
               </h3>
               <div className="grid gap-4">
                 {generatedVideos.map((video, index) => (
@@ -247,7 +247,7 @@ const TestYouTubeIntegration: React.FC = () => {
                           {video.title}
                         </h4>
                         <p className="text-sm text-gray-600 mt-1">
-                          Duration: {video.duration} minutes • Platform: {video.platform || 'YouTube'}
+                          Duração: {video.duration} minutos • Plataforma: {video.platform || 'YouTube'}
                         </p>
                         <p className="text-sm text-gray-700 mt-2">
                           {video.description}
@@ -261,12 +261,12 @@ const TestYouTubeIntegration: React.FC = () => {
                             )}
                             {video.metadata.educationalValue && (
                               <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">
-                                Educational: {Math.round(video.metadata.educationalValue * 100)}%
+                                Educacional: {Math.round(video.metadata.educationalValue * 100)}%
                               </span>
                             )}
                             {video.metadata.relevanceScore && (
                               <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded">
-                                Relevance: {Math.round(video.metadata.relevanceScore * 100)}%
+                                Relevância: {Math.round(video.metadata.relevanceScore * 100)}%
                               </span>
                             )}
                           </div>
@@ -277,7 +277,7 @@ const TestYouTubeIntegration: React.FC = () => {
                           rel="noopener noreferrer"
                           className="inline-flex items-center text-sm text-primary-600 hover:text-primary-700 mt-3"
                         >
-                          Watch on YouTube
+                          Assistir no YouTube
                           <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                           </svg>
@@ -300,13 +300,13 @@ const TestYouTubeIntegration: React.FC = () => {
               <p className="text-red-800 font-semibold">{error}</p>
               {error.includes('API key not valid') && (
                 <div className="mt-2 text-sm text-red-700">
-                  <p>The YouTube API key is invalid or not enabled. Please:</p>
+                  <p>A chave da API do YouTube é inválida ou não está habilitada. Por favor:</p>
                   <ol className="list-decimal ml-5 mt-1">
                     <li>Go to <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" rel="noopener noreferrer" className="underline">Google Cloud Console</a></li>
-                    <li>Enable YouTube Data API v3</li>
-                    <li>Check API key restrictions</li>
+                    <li>Habilite a API de Dados do YouTube v3</li>
+                    <li>Verifique as restrições da chave de API</li>
                   </ol>
-                  <p className="mt-2">Using mock data instead (with real Jung video IDs).</p>
+                  <p className="mt-2">Usando dados simulados (com IDs reais de vídeos de Jung).</p>
                 </div>
               )}
             </div>
@@ -344,16 +344,16 @@ const TestYouTubeIntegration: React.FC = () => {
       )}
 
       <div className="mt-8 bg-gray-50 rounded-lg p-6">
-        <h3 className="text-lg font-semibold mb-3">How it works:</h3>
+        <h3 className="text-lg font-semibold mb-3">Como funciona:</h3>
         <div className="space-y-2 text-sm text-gray-700">
           <p>
-            <strong>Direct Search:</strong> Uses the YouTube API (or mock data in development) to search for real videos.
+            <strong>Busca Direta:</strong> Usa a API do YouTube (ou dados simulados em desenvolvimento) para buscar vídeos reais.
           </p>
           <p>
-            <strong>AI-Generated:</strong> Uses the LLM to generate search queries and then enriches results with educational metadata.
+            <strong>Gerado por IA:</strong> Usa o LLM para gerar consultas de busca e enriquece os resultados com metadados educacionais.
           </p>
           <p>
-            <strong>Mock Mode:</strong> When no YouTube API key is set, the service returns realistic mock data for testing.
+            <strong>Modo Simulado:</strong> Quando nenhuma chave da API do YouTube está configurada, o serviço retorna dados simulados realistas para teste.
           </p>
         </div>
       </div>

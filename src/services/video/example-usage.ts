@@ -90,7 +90,7 @@ async function exampleVideoGenerator() {
   videos.forEach((video, index) => {
     console.log(`
 ${index + 1}. ${video.title}
-   Platform: ${video.platform || 'YouTube'}
+   Platform: ${(video as any).platform || 'YouTube'}
    Duration: ${video.duration} minutes
    Description: ${video.description}
    URL: ${video.url}

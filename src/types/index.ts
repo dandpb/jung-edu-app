@@ -17,15 +17,20 @@ export interface ModuleContent {
   quiz?: Quiz;
   bibliography?: Bibliography[];
   films?: Film[];
+  summary?: string;
+  keyTakeaways?: string[];
 }
 
 export interface Section {
   id: string;
   title: string;
   content: string;
+  order: number;
   keyTerms?: KeyTerm[];
   images?: Image[];
   concepts?: string[];
+  interactiveElements?: any[];
+  estimatedTime?: number;
 }
 
 export interface KeyTerm {
@@ -34,6 +39,7 @@ export interface KeyTerm {
 }
 
 export interface Image {
+  id: string;
   url: string;
   caption: string;
   alt: string;
@@ -42,32 +48,62 @@ export interface Image {
 export interface Video {
   id: string;
   title: string;
-  youtubeId: string;
+  youtubeId?: string;
+  url?: string;
   description: string;
-  duration: number;
+  duration: number | { hours: number; minutes: number; seconds: number };
+  transcript?: string;
+  keyMoments?: any[];
 }
 
 export interface Quiz {
   id: string;
   title: string;
   questions: Question[];
+  description?: string;
+  moduleId?: string;
+  passingScore?: number;
+  timeLimit?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+  metadata?: any;
+}
+
+export interface Option {
+  id: string;
+  text: string;
+  isCorrect?: boolean;
 }
 
 export interface Question {
   id: string;
   question: string;
-  options: string[];
+  type: string;
+  options: Option[];
   correctAnswer: number;
   explanation: string;
+  difficulty?: 'beginner' | 'intermediate' | 'advanced';
+  cognitiveLevel?: string;
+  tags?: string[];
+  points?: number;
+  order?: number;
+  metadata?: any;
+  expectedKeywords?: any;
+  rubric?: any;
 }
+
+export type PublicationType = 'book' | 'article' | 'journal' | 'online' | 'thesis';
+export type DifficultyLevel = 'beginner' | 'intermediate' | 'advanced';
 
 export interface Bibliography {
   id: string;
   title: string;
-  author: string;
+  authors: string[];
   year: number;
-  type: 'book' | 'article' | 'journal';
+  publisher?: string;
+  type: PublicationType;
   url?: string;
+  summary?: string;
 }
 
 export interface Film {
@@ -77,6 +113,8 @@ export interface Film {
   year: number;
   relevance: string;
   trailer?: string;
+  streamingUrl?: string;
+  type?: 'documentary' | 'fiction' | 'educational' | 'biographical';
 }
 
 export interface Note {

@@ -34,6 +34,7 @@ describe('ContentGenerator', () => {
           id: 'section-1',
           title: 'The Collective Unconscious',
           content: 'Mock content',
+          order: 0,
           subsections: [],
           media: []
         },
@@ -41,6 +42,7 @@ describe('ContentGenerator', () => {
           id: 'section-2',
           title: 'Major Archetypes',
           content: 'Mock content',
+          order: 1,
           subsections: [],
           media: []
         }
@@ -88,7 +90,7 @@ describe('ContentGenerator', () => {
       
       const prompt = mockProvider.generateCompletion.mock.calls[0][0];
       expect(prompt).toContain('beginner');
-      expect(prompt).toContain('simple language');
+      expect(prompt).toContain('linguagem simples');
     });
     
     it('should handle custom learning objectives', async () => {
@@ -116,12 +118,12 @@ describe('ContentGenerator', () => {
       
       // Find the section content generation calls (not introduction)
       const sectionCalls = mockProvider.generateCompletion.mock.calls.filter(call => 
-        call[0].includes('Write detailed content for the section')
+        call[0].includes('Escreva conteúdo detalhado para a seção')
       );
       
       expect(sectionCalls.length).toBeGreaterThan(0);
       const sectionPrompt = sectionCalls[0][0];
-      expect(sectionPrompt.toLowerCase()).toContain('prerequisites');
+      expect(sectionPrompt).toContain('Pré-requisitos');
       expect(sectionPrompt).toContain('Basic psychology');
     });
   });
@@ -173,7 +175,7 @@ describe('ContentGenerator', () => {
       });
       
       const prompt = mockProvider.generateStructuredResponse.mock.calls[0][0];
-      expect(prompt).toContain('beginner');
+      expect(prompt).toContain('iniciante');
     });
   });
   
@@ -279,7 +281,7 @@ describe('ContentGenerator', () => {
       
       // Mock streamCompletion for introduction and section content
       mockProvider.streamCompletion.mockImplementation(async (prompt, callback, options) => {
-        if (prompt.includes('introduction')) {
+        if (prompt.includes('introdução') || prompt.includes('Introdução')) {
           // Stream introduction
           callback('Introduction to ');
           callback('Jungian Psychology');

@@ -61,24 +61,33 @@ export class MindMapLayouts {
     edges: MindMapEdge[],
     layoutType: LayoutType,
     config?: Partial<LayoutConfig>
-  ): MindMapNode[] {
+  ): { nodes: MindMapNode[]; edges: MindMapEdge[] } {
     const layoutConfig = { ...this.defaultConfig, ...config };
     const layoutNodes = this.prepareNodesForLayout(nodes, edges);
 
+    let layoutedNodes: MindMapNode[];
+    
     switch (layoutType) {
       case LayoutType.HIERARCHICAL:
-        return this.applyHierarchicalLayout(layoutNodes, layoutConfig);
+        layoutedNodes = this.applyHierarchicalLayout(layoutNodes, layoutConfig);
+        break;
       case LayoutType.RADIAL:
-        return this.applyRadialLayout(layoutNodes, edges, layoutConfig);
+        layoutedNodes = this.applyRadialLayout(layoutNodes, edges, layoutConfig);
+        break;
       case LayoutType.FORCE_DIRECTED:
-        return this.applyForceDirectedLayout(layoutNodes, edges, layoutConfig);
+        layoutedNodes = this.applyForceDirectedLayout(layoutNodes, edges, layoutConfig);
+        break;
       case LayoutType.CIRCULAR:
-        return this.applyCircularLayout(layoutNodes, layoutConfig);
+        layoutedNodes = this.applyCircularLayout(layoutNodes, layoutConfig);
+        break;
       case LayoutType.TREE:
-        return this.applyTreeLayout(layoutNodes, edges, layoutConfig);
+        layoutedNodes = this.applyTreeLayout(layoutNodes, edges, layoutConfig);
+        break;
       default:
-        return nodes;
+        layoutedNodes = nodes;
     }
+    
+    return { nodes: layoutedNodes, edges };
   }
 
   /**
@@ -88,9 +97,14 @@ export class MindMapLayouts {
     nodes: LayoutNode[],
     config: LayoutConfig
   ): MindMapNode[] {
+    // Handle empty nodes
+    if (nodes.length === 0) {
+      return [];
+    }
+
     // Find root nodes (nodes with no incoming edges)
     const rootNodes = nodes.filter(n => !n.layoutData?.parent);
-    if (rootNodes.length === 0) {
+    if (rootNodes.length === 0 && nodes.length > 0) {
       rootNodes.push(nodes[0]); // Fallback to first node
     }
 

@@ -42,6 +42,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
       id: `section-${Date.now()}`,
       title: 'Nova Seção',
       content: '',
+      order: editedModule.content.sections.length,
       keyTerms: []
     };
     updateModule({
@@ -469,7 +470,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                           </label>
                           <input
                             type="number"
-                            value={video.duration}
+                            value={typeof video.duration === 'number' ? video.duration : 0}
                             onChange={(e) => updateVideo(video.id, { duration: parseInt(e.target.value) })}
                             className="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                           />
@@ -506,7 +507,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                         const newBibliography: Bibliography = {
                           id: `bib-${Date.now()}`,
                           title: 'Novo Livro',
-                          author: '',
+                          authors: [''],
                           year: new Date().getFullYear(),
                           type: 'book'
                         };
@@ -552,12 +553,12 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                             </label>
                             <input
                               type="text"
-                              value={book.author}
+                              value={book.authors[0] || ''}
                               onChange={(e) => updateModule({
                                 content: {
                                   ...editedModule.content,
                                   bibliography: (editedModule.content.bibliography || []).map(b =>
-                                    b.id === book.id ? { ...b, author: e.target.value } : b
+                                    b.id === book.id ? { ...b, authors: [e.target.value] } : b
                                   )
                                 }
                               })}

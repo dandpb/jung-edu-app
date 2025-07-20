@@ -9,6 +9,7 @@ interface VideoPlayerProps {
 
 const VideoPlayer: React.FC<VideoPlayerProps> = ({ video }) => {
   const [hasError, setHasError] = React.useState(false);
+  const [isReady, setIsReady] = React.useState(false);
   
   // Check if video ID exists
   if (!video?.youtubeId) {
@@ -32,6 +33,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ video }) => {
     },
   };
 
+  const onReady = (event: any) => {
+    setIsReady(true);
+  };
+
   const onError = (event: any) => {
     console.error('YouTube Player Error:', event);
     setHasError(true);
@@ -50,7 +55,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ video }) => {
       
       <div className="flex items-center text-sm text-gray-500 mb-4">
         <Clock className="w-4 h-4 mr-1" />
-        <span>Duration: {formatDuration(video.duration)}</span>
+        <span>Duration: {formatDuration(typeof video.duration === 'number' ? video.duration : 0)}</span>
       </div>
       
       {hasError ? (
@@ -72,6 +77,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ video }) => {
           <YouTube 
             videoId={video.youtubeId} 
             opts={opts} 
+            onReady={onReady}
             onError={onError}
             className="w-full h-full"
           />

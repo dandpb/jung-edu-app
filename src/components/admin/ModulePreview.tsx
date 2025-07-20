@@ -341,7 +341,7 @@ const ModulePreview: React.FC<ModulePreviewProps> = ({
                                   : 'border-gray-300'
                                 }
                               `} />
-                              <span className="text-gray-700">{option}</span>
+                              <span className="text-gray-700">{typeof option === 'string' ? option : option.text}</span>
                             </div>
                           ))}
                         </div>
