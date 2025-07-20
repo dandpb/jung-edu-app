@@ -58,17 +58,17 @@ describe('ModuleEditor Component', () => {
     );
 
     // Basic tab fields (default tab)
-    expect(screen.getByLabelText(/module title/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/description/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/icon/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/estimated time/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/difficulty/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/título do módulo/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/descrição/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/ícone/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/tempo estimado/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/dificuldade/i)).toBeInTheDocument();
     
     // Switch to content tab to check introduction field
-    const contentTab = screen.getByText(/content/i);
+    const contentTab = screen.getByText(/conteúdo/i);
     fireEvent.click(contentTab);
     
-    expect(screen.getByLabelText(/introduction/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/introdução/i)).toBeInTheDocument();
   });
 
   test('loads module data into form fields', () => {
@@ -88,11 +88,11 @@ describe('ModuleEditor Component', () => {
     expect(screen.getByDisplayValue('30')).toBeInTheDocument();
     
     // Check select value differently
-    const difficultySelect = screen.getByLabelText(/difficulty/i) as HTMLSelectElement;
+    const difficultySelect = screen.getByLabelText(/dificuldade/i) as HTMLSelectElement;
     expect(difficultySelect.value).toBe('beginner');
     
     // Switch to content tab to check introduction
-    const contentTab = screen.getByText(/content/i);
+    const contentTab = screen.getByText(/conteúdo/i);
     fireEvent.click(contentTab);
     
     expect(screen.getByDisplayValue('Test introduction')).toBeInTheDocument();
@@ -109,7 +109,7 @@ describe('ModuleEditor Component', () => {
     );
 
     // Click on content tab
-    const contentTab = screen.getByText(/content/i);
+    const contentTab = screen.getByText(/conteúdo/i);
     fireEvent.click(contentTab);
 
     // Section title is in an input field, not plain text
@@ -127,14 +127,14 @@ describe('ModuleEditor Component', () => {
     );
 
     // Click on content tab first
-    const contentTab = screen.getByText(/content/i);
+    const contentTab = screen.getByText(/conteúdo/i);
     fireEvent.click(contentTab);
 
-    const addSectionButton = screen.getByText(/add section/i);
+    const addSectionButton = screen.getByText(/adicionar seção/i);
     fireEvent.click(addSectionButton);
 
     // Check that we now have more sections - section title is in input field
-    expect(screen.getByDisplayValue('New Section')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Nova Seção')).toBeInTheDocument();
   });
 
   test('switches between tabs', () => {
@@ -148,11 +148,11 @@ describe('ModuleEditor Component', () => {
     );
 
     // Click on resources tab
-    const resourcesTab = screen.getByText(/resources/i);
+    const resourcesTab = screen.getByText(/recursos/i);
     fireEvent.click(resourcesTab);
 
     // Check that resources content is shown
-    expect(screen.getByText(/bibliography/i)).toBeInTheDocument();
+    expect(screen.getByText(/bibliografia/i)).toBeInTheDocument();
   });
 
   test('has save and cancel buttons', () => {
@@ -165,8 +165,8 @@ describe('ModuleEditor Component', () => {
       />
     );
 
-    expect(screen.getByText(/save module/i)).toBeInTheDocument();
-    expect(screen.getByText(/cancel/i)).toBeInTheDocument();
+    expect(screen.getByText(/salvar módulo/i)).toBeInTheDocument();
+    expect(screen.getByText(/cancelar/i)).toBeInTheDocument();
   });
 
   test('updates form fields', () => {
@@ -179,7 +179,7 @@ describe('ModuleEditor Component', () => {
       />
     );
 
-    const titleInput = screen.getByLabelText(/module title/i);
+    const titleInput = screen.getByLabelText(/título do módulo/i);
     fireEvent.change(titleInput, { target: { value: 'Updated Title' } });
 
     expect(screen.getByDisplayValue('Updated Title')).toBeInTheDocument();
@@ -195,10 +195,10 @@ describe('ModuleEditor Component', () => {
       />
     );
 
-    const titleInput = screen.getByLabelText(/module title/i);
+    const titleInput = screen.getByLabelText(/título do módulo/i);
     fireEvent.change(titleInput, { target: { value: 'Updated Module' } });
 
-    const saveButton = screen.getByText(/save module/i);
+    const saveButton = screen.getByText(/salvar módulo/i);
     fireEvent.click(saveButton);
 
     await waitFor(() => {
@@ -221,7 +221,7 @@ describe('ModuleEditor Component', () => {
       />
     );
 
-    const cancelButton = screen.getByText(/cancel/i);
+    const cancelButton = screen.getByText(/cancelar/i);
     fireEvent.click(cancelButton);
 
     expect(mockOnCancel).toHaveBeenCalled();
@@ -243,7 +243,7 @@ describe('ModuleEditor Component', () => {
       />
     );
 
-    const saveButton = screen.getByText(/save module/i);
+    const saveButton = screen.getByText(/salvar módulo/i);
     fireEvent.click(saveButton);
 
     // Should show validation errors
@@ -261,11 +261,11 @@ describe('ModuleEditor Component', () => {
     );
 
     // Click on content tab
-    const contentTab = screen.getByText(/content/i);
+    const contentTab = screen.getByText(/conteúdo/i);
     fireEvent.click(contentTab);
 
     // Quiz section should be visible
-    expect(screen.getByText(/quiz/i)).toBeInTheDocument();
+    expect(screen.getByText(/questionário/i)).toBeInTheDocument();
   });
 
   test('handles difficulty level change', () => {
@@ -278,7 +278,7 @@ describe('ModuleEditor Component', () => {
       />
     );
 
-    const difficultySelect = screen.getByLabelText(/difficulty/i) as HTMLSelectElement;
+    const difficultySelect = screen.getByLabelText(/dificuldade/i) as HTMLSelectElement;
     fireEvent.change(difficultySelect, { target: { value: 'intermediate' } });
 
     expect(difficultySelect.value).toBe('intermediate');
@@ -294,7 +294,7 @@ describe('ModuleEditor Component', () => {
       />
     );
 
-    const timeInput = screen.getByLabelText(/estimated time/i);
+    const timeInput = screen.getByLabelText(/tempo estimado/i);
     fireEvent.change(timeInput, { target: { value: '45' } });
 
     expect(screen.getByDisplayValue('45')).toBeInTheDocument();
@@ -310,7 +310,7 @@ describe('ModuleEditor Component', () => {
       />
     );
 
-    const saveButton = screen.getByText(/save module/i);
+    const saveButton = screen.getByText(/salvar módulo/i);
     fireEvent.click(saveButton);
 
     await waitFor(() => {

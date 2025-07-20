@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Module, UserProgress, Note } from '../types';
-import { ArrowLeft, Clock, BookOpen, PlayCircle, FileText, CheckCircle } from 'lucide-react';
+import { 
+  ArrowLeft, Clock, BookOpen, PlayCircle, FileText, 
+  CheckCircle, Library, Book, Film as FilmIcon, 
+  ExternalLink, Calendar, User 
+} from 'lucide-react';
 import VideoPlayer from '../components/modules/VideoPlayer';
 import QuizComponent from '../components/quiz/QuizComponent';
 import NoteEditor from '../components/notes/NoteEditor';
@@ -66,10 +70,29 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
     setShowNoteEditor(false);
   };
 
+  const getBibliographyIcon = (type: string) => {
+    switch (type) {
+      case 'book':
+        return '📚';
+      case 'article':
+        return '📄';
+      case 'journal':
+        return '📰';
+      default:
+        return '📖';
+    }
+  };
+
   const tabs = [
     { id: 'content', label: 'Conteúdo', icon: BookOpen },
     { id: 'videos', label: 'Vídeos', icon: PlayCircle, count: module.content.videos?.length },
     { id: 'quiz', label: 'Questionário', icon: FileText },
+    { 
+      id: 'resources', 
+      label: 'Recursos', 
+      icon: Library, 
+      count: (module.content.bibliography?.length || 0) + (module.content.films?.length || 0)
+    },
   ];
 
   return (
@@ -212,6 +235,104 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
               <p className="text-gray-500 text-center py-12">
                 No quiz available for this module yet.
               </p>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'resources' && (
+          <div className="space-y-8">
+            {/* Seção de Bibliografia */}
+            {module.content.bibliography && module.content.bibliography.length > 0 && (
+              <div>
+                <h2 className="text-2xl font-display font-bold text-gray-900 mb-4 flex items-center">
+                  <Book className="w-6 h-6 mr-2" />
+                  Bibliografia Recomendada
+                </h2>
+                <div className="space-y-4">
+                  {module.content.bibliography.map(item => (
+                    <div key={item.id} className="card hover:shadow-lg transition-shadow">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <span className="text-2xl">{getBibliographyIcon(item.type)}</span>
+                            <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
+                          </div>
+                          <p className="text-gray-600 mb-2">
+                            <User className="w-4 h-4 inline mr-1" />
+                            {item.author}
+                          </p>
+                          <div className="flex items-center space-x-4 text-sm text-gray-500">
+                            <span className="flex items-center">
+                              <Calendar className="w-4 h-4 mr-1" />
+                              {item.year}
+                            </span>
+                            <span className="px-2 py-1 bg-gray-100 rounded capitalize">
+                              {item.type}
+                            </span>
+                          </div>
+                        </div>
+                        {item.url && (
+                          <a
+                            href={item.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary-600 hover:text-primary-700"
+                          >
+                            <ExternalLink className="w-5 h-5" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Seção de Filmes */}
+            {module.content.films && module.content.films.length > 0 && (
+              <div>
+                <h2 className="text-2xl font-display font-bold text-gray-900 mb-4 flex items-center">
+                  <FilmIcon className="w-6 h-6 mr-2" />
+                  Filmes Relacionados
+                </h2>
+                <div className="space-y-4">
+                  {module.content.films.map(film => (
+                    <div key={film.id} className="card hover:shadow-lg transition-shadow">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">{film.title}</h3>
+                          <p className="text-gray-600 mb-2">
+                            Diretor: {film.director} • {film.year}
+                          </p>
+                          <p className="text-sm text-gray-600 italic">
+                            {film.relevance}
+                          </p>
+                        </div>
+                        {film.trailer && (
+                          <a
+                            href={film.trailer}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn-secondary flex items-center space-x-2"
+                          >
+                            <PlayCircle className="w-4 h-4" />
+                            <span>Trailer</span>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Mensagem quando não há recursos */}
+            {(!module.content.bibliography || module.content.bibliography.length === 0) && 
+             (!module.content.films || module.content.films.length === 0) && (
+              <div className="text-center py-12">
+                <Library className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500">Nenhum recurso adicional disponível para este módulo.</p>
+              </div>
             )}
           </div>
         )}

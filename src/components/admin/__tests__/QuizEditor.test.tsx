@@ -63,10 +63,10 @@ describe('QuizEditor Component', () => {
     );
 
     // Should display quiz title input
-    expect(screen.getByLabelText(/quiz title/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/título do questionário/i)).toBeInTheDocument();
     
     // Should display questions
-    const questions = screen.getAllByText(/question \d+/i);
+    const questions = screen.getAllByText(/questão \d+/i);
     expect(questions).toHaveLength(2);
   });
 
@@ -78,7 +78,7 @@ describe('QuizEditor Component', () => {
       />
     );
 
-    const titleInput = screen.getByLabelText(/quiz title/i) as HTMLInputElement;
+    const titleInput = screen.getByLabelText(/título do questionário/i) as HTMLInputElement;
     fireEvent.change(titleInput, { target: { value: 'Updated Quiz Title' } });
 
     // Verify onUpdate was called with the new title
@@ -98,7 +98,7 @@ describe('QuizEditor Component', () => {
       />
     );
 
-    expect(screen.getByText(/create quiz/i)).toBeInTheDocument();
+    expect(screen.getByText(/criar questionário/i)).toBeInTheDocument();
   });
 
   test('displays questions when quiz exists', () => {
@@ -122,7 +122,7 @@ describe('QuizEditor Component', () => {
       />
     );
 
-    const addButton = screen.getByText(/add question/i);
+    const addButton = screen.getByText(/adicionar questão/i);
     expect(addButton).toBeInTheDocument();
   });
 
@@ -135,7 +135,7 @@ describe('QuizEditor Component', () => {
     );
 
     // Delete button is an icon next to the quiz title
-    const container = screen.getByLabelText(/quiz title/i).closest('.flex');
+    const container = screen.getByLabelText(/título do questionário/i).closest('.flex')?.parentElement;
     const deleteButton = container?.querySelector('button');
     expect(deleteButton).toBeInTheDocument();
     
@@ -191,7 +191,7 @@ describe('QuizEditor Component', () => {
       />
     );
 
-    const titleInput = screen.getByLabelText(/quiz title/i);
+    const titleInput = screen.getByLabelText(/título do questionário/i);
     fireEvent.change(titleInput, { target: { value: 'Final Quiz' } });
 
     // Update happens on change, not on save button
@@ -213,12 +213,12 @@ describe('QuizEditor Component', () => {
       />
     );
 
-    const createButton = screen.getByText(/create quiz/i);
+    const createButton = screen.getByText(/criar questionário/i);
     fireEvent.click(createButton);
 
     expect(mockOnUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
-        title: 'Module Quiz',
+        title: 'Questionário do Módulo',
         questions: []
       })
     );
@@ -241,11 +241,11 @@ describe('QuizEditor Component', () => {
     window.confirm = jest.fn(() => true);
     
     // Delete button is an icon next to the quiz title
-    const container = screen.getByLabelText(/quiz title/i).closest('.flex');
+    const container = screen.getByLabelText(/título do questionário/i).closest('.flex')?.parentElement;
     const deleteButton = container?.querySelector('button') as HTMLButtonElement;
     fireEvent.click(deleteButton);
 
-    expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to delete this quiz?');
+    expect(window.confirm).toHaveBeenCalledWith('Tem certeza que deseja excluir este questionário?');
     expect(mockOnUpdate).toHaveBeenCalledWith(undefined);
   });
 
@@ -263,8 +263,8 @@ describe('QuizEditor Component', () => {
       />
     );
 
-    expect(screen.queryByText(/question 1/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/add question/i)).toBeInTheDocument();
+    expect(screen.queryByText(/questão 1/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/adicionar questão/i)).toBeInTheDocument();
   });
 
   test('calls onUpdate when title changes', () => {
@@ -275,7 +275,7 @@ describe('QuizEditor Component', () => {
       />
     );
 
-    const titleInput = screen.getByLabelText(/quiz title/i);
+    const titleInput = screen.getByLabelText(/título do questionário/i);
     fireEvent.change(titleInput, { target: { value: 'New Title' } });
 
     expect(mockOnUpdate).toHaveBeenCalled();
@@ -315,7 +315,7 @@ describe('QuizEditor Component', () => {
     );
 
     // Questions should have expand/collapse functionality
-    const questions = screen.getAllByText(/question \d+/i);
+    const questions = screen.getAllByText(/questão \d+/i);
     expect(questions).toHaveLength(2);
   });
 
