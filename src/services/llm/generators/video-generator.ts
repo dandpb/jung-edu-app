@@ -15,12 +15,25 @@ export interface YouTubeSearchResult {
 }
 
 export class VideoGenerator {
-  private youtubeService: YouTubeService;
-  private videoEnricher: VideoEnricher;
+  private youtubeService?: YouTubeService;
+  private videoEnricher?: VideoEnricher;
 
   constructor(private provider: ILLMProvider) {
-    this.youtubeService = new YouTubeService();
-    this.videoEnricher = new VideoEnricher(provider);
+    // Lazy initialization - services will be created when needed
+  }
+
+  private getYouTubeService(): YouTubeService {
+    if (!this.youtubeService) {
+      this.youtubeService = new YouTubeService();
+    }
+    return this.youtubeService;
+  }
+
+  private getVideoEnricher(): VideoEnricher {
+    if (!this.videoEnricher) {
+      this.videoEnricher = new VideoEnricher(this.provider);
+    }
+    return this.videoEnricher;
   }
 
   async generateVideos(
@@ -55,7 +68,7 @@ export class VideoGenerator {
     
     // Search for real videos using YouTube service
     const searchPromises = queries.slice(0, 3).map(query => 
-      this.youtubeService.searchVideos(query, {
+      this.getYouTubeService().searchVideos(query, {
         maxResults: Math.ceil(count / 2),
         order: 'relevance',
         videoDuration: 'medium', // Prefer 4-20 minute videos for education
@@ -103,7 +116,7 @@ export class VideoGenerator {
     }
     
     // Enrich videos with metadata and educational analysis
-    const enrichedVideos = await this.videoEnricher.enrichMultipleVideos(
+    const enrichedVideos = await this.getVideoEnricher().enrichMultipleVideos(
       uniqueVideos.slice(0, count * 2), // Process more videos than needed
       {
         assessDifficulty: true,
@@ -428,7 +441,7 @@ Response format:
   ): Promise<YouTubeSearchResult[]> {
     // Use the new YouTube service for searching
     const searchPromises = queries.map(query => 
-      this.youtubeService.searchVideos(query, {
+      this.getYouTubeService().searchVideos(query, {
         maxResults: 5,
         order: 'relevance',
         safeSearch: 'strict',
@@ -584,7 +597,7 @@ Response format:
     topic: string,
     maxChannels: number = 5
   ): Promise<Array<{ channelId: string; channelTitle: string; description: string }>> {
-    const channels = await this.youtubeService.searchEducationalChannels(
+    const channels = await this.getYouTubeService().searchEducationalChannels(
       `${topic} Jung psychology`,
       maxChannels
     );
@@ -603,9 +616,9 @@ Response format:
     playlistId: string,
     maxVideos: number = 20
   ): Promise<Video[]> {
-    const videos = await this.youtubeService.getPlaylistVideos(playlistId, maxVideos);
+    const videos = await this.getYouTubeService().getPlaylistVideos(playlistId, maxVideos);
     
-    const enrichedVideos = await this.videoEnricher.enrichMultipleVideos(videos, {
+    const enrichedVideos = await this.getVideoEnricher().enrichMultipleVideos(videos, {
       assessDifficulty: true,
       extractLearningOutcomes: true,
     });
@@ -641,7 +654,7 @@ Response format:
     ];
     
     const searchPromises = queries.map(query => 
-      this.youtubeService.searchVideos(query, {
+      this.getYouTubeService().searchVideos(query, {
         maxResults: 10,
         order: 'relevance',
         safeSearch: 'strict',
@@ -691,7 +704,7 @@ Response format:
   ): Promise<Video[]> {
     // Get details of watched videos
     const watchedVideos = await Promise.all(
-      watchedVideoIds.map(id => this.youtubeService.getVideoById(id))
+      watchedVideoIds.map(id => this.getYouTubeService().getVideoById(id))
     );
     
     // Extract common themes and channels
@@ -727,7 +740,7 @@ Response format:
     
     // Search for recommendations
     const searchPromises = recommendationQueries.slice(0, 3).map(query =>
-      this.youtubeService.searchVideos(query, {
+      this.getYouTubeService().searchVideos(query, {
         maxResults: 5,
         order: 'relevance',
       })

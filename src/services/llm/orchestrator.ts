@@ -69,20 +69,35 @@ export class ModuleGenerationOrchestrator extends EventEmitter {
     super();
     const config = ConfigManager.getInstance().getConfig();
     
-    // Initialize provider
-    this.provider = config.provider === 'openai' && config.apiKey
-      ? new OpenAIProvider(config.apiKey, config.model)
-      : new MockLLMProvider();
+    // Initialize provider - use mock if explicitly requested
+    if (!useRealServices) {
+      this.provider = new MockLLMProvider(50); // Reduce delay for tests
+    } else {
+      this.provider = config.provider === 'openai' && config.apiKey
+        ? new OpenAIProvider(config.apiKey, config.model)
+        : new MockLLMProvider();
+    }
     
     console.log('LLM Orchestrator initialized:', {
-      provider: config.provider,
+      provider: this.provider instanceof MockLLMProvider ? 'mock' : config.provider,
       hasApiKey: !!config.apiKey,
       model: config.model,
-      usingRealProvider: this.provider instanceof OpenAIProvider
+      usingRealProvider: this.provider instanceof OpenAIProvider,
+      useRealServices: useRealServices
     });
     
-    // Initialize rate limiter
-    this.rateLimiter = new RateLimiter(config.rateLimit!);
+    // Initialize rate limiter - use a no-op for tests
+    if (!useRealServices) {
+      // Create a no-op rate limiter for tests
+      this.rateLimiter = {
+        checkLimit: async () => {},
+        recordRequest: () => {},
+        incrementActive: () => {},
+        decrementActive: () => {}
+      } as any;
+    } else {
+      this.rateLimiter = new RateLimiter(config.rateLimit!);
+    }
     
     // Initialize generators
     this.contentGenerator = new ContentGenerator(this.provider);

@@ -304,7 +304,7 @@ Target audience: ${targetAudience}`;
     prompt += language === 'pt-BR' ? `
 
 Conceitos-chave a cobrir:
-${concepts.map(c => `- ${c}`).join('\n')}
+${concepts && concepts.length > 0 ? concepts.map(c => `- ${c}`).join('\n') : '- Conceitos principais do tópico'}
 
 Requisitos:
 - Explique conceitos claramente com exemplos
@@ -332,7 +332,7 @@ IMPORTANTE: Formate o conteúdo usando Markdown:
 ` : `
 
 Key concepts to cover:
-${concepts.map(c => `- ${c}`).join('\n')}
+${concepts && concepts.length > 0 ? concepts.map(c => `- ${c}`).join('\n') : '- Main concepts of the topic'}
 
 Requirements:
 - Explain concepts clearly with examples
