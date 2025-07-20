@@ -204,6 +204,49 @@ export class MockLLMProvider implements ILLMProvider {
       return mockQuestions as any;
     }
     
+    // Handle bibliography generation (Portuguese or English) first before other array checks
+    if ((prompt.toLowerCase().includes('gere') && prompt.toLowerCase().includes('recursos educacionais')) ||
+        (prompt.toLowerCase().includes('generate') && prompt.toLowerCase().includes('educational resources'))) {
+      return [
+        {
+          type: 'book',
+          authors: ['Jung, Carl Gustav'],
+          title: prompt.includes('gere') ? 'O Homem e Seus Símbolos' : 'Man and His Symbols',
+          year: 2016,
+          publisher: prompt.includes('gere') ? 'Nova Fronteira' : 'Dell Publishing',
+          url: 'https://books.google.com.br/books?id=exemplo123',
+          abstract: prompt.includes('gere') ? 
+            'Introdução acessível aos conceitos fundamentais da psicologia junguiana' :
+            'Accessible introduction to fundamental Jungian concepts',
+          relevance: prompt.includes('gere') ? 
+            'Obra fundamental recomendada para iniciantes' :
+            'Essential introductory work for beginners',
+          jungianConcepts: ['arquétipos', 'inconsciente coletivo', 'símbolos'],
+          readingLevel: 'beginner'
+        },
+        {
+          type: 'article',
+          authors: ['Silva, Maria'],
+          title: prompt.includes('gere') ? 
+            'A Sombra na Psicologia Junguiana: Uma Revisão' :
+            'The Shadow in Jungian Psychology: A Review',
+          year: 2022,
+          journal: prompt.includes('gere') ? 
+            'Revista Brasileira de Psicologia Analítica' :
+            'Journal of Analytical Psychology',
+          url: 'https://scielo.br/exemplo456',
+          abstract: prompt.includes('gere') ?
+            'Revisão sistemática sobre o conceito de sombra' :
+            'Systematic review of the shadow concept',
+          relevance: prompt.includes('gere') ?
+            'Artigo atual com perspectiva brasileira' :
+            'Current article with Brazilian perspective',
+          jungianConcepts: ['sombra', 'projeção'],
+          readingLevel: 'intermediate'
+        }
+      ] as any;
+    }
+    
     // Return mock structured data based on schema type
     if (schema && schema.type === 'array') {
       // Handle array schemas
@@ -240,13 +283,25 @@ export class MockLLMProvider implements ILLMProvider {
         ] as any;
       }
       
-      // Generic array response
-      return ['item1', 'item2', 'item3'] as any;
+      // Generic array response - return objects instead of strings
+      return [
+        { id: 'item1', title: 'Item 1', content: 'Content 1' },
+        { id: 'item2', title: 'Item 2', content: 'Content 2' },
+        { id: 'item3', title: 'Item 3', content: 'Content 3' }
+      ] as any;
     }
     
     
-    // Generic array response for other cases
+    // Generic array response for other cases - return objects
     if (schema && schema.type === 'array') {
+      // If schema specifies object items, return objects
+      if (schema.items && schema.items.type === 'object') {
+        return [
+          { id: 'mock1', name: 'Mock Item 1', value: 'Value 1' },
+          { id: 'mock2', name: 'Mock Item 2', value: 'Value 2' }
+        ] as any;
+      }
+      // Otherwise return simple array
       return ['item1', 'item2', 'item3'] as any;
     }
     
@@ -263,35 +318,6 @@ export class MockLLMProvider implements ILLMProvider {
       ] as any;
     }
     
-    // Handle bibliography generation
-    if (prompt.toLowerCase().includes('gere') && prompt.toLowerCase().includes('recursos educacionais')) {
-      return [
-        {
-          type: 'book',
-          authors: ['Jung, Carl Gustav'],
-          title: 'O Homem e Seus Símbolos',
-          year: 2016,
-          publisher: 'Nova Fronteira',
-          url: 'https://books.google.com.br/books?id=exemplo123',
-          abstract: 'Introdução acessível aos conceitos fundamentais da psicologia junguiana',
-          relevance: 'Obra fundamental recomendada para iniciantes',
-          jungianConcepts: ['arquétipos', 'inconsciente coletivo', 'símbolos'],
-          readingLevel: 'beginner'
-        },
-        {
-          type: 'article',
-          authors: ['Silva, Maria'],
-          title: 'A Sombra na Psicologia Junguiana: Uma Revisão',
-          year: 2022,
-          journal: 'Revista Brasileira de Psicologia Analítica',
-          url: 'https://scielo.br/exemplo456',
-          abstract: 'Revisão sistemática sobre o conceito de sombra',
-          relevance: 'Artigo atual com perspectiva brasileira',
-          jungianConcepts: ['sombra', 'projeção'],
-          readingLevel: 'intermediate'
-        }
-      ] as any;
-    }
     
     // Default object response
     return {

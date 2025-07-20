@@ -143,11 +143,13 @@ Response format (JSON):
     let sources: Array<Omit<BibliographyEntry, 'id' | 'formattedCitation'>>;
     
     try {
+      console.log('BibliographyGenerator: Calling generateStructuredResponse with prompt snippet:', prompt.substring(0, 100));
       sources = await this.provider.generateStructuredResponse<Array<Omit<BibliographyEntry, 'id' | 'formattedCitation'>>>(
         prompt,
         schema,
         { temperature: 0.7 }
       );
+      console.log('BibliographyGenerator: Received sources:', sources);
     } catch (error) {
       console.error('Error generating bibliography:', error);
       return [];
@@ -160,12 +162,32 @@ Response format (JSON):
     }
 
     // Add IDs and ensure reading level
-    return sources.map((source, index) => ({
-      id: `bib-${Date.now()}-${index}`,
-      ...source,
-      readingLevel: source.readingLevel || readingLevel as any,
-      formattedCitation: undefined
-    }));
+    return sources.map((source, index) => {
+      // Ensure source is an object, not a string
+      if (typeof source === 'string') {
+        console.error(`Bibliography source at index ${index} is a string, not an object:`, source);
+        // Create a fallback entry
+        return {
+          id: `bib-${Date.now()}-${index}`,
+          type: 'book' as const,
+          authors: ['Unknown'],
+          title: source,
+          year: new Date().getFullYear(),
+          url: 'https://example.com',
+          relevance: 'Fallback entry',
+          jungianConcepts: [],
+          readingLevel: readingLevel as any,
+          formattedCitation: undefined
+        };
+      }
+      
+      return {
+        id: `bib-${Date.now()}-${index}`,
+        ...source,
+        readingLevel: source.readingLevel || readingLevel as any,
+        formattedCitation: undefined
+      };
+    });
   }
 
   async generateFilmSuggestions(
