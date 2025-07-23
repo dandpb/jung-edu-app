@@ -102,6 +102,10 @@ export const formatters = {
 
 // Reading level assessment
 function assessReadingLevel(ref: Reference): 'beginner' | 'intermediate' | 'advanced' | 'scholar' {
+  // Scholar level (check first for articles and academic works)
+  if (ref.category.includes('academic') || ref.type === 'article') return 'scholar';
+  if (ref.id === 'redbook' || ref.id === 'blackbooks') return 'scholar';
+  
   // Beginner-friendly works
   const beginnerTitles = ['Man and His Symbols', 'Memories, Dreams, Reflections', 'Jung\'s Map of the Soul'];
   if (beginnerTitles.some(title => ref.title.includes(title))) return 'beginner';
@@ -109,17 +113,13 @@ function assessReadingLevel(ref: Reference): 'beginner' | 'intermediate' | 'adva
   // Popular/accessible works
   if (ref.category.includes('accessible') || ref.category.includes('popular')) return 'beginner';
   
-  // Intermediate works
-  const intermediateCategories = ['practical', 'introduction', 'jungian-analysis'];
-  if (intermediateCategories.some(cat => ref.category.includes(cat))) return 'intermediate';
-  
   // Advanced Collected Works
   const advancedCWs = ['cw5', 'cw9i', 'cw9ii', 'cw12', 'cw13', 'cw14'];
   if (advancedCWs.includes(ref.id)) return 'advanced';
   
-  // Scholar level
-  if (ref.category.includes('academic') || ref.type === 'article') return 'scholar';
-  if (ref.id === 'redbook' || ref.id === 'blackbooks') return 'scholar';
+  // Intermediate works (after checking for scholar level)
+  const intermediateCategories = ['practical', 'introduction', 'jungian-analysis'];
+  if (intermediateCategories.some(cat => ref.category.includes(cat))) return 'intermediate';
   
   // Default based on type
   if (ref.id.startsWith('cw')) return 'intermediate';

@@ -3,6 +3,11 @@
  * Essential tests only for performance optimization
  */
 
+// Import the actual implementation, not mocks
+jest.unmock('../systemValidator');
+jest.unmock('../integrationValidator');
+jest.unmock('../endToEndValidator');
+
 import { systemValidator } from '../systemValidator';
 import { integrationValidator } from '../integrationValidator';
 import { endToEndValidator } from '../endToEndValidator';

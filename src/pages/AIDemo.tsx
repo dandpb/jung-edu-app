@@ -9,7 +9,7 @@ const AIDemo: React.FC = () => {
         <div className="text-center mb-16">
           <div className="flex justify-center mb-6">
             <div className="bg-primary-600 rounded-full p-4">
-              <Brain className="w-12 h-12 text-white" />
+              <Brain className="w-12 h-12 text-white" data-testid="lucide-brain" />
             </div>
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -77,27 +77,27 @@ const AIDemo: React.FC = () => {
             </h3>
             <div className="space-y-4">
               <div className="flex items-center">
-                <Sparkles className="w-5 h-5 text-primary-600 mr-3" />
+                <Sparkles className="w-5 h-5 text-primary-600 mr-3" data-testid="lucide-sparkles-1" />
                 <span className="text-gray-700">Extração automática de conceitos</span>
               </div>
               <div className="flex items-center">
-                <Sparkles className="w-5 h-5 text-primary-600 mr-3" />
+                <Sparkles className="w-5 h-5 text-primary-600 mr-3" data-testid="lucide-sparkles-2" />
                 <span className="text-gray-700">Organização hierárquica</span>
               </div>
               <div className="flex items-center">
-                <Sparkles className="w-5 h-5 text-primary-600 mr-3" />
+                <Sparkles className="w-5 h-5 text-primary-600 mr-3" data-testid="lucide-sparkles-3" />
                 <span className="text-gray-700">Mapeamento visual de relacionamentos</span>
               </div>
               <div className="flex items-center">
-                <Sparkles className="w-5 h-5 text-primary-600 mr-3" />
+                <Sparkles className="w-5 h-5 text-primary-600 mr-3" data-testid="lucide-sparkles-4" />
                 <span className="text-gray-700">Exemplos interativos</span>
               </div>
               <div className="flex items-center">
-                <Sparkles className="w-5 h-5 text-primary-600 mr-3" />
+                <Sparkles className="w-5 h-5 text-primary-600 mr-3" data-testid="lucide-sparkles-5" />
                 <span className="text-gray-700">Caminhos de aprendizagem sugeridos</span>
               </div>
               <div className="flex items-center">
-                <Sparkles className="w-5 h-5 text-primary-600 mr-3" />
+                <Sparkles className="w-5 h-5 text-primary-600 mr-3" data-testid="lucide-sparkles-6" />
                 <span className="text-gray-700">Geração em tempo real</span>
               </div>
             </div>
@@ -110,7 +110,7 @@ const AIDemo: React.FC = () => {
             className="inline-flex items-center bg-primary-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-primary-700 transition-colors shadow-lg"
           >
             Experimente Mapas Mentais com IA
-            <ArrowRight className="w-5 h-5 ml-2" />
+            <ArrowRight className="w-5 h-5 ml-2" data-testid="lucide-arrow-right" />
           </Link>
           
           <p className="text-gray-600 mt-4">

@@ -37,12 +37,14 @@ export class VideoEnricher {
     video: YouTubeVideo,
     options: EnrichmentOptions = {}
   ): Promise<Video & { metadata: VideoMetadata }> {
-    const metadata = await this.analyzeVideo(video, options);
+    // Ensure options is not null/undefined
+    const safeOptions = options || {};
+    const metadata = await this.analyzeVideo(video, safeOptions);
     
     const enrichedVideo: Video & { metadata: VideoMetadata } = {
       id: `video-${video.videoId}`,
       title: this.enhanceTitle(video.title, metadata),
-      description: await this.enhanceDescription(video, metadata, options),
+      description: await this.enhanceDescription(video, metadata, safeOptions),
       url: `https://youtube.com/watch?v=${video.videoId}`,
       duration: this.convertMinutesToDuration(this.parseDurationToMinutes(video.duration)),
       platform: VideoPlatform.YOUTUBE,
@@ -74,13 +76,16 @@ export class VideoEnricher {
     video: YouTubeVideo,
     options: EnrichmentOptions
   ): Promise<VideoMetadata> {
+    // Ensure options is not null/undefined
+    const safeOptions = options || {};
+    
     // If we have an LLM provider, use it for advanced analysis
-    if (this.llmProvider && options.courseContext) {
-      return await this.llmAnalyzeVideo(video, options);
+    if (this.llmProvider && safeOptions.courseContext) {
+      return await this.llmAnalyzeVideo(video, safeOptions);
     }
 
     // Otherwise, use heuristic analysis
-    return this.heuristicAnalyzeVideo(video, options);
+    return this.heuristicAnalyzeVideo(video, safeOptions);
   }
 
   private async llmAnalyzeVideo(
@@ -139,8 +144,8 @@ Response format:
         contentWarnings?: string[];
       }>(prompt, {}, { temperature: 0.3 });
 
-      // Generate timestamps if requested
-      let keyTimestamps;
+      // Generate timestamps if requested, otherwise use the ones from analysis
+      let keyTimestamps = analysis.keyTimestamps;
       if (options.generateTimestamps) {
         keyTimestamps = await this.generateKeyTimestamps(video, analysis.relatedConcepts);
       }
@@ -196,7 +201,7 @@ Response format:
     
     // Relevance score
     let relevanceScore = 0;
-    if (options.courseContext) {
+    if (options && options.courseContext) {
       const contextWords = [
         options.courseContext.topic.toLowerCase(),
         ...options.courseContext.concepts.map(c => c.toLowerCase()),
@@ -231,6 +236,12 @@ Response format:
       `${video.title} ${video.description}`.toLowerCase().includes(concept)
     );
     
+    // Generate timestamps if requested
+    let keyTimestamps;
+    if (options && options.generateTimestamps) {
+      keyTimestamps = this.generateBasicTimestamps(video.duration, relatedConcepts);
+    }
+
     return {
       educationalValue,
       relevanceScore,
@@ -239,6 +250,7 @@ Response format:
       suggestedPrerequisites: difficulty === 'advanced' ? 
         ['Basic understanding of Jungian psychology'] : undefined,
       learningOutcomes: this.generateBasicLearningOutcomes(video.title, relatedConcepts),
+      keyTimestamps,
     };
   }
 
@@ -344,6 +356,12 @@ Response format:
   }
 
   private enhanceTitle(title: string, metadata: VideoMetadata): string {
+    // Truncate very long titles
+    let processedTitle = title;
+    if (title.length > 300) {
+      processedTitle = title.substring(0, 297) + '...';
+    }
+    
     // Add difficulty indicator if not already present
     const difficultyIndicators = {
       beginner: '(Introductory)',
@@ -352,11 +370,11 @@ Response format:
     };
     
     const indicator = difficultyIndicators[metadata.difficulty];
-    if (indicator && !title.includes(indicator)) {
-      return `${title} ${indicator}`.trim();
+    if (indicator && !processedTitle.includes(indicator)) {
+      return `${processedTitle} ${indicator}`.trim();
     }
     
-    return title;
+    return processedTitle;
   }
 
   private async enhanceDescription(

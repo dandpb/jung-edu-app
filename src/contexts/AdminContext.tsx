@@ -35,16 +35,31 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [currentAdmin, setCurrentAdmin] = useState<AdminUser | null>(null);
   const [modules, setModules] = useState<Module[]>(() => {
-    const saved = localStorage.getItem('jungAppModules');
-    return saved ? JSON.parse(saved) : defaultModules;
+    try {
+      const saved = localStorage.getItem('jungAppModules');
+      return saved ? JSON.parse(saved) : defaultModules;
+    } catch (e) {
+      console.error('Failed to parse modules from localStorage:', e);
+      return defaultModules;
+    }
   });
   const [mindMapNodes, setMindMapNodes] = useState<MindMapNode[]>(() => {
-    const saved = localStorage.getItem('jungAppMindMapNodes');
-    return saved ? JSON.parse(saved) : defaultMindMapNodes;
+    try {
+      const saved = localStorage.getItem('jungAppMindMapNodes');
+      return saved ? JSON.parse(saved) : defaultMindMapNodes;
+    } catch (e) {
+      console.error('Failed to parse mindmap nodes from localStorage:', e);
+      return defaultMindMapNodes;
+    }
   });
   const [mindMapEdges, setMindMapEdges] = useState<MindMapEdge[]>(() => {
-    const saved = localStorage.getItem('jungAppMindMapEdges');
-    return saved ? JSON.parse(saved) : defaultMindMapEdges;
+    try {
+      const saved = localStorage.getItem('jungAppMindMapEdges');
+      return saved ? JSON.parse(saved) : defaultMindMapEdges;
+    } catch (e) {
+      console.error('Failed to parse mindmap edges from localStorage:', e);
+      return defaultMindMapEdges;
+    }
   });
 
   useEffect(() => {

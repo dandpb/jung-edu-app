@@ -19,8 +19,90 @@ export interface TopicTemplate {
   commonMisconceptions: string[];
 }
 
+// Jung-specific question type configurations with Portuguese concepts
+export const jungQuestionTypes = {
+  shadow: {
+    concepts: ['sombra', 'projeção', 'inconsciente pessoal', 'conteúdo reprimido', 'integração da sombra'],
+    questionStems: [
+      'O que caracteriza o conceito de sombra em Jung?',
+      'Como identificar projeções da sombra?',
+      'Qual o papel da sombra no processo de individuação?'
+    ],
+    commonDistractors: [
+      'A sombra é apenas negativa',
+      'A sombra deve ser eliminada',
+      'A sombra é o mesmo que o mal'
+    ]
+  },
+  anima: {
+    concepts: ['anima', 'alma feminina', 'imagem da alma', 'projeção da anima', 'estágios da anima'],
+    questionStems: [
+      'O que representa a anima na psicologia junguiana?',
+      'Como se manifesta a anima no homem?',
+      'Quais são os estágios de desenvolvimento da anima?'
+    ],
+    commonDistractors: [
+      'A anima é apenas atração romântica',
+      'A anima é fixa e imutável',
+      'A anima é um estereótipo de gênero'
+    ]
+  },
+  animus: {
+    concepts: ['animus', 'alma masculina', 'logos', 'projeção do animus', 'estágios do animus'],
+    questionStems: [
+      'O que caracteriza o animus na mulher?',
+      'Como o animus influencia a psique feminina?',
+      'Qual a função do animus no desenvolvimento psicológico?'
+    ],
+    commonDistractors: [
+      'O animus é apenas masculinidade',
+      'O animus é sempre negativo',
+      'O animus é determinado biologicamente'
+    ]
+  },
+  collectiveUnconscious: {
+    concepts: ['inconsciente coletivo', 'arquétipos', 'padrões universais', 'imagens primordiais', 'herança psíquica'],
+    questionStems: [
+      'O que diferencia o inconsciente coletivo do pessoal?',
+      'Como os arquétipos se manifestam no inconsciente coletivo?',
+      'Qual a origem do inconsciente coletivo segundo Jung?'
+    ],
+    commonDistractors: [
+      'É o mesmo que inconsciente pessoal',
+      'É apenas cultural',
+      'É transmitido geneticamente'
+    ]
+  },
+  individuationProcess: {
+    concepts: ['individuação', 'Self', 'totalidade', 'integração', 'eixo ego-Self'],
+    questionStems: [
+      'O que caracteriza o processo de individuação?',
+      'Como ocorre a integração dos opostos?',
+      'Qual o objetivo final da individuação?'
+    ],
+    commonDistractors: [
+      'Individuação é individualismo',
+      'É um processo linear',
+      'Pode ser completado totalmente'
+    ]
+  },
+  archetypes: {
+    concepts: ['arquétipos', 'padrões universais', 'imagens primordiais', 'herói', 'grande mãe', 'velho sábio'],
+    questionStems: [
+      'O que são arquétipos na teoria junguiana?',
+      'Como os arquétipos influenciam o comportamento?',
+      'Qual a relação entre arquétipos e símbolos?'
+    ],
+    commonDistractors: [
+      'Arquétipos são estereótipos',
+      'São conscientes',
+      'São aprendidos culturalmente'
+    ]
+  }
+};
+
 // Jung-specific question type templates
-export const jungQuestionTypes: Record<string, QuestionTemplate> = {
+export const jungQuestionTemplates: Record<string, QuestionTemplate> = {
   conceptIdentification: {
     type: 'multiple-choice',
     structure: 'Which of the following best describes Jung\'s concept of {concept}?',
@@ -88,62 +170,97 @@ export const jungQuestionTypes: Record<string, QuestionTemplate> = {
   }
 };
 
-// Topic-specific templates
+// Topic-specific templates with Portuguese concepts
 export const topicTemplates: TopicTemplate[] = [
   {
     topic: 'Collective Unconscious',
-    concepts: ['archetypes', 'universal patterns', 'inherited psychic structures', 'primordial images'],
-    questionTypes: [jungQuestionTypes.conceptIdentification, jungQuestionTypes.archetypeAnalysis],
+    concepts: ['inconsciente coletivo', 'arquétipos', 'padrões universais', 'imagens primordiais', 'herança psíquica'],
+    questionTypes: [jungQuestionTemplates.conceptIdentification, jungQuestionTemplates.archetypeAnalysis],
     assessmentFocus: ['differentiation from personal unconscious', 'archetype identification', 'cultural manifestations'],
     commonMisconceptions: ['same as personal unconscious', 'purely cultural', 'genetic inheritance']
+  },
+  {
+    topic: 'Inconsciente Coletivo',
+    concepts: ['inconsciente coletivo', 'arquétipos', 'padrões universais', 'imagens primordiais', 'herança psíquica'],
+    questionTypes: [jungQuestionTemplates.conceptIdentification, jungQuestionTemplates.archetypeAnalysis],
+    assessmentFocus: ['diferenciação do inconsciente pessoal', 'identificação de arquétipos', 'manifestações culturais'],
+    commonMisconceptions: ['mesmo que inconsciente pessoal', 'puramente cultural', 'herança genética']
   },
   
   {
     topic: 'Pokemon and Jungian Psychology',
     concepts: ['Pokemon as archetypes', 'evolution as individuation', 'type dynamics', 'trainer-Pokemon relationship as Self-ego axis'],
-    questionTypes: [jungQuestionTypes.archetypeAnalysis, jungQuestionTypes.conceptIdentification],
+    questionTypes: [jungQuestionTemplates.archetypeAnalysis, jungQuestionTemplates.conceptIdentification],
     assessmentFocus: ['archetype manifestation in Pokemon', 'psychological growth through Pokemon journey', 'type relationships as psychological functions'],
     commonMisconceptions: ['Pokemon are just entertainment', 'evolution is only physical change', 'types are arbitrary categories']
   },
   
   {
     topic: 'Psychological Types',
-    concepts: ['introversion/extraversion', 'thinking/feeling', 'sensation/intuition', 'dominant function', 'inferior function'],
-    questionTypes: [jungQuestionTypes.psychologicalTypeIdentification, jungQuestionTypes.conceptIdentification],
+    concepts: ['introversão/extroversão', 'pensamento/sentimento', 'sensação/intuição', 'função dominante', 'função inferior'],
+    questionTypes: [jungQuestionTemplates.psychologicalTypeIdentification, jungQuestionTemplates.conceptIdentification],
     assessmentFocus: ['function identification', 'type dynamics', 'development patterns'],
     commonMisconceptions: ['types as boxes', 'no change possible', 'behavior equals type']
   },
 
   {
     topic: 'Individuation',
-    concepts: ['Self', 'ego-Self axis', 'integration', 'wholeness', 'midlife transition'],
-    questionTypes: [jungQuestionTypes.individuationProcess, jungQuestionTypes.conceptIdentification],
+    concepts: ['individuação', 'Self', 'eixo ego-Self', 'integração', 'totalidade', 'transição da meia-idade'],
+    questionTypes: [jungQuestionTemplates.individuationProcess, jungQuestionTemplates.conceptIdentification],
     assessmentFocus: ['process understanding', 'stage recognition', 'integration challenges'],
     commonMisconceptions: ['linear process', 'completion possible', 'same as self-improvement']
   },
 
   {
     topic: 'Shadow',
-    concepts: ['personal shadow', 'collective shadow', 'projection', 'integration', 'gold in the shadow'],
-    questionTypes: [jungQuestionTypes.shadowWork, jungQuestionTypes.archetypeAnalysis],
+    concepts: ['sombra', 'sombra pessoal', 'sombra coletiva', 'projeção', 'integração', 'ouro na sombra'],
+    questionTypes: [jungQuestionTemplates.shadowWork, jungQuestionTemplates.archetypeAnalysis],
     assessmentFocus: ['projection recognition', 'integration methods', 'positive shadow'],
     commonMisconceptions: ['only negative', 'should be eliminated', 'same as evil']
+  },
+  {
+    topic: 'Sombra',
+    concepts: ['sombra', 'sombra pessoal', 'sombra coletiva', 'projeção', 'integração', 'ouro na sombra'],
+    questionTypes: [jungQuestionTemplates.shadowWork, jungQuestionTemplates.archetypeAnalysis],
+    assessmentFocus: ['reconhecimento de projeção', 'métodos de integração', 'sombra positiva'],
+    commonMisconceptions: ['apenas negativa', 'deve ser eliminada', 'é o mal']
   },
 
   {
     topic: 'Anima/Animus',
-    concepts: ['contrasexual', 'soul image', 'projection', 'development stages', 'integration'],
-    questionTypes: [jungQuestionTypes.archetypeAnalysis, jungQuestionTypes.conceptIdentification],
+    concepts: ['anima', 'animus', 'contrassexual', 'imagem da alma', 'projeção', 'estágios de desenvolvimento', 'integração'],
+    questionTypes: [jungQuestionTemplates.archetypeAnalysis, jungQuestionTemplates.conceptIdentification],
     assessmentFocus: ['stage identification', 'projection patterns', 'integration signs'],
     commonMisconceptions: ['gender stereotypes', 'fixed images', 'only romantic']
+  },
+  {
+    topic: 'Anima',
+    concepts: ['anima', 'alma feminina', 'imagem da alma', 'projeção da anima', 'estágios da anima', 'integração'],
+    questionTypes: [jungQuestionTemplates.archetypeAnalysis, jungQuestionTemplates.conceptIdentification],
+    assessmentFocus: ['identificação de estágios', 'padrões de projeção', 'sinais de integração'],
+    commonMisconceptions: ['estereótipos de gênero', 'imagens fixas', 'apenas romântico']
   },
 
   {
     topic: 'Dreams',
-    concepts: ['compensatory function', 'prospective function', 'symbols', 'amplification', 'active imagination'],
-    questionTypes: [jungQuestionTypes.dreamSymbolInterpretation, jungQuestionTypes.conceptIdentification],
+    concepts: ['função compensatória', 'função prospectiva', 'símbolos', 'amplificação', 'imaginação ativa'],
+    questionTypes: [jungQuestionTemplates.dreamSymbolInterpretation, jungQuestionTemplates.conceptIdentification],
     assessmentFocus: ['symbol interpretation', 'function understanding', 'personal vs collective'],
     commonMisconceptions: ['wish fulfillment only', 'universal meanings', 'literal interpretation']
+  },
+  {
+    topic: 'Archetypes',
+    concepts: ['arquétipos', 'padrões universais', 'imagens primordiais', 'herói', 'grande mãe', 'velho sábio', 'Self'],
+    questionTypes: [jungQuestionTemplates.archetypeAnalysis, jungQuestionTemplates.conceptIdentification],
+    assessmentFocus: ['identificação de arquétipos', 'manifestações culturais', 'símbolos universais'],
+    commonMisconceptions: ['são estereótipos', 'são conscientes', 'são aprendidos']
+  },
+  {
+    topic: 'Arquétipos',
+    concepts: ['arquétipos', 'padrões universais', 'imagens primordiais', 'herói', 'grande mãe', 'velho sábio', 'Self'],
+    questionTypes: [jungQuestionTemplates.archetypeAnalysis, jungQuestionTemplates.conceptIdentification],
+    assessmentFocus: ['identificação de arquétipos', 'manifestações culturais', 'símbolos universais'],
+    commonMisconceptions: ['são estereótipos', 'são conscientes', 'são aprendidos']
   }
 ];
 
@@ -151,18 +268,21 @@ export const topicTemplates: TopicTemplate[] = [
 export const difficultyProgressions = {
   beginner: {
     questionDistribution: { easy: 0.5, medium: 0.4, hard: 0.1 },
+    cognitiveDistribution: { remembering: 0.4, understanding: 0.4, applying: 0.15, analyzing: 0.05 },
     focusAreas: ['definitions', 'basic identification', 'single concepts'],
     avoidAreas: ['complex integration', 'multiple concept synthesis', 'nuanced differentiation']
   },
   
   intermediate: {
     questionDistribution: { easy: 0.2, medium: 0.6, hard: 0.2 },
+    cognitiveDistribution: { remembering: 0.2, understanding: 0.3, applying: 0.3, analyzing: 0.2 },
     focusAreas: ['application', 'differentiation', 'basic analysis'],
     avoidAreas: ['advanced theoretical synthesis', 'complex case analysis']
   },
   
   advanced: {
     questionDistribution: { easy: 0.1, medium: 0.4, hard: 0.5 },
+    cognitiveDistribution: { remembering: 0.1, understanding: 0.2, applying: 0.3, analyzing: 0.4 },
     focusAreas: ['synthesis', 'critical analysis', 'integration', 'nuanced understanding'],
     avoidAreas: []
   }
@@ -249,15 +369,40 @@ export const questionStemVariations = {
 
 // Helper function to get appropriate template
 export function getQuestionTemplate(topic: string, difficulty: string): QuestionTemplate {
-  const topicTemplate = topicTemplates.find(t => t.topic === topic);
+  // Handle null/undefined/empty inputs
+  if (!topic || typeof topic !== 'string') {
+    return {
+      type: 'multiple-choice',
+      structure: 'O que melhor descreve este conceito junguiano?',
+      optionPatterns: ['Definição correta', 'Conceito similar', 'Definição parcial', 'Concepção errônea comum'],
+      explanationTemplate: 'Este conceito representa {explanation}.',
+      difficultyFactors: ['complexidade conceitual']
+    };
+  }
+  
+  const normalizedTopic = topic.toString().trim().toLowerCase();
+  const topicTemplate = topicTemplates.find(t => 
+    t.topic.toLowerCase() === normalizedTopic || 
+    t.topic.toLowerCase().includes(normalizedTopic) ||
+    normalizedTopic.includes(t.topic.toLowerCase())
+  );
+  
   if (!topicTemplate) {
-    return jungQuestionTypes.conceptIdentification; // default
+    // Return a default template for unknown topics
+    return {
+      type: 'multiple-choice',
+      structure: 'O que melhor descreve o conceito junguiano de {concept}?',
+      optionPatterns: ['Definição correta', 'Conceito relacionado', 'Definição incompleta', 'Interpretação incorreta'],
+      explanationTemplate: 'Este conceito representa {explanation}.',
+      difficultyFactors: ['complexidade conceitual']
+    };
   }
   
   // Select based on difficulty
-  if (difficulty === 'easy') {
+  const normalizedDifficulty = (difficulty || 'medium').toString().toLowerCase();
+  if (normalizedDifficulty === 'easy') {
     return topicTemplate.questionTypes.find(qt => qt.type === 'multiple-choice') || topicTemplate.questionTypes[0];
-  } else if (difficulty === 'hard') {
+  } else if (normalizedDifficulty === 'hard') {
     return topicTemplate.questionTypes.find(qt => qt.type === 'essay' || qt.type === 'short-answer') || topicTemplate.questionTypes[0];
   }
   
@@ -266,12 +411,50 @@ export function getQuestionTemplate(topic: string, difficulty: string): Question
 
 // Helper to get topic-specific concepts
 export function getTopicConcepts(topic: string): string[] {
-  const topicTemplate = topicTemplates.find(t => t.topic === topic);
-  return topicTemplate?.concepts || [];
+  // Handle null/undefined/empty inputs
+  if (!topic || typeof topic !== 'string') {
+    // Return general Jungian concepts
+    return ['inconsciente', 'arquétipos', 'individuação', 'sombra', 'anima', 'animus', 'Self'];
+  }
+  
+  const normalizedTopic = topic.toString().trim().toLowerCase();
+  const topicTemplate = topicTemplates.find(t => 
+    t.topic.toLowerCase() === normalizedTopic || 
+    t.topic.toLowerCase().includes(normalizedTopic) ||
+    normalizedTopic.includes(t.topic.toLowerCase())
+  );
+  
+  if (!topicTemplate) {
+    // Check if topic matches any jungQuestionTypes key
+    const jungTypeKey = Object.keys(jungQuestionTypes).find(key => 
+      key.toLowerCase() === normalizedTopic || 
+      normalizedTopic.includes(key.toLowerCase()) ||
+      key.toLowerCase().includes(normalizedTopic)
+    );
+    
+    if (jungTypeKey) {
+      return jungQuestionTypes[jungTypeKey].concepts;
+    }
+    
+    // Return general Jungian concepts for unknown topics
+    return ['inconsciente', 'arquétipos', 'individuação', 'sombra', 'anima', 'animus', 'Self', 'ego', 'persona'];
+  }
+  
+  return topicTemplate.concepts;
 }
 
 // Helper to get common misconceptions for a topic
 export function getTopicMisconceptions(topic: string): string[] {
-  const topicTemplate = topicTemplates.find(t => t.topic === topic);
+  if (!topic || typeof topic !== 'string') {
+    return [];
+  }
+  
+  const normalizedTopic = topic.toString().trim().toLowerCase();
+  const topicTemplate = topicTemplates.find(t => 
+    t.topic.toLowerCase() === normalizedTopic || 
+    t.topic.toLowerCase().includes(normalizedTopic) ||
+    normalizedTopic.includes(t.topic.toLowerCase())
+  );
+  
   return topicTemplate?.commonMisconceptions || [];
 }

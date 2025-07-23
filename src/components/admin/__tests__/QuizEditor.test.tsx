@@ -334,4 +334,284 @@ describe('QuizEditor Component', () => {
 
     expect(screen.getByDisplayValue('Test Quiz')).toBeInTheDocument();
   });
+
+  describe('Question Management', () => {
+    test('adds new question when add button clicked', () => {
+      render(
+        <QuizEditor
+          quiz={mockQuiz}
+          onUpdate={mockOnUpdate}
+        />
+      );
+
+      const addButton = screen.getByText(/adicionar questão/i);
+      fireEvent.click(addButton);
+
+      expect(mockOnUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          questions: expect.arrayContaining([
+            ...mockQuiz.questions,
+            expect.objectContaining({
+              question: 'Nova Questão',
+              options: expect.arrayContaining([
+                expect.objectContaining({ text: 'Opção 1' }),
+                expect.objectContaining({ text: 'Opção 2' }),
+                expect.objectContaining({ text: 'Opção 3' }),
+                expect.objectContaining({ text: 'Opção 4' })
+              ]),
+              type: 'multiple-choice',
+              correctAnswer: 0
+            })
+          ])
+        })
+      );
+    });
+
+    test('deletes question when delete button clicked', () => {
+      render(
+        <QuizEditor
+          quiz={mockQuiz}
+          onUpdate={mockOnUpdate}
+        />
+      );
+
+      // Expand first question to see delete button
+      fireEvent.click(screen.getAllByRole('button')[1]); // Skip chevron button
+      
+      // Find delete buttons (trash icons)
+      const deleteButtons = screen.getAllByRole('button').filter(button => 
+        button.querySelector('svg.lucide-trash2')
+      );
+      
+      // Click the second delete button (first is for quiz, second is for first question)
+      fireEvent.click(deleteButtons[1]);
+
+      expect(mockOnUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          questions: expect.arrayContaining([mockQuiz.questions[1]])
+        })
+      );
+      expect(mockOnUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          questions: expect.not.arrayContaining([mockQuiz.questions[0]])
+        })
+      );
+    });
+
+    test('updates question text when edited', () => {
+      render(
+        <QuizEditor
+          quiz={mockQuiz}
+          onUpdate={mockOnUpdate}
+        />
+      );
+
+      const questionInput = screen.getByDisplayValue('What is analytical psychology?');
+      fireEvent.change(questionInput, { target: { value: 'Updated question text' } });
+
+      expect(mockOnUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          questions: expect.arrayContaining([
+            expect.objectContaining({
+              id: 'q1',
+              question: 'Updated question text'
+            })
+          ])
+        })
+      );
+    });
+  });
+
+  describe('Option Management', () => {
+    test('updates option text when edited', () => {
+      render(
+        <QuizEditor
+          quiz={mockQuiz}
+          onUpdate={mockOnUpdate}
+        />
+      );
+
+      // Find and click the chevron button for the first question
+      const expandButtons = screen.getAllByRole('button').filter(button => 
+        button.querySelector('svg.lucide-chevron-right')
+      );
+      fireEvent.click(expandButtons[0]);
+
+      const optionInput = screen.getByDisplayValue("Jung's approach to psychology");
+      fireEvent.change(optionInput, { target: { value: 'Updated option text' } });
+
+      expect(mockOnUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          questions: expect.arrayContaining([
+            expect.objectContaining({
+              id: 'q1',
+              options: expect.arrayContaining([
+                expect.objectContaining({ text: 'Updated option text' })
+              ])
+            })
+          ])
+        })
+      );
+    });
+
+    test('changes correct answer when radio button clicked', () => {
+      render(
+        <QuizEditor
+          quiz={mockQuiz}
+          onUpdate={mockOnUpdate}
+        />
+      );
+
+      // Find and click the chevron button for the first question
+      const expandButtons = screen.getAllByRole('button').filter(button => 
+        button.querySelector('svg.lucide-chevron-right')
+      );
+      fireEvent.click(expandButtons[0]);
+
+      // Click the second radio button
+      const radioButtons = screen.getAllByRole('radio');
+      fireEvent.click(radioButtons[1]);
+
+      expect(mockOnUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          questions: expect.arrayContaining([
+            expect.objectContaining({
+              id: 'q1',
+              correctAnswer: 1
+            })
+          ])
+        })
+      );
+    });
+
+    test('updates explanation text', () => {
+      render(
+        <QuizEditor
+          quiz={mockQuiz}
+          onUpdate={mockOnUpdate}
+        />
+      );
+
+      // Find and click the chevron button for the first question
+      const expandButtons = screen.getAllByRole('button').filter(button => 
+        button.querySelector('svg.lucide-chevron-right')
+      );
+      fireEvent.click(expandButtons[0]);
+
+      const explanationTextarea = screen.getByDisplayValue("Analytical psychology is Jung's unique approach.");
+      fireEvent.change(explanationTextarea, { target: { value: 'Updated explanation' } });
+
+      expect(mockOnUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          questions: expect.arrayContaining([
+            expect.objectContaining({
+              id: 'q1',
+              explanation: 'Updated explanation'
+            })
+          ])
+        })
+      );
+    });
+  });
+
+  describe('Edge Cases', () => {
+    test('handles questions with string options', () => {
+      const quizWithStringOptions = {
+        ...mockQuiz,
+        questions: [{
+          id: 'q1',
+          question: 'Test question',
+          options: ['Option A', 'Option B', 'Option C', 'Option D'],
+          correctAnswer: 0,
+          explanation: 'Test'
+        }]
+      };
+
+      render(
+        <QuizEditor
+          quiz={quizWithStringOptions}
+          onUpdate={mockOnUpdate}
+        />
+      );
+
+      // Find and click the chevron button
+      const expandButtons = screen.getAllByRole('button').filter(button => 
+        button.querySelector('svg.lucide-chevron-right')
+      );
+      fireEvent.click(expandButtons[0]);
+
+      // Update option
+      const optionInput = screen.getByDisplayValue('Option A');
+      fireEvent.change(optionInput, { target: { value: 'Updated Option A' } });
+
+      expect(mockOnUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          questions: expect.arrayContaining([
+            expect.objectContaining({
+              options: expect.arrayContaining([
+                expect.objectContaining({ id: '1', text: 'Updated Option A' })
+              ])
+            })
+          ])
+        })
+      );
+    });
+
+    test('preserves question type when updating', () => {
+      const quizWithTypes = {
+        ...mockQuiz,
+        questions: [{
+          ...mockQuiz.questions[0],
+          type: 'true-false' as const
+        }]
+      };
+
+      render(
+        <QuizEditor
+          quiz={quizWithTypes}
+          onUpdate={mockOnUpdate}
+        />
+      );
+
+      const questionInput = screen.getByDisplayValue('What is analytical psychology?');
+      fireEvent.change(questionInput, { target: { value: 'Updated question' } });
+
+      expect(mockOnUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          questions: expect.arrayContaining([
+            expect.objectContaining({
+              type: 'true-false'
+            })
+          ])
+        })
+      );
+    });
+
+    test('handles quiz with many questions', () => {
+      const manyQuestions = Array.from({ length: 10 }, (_, i) => ({
+        id: `q${i}`,
+        question: `Question ${i + 1}`,
+        options: ['A', 'B', 'C', 'D'],
+        correctAnswer: 0,
+        explanation: `Explanation ${i + 1}`
+      }));
+
+      const largeQuiz = {
+        ...mockQuiz,
+        questions: manyQuestions
+      };
+
+      render(
+        <QuizEditor
+          quiz={largeQuiz}
+          onUpdate={mockOnUpdate}
+        />
+      );
+
+      // Should display all questions
+      for (let i = 1; i <= 10; i++) {
+        expect(screen.getByText(`Questão ${i}`)).toBeInTheDocument();
+      }
+    });
+  });
 });

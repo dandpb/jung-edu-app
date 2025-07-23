@@ -102,6 +102,13 @@ export class YouTubeService {
         }
       });
 
+      // Handle empty search results
+      if (!searchResponse.data.items || searchResponse.data.items.length === 0) {
+        const emptyResults: YouTubeVideo[] = [];
+        this.searchCache.set(cacheKey, emptyResults);
+        return emptyResults;
+      }
+
       const videoIds = searchResponse.data.items.map((item: any) => item.id.videoId).join(',');
 
       // Get detailed video information

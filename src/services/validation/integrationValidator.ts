@@ -84,6 +84,12 @@ export class IntegrationValidator {
     };
 
     try {
+      // Handle null or undefined modules
+      if (!modules || !Array.isArray(modules)) {
+        modules = [];
+        report.criticalIssues.push('No modules provided for validation');
+      }
+
       // Run module integration tests
       report.categories.moduleIntegration = await this.testModuleIntegration(modules);
       

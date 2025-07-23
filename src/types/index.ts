@@ -2,12 +2,21 @@ export interface Module {
   id: string;
   title: string;
   description: string;
-  icon: string;
-  content: ModuleContent;
+  icon?: string;
+  content?: ModuleContent;
+  sections?: Section[];
   prerequisites?: string[];
+  learningObjectives?: string[];
   estimatedTime: number;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   category?: string;
+  quiz?: Quiz;
+  practicalExercises?: Array<{
+    id: string;
+    title: string;
+    description: string;
+    duration: number;
+  }>;
 }
 
 export interface ModuleContent {

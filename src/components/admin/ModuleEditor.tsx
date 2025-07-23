@@ -42,13 +42,13 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
       id: `section-${Date.now()}`,
       title: 'Nova Seção',
       content: '',
-      order: editedModule.content.sections.length,
+      order: editedModule.content?.sections?.length || 0,
       keyTerms: []
     };
     updateModule({
       content: {
         ...editedModule.content,
-        sections: [...editedModule.content.sections, newSection]
+        sections: [...(editedModule.content?.sections || []), newSection]
       }
     });
   };
@@ -57,7 +57,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
     updateModule({
       content: {
         ...editedModule.content,
-        sections: editedModule.content.sections.map(s =>
+        sections: editedModule.content?.sections?.map(s =>
           s.id === sectionId ? { ...s, ...updates } : s
         )
       }
@@ -68,7 +68,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
     updateModule({
       content: {
         ...editedModule.content,
-        sections: editedModule.content.sections.filter(s => s.id !== sectionId)
+        sections: editedModule.content?.sections?.filter(s => s.id !== sectionId) || []
       }
     });
   };
@@ -84,7 +84,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
     updateModule({
       content: {
         ...editedModule.content,
-        videos: [...(editedModule.content.videos || []), newVideo]
+        videos: [...(editedModule.content?.videos || []), newVideo]
       }
     });
   };
@@ -93,7 +93,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
     updateModule({
       content: {
         ...editedModule.content,
-        videos: editedModule.content.videos?.map(v =>
+        videos: editedModule.content?.videos?.map(v =>
           v.id === videoId ? { ...v, ...updates } : v
         )
       }
@@ -104,7 +104,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
     updateModule({
       content: {
         ...editedModule.content,
-        videos: editedModule.content.videos?.filter(v => v.id !== videoId)
+        videos: editedModule.content?.videos?.filter(v => v.id !== videoId) || []
       }
     });
   };
@@ -281,7 +281,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                   </label>
                   <textarea
                     id="module-introduction"
-                    value={editedModule.content.introduction}
+                    value={editedModule.content?.introduction || ''}
                     onChange={(e) => updateModule({
                       content: { ...editedModule.content, introduction: e.target.value }
                     })}
@@ -303,7 +303,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                   </div>
 
                   <div className="space-y-4">
-                    {editedModule.content.sections.map((section, index) => {
+                    {(editedModule.content?.sections || []).map((section, index) => {
                       const isExpanded = expandedSections.includes(section.id);
                       
                       return (
@@ -425,7 +425,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                 </div>
 
                 <div className="space-y-4">
-                  {editedModule.content.videos?.map((video) => (
+                  {(editedModule.content?.videos || []).map((video) => (
                     <div key={video.id} className="border border-gray-200 rounded-lg p-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -490,7 +490,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
 
             {activeTab === 'quiz' && (
               <QuizEditor
-                quiz={editedModule.content.quiz}
+                quiz={editedModule.content?.quiz}
                 onUpdate={(quiz) => updateModule({
                   content: { ...editedModule.content, quiz }
                 })}
@@ -514,7 +514,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                         updateModule({
                           content: {
                             ...editedModule.content,
-                            bibliography: [...(editedModule.content.bibliography || []), newBibliography]
+                            bibliography: [...(editedModule.content?.bibliography || []), newBibliography]
                           }
                         });
                       }}
@@ -526,7 +526,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                   </div>
 
                   <div className="space-y-4">
-                    {(editedModule.content.bibliography || []).map((book) => (
+                    {(editedModule.content?.bibliography || []).map((book) => (
                       <div key={book.id} className="border border-gray-200 rounded-lg p-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
@@ -539,7 +539,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                               onChange={(e) => updateModule({
                                 content: {
                                   ...editedModule.content,
-                                  bibliography: (editedModule.content.bibliography || []).map(b =>
+                                  bibliography: (editedModule.content?.bibliography || []).map(b =>
                                     b.id === book.id ? { ...b, title: e.target.value } : b
                                   )
                                 }
@@ -557,7 +557,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                               onChange={(e) => updateModule({
                                 content: {
                                   ...editedModule.content,
-                                  bibliography: (editedModule.content.bibliography || []).map(b =>
+                                  bibliography: (editedModule.content?.bibliography || []).map(b =>
                                     b.id === book.id ? { ...b, authors: [e.target.value] } : b
                                   )
                                 }
@@ -577,7 +577,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                               onChange={(e) => updateModule({
                                 content: {
                                   ...editedModule.content,
-                                  bibliography: (editedModule.content.bibliography || []).map(b =>
+                                  bibliography: (editedModule.content?.bibliography || []).map(b =>
                                     b.id === book.id ? { ...b, year: parseInt(e.target.value) } : b
                                   )
                                 }
@@ -594,7 +594,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                               onChange={(e) => updateModule({
                                 content: {
                                   ...editedModule.content,
-                                  bibliography: (editedModule.content.bibliography || []).map(b =>
+                                  bibliography: (editedModule.content?.bibliography || []).map(b =>
                                     b.id === book.id ? { ...b, type: e.target.value as 'book' | 'article' | 'journal' } : b
                                   )
                                 }
@@ -612,7 +612,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                             onClick={() => updateModule({
                               content: {
                                 ...editedModule.content,
-                                bibliography: (editedModule.content.bibliography || []).filter(b => b.id !== book.id)
+                                bibliography: (editedModule.content?.bibliography || []).filter(b => b.id !== book.id)
                               }
                             })}
                             className="text-red-600 hover:text-red-700"
@@ -640,7 +640,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                         updateModule({
                           content: {
                             ...editedModule.content,
-                            films: [...(editedModule.content.films || []), newFilm]
+                            films: [...(editedModule.content?.films || []), newFilm]
                           }
                         });
                       }}
@@ -652,7 +652,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                   </div>
 
                   <div className="space-y-4">
-                    {(editedModule.content.films || []).map((film) => (
+                    {(editedModule.content?.films || []).map((film) => (
                       <div key={film.id} className="border border-gray-200 rounded-lg p-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
@@ -665,7 +665,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                               onChange={(e) => updateModule({
                                 content: {
                                   ...editedModule.content,
-                                  films: (editedModule.content.films || []).map(f =>
+                                  films: (editedModule.content?.films || []).map(f =>
                                     f.id === film.id ? { ...f, title: e.target.value } : f
                                   )
                                 }
@@ -683,7 +683,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                               onChange={(e) => updateModule({
                                 content: {
                                   ...editedModule.content,
-                                  films: (editedModule.content.films || []).map(f =>
+                                  films: (editedModule.content?.films || []).map(f =>
                                     f.id === film.id ? { ...f, director: e.target.value } : f
                                   )
                                 }
@@ -703,7 +703,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                               onChange={(e) => updateModule({
                                 content: {
                                   ...editedModule.content,
-                                  films: (editedModule.content.films || []).map(f =>
+                                  films: (editedModule.content?.films || []).map(f =>
                                     f.id === film.id ? { ...f, year: parseInt(e.target.value) } : f
                                   )
                                 }
@@ -720,7 +720,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                               onChange={(e) => updateModule({
                                 content: {
                                   ...editedModule.content,
-                                  films: (editedModule.content.films || []).map(f =>
+                                  films: (editedModule.content?.films || []).map(f =>
                                     f.id === film.id ? { ...f, relevance: e.target.value } : f
                                   )
                                 }
@@ -736,7 +736,7 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                             onClick={() => updateModule({
                               content: {
                                 ...editedModule.content,
-                                films: (editedModule.content.films || []).filter(f => f.id !== film.id)
+                                films: (editedModule.content?.films || []).filter(f => f.id !== film.id)
                               }
                             })}
                             className="text-red-600 hover:text-red-700"

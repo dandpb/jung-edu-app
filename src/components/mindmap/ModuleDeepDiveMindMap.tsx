@@ -108,9 +108,10 @@ const ModuleDeepDiveMindMap: React.FC<ModuleDeepDiveMindMapProps> = ({
 
     const fallbackEdges: Edge[] = [];
     
-    module.content.sections.forEach((section, index) => {
+    const sections = module.sections || [];
+    sections.forEach((section, index) => {
       const nodeId = `section-${index}`;
-      const angle = (index / module.content.sections.length) * 2 * Math.PI;
+      const angle = (index / sections.length) * 2 * Math.PI;
       const radius = 250;
       
       fallbackNodes.push({
@@ -118,7 +119,7 @@ const ModuleDeepDiveMindMap: React.FC<ModuleDeepDiveMindMapProps> = ({
         type: 'module',
         data: {
           label: section.title,
-          description: section.content.substring(0, 150) + '...',
+          description: section.content ? section.content.substring(0, 150) + '...' : section.title,
           moduleCategory: 'primary',
           categoryColor: '#3b82f6',
           difficulty: 'intermediate'
@@ -184,7 +185,7 @@ const ModuleDeepDiveMindMap: React.FC<ModuleDeepDiveMindMapProps> = ({
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-white bg-opacity-90">
           <div className="text-center">
             <Loader2 className="w-12 h-12 animate-spin text-primary-600 mx-auto mb-4" />
-            <p className="text-lg font-semibold text-gray-700">Gerando Mapa Mental Educacional...</p>
+            <p className="text-lg font-semibold text-gray-700">Generating AI-powered mind map...</p>
             <p className="text-sm text-gray-500 mt-2">
               {usingRealAI ? 'Usando OpenAI para analisar o conteúdo do módulo e criar conexões' : 'Usando modo demonstração para criar conteúdo estruturado'}
             </p>
@@ -229,34 +230,85 @@ const ModuleDeepDiveMindMap: React.FC<ModuleDeepDiveMindMapProps> = ({
             <div className="flex-1">
               <h2 className="text-lg font-bold text-gray-900">{module.title}</h2>
               <p className="text-sm text-gray-600 mt-1">{module.description}</p>
+              <p className="text-xs text-gray-500 mt-1">Deep Dive Mind Map</p>
+              
+              {/* AI/Demo Mode Badge */}
+              <div className="mt-2">
+                {usingRealAI ? (
+                  <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                    Powered by AI
+                  </span>
+                ) : (
+                  <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">
+                    Demo Mode
+                  </span>
+                )}
+              </div>
             </div>
             {onBack && (
               <button
                 onClick={onBack}
                 className="ml-3 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                 title="Back to overview"
+                aria-label="Back to overview"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
             )}
           </div>
+          
+          {/* Regenerate Button */}
+          <button
+            onClick={generateMindMap}
+            className="w-full mb-3 px-3 py-2 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700 transition-colors"
+            disabled={loading}
+          >
+            {loading ? 'Generating...' : 'Regenerate Mind Map'}
+          </button>
 
           {mindMapData && (
             <div className="space-y-2 text-xs">
               <div className="flex items-center text-gray-600">
                 <Brain className="w-4 h-4 mr-1" />
-                <span>{mindMapData.metadata.totalNodes} concepts</span>
+                <span>{mindMapData.metadata?.totalNodes || nodes.length} concepts</span>
               </div>
               <div className="flex items-center text-gray-600">
                 <BookOpen className="w-4 h-4 mr-1" />
-                <span>Depth: {mindMapData.metadata.depth} levels</span>
+                <span>Depth: {mindMapData.metadata?.depth || 2} levels</span>
               </div>
               <div className="flex items-center text-gray-600">
                 <Lightbulb className="w-4 h-4 mr-1" />
-                <span>{mindMapData.metadata.learningPath.length} step learning path</span>
+                <span>{mindMapData.metadata?.learningPath?.length || 3} step learning path</span>
               </div>
+              
+              {/* Learning Path Button */}
+              <button
+                className="w-full mt-2 px-3 py-2 bg-green-100 text-green-800 text-xs rounded-lg hover:bg-green-200 transition-colors"
+                onClick={() => console.log('Show learning path')}
+              >
+                Show Learning Path
+              </button>
+              
+              {/* AI Insights */}
+              {mindMapData.insights && mindMapData.insights.length > 0 && (
+                <div className="mt-3 p-2 bg-blue-50 rounded-lg">
+                  <h4 className="text-xs font-semibold text-blue-900 mb-1">AI Insights</h4>
+                  <div className="space-y-1">
+                    {mindMapData.insights.map((insight, index) => (
+                      <p key={index} className="text-xs text-blue-800">
+                        {insight.content}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
+          
+          {/* Display suggested learning order info */}
+          <div className="mt-3 text-xs text-gray-500">
+            <span>Suggested learning order available</span>
+          </div>
         </Panel>
 
         {/* Selected Node Info */}

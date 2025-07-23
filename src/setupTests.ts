@@ -1,49 +1,113 @@
 import '@testing-library/jest-dom';
 import 'jest-localstorage-mock';
 import * as React from 'react';
+import { setupTestEnvironment } from './test-utils/testConfig';
 
-// No need to mock react-router-dom - let tests use real routing
+// Setup test environment based on USE_REAL_API flag
+setupTestEnvironment();
 
-// Setup localStorage and sessionStorage mocks
-const mockStorage = () => {
-  let store: Record<string, string> = {};
-  
-  return {
-    getItem: (key: string) => store[key] || null,
-    setItem: (key: string, value: string) => {
-      store[key] = value.toString();
-    },
-    clear: () => {
-      store = {};
-    },
-    removeItem: (key: string) => {
-      delete store[key];
-    },
-    get length() {
-      return Object.keys(store).length;
-    },
-    key: (index: number) => {
-      const keys = Object.keys(store);
-      return keys[index] || null;
+// Skip integration tests when SKIP_INTEGRATION is set
+if (process.env.SKIP_INTEGRATION === 'true') {
+  const State = expect.getState();
+  if (State && State.testPath) {
+    const testPath = State.testPath;
+    const isIntegrationTest = 
+      testPath.includes('integrationValidator') ||
+      testPath.includes('endToEndValidator') ||
+      testPath.includes('/integration/') ||
+      testPath.includes('integration.test');
+    
+    if (isIntegrationTest) {
+      // Skip all tests in this file
+      beforeAll(() => {
+        console.log(`⏭️  Skipping integration test: ${testPath}`);
+        console.log('   Use "npm run test:integration" to run integration tests');
+      });
+      
+      // Make all tests in this file pending
+      global.test = global.test.skip;
+      global.it = global.it.skip;
     }
-  };
-};
+  }
+}
 
-// Apply mocks to both localStorage and sessionStorage
-Object.defineProperty(window, 'localStorage', {
-  value: mockStorage(),
-  writable: true
+// Mock console.log to suppress service initialization messages
+const originalLog = console.log;
+console.log = jest.fn((...args) => {
+  // Suppress specific service initialization logs
+  if (typeof args[0] === 'string' && 
+      (args[0].includes('Using OpenAI provider') || 
+       args[0].includes('YouTube Service:') ||
+       args[0].includes('No API key found'))) {
+    return;
+  }
+  originalLog.call(console, ...args);
 });
 
-Object.defineProperty(window, 'sessionStorage', {
-  value: mockStorage(),
-  writable: true
-});
+// Mock global timer functions to ensure they exist in all test environments
+// This fixes "clearInterval is not defined" errors that occur in different test execution contexts
+if (typeof global.setInterval === 'undefined') {
+  global.setInterval = setInterval;
+}
+if (typeof global.clearInterval === 'undefined') {
+  global.clearInterval = clearInterval;
+}
+if (typeof global.setTimeout === 'undefined') {
+  global.setTimeout = setTimeout;
+}
+if (typeof global.clearTimeout === 'undefined') {
+  global.clearTimeout = clearTimeout;
+}
 
+// Ensure these are also available on the window object for consistency
+if (typeof window !== 'undefined') {
+  window.setInterval = window.setInterval || setInterval;
+  window.clearInterval = window.clearInterval || clearInterval;
+  window.setTimeout = window.setTimeout || setTimeout;
+  window.clearTimeout = window.clearTimeout || clearTimeout;
+}
+
+// Test utilities will be imported directly in test files
+
+// The localStorage and sessionStorage are already mocked by jest-localstorage-mock
+// Just ensure we have the clear method available
 beforeEach(() => {
-  localStorage.clear();
-  sessionStorage.clear();
+  // Use the methods from jest-localstorage-mock
+  if (typeof localStorage !== 'undefined' && localStorage.clear) {
+    localStorage.clear();
+  }
+  if (typeof sessionStorage !== 'undefined' && sessionStorage.clear) {
+    sessionStorage.clear();
+  }
   jest.clearAllMocks();
+});
+
+// Ensure timer functions are properly available in the test environment
+// Use Node.js timer functions directly from the timers module
+const { setInterval: nodeSetInterval, clearInterval: nodeClearInterval, setTimeout: nodeSetTimeout, clearTimeout: nodeClearTimeout } = require('timers');
+
+Object.defineProperty(global, 'setInterval', {
+  value: nodeSetInterval,
+  writable: true,
+  configurable: true
+});
+
+Object.defineProperty(global, 'clearInterval', {
+  value: nodeClearInterval,
+  writable: true,
+  configurable: true
+});
+
+Object.defineProperty(global, 'setTimeout', {
+  value: nodeSetTimeout,
+  writable: true,
+  configurable: true
+});
+
+Object.defineProperty(global, 'clearTimeout', {
+  value: nodeClearTimeout,
+  writable: true,
+  configurable: true
 });
 
 // Mock IntersectionObserver
@@ -93,6 +157,22 @@ window.YT = {
     ENDED: 0,
   },
 };
+
+// Add polyfills for MSW v2 compatibility
+if (typeof global.TextEncoder === 'undefined') {
+  const util = require('util');
+  global.TextEncoder = util.TextEncoder;
+}
+
+if (typeof global.TextDecoder === 'undefined') {
+  const util = require('util');
+  global.TextDecoder = util.TextDecoder;
+}
+
+// Mock fetch if not available
+if (typeof global.fetch === 'undefined') {
+  global.fetch = jest.fn();
+}
 
 // Suppress specific console warnings in tests
 const originalError = console.error;

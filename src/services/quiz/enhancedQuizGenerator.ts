@@ -48,6 +48,27 @@ export class EnhancedQuizGenerator extends QuizGenerator {
       userLevel: 'intermediate'
     }
   ): Promise<Quiz> {
+    // Handle zero question count
+    if (questionCount <= 0) {
+      return {
+        id: `quiz-${moduleId}`,
+        moduleId,
+        title: `${topic} - Enhanced Assessment`,
+        description: `Comprehensive assessment of your understanding of ${topic} in Jungian psychology`,
+        questions: [],
+        passingScore: 70,
+        timeLimit: 0,
+        metadata: {
+          enhanced: true,
+          userLevel: options.userLevel,
+          concepts: [],
+          difficultyDistribution: { easy: 0, medium: 0, hard: 0 }
+        },
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+    }
+
     // Generate base questions using templates if enabled
     let questions: Question[];
     
@@ -61,6 +82,23 @@ export class EnhancedQuizGenerator extends QuizGenerator {
       );
     } else {
       questions = await this.generateQuestions(topic, content, objectives, questionCount);
+    }
+
+    // Add essay questions if requested and not already included
+    if (options.includeEssayQuestions && !questions.some(q => q.type === 'essay')) {
+      const essayCount = Math.max(1, Math.floor(questionCount * 0.2));
+      const essayQuestions = await this.generateEssayQuestions(
+        topic,
+        objectives,
+        essayCount
+      );
+      
+      // Replace some questions with essays or add them
+      if (questions.length >= essayCount) {
+        questions.splice(questions.length - essayCount, essayCount, ...essayQuestions);
+      } else {
+        questions.push(...essayQuestions);
+      }
     }
 
     // Enhance questions if enabled
@@ -182,14 +220,20 @@ export class EnhancedQuizGenerator extends QuizGenerator {
     // Ensure rawQuestions is an array
     if (!Array.isArray(rawQuestions)) {
       console.error('Enhanced quiz raw questions is not an array:', rawQuestions);
-      // Create fallback questions
-      const fallbackQuestions = [{
-        question: `What is a key aspect of ${topic}?`,
-        options: ['Option A', 'Option B', 'Option C', 'Option D'],
+      // Create fallback questions that include the topic
+      const fallbackQuestions = Array.from({ length: count }, (_, i) => ({
+        question: `What is a key aspect of ${topic} in Jungian psychology?`,
+        type: 'multiple-choice',
+        options: [
+          `A fundamental concept in ${topic}`,
+          'A behavioral psychology principle',
+          'A cognitive therapy technique',
+          'A social psychology phenomenon'
+        ],
         correctAnswer: 0,
-        explanation: 'This is a fundamental concept.',
+        explanation: `This relates to core principles of ${topic} in Jung's analytical psychology.`,
         difficulty: difficulty
-      }];
+      }));
       return fallbackQuestions.map((q, index) => this.formatTemplatedQuestion(q, index, difficulty));
     }
 
@@ -331,19 +375,19 @@ For each question provide:
     }>>(prompt, [], { temperature: 0.7, maxTokens: 1500 });
 
     // Ensure rawQuestions is an array
-    if (!Array.isArray(rawQuestions)) {
-      console.error('Essay raw questions is not an array:', rawQuestions);
+    if (!Array.isArray(rawQuestions) || rawQuestions.length === 0) {
+      console.error('Essay raw questions is not an array or empty:', rawQuestions);
       // Create fallback essay questions
-      const fallbackQuestions = [{
-        question: `Discuss the significance of ${topic} in Jungian psychology.`,
+      const fallbackQuestions = Array.from({ length: count }, (_, i) => ({
+        question: `Discuss the significance of ${topic} in Jungian psychology. Focus on how this concept contributes to personal psychological development.`,
         type: 'essay',
         rubric: {
-          required: ['key concepts', 'understanding'],
-          optional: ['examples', 'analysis'],
+          required: ['key concepts', 'understanding', topic.toLowerCase()],
+          optional: ['examples', 'analysis', 'personal reflection'],
           depth: 200
         },
-        explanation: 'A comprehensive discussion of the topic.'
-      }];
+        explanation: `A comprehensive discussion should address the core principles of ${topic}, its role in Jungian theory, and practical applications for psychological development.`
+      }));
       return fallbackQuestions.map((q, index) => ({
         id: `essay-${index + 1}`,
         type: 'essay' as const,
@@ -352,8 +396,12 @@ For each question provide:
         correctAnswer: -1, // Not applicable for essay questions
         rubric: q.rubric,
         explanation: q.explanation,
-        points: 20,
-        order: index
+        points: 25,
+        order: index,
+        metadata: {
+          difficulty: 'hard',
+          cognitiveLevel: 'create'
+        }
       }));
     }
 

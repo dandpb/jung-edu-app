@@ -4,6 +4,13 @@
  */
 
 import { OpenAIProvider, MockLLMProvider } from '../../services/llm/provider';
+import { 
+  setupIntegrationTest, 
+  getTestLLMProvider, 
+  testWithAPI, 
+  getAPIStatus,
+  measureAPICall 
+} from '../../test-utils/integrationTestHelpers';
 
 // Mock axios to avoid import issues in test environment
 jest.mock('axios', () => ({
@@ -15,7 +22,7 @@ jest.mock('axios', () => ({
   }
 }));
 
-// Mock OpenAI module
+// Mock OpenAI module when not using real API
 jest.mock('openai', () => ({
   OpenAI: jest.fn().mockImplementation(() => ({
     chat: {
@@ -29,31 +36,38 @@ jest.mock('openai', () => ({
   }))
 }));
 
-// Skip these tests if no API keys are configured
-const hasOpenAIKey = process.env.REACT_APP_OPENAI_API_KEY && process.env.REACT_APP_OPENAI_API_KEY !== 'your_openai_api_key_here';
-const hasYouTubeKey = process.env.REACT_APP_YOUTUBE_API_KEY && process.env.REACT_APP_YOUTUBE_API_KEY !== 'your_youtube_api_key_here';
-
 describe('API Integration Tests', () => {
+  setupIntegrationTest('API Integration Tests');
+  
+  // Display API configuration status
+  beforeAll(() => {
+    console.log(getAPIStatus());
+  });
+  
   describe('LLM Provider Tests', () => {
-    describe('Mock Provider', () => {
+    describe('Mock Provider (Always Available)', () => {
       test('should generate completion with mock provider', async () => {
-        const provider = new MockLLMProvider();
+        const provider = new MockLLMProvider(50); // Fast mock with 50ms delay
         
-        const result = await provider.generateCompletion(
-          'Write an introduction to Carl Jung',
-          {
-            temperature: 0.7,
-            maxTokens: 100
-          }
+        const { result, duration } = await measureAPICall(
+          'Mock completion',
+          () => provider.generateCompletion(
+            'Write an introduction to Carl Jung',
+            {
+              temperature: 0.7,
+              maxTokens: 100
+            }
+          )
         );
         
         expect(result).toBeDefined();
         expect(result).toContain('mock introduction');
         expect(result).toContain('Jungian psychology');
+        expect(duration).toBeLessThan(100); // Mocks should be fast
       });
       
       test('should generate structured response with mock provider', async () => {
-        const provider = new MockLLMProvider();
+        const provider = new MockLLMProvider(50); // Fast mock with 50ms delay
         
         const result = await provider.generateStructuredResponse(
           'Generate quiz questions about Jung',
@@ -72,7 +86,7 @@ describe('API Integration Tests', () => {
       });
       
       test('should handle video search queries', async () => {
-        const provider = new MockLLMProvider();
+        const provider = new MockLLMProvider(50); // Fast mock with 50ms delay
         
         const result = await provider.generateStructuredResponse(
           'Generate YouTube search queries',
@@ -85,7 +99,7 @@ describe('API Integration Tests', () => {
       });
       
       test('should handle section generation', async () => {
-        const provider = new MockLLMProvider();
+        const provider = new MockLLMProvider(50); // Fast mock with 50ms delay
         
         const result = await provider.generateStructuredResponse(
           'Generate sections outline',
@@ -101,16 +115,72 @@ describe('API Integration Tests', () => {
       });
     });
     
-    describe('OpenAI Provider (Mocked)', () => {
-      test('should create OpenAI provider instance', () => {
-        const provider = new OpenAIProvider('test-api-key');
+    describe('Dynamic Provider Tests', () => {
+      test('should use appropriate provider based on configuration', async () => {
+        const provider = await getTestLLMProvider();
+        
         expect(provider).toBeDefined();
         expect(provider.generateCompletion).toBeDefined();
         expect(provider.generateStructuredResponse).toBeDefined();
+        
+        const isAvailable = await provider.isAvailable();
+        expect(isAvailable).toBe(true);
       });
       
-      test('should estimate token count', () => {
-        const provider = new OpenAIProvider('test-api-key');
+      testWithAPI('openai', 'should generate real completion from OpenAI', async () => {
+        const provider = await getTestLLMProvider();
+        
+        const { result, duration } = await measureAPICall(
+          'OpenAI completion',
+          () => provider.generateCompletion(
+            'Write a brief introduction to Carl Jung in 50 words',
+            {
+              temperature: 0.7,
+              maxTokens: 100
+            }
+          )
+        );
+        
+        expect(result).toBeDefined();
+        expect(result.length).toBeGreaterThan(50);
+        expect(result.toLowerCase()).toContain('jung');
+        console.log(`✅ Real API response received (${result.length} chars in ${duration.toFixed(0)}ms)`);
+      });
+      
+      testWithAPI('openai', 'should generate structured quiz from OpenAI', async () => {
+        const provider = await getTestLLMProvider();
+        
+        const { result, duration } = await measureAPICall(
+          'OpenAI structured response',
+          () => provider.generateStructuredResponse(
+            'Generate 2 quiz questions about Carl Jung\'s concept of the collective unconscious',
+            { 
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  question: { type: 'string' },
+                  options: { type: 'array', items: { type: 'string' } },
+                  correctAnswer: { type: 'number' },
+                  explanation: { type: 'string' }
+                }
+              }
+            },
+            { temperature: 0.2 }
+          )
+        );
+        
+        expect(Array.isArray(result)).toBe(true);
+        expect(result.length).toBe(2);
+        expect(result[0]).toHaveProperty('question');
+        expect(result[0]).toHaveProperty('correctAnswer');
+        console.log(`✅ Generated ${result.length} quiz questions in ${duration.toFixed(0)}ms`);
+      });
+    });
+    
+    describe('Provider Capabilities', () => {
+      test('should estimate token count correctly', async () => {
+        const provider = await getTestLLMProvider();
         const text = 'This is a test string for token counting.';
         const tokenCount = provider.getTokenCount(text);
         
@@ -120,7 +190,7 @@ describe('API Integration Tests', () => {
       });
       
       test('should handle availability check', async () => {
-        const provider = new MockLLMProvider();
+        const provider = await getTestLLMProvider();
         const isAvailable = await provider.isAvailable();
         expect(isAvailable).toBe(true);
       });
@@ -128,13 +198,24 @@ describe('API Integration Tests', () => {
   });
 
   // Summary test to show which APIs are configured
-  describe('API Configuration Status', () => {
-    test('should report API configuration status', () => {
-      console.log('API Configuration Status:');
-      console.log('  OpenAI API Key:', hasOpenAIKey ? '✅ Configured' : '❌ Not configured');
-      console.log('  YouTube API Key:', hasYouTubeKey ? '✅ Configured' : '❌ Not configured');
-      console.log('  OpenAI Model:', process.env.REACT_APP_OPENAI_MODEL || 'gpt-4o-mini (default)');
-      console.log('  LLM Provider:', process.env.LLM_PROVIDER || 'openai (default)');
+  describe('API Configuration Summary', () => {
+    test('should report final API configuration status', () => {
+      const config = {
+        mode: process.env.USE_REAL_API === 'true' ? 'REAL' : 'MOCK',
+        openAI: process.env.REACT_APP_OPENAI_API_KEY ? '✅' : '❌',
+        youTube: process.env.REACT_APP_YOUTUBE_API_KEY ? '✅' : '❌',
+        model: process.env.REACT_APP_OPENAI_MODEL || 'gpt-4o-mini',
+        provider: process.env.LLM_PROVIDER || 'openai'
+      };
+      
+      console.log(`
+📊 Test Summary:
+   Mode: ${config.mode}
+   OpenAI: ${config.openAI}
+   YouTube: ${config.youTube}
+   Model: ${config.model}
+   Provider: ${config.provider}
+      `);
       
       // This test always passes, it's just for reporting
       expect(true).toBe(true);

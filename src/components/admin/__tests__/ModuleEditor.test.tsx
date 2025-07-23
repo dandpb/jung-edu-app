@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import ModuleEditor from '../ModuleEditor';
 import { Module } from '../../../types';
 
@@ -10,6 +11,7 @@ const mockModule: Module = {
   icon: '🧪',
   estimatedTime: 30,
   difficulty: 'beginner',
+  prerequisites: ['module-1'],
   content: {
     introduction: 'Test introduction',
     sections: [
@@ -17,9 +19,36 @@ const mockModule: Module = {
         id: 'section-1',
         title: 'Section 1',
         content: 'Section content',
+        order: 0,
         keyTerms: [
           { term: 'Term 1', definition: 'Definition 1' }
         ]
+      }
+    ],
+    videos: [
+      {
+        id: 'video-1',
+        title: 'Introduction Video',
+        youtubeId: 'abc123',
+        description: 'Video description',
+        duration: 10
+      }
+    ],
+    bibliography: [
+      {
+        authors: ['Jung, C.G.'],
+        title: 'The Red Book',
+        year: 1913,
+        type: 'book',
+        link: 'https://example.com'
+      }
+    ],
+    films: [
+      {
+        title: 'A Dangerous Method',
+        year: 2011,
+        director: 'David Cronenberg',
+        description: 'About Jung and Freud'
       }
     ],
     quiz: {
@@ -40,7 +69,22 @@ const mockModule: Module = {
 
 const mockOnSave = jest.fn();
 const mockOnCancel = jest.fn();
-const mockModules: Module[] = [mockModule];
+
+const mockModules: Module[] = [
+  mockModule,
+  {
+    id: 'module-1',
+    title: 'Prerequisite Module',
+    description: 'Prerequisite Description',
+    icon: '📚',
+    estimatedTime: 45,
+    difficulty: 'beginner',
+    content: {
+      introduction: 'Intro',
+      sections: []
+    }
+  }
+];
 
 describe('ModuleEditor Component', () => {
   beforeEach(() => {
@@ -319,6 +363,458 @@ describe('ModuleEditor Component', () => {
           id: 'test-module'
         })
       );
+    });
+  });
+
+  describe('Section Management', () => {
+    test('expands and collapses sections', () => {
+      render(
+        <ModuleEditor
+          module={mockModule}
+          modules={mockModules}
+          onSave={mockOnSave}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      // Navigate to content tab
+      fireEvent.click(screen.getByText(/conteúdo/i));
+
+      // Find expand button
+      const expandButton = screen.getAllByRole('button').find(button => 
+        button.querySelector('svg.lucide-chevron-right')
+      );
+      
+      expect(expandButton).toBeInTheDocument();
+      
+      // Expand section
+      fireEvent.click(expandButton!);
+      
+      // Should now show chevron-down
+      const collapseButton = screen.getAllByRole('button').find(button => 
+        button.querySelector('svg.lucide-chevron-down')
+      );
+      expect(collapseButton).toBeInTheDocument();
+      
+      // Content should be visible
+      expect(screen.getByDisplayValue('Section content')).toBeInTheDocument();
+    });
+
+    test('updates section content', () => {
+      render(
+        <ModuleEditor
+          module={mockModule}
+          modules={mockModules}
+          onSave={mockOnSave}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      // Navigate to content tab
+      fireEvent.click(screen.getByText(/conteúdo/i));
+
+      // Expand section
+      const expandButton = screen.getAllByRole('button').find(button => 
+        button.querySelector('svg.lucide-chevron-right')
+      );
+      fireEvent.click(expandButton!);
+
+      // Update content
+      const contentTextarea = screen.getByDisplayValue('Section content');
+      fireEvent.change(contentTextarea, { target: { value: 'Updated section content' } });
+
+      expect(screen.getByDisplayValue('Updated section content')).toBeInTheDocument();
+    });
+
+    test('deletes section', () => {
+      render(
+        <ModuleEditor
+          module={mockModule}
+          modules={mockModules}
+          onSave={mockOnSave}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      // Navigate to content tab
+      fireEvent.click(screen.getByText(/conteúdo/i));
+
+      // Click delete button
+      const deleteButton = screen.getAllByRole('button').find(button => 
+        button.querySelector('svg.lucide-trash2')
+      );
+      fireEvent.click(deleteButton!);
+
+      // Section should be removed
+      expect(screen.queryByDisplayValue('Section 1')).not.toBeInTheDocument();
+    });
+
+    test('adds key terms to section', () => {
+      render(
+        <ModuleEditor
+          module={mockModule}
+          modules={mockModules}
+          onSave={mockOnSave}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      // Navigate to content tab
+      fireEvent.click(screen.getByText(/conteúdo/i));
+
+      // Expand section
+      const expandButton = screen.getAllByRole('button').find(button => 
+        button.querySelector('svg.lucide-chevron-right')
+      );
+      fireEvent.click(expandButton!);
+
+      // Should show existing key term
+      expect(screen.getByDisplayValue('Term 1')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('Definition 1')).toBeInTheDocument();
+    });
+  });
+
+  describe('Videos Tab', () => {
+    test('displays and manages videos', () => {
+      render(
+        <ModuleEditor
+          module={mockModule}
+          modules={mockModules}
+          onSave={mockOnSave}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      // Navigate to videos tab
+      fireEvent.click(screen.getByText(/vídeos/i));
+
+      // Should display existing video
+      expect(screen.getByDisplayValue('Introduction Video')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('abc123')).toBeInTheDocument();
+    });
+
+    test('adds new video', () => {
+      render(
+        <ModuleEditor
+          module={mockModule}
+          modules={mockModules}
+          onSave={mockOnSave}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      // Navigate to videos tab
+      fireEvent.click(screen.getByText(/vídeos/i));
+
+      // Click add video button
+      const addVideoButton = screen.getByText(/adicionar vídeo/i);
+      fireEvent.click(addVideoButton);
+
+      // Should add new video with default values
+      expect(screen.getByDisplayValue('Novo Vídeo')).toBeInTheDocument();
+    });
+  });
+
+  describe('Resources Tab', () => {
+    test('displays bibliography', () => {
+      render(
+        <ModuleEditor
+          module={mockModule}
+          modules={mockModules}
+          onSave={mockOnSave}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      // Navigate to resources tab
+      fireEvent.click(screen.getByText(/recursos/i));
+
+      // Should display bibliography
+      expect(screen.getByDisplayValue('The Red Book')).toBeInTheDocument();
+    });
+
+    test('adds new bibliography entry', () => {
+      render(
+        <ModuleEditor
+          module={mockModule}
+          modules={mockModules}
+          onSave={mockOnSave}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      // Navigate to resources tab
+      fireEvent.click(screen.getByText(/recursos/i));
+
+      // Click add bibliography button
+      const addBibButton = screen.getByText(/adicionar livro/i);
+      fireEvent.click(addBibButton);
+
+      // Should add new bibliography entry
+      expect(screen.getByDisplayValue('Novo Livro')).toBeInTheDocument();
+    });
+
+    test('manages films', () => {
+      render(
+        <ModuleEditor
+          module={mockModule}
+          modules={mockModules}
+          onSave={mockOnSave}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      // Navigate to resources tab
+      fireEvent.click(screen.getByText(/recursos/i));
+
+      // Should display existing film
+      expect(screen.getByDisplayValue('A Dangerous Method')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('David Cronenberg')).toBeInTheDocument();
+    });
+  });
+
+  describe('Prerequisites', () => {
+    test('displays and manages prerequisites', () => {
+      render(
+        <ModuleEditor
+          module={mockModule}
+          modules={mockModules}
+          onSave={mockOnSave}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      // Should show prerequisite checkbox
+      const prerequisiteCheckbox = screen.getByLabelText('Prerequisite Module');
+      expect(prerequisiteCheckbox).toBeChecked();
+    });
+
+    test('adds prerequisite', () => {
+      const moduleWithoutPrereqs = {
+        ...mockModule,
+        prerequisites: []
+      };
+
+      render(
+        <ModuleEditor
+          module={moduleWithoutPrereqs}
+          modules={mockModules}
+          onSave={mockOnSave}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      const prerequisiteCheckbox = screen.getByLabelText('Prerequisite Module');
+      fireEvent.click(prerequisiteCheckbox);
+
+      // Save and check
+      fireEvent.click(screen.getByText(/salvar módulo/i));
+
+      expect(mockOnSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          prerequisites: ['module-1']
+        })
+      );
+    });
+
+    test('removes prerequisite', () => {
+      render(
+        <ModuleEditor
+          module={mockModule}
+          modules={mockModules}
+          onSave={mockOnSave}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      const prerequisiteCheckbox = screen.getByLabelText('Prerequisite Module');
+      fireEvent.click(prerequisiteCheckbox);
+
+      // Save and check
+      fireEvent.click(screen.getByText(/salvar módulo/i));
+
+      expect(mockOnSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          prerequisites: []
+        })
+      );
+    });
+  });
+
+  describe('Quiz Integration', () => {
+    test('displays quiz editor in quiz tab', () => {
+      render(
+        <ModuleEditor
+          module={mockModule}
+          modules={mockModules}
+          onSave={mockOnSave}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      // Navigate to quiz tab
+      fireEvent.click(screen.getByText(/questionário/i));
+
+      // Should show quiz editor
+      expect(screen.getByDisplayValue('Test Quiz')).toBeInTheDocument();
+    });
+
+    test('updates quiz data', async () => {
+      render(
+        <ModuleEditor
+          module={mockModule}
+          modules={mockModules}
+          onSave={mockOnSave}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      // Navigate to quiz tab
+      fireEvent.click(screen.getByText(/questionário/i));
+
+      // Update quiz title
+      const quizTitleInput = screen.getByDisplayValue('Test Quiz');
+      fireEvent.change(quizTitleInput, { target: { value: 'Updated Quiz Title' } });
+
+      // Save module
+      fireEvent.click(screen.getByText(/salvar módulo/i));
+
+      await waitFor(() => {
+        expect(mockOnSave).toHaveBeenCalledWith(
+          expect.objectContaining({
+            content: expect.objectContaining({
+              quiz: expect.objectContaining({
+                title: 'Updated Quiz Title'
+              })
+            })
+          })
+        );
+      });
+    });
+  });
+
+  describe('Validation', () => {
+    test('prevents saving with empty title', () => {
+      const moduleWithEmptyTitle = {
+        ...mockModule,
+        title: ''
+      };
+
+      render(
+        <ModuleEditor
+          module={moduleWithEmptyTitle}
+          modules={mockModules}
+          onSave={mockOnSave}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      fireEvent.click(screen.getByText(/salvar módulo/i));
+      expect(mockOnSave).not.toHaveBeenCalled();
+    });
+
+    test('prevents saving with only whitespace in title', () => {
+      render(
+        <ModuleEditor
+          module={mockModule}
+          modules={mockModules}
+          onSave={mockOnSave}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      const titleInput = screen.getByLabelText(/título do módulo/i);
+      fireEvent.change(titleInput, { target: { value: '   ' } });
+
+      fireEvent.click(screen.getByText(/salvar módulo/i));
+      expect(mockOnSave).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Icon Selector', () => {
+    test('updates module icon', () => {
+      render(
+        <ModuleEditor
+          module={mockModule}
+          modules={mockModules}
+          onSave={mockOnSave}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      const iconInput = screen.getByLabelText(/ícone/i);
+      fireEvent.change(iconInput, { target: { value: '🎯' } });
+
+      expect(screen.getByDisplayValue('🎯')).toBeInTheDocument();
+    });
+  });
+
+  describe('Edge Cases', () => {
+    test('handles module without videos', () => {
+      const moduleWithoutVideos = {
+        ...mockModule,
+        content: {
+          ...mockModule.content,
+          videos: undefined
+        }
+      };
+
+      render(
+        <ModuleEditor
+          module={moduleWithoutVideos}
+          modules={mockModules}
+          onSave={mockOnSave}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      // Navigate to videos tab
+      fireEvent.click(screen.getByText(/vídeos/i));
+
+      // Should still be able to add videos
+      expect(screen.getByText(/adicionar vídeo/i)).toBeInTheDocument();
+    });
+
+    test('handles module without bibliography', () => {
+      const moduleWithoutBib = {
+        ...mockModule,
+        content: {
+          ...mockModule.content,
+          bibliography: undefined
+        }
+      };
+
+      render(
+        <ModuleEditor
+          module={moduleWithoutBib}
+          modules={mockModules}
+          onSave={mockOnSave}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      // Navigate to resources tab
+      fireEvent.click(screen.getByText(/recursos/i));
+
+      // Should still be able to add bibliography
+      expect(screen.getByText(/adicionar livro/i)).toBeInTheDocument();
+    });
+
+    test('handles invalid estimated time input', () => {
+      render(
+        <ModuleEditor
+          module={mockModule}
+          modules={mockModules}
+          onSave={mockOnSave}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      const timeInput = screen.getByLabelText(/tempo estimado/i);
+      fireEvent.change(timeInput, { target: { value: 'invalid' } });
+
+      // Should handle NaN gracefully
+      expect(timeInput).toHaveValue(null);
     });
   });
 });

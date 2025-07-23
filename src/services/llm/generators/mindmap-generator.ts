@@ -42,7 +42,7 @@ export class MindMapGenerator {
     style: 'comprehensive' | 'simplified' | 'analytical' = 'comprehensive',
     language: string = 'pt-BR'
   ): Promise<MindMap> {
-    const structure = await this.generateStructure(topic, concepts, depth, style, language);
+    const { rootId, structure } = await this.generateStructure(topic, concepts, depth, style, language);
     const nodes = await this.enrichNodes(structure, topic, language);
     const connections = await this.generateConnections(nodes, topic, language);
     
@@ -50,7 +50,7 @@ export class MindMapGenerator {
       id: `mindmap-${Date.now()}`,
       title: language === 'pt-BR' ? `${topic} - Perspectiva Junguiana` : `${topic} - Jungian Perspective`,
       description: language === 'pt-BR' ? `Uma exploração visual de ${topic} através dos conceitos psicológicos junguianos` : `A visual exploration of ${topic} through Jungian psychological concepts`,
-      rootNode: structure.rootId,
+      rootNode: rootId,
       nodes,
       connections,
       layout: style === 'analytical' ? 'hierarchical' : 'radial',
@@ -286,7 +286,9 @@ Limit to the most meaningful 5-8 connections.
         type: 'hierarchical' as const,
       }));
 
-    return [...hierarchicalConnections, ...connections];
+    // Ensure connections is an array before spreading
+    const customConnections = Array.isArray(connections) ? connections : [];
+    return [...hierarchicalConnections, ...customConnections];
   }
 
   private getColorForCategory(category?: string): string {
@@ -296,7 +298,7 @@ Limit to the most meaningful 5-8 connections.
       process: '#2563EB', // Blue - flowing, transformative
       concept: '#059669', // Green - growth, understanding
     };
-    return colorMap[category || 'concept'] || '#6B7280';
+    return category ? (colorMap[category] || '#6B7280') : '#6B7280';
   }
 
   private getIconForCategory(category?: string): string {
@@ -306,7 +308,7 @@ Limit to the most meaningful 5-8 connections.
       process: '🔄', // Cíclo - transformação
       concept: '💡', // Lâmpada - compreensão
     };
-    return iconMap[category || 'concept'] || '📍';
+    return category ? (iconMap[category] || '📍') : '📍';
   }
 
   async generateStudyPath(mindMap: MindMap, language: string = 'pt-BR'): Promise<string[]> {

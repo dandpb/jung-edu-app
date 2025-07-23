@@ -25,7 +25,13 @@ function AppContent() {
   const [userProgress, setUserProgress] = useState<UserProgress>(() => {
     const saved = localStorage.getItem('jungAppProgress');
     if (saved) {
-      return JSON.parse(saved);
+      try {
+        return JSON.parse(saved);
+      } catch (error) {
+        // If localStorage data is corrupted, clear it and create new progress
+        console.warn('Corrupted localStorage data detected, creating new user progress:', error);
+        localStorage.removeItem('jungAppProgress');
+      }
     }
     const newProgress = {
       userId: 'user-' + Date.now(),

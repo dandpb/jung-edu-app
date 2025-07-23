@@ -1,0 +1,248 @@
+/**
+ * Comprehensive Test Suite for ValidationService
+ * Tests the main validation service orchestrator
+ */
+
+import { ValidationService, validationService } from '../index';
+import * as systemValidatorModule from '../systemValidator';
+import * as integrationValidatorModule from '../integrationValidator';
+import * as endToEndValidatorModule from '../endToEndValidator';
+import { EducationalModule } from '../../../schemas/module.schema';
+
+// Mock the validator modules
+jest.mock('../systemValidator', () => ({
+  systemValidator: {
+    validateSystem: jest.fn()
+  }
+}));
+jest.mock('../integrationValidator', () => ({
+  integrationValidator: {
+    validateIntegration: jest.fn()
+  }
+}));
+jest.mock('../endToEndValidator', () => ({
+  endToEndValidator: {
+    validateEndToEnd: jest.fn()
+  }
+}));
+
+describe('ValidationService', () => {
+  let service: ValidationService;
+  let mockModule: EducationalModule;
+  
+  // Get the mocked functions
+  const mockSystemValidator = systemValidatorModule.systemValidator;
+  const mockIntegrationValidator = integrationValidatorModule.integrationValidator;
+  const mockEndToEndValidator = endToEndValidatorModule.endToEndValidator;
+
+  beforeEach(() => {
+    service = new ValidationService();
+    
+    // Reset all mocks
+    jest.clearAllMocks();
+    
+    // Create mock module
+    mockModule = {
+      id: 'test-module-1',
+      title: 'Test Module',
+      description: 'Test description',
+      content: {
+        introduction: 'Test intro',
+        sections: [{
+          id: 's1',
+          title: 'Section 1',
+          content: 'Content',
+          order: 0,
+          keyTerms: [{ term: 'term1', definition: 'Definition 1' }],
+          images: [],
+          interactiveElements: [],
+          estimatedTime: 5
+        }],
+        summary: 'Test summary',
+        keyTakeaways: ['takeaway']
+      },
+      videos: [],
+      mindMaps: [],
+      quiz: {
+        id: 'q1',
+        title: 'Quiz',
+        description: 'Quiz desc',
+        questions: [],
+        timeLimit: 10,
+        passingScore: 70
+      },
+      difficulty: 'beginner',
+      tags: ['test'],
+      targetAudience: 'students',
+      educationalObjectives: ['objective'],
+      prerequisites: [],
+      estimatedDuration: 30,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      status: 'published',
+      version: 1,
+      lastModifiedBy: 'test-user',
+      metadata: {}
+    };
+
+    // Setup default mock returns
+    const mockSystemResult = {
+      isValid: true,
+      overall: { score: 85, grade: 'B', status: 'good' },
+      modules: [{ moduleId: 'test-module-1', isValid: true, score: 85 }],
+      errors: [],
+      warnings: [],
+      recommendations: [{ message: 'Test recommendation', priority: 'medium' }]
+    };
+
+    const mockIntegrationResult = {
+      overall: {
+        score: 90,
+        passed: true,
+        totalTests: 10,
+        passedTests: 9,
+        failedTests: 1
+      },
+      recommendations: []
+    };
+
+    const mockE2EResult = {
+      overall: {
+        score: 88,
+        passed: true
+      },
+      workflows: [
+        { passed: true, userExperienceScore: 85 },
+        { passed: true, userExperienceScore: 90 }
+      ],
+      criticalIssues: [],
+      performanceMetrics: { overallScore: 85 },
+      securityValidation: { overallScore: 90 },
+      accessibilityValidation: { overallScore: 87 },
+      reliabilityMetrics: { overallScore: 92 },
+      recommendations: []
+    };
+
+    (mockSystemValidator.validateSystem as jest.Mock).mockResolvedValue(mockSystemResult as any);
+    (mockIntegrationValidator.validateIntegration as jest.Mock).mockResolvedValue(mockIntegrationResult as any);
+    (mockEndToEndValidator.validateEndToEnd as jest.Mock).mockResolvedValue(mockE2EResult as any);
+  });
+
+  describe('validateComplete', () => {
+    it('should run all validators and return comprehensive results', async () => {
+      const result = await service.validateComplete([mockModule]);
+
+      expect(result).toMatchObject({
+        moduleCount: 1,
+        passed: true,
+        grade: expect.stringMatching(/[ABCDF]/),
+        status: expect.any(String),
+        system: {
+          score: 85,
+          passed: true,
+          moduleResults: 1,
+          criticalIssues: 0
+        },
+        integration: {
+          score: 90,
+          passed: true,
+          totalTests: 10,
+          passedTests: 9,
+          failedTests: 1
+        },
+        endToEnd: {
+          score: 88,
+          passed: true,
+          workflowsPassed: 2,
+          workflowsFailed: 0,
+          criticalIssues: 0
+        }
+      });
+
+      // Verify all validators were called
+      expect(mockSystemValidator.validateSystem).toHaveBeenCalledWith([mockModule]);
+      expect(mockIntegrationValidator.validateIntegration).toHaveBeenCalledWith([mockModule]);
+      expect(mockEndToEndValidator.validateEndToEnd).toHaveBeenCalledWith([mockModule]);
+    });
+
+    it('should calculate weighted overall score correctly', async () => {
+      const result = await service.validateComplete([mockModule]);
+      
+      // Expected: 85 * 0.4 + 90 * 0.3 + 88 * 0.3 = 34 + 27 + 26.4 = 87.4 → 87
+      expect(result.overallScore).toBe(87);
+    });
+
+    it('should handle validation failures gracefully', async () => {
+      const error = new Error('Validation failed');
+      (mockSystemValidator.validateSystem as jest.Mock).mockRejectedValue(error);
+
+      const result = await service.validateComplete([mockModule]);
+
+      expect(result).toMatchObject({
+        overallScore: 0,
+        grade: 'F',
+        status: 'critical_issues',
+        passed: false,
+        summary: {
+          criticalIssues: expect.arrayContaining([expect.stringContaining('Validation failed')])
+        }
+      });
+    });
+
+    it('should identify strengths correctly', async () => {
+      const result = await service.validateComplete([mockModule]);
+
+      expect(result.summary.strengths).toContain('Strong module content quality');
+      expect(result.summary.strengths).toContain('Robust system integration');
+      expect(result.summary.strengths).toContain('Strong security posture');
+    });
+  });
+
+  describe('validateQuick', () => {
+    it('should perform quick validation using system validator only', async () => {
+      const result = await service.validateQuick([mockModule]);
+
+      expect(result).toMatchObject({
+        score: 85,
+        passed: true,
+        issues: [],
+        recommendations: ['Test recommendation']
+      });
+
+      expect(mockSystemValidator.validateSystem).toHaveBeenCalledWith([mockModule]);
+      expect(mockIntegrationValidator.validateIntegration).not.toHaveBeenCalled();
+      expect(mockEndToEndValidator.validateEndToEnd).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('validateAspect', () => {
+    it('should validate system aspect', async () => {
+      const result = await service.validateAspect([mockModule], 'system');
+      expect(mockSystemValidator.validateSystem).toHaveBeenCalledWith([mockModule]);
+      expect(result).toHaveProperty('overall.score', 85);
+    });
+
+    it('should validate integration aspect', async () => {
+      const result = await service.validateAspect([mockModule], 'integration');
+      expect(mockIntegrationValidator.validateIntegration).toHaveBeenCalledWith([mockModule]);
+      expect(result).toHaveProperty('overall.score', 90);
+    });
+
+    it('should validate e2e aspect', async () => {
+      const result = await service.validateAspect([mockModule], 'e2e');
+      expect(mockEndToEndValidator.validateEndToEnd).toHaveBeenCalledWith([mockModule]);
+      expect(result).toHaveProperty('overall.score', 88);
+    });
+
+    it('should throw error for unknown aspect', async () => {
+      await expect(service.validateAspect([mockModule], 'unknown' as any))
+        .rejects.toThrow('Unknown validation aspect: unknown');
+    });
+  });
+
+  describe('singleton instance', () => {
+    it('should export a singleton instance', () => {
+      expect(validationService).toBeInstanceOf(ValidationService);
+    });
+  });
+});

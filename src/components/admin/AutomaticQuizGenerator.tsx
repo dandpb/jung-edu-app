@@ -276,10 +276,11 @@ const AutomaticQuizGenerator: React.FC<AutomaticQuizGeneratorProps> = ({
           {/* Basic Options */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="questionCount" className="block text-sm font-medium text-gray-700 mb-1">
                 Número de Questões
               </label>
               <input
+                id="questionCount"
                 type="number"
                 min="5"
                 max="20"
@@ -293,10 +294,11 @@ const AutomaticQuizGenerator: React.FC<AutomaticQuizGeneratorProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="targetDifficulty" className="block text-sm font-medium text-gray-700 mb-1">
                 Nível de Dificuldade
               </label>
               <select
+                id="targetDifficulty"
                 value={generationOptions.targetDifficulty}
                 onChange={(e) => setGenerationOptions(prev => ({
                   ...prev,
@@ -331,10 +333,11 @@ const AutomaticQuizGenerator: React.FC<AutomaticQuizGeneratorProps> = ({
           {showAdvancedOptions && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="qualityThreshold" className="block text-sm font-medium text-gray-700 mb-1">
                   Limiar de Qualidade (%)
                 </label>
                 <input
+                  id="qualityThreshold"
                   type="number"
                   min="50"
                   max="100"
@@ -348,10 +351,11 @@ const AutomaticQuizGenerator: React.FC<AutomaticQuizGeneratorProps> = ({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="maxRetries" className="block text-sm font-medium text-gray-700 mb-1">
                   Máximo de Tentativas
                 </label>
                 <input
+                  id="maxRetries"
                   type="number"
                   min="1"
                   max="5"

@@ -29,8 +29,16 @@ export class QuizEnhancer {
       contextualizeQuestions: true
     }
   ): Promise<Question[]> {
+    // Handle null, undefined, or invalid input
+    if (!questions || !Array.isArray(questions)) {
+      return [];
+    }
+
+    // Filter out null/undefined questions and process valid ones
+    const validQuestions = questions.filter(q => q && typeof q === 'object');
+    
     return Promise.all(
-      questions.map(q => this.enhanceQuestion(q, topic, options))
+      validQuestions.map(q => this.enhanceQuestion(q, topic, options))
     );
   }
 
@@ -42,6 +50,25 @@ export class QuizEnhancer {
     topic: string,
     options: EnhancementOptions
   ): Promise<Question> {
+    // Ensure we have valid inputs
+    if (!question || typeof question !== 'object') {
+      throw new Error('Invalid question object provided');
+    }
+
+    if (!topic || typeof topic !== 'string') {
+      topic = 'General Psychology';
+    }
+
+    if (!options || typeof options !== 'object') {
+      options = {
+        addExplanations: true,
+        improveDistractors: true,
+        varyQuestionStems: true,
+        addReferences: true,
+        contextualizeQuestions: true
+      };
+    }
+
     let enhanced = { ...question };
 
     if (options.varyQuestionStems) {

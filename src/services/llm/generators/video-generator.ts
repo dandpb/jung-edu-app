@@ -115,6 +115,15 @@ export class VideoGenerator {
       return fallbackVideos;
     }
     
+    // Create a map to preserve YouTube IDs
+    const videoIdMap = new Map<string, string>();
+    uniqueVideos.forEach(v => {
+      if (v.videoId) {
+        // Map by title as a fallback identifier
+        videoIdMap.set(v.title, v.videoId);
+      }
+    });
+    
     // Enrich videos with metadata and educational analysis
     const enrichedVideos = await this.getVideoEnricher().enrichMultipleVideos(
       uniqueVideos.slice(0, count * 2), // Process more videos than needed
@@ -142,10 +151,13 @@ export class VideoGenerator {
     console.log('✅ Selected videos:', selectedVideos.length);
     
     // Convert to Video format with actual YouTube IDs
-    return selectedVideos.map(video => {
+    return selectedVideos.map((video) => {
       const { metadata, ...videoResource } = video;
-      // Get YouTube ID from enriched video (which uses schema Video type)
-      const youtubeId = this.extractYouTubeIdFromUrl(video.url) || (video as any).videoId;
+      // Get YouTube ID from enriched video or original search results
+      const youtubeId = this.extractYouTubeIdFromUrl(video.url) || 
+                        (video as any).videoId || 
+                        videoIdMap.get(video.title) ||
+                        null;
       
       // Return simple Video type from types/index.ts
       return {
@@ -487,7 +499,7 @@ Response format:
     }));
     
     // Enrich videos with educational metadata
-    const enrichedVideos = await this.videoEnricher.enrichMultipleVideos(
+    const enrichedVideos = await this.getVideoEnricher().enrichMultipleVideos(
       youtubeVideos,
       {
         assessDifficulty: true,
@@ -502,7 +514,7 @@ Response format:
     );
     
     // Create a relevance matrix for learning path alignment
-    const relevanceMatrix = this.videoEnricher.calculateRelevanceMatrix(
+    const relevanceMatrix = this.getVideoEnricher().calculateRelevanceMatrix(
       enrichedVideos,
       learningPath
     );
@@ -575,8 +587,12 @@ Response format:
   }
 
   private convertDurationToMinutes(duration: any): number {
+    // Handle null or undefined
+    if (!duration) {
+      return 15; // Default duration
+    }
     // Handle schema's VideoDuration object
-    if (typeof duration === 'object' && duration.hours !== undefined) {
+    if (typeof duration === 'object' && duration !== null && duration.hours !== undefined) {
       return duration.hours * 60 + duration.minutes + Math.ceil((duration.seconds || 0) / 60);
     }
     // Handle number (already in minutes)
@@ -672,9 +688,9 @@ Response format:
     };
     
     const [enrichedBeginner, enrichedIntermediate, enrichedAdvanced] = await Promise.all([
-      this.videoEnricher.enrichMultipleVideos(beginnerVideos, enrichmentOptions),
-      this.videoEnricher.enrichMultipleVideos(intermediateVideos, enrichmentOptions),
-      this.videoEnricher.enrichMultipleVideos(advancedVideos, enrichmentOptions),
+      this.getVideoEnricher().enrichMultipleVideos(beginnerVideos, enrichmentOptions),
+      this.getVideoEnricher().enrichMultipleVideos(intermediateVideos, enrichmentOptions),
+      this.getVideoEnricher().enrichMultipleVideos(advancedVideos, enrichmentOptions),
     ]);
     
     // Filter videos by their analyzed difficulty level
@@ -753,7 +769,7 @@ Response format:
     const newVideos = allVideos.filter(v => !watchedVideoIds.includes(v.videoId));
     
     // Enrich and return
-    const enrichedVideos = await this.videoEnricher.enrichMultipleVideos(
+    const enrichedVideos = await this.getVideoEnricher().enrichMultipleVideos(
       newVideos.slice(0, 10),
       {
         assessDifficulty: true,

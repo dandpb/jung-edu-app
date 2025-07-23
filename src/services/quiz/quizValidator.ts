@@ -68,8 +68,19 @@ export class QuizValidator {
    * Validate a single question
    */
   private validateQuestion(question: Question): QuestionValidationResult {
+    // Handle null/undefined questions
+    if (!question || typeof question !== 'object') {
+      return {
+        questionId: 'unknown',
+        isValid: false,
+        errors: ['Invalid question object'],
+        warnings: [],
+        qualityScore: 0
+      };
+    }
+
     const result: QuestionValidationResult = {
-      questionId: question.id,
+      questionId: question.id || 'unknown',
       isValid: true,
       errors: [],
       warnings: [],
@@ -154,7 +165,17 @@ export class QuizValidator {
     options.forEach((option, index) => {
       if (index === question.correctAnswer) return; // Skip correct answer
 
-      const optionText = typeof option === 'string' ? option : (option.text || option.toString());
+      // Handle non-string options
+      let optionText: string;
+      if (typeof option === 'string') {
+        optionText = option;
+      } else if (option && typeof option === 'object' && option.text) {
+        optionText = option.text;
+      } else if (option && typeof option.toString === 'function') {
+        optionText = option.toString();
+      } else {
+        optionText = '';
+      }
 
       // Check for generic patterns
       if (genericPatterns.some(pattern => pattern.test(optionText))) {
@@ -195,7 +216,16 @@ export class QuizValidator {
 
     // Check length consistency
     const lengths = options.map(o => {
-      const text = typeof o === 'string' ? o : (o.text || o.toString());
+      let text: string;
+      if (typeof o === 'string') {
+        text = o;
+      } else if (o && typeof o === 'object' && o.text) {
+        text = o.text;
+      } else if (o && typeof o.toString === 'function') {
+        text = o.toString();
+      } else {
+        text = '';
+      }
       return text.length;
     });
     const avgLength = lengths.reduce((a, b) => a + b, 0) / lengths.length;
@@ -214,7 +244,17 @@ export class QuizValidator {
     options.forEach((option, index) => {
       if (index === question.correctAnswer) return;
       
-      const optionText = typeof option === 'string' ? option : (option.text || option.toString());
+      // Handle non-string options
+      let optionText: string;
+      if (typeof option === 'string') {
+        optionText = option;
+      } else if (option && typeof option === 'object' && option.text) {
+        optionText = option.text;
+      } else if (option && typeof option.toString === 'function') {
+        optionText = option.toString();
+      } else {
+        optionText = '';
+      }
       const hasJungianContent = jungianTerms.some(term => optionText.toLowerCase().includes(term));
       const hasPsychologicalContent = /psycholog|mental|conscious|personality|behavior|cognitive|emotional/i.test(optionText);
       
@@ -236,6 +276,11 @@ export class QuizValidator {
    */
   private assessQuestionComplexity(question: Question): number {
     let score = 50; // Base score
+
+    // Handle missing or invalid question text
+    if (!question || !question.question || typeof question.question !== 'string') {
+      return 0;
+    }
 
     const questionLower = question.question.toLowerCase();
 

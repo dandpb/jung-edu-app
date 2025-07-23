@@ -1,18 +1,14 @@
 module.exports = {
   roots: ['<rootDir>/src'],
-  collectCoverageFrom: [
-    'src/**/*.{js,jsx,ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/index.tsx',
-    '!src/reportWebVitals.ts',
-    '!src/react-app-env.d.ts',
-    '!src/__tests__/mocks/**'
-  ],
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
     '<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}',
-    '!<rootDir>/src/**/__tests__/mocks/**'
+    '!<rootDir>/src/**/__tests__/mocks/**',
+    '!<rootDir>/src/**/*integration*.test.{js,jsx,ts,tsx}',
+    '!<rootDir>/src/**/*endToEnd*.test.{js,jsx,ts,tsx}',
+    '!<rootDir>/src/**/*e2e*.test.{js,jsx,ts,tsx}',
+    '!<rootDir>/src/__tests__/integration/**'
   ],
   testEnvironment: 'jsdom',
   transform: {
@@ -96,6 +92,10 @@ module.exports = {
     '!src/**/*.example.ts',
     '!src/**/*.demo.ts',
     '!src/**/example-usage.ts',
-    '!src/test-*.ts'
+    '!src/test-*.ts',
+    '!src/**/*integration*.test.{js,jsx,ts,tsx}',
+    '!src/**/*endToEnd*.test.{js,jsx,ts,tsx}',
+    '!src/**/*e2e*.test.{js,jsx,ts,tsx}',
+    '!src/__tests__/integration/**'
   ]
 };

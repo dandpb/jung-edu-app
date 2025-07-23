@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Brain, Check, AlertCircle, Loader2 } from 'lucide-react';
 
 interface GenerationProgressProps {
@@ -23,13 +23,21 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
 }) => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    // Use a more test-friendly timer approach with ref tracking
+    timerRef.current = setInterval(() => {
       setElapsedTime((prev) => prev + 1);
     }, 1000);
 
-    return () => clearInterval(timer);
+    return () => {
+      // Safe cleanup with existence check
+      if (timerRef.current && typeof clearInterval !== 'undefined') {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
   }, []);
 
   const formatTime = (seconds: number) => {
