@@ -1,22 +1,5 @@
 import { OpenAI } from 'openai';
-
-/**
- * Interface for LLM providers
- */
-export interface ILLMProvider {
-  generateCompletion(prompt: string, options?: LLMGenerationOptions): Promise<string>;
-  generateStructuredResponse<T>(prompt: string, schema: any, options?: LLMGenerationOptions): Promise<T>;
-  getTokenCount(text: string): number;
-  isAvailable(): Promise<boolean>;
-}
-
-export interface LLMGenerationOptions {
-  temperature?: number;
-  maxTokens?: number;
-  systemPrompt?: string;
-  retries?: number;
-  timeout?: number;
-}
+import { ILLMProvider, LLMGenerationOptions, LLMResponse } from './types';
 
 /**
  * OpenAI implementation of LLM provider
@@ -33,14 +16,14 @@ export class OpenAIProvider implements ILLMProvider {
     this.model = model;
   }
 
-  async generateCompletion(prompt: string, options: LLMGenerationOptions = {}): Promise<string> {
+  async generateCompletion(prompt: string, options: LLMGenerationOptions = {}): Promise<LLMResponse> {
     const {
       temperature = 0.7,
       maxTokens = 2000,
-      systemPrompt = 'You are an educational content generator specializing in Jungian psychology.',
-      retries = 3,
     } = options;
 
+    const systemPrompt = 'You are an educational content generator specializing in Jungian psychology.';
+    const retries = 3;
     let lastError: Error | null = null;
 
     for (let attempt = 0; attempt < retries; attempt++) {
@@ -55,7 +38,14 @@ export class OpenAIProvider implements ILLMProvider {
           max_tokens: maxTokens,
         });
 
-        return response.choices[0]?.message?.content || '';
+        return {
+          content: response.choices[0]?.message?.content || '',
+          usage: response.usage ? {
+            promptTokens: response.usage.prompt_tokens,
+            completionTokens: response.usage.completion_tokens,
+            totalTokens: response.usage.total_tokens
+          } : undefined
+        };
       } catch (error) {
         lastError = error as Error;
         if (attempt < retries - 1) {
@@ -67,8 +57,8 @@ export class OpenAIProvider implements ILLMProvider {
     throw new Error(`Failed after ${retries} attempts: ${lastError?.message}`);
   }
 
-  async generateStructuredResponse<T>(prompt: string, schema: any, options: LLMGenerationOptions = {}): Promise<T> {
-    const retries = options.retries || 3;
+  async generateStructuredOutput<T>(prompt: string, schema: any, options: LLMGenerationOptions = {}): Promise<T> {
+    const retries = 3;
     
     for (let attempt = 0; attempt < retries; attempt++) {
       try {
@@ -87,7 +77,7 @@ Response format: Return ONLY the JSON ${schema.type === 'array' ? 'array' : 'obj
         });
 
         // Clean the response - remove markdown code blocks and any non-JSON content
-        let cleanedResponse = response.trim();
+        let cleanedResponse = response.content.trim();
         
         // Remove markdown code blocks
         cleanedResponse = cleanedResponse.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '');
@@ -123,7 +113,7 @@ Response format: Return ONLY the JSON ${schema.type === 'array' ? 'array' : 'obj
       }
     }
     
-    throw new Error('Unexpected error in generateStructuredResponse');
+    throw new Error('Unexpected error in generateStructuredOutput');
   }
 
   getTokenCount(text: string): number {
@@ -155,22 +145,30 @@ export class MockLLMProvider implements ILLMProvider {
     this.delay = delay;
   }
 
-  async generateCompletion(prompt: string, options: LLMGenerationOptions = {}): Promise<string> {
+  async generateCompletion(prompt: string, options: LLMGenerationOptions = {}): Promise<LLMResponse> {
     await this.simulateDelay();
     
+    let content: string;
     // Generate mock content based on prompt keywords
     if (prompt.toLowerCase().includes('introduction')) {
-      return 'This is a mock introduction to Jungian psychology concepts. Carl Jung developed analytical psychology as a comprehensive approach to understanding the human psyche.';
+      content = 'This is a mock introduction to Jungian psychology concepts. Carl Jung developed analytical psychology as a comprehensive approach to understanding the human psyche.';
+    } else if (prompt.toLowerCase().includes('quiz')) {
+      content = 'Question: What is the collective unconscious according to Jung?\nAnswer: The collective unconscious is a part of the unconscious mind shared by all humanity.';
+    } else {
+      content = 'Mock generated content for: ' + prompt.substring(0, 50) + '...';
     }
     
-    if (prompt.toLowerCase().includes('quiz')) {
-      return 'Question: What is the collective unconscious according to Jung?\nAnswer: The collective unconscious is a part of the unconscious mind shared by all humanity.';
-    }
-    
-    return 'Mock generated content for: ' + prompt.substring(0, 50) + '...';
+    return {
+      content,
+      usage: {
+        promptTokens: Math.ceil(prompt.length / 4),
+        completionTokens: Math.ceil(content.length / 4),
+        totalTokens: Math.ceil((prompt.length + content.length) / 4)
+      }
+    };
   }
 
-  async generateStructuredResponse<T>(prompt: string, schema: any, options: LLMGenerationOptions = {}): Promise<T> {
+  async generateStructuredOutput<T>(prompt: string, schema: any, options: LLMGenerationOptions = {}): Promise<T> {
     await this.simulateDelay();
     
     // Handle quiz questions first - they pass an empty array as schema

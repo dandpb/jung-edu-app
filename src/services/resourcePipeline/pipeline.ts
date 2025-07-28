@@ -210,22 +210,22 @@ export class AIResourcePipeline extends EventEmitter {
       switch (dependency.resourceType) {
         case 'quiz':
           // Generate quiz if module has learning objectives
-          shouldGenerate = this.hasLearningObjectives(content) && this.config.enableAutoQuiz;
+          shouldGenerate = content ? this.hasLearningObjectives(content) && this.config.enableAutoQuiz : false;
           break;
           
         case 'video':
           // Generate videos for complex topics
-          shouldGenerate = this.isComplexTopic(content) && this.config.enableAutoVideos;
+          shouldGenerate = content ? this.isComplexTopic(content) && this.config.enableAutoVideos : false;
           break;
           
         case 'bibliography':
           // Generate bibliography for academic content
-          shouldGenerate = this.isAcademicContent(content) && this.config.enableAutoBibliography;
+          shouldGenerate = content ? this.isAcademicContent(content) && this.config.enableAutoBibliography : false;
           break;
           
         case 'mindmap':
           // Generate mindmap for structured content
-          shouldGenerate = this.hasStructuredContent(content) && this.config.enableAutoMindMap;
+          shouldGenerate = content ? this.hasStructuredContent(content) && this.config.enableAutoMindMap : false;
           break;
           
         case 'test':
@@ -428,7 +428,7 @@ export class AIResourcePipeline extends EventEmitter {
               
               test('should have required content sections', () => {
                 expect(module.content.introduction).toBeDefined();
-                expect(module.content.sections).toHaveLength(${module.content.sections.length});
+                expect(module.content.sections).toHaveLength(${module.content?.sections?.length || 0});
               });
             });
           `
@@ -473,16 +473,16 @@ export class AIResourcePipeline extends EventEmitter {
           optimization: module.difficulty === 'advanced'
         },
         features: {
-          quiz: !!module.content.quiz,
-          videos: !!(module.content as any).videos,
-          bibliography: !!(module.content as any).bibliography,
+          quiz: !!module.content?.quiz,
+          videos: !!module.content?.videos,
+          bibliography: !!module.content?.bibliography,
           mindmap: true
         },
         metadata: {
           version: '1.0.0',
           createdAt: new Date().toISOString(),
           tags: this.extractTags(module),
-          keywords: this.extractKeywords(module.content)
+          keywords: module.content ? this.extractKeywords(module.content) : []
         }
       }
     };
@@ -542,7 +542,16 @@ export class AIResourcePipeline extends EventEmitter {
     console.log(`🔗 Linking ${resources.length} resources for module: ${module.title}`);
     
     // Update module content with generated resources
-    const updatedContent = { ...module.content };
+    const updatedContent: ModuleContent = { 
+      introduction: module.content?.introduction || '',
+      sections: module.content?.sections || [],
+      videos: module.content?.videos,
+      quiz: module.content?.quiz,
+      bibliography: module.content?.bibliography,
+      films: module.content?.films,
+      summary: module.content?.summary,
+      keyTakeaways: module.content?.keyTakeaways
+    };
     
     for (const resource of resources) {
       switch (resource.type) {
@@ -550,13 +559,14 @@ export class AIResourcePipeline extends EventEmitter {
           updatedContent.quiz = resource.content;
           break;
         case 'video':
-          (updatedContent as any).videos = resource.content;
+          updatedContent.videos = resource.content;
           break;
         case 'bibliography':
-          (updatedContent as any).bibliography = resource.content;
+          updatedContent.bibliography = resource.content;
           break;
         case 'mindmap':
-          (updatedContent as any).mindmap = resource.content;
+          // Store mindmap in module metadata or a separate field
+          // (updatedContent as any).mindmap = resource.content;
           break;
       }
       

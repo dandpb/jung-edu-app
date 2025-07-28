@@ -33,7 +33,7 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
       const availableTabIds = [
         'content', 
         'videos', 
-        ...(module.content.quiz && module.content.quiz.questions && module.content.quiz.questions.length > 0 ? ['quiz'] : []),
+        ...(module.content?.quiz && module.content.quiz?.questions && module.content.quiz.questions?.length > 0 ? ['quiz'] : []),
         'resources'
       ];
       if (!availableTabIds.includes(activeTab)) {
@@ -100,8 +100,8 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
 
   const tabs = [
     { id: 'content', label: 'Conteúdo', icon: BookOpen },
-    { id: 'videos', label: 'Vídeos', icon: PlayCircle, count: module.content.videos?.length },
-    ...(module.content.quiz && module.content.quiz.questions && module.content.quiz.questions.length > 0 
+    { id: 'videos', label: 'Vídeos', icon: PlayCircle, count: module.content?.videos?.length },
+    ...(module.content?.quiz && module.content.quiz?.questions && module.content.quiz.questions?.length > 0 
       ? [{ id: 'quiz', label: 'Questionário', icon: FileText }] 
       : []
     ),
@@ -109,7 +109,7 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
       id: 'resources', 
       label: 'Recursos', 
       icon: Library, 
-      count: (module.content.bibliography?.length || 0) + (module.content.films?.length || 0)
+      count: (module.content?.bibliography?.length || 0) + (module.content?.films?.length || 0)
     },
   ];
 
@@ -194,13 +194,13 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
             <div className="bg-primary-50 p-6 rounded-lg mb-8">
               <h2 className="text-xl font-semibold text-primary-900 mb-3">Introdução</h2>
               <MarkdownContent 
-                content={module.content.introduction}
+                content={module.content?.introduction || ''}
                 className="text-primary-800"
                 prose={false}
               />
             </div>
 
-            {module.content.sections.map(section => (
+            {module.content?.sections?.map(section => (
               <div key={section.id} className="mb-8">
                 <h2 className="text-2xl font-display font-bold text-gray-900 mb-4">
                   {section.title}
@@ -231,8 +231,8 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
 
         {activeTab === 'videos' && (
           <div className="space-y-6">
-            {module.content.videos && module.content.videos.length > 0 ? (
-              module.content.videos.map(video => (
+            {module.content?.videos && module.content.videos?.length > 0 ? (
+              module.content?.videos?.map(video => (
                 <VideoPlayer key={video.id} video={video} />
               ))
             ) : (
@@ -245,9 +245,9 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
 
         {activeTab === 'quiz' && (
           <div>
-            {module.content.quiz && module.content.quiz.questions && module.content.quiz.questions.length > 0 ? (
+            {module.content?.quiz && module.content.quiz?.questions && module.content.quiz.questions?.length > 0 ? (
               <QuizComponent
-                quiz={module.content.quiz}
+                quiz={module.content?.quiz}
                 onComplete={handleQuizComplete}
                 previousScore={userProgress.quizScores[module.id]}
               />
@@ -262,14 +262,14 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
         {activeTab === 'resources' && (
           <div className="space-y-8">
             {/* Seção de Bibliografia */}
-            {module.content.bibliography && module.content.bibliography.length > 0 && (
+            {module.content?.bibliography && module.content.bibliography?.length > 0 && (
               <div>
                 <h2 className="text-2xl font-display font-bold text-gray-900 mb-4 flex items-center">
                   <Book className="w-6 h-6 mr-2" />
                   Bibliografia Recomendada
                 </h2>
                 <div className="space-y-4">
-                  {module.content.bibliography.map(item => (
+                  {module.content?.bibliography?.map(item => (
                     <div key={item.id} className="card hover:shadow-lg transition-shadow">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -309,14 +309,14 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
             )}
 
             {/* Seção de Filmes */}
-            {module.content.films && module.content.films.length > 0 && (
+            {module.content?.films && module.content.films?.length > 0 && (
               <div>
                 <h2 className="text-2xl font-display font-bold text-gray-900 mb-4 flex items-center">
                   <FilmIcon className="w-6 h-6 mr-2" />
                   Filmes Relacionados
                 </h2>
                 <div className="space-y-4">
-                  {module.content.films.map(film => (
+                  {module.content?.films?.map(film => (
                     <div key={film.id} className="card hover:shadow-lg transition-shadow">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -360,8 +360,8 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
             )}
 
             {/* Mensagem quando não há recursos */}
-            {(!module.content.bibliography || module.content.bibliography.length === 0) && 
-             (!module.content.films || module.content.films.length === 0) && (
+            {(!module.content?.bibliography || module.content.bibliography?.length === 0) && 
+             (!module.content?.films || module.content.films?.length === 0) && (
               <div className="text-center py-12">
                 <Library className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <p className="text-gray-500">Nenhum recurso adicional disponível para este módulo.</p>

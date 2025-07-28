@@ -1,4 +1,4 @@
-import { EducationalModule, ModuleContent, Quiz, MindMap, Video, Bibliography, FilmReference } from '../../types/schema';
+import { EducationalModule, ModuleContent, Quiz, DifficultyLevel, ModuleStatus } from '../../schemas/module.schema';
 
 /**
  * Builder pattern for creating test modules with sensible defaults
@@ -13,21 +13,70 @@ export class ModuleBuilder {
       title: 'Test Module',
       description: 'A test module for unit testing',
       content: this.createDefaultContent(),
+      mindMaps: [{
+        id: 'mindmap-1',
+        title: 'Test Mind Map',
+        description: 'Default mind map for testing',
+        nodes: [],
+        edges: [],
+        layout: {
+          type: 'hierarchical',
+          direction: 'TB',
+          spacing: {
+            nodeSpacing: 100,
+            levelSpacing: 100
+          }
+        },
+        metadata: {
+          created: new Date().toISOString(),
+          lastModified: new Date().toISOString(),
+          version: '1.0.0',
+          isInteractive: true,
+          allowEditing: false
+        }
+      }],
       videos: [],
-      mindMaps: [],
-      quiz: this.createDefaultQuiz(),
+      prerequisites: [],
+      timeEstimate: {
+        hours: 1,
+        minutes: 0
+      },
+      difficultyLevel: DifficultyLevel.INTERMEDIATE,
+      tags: ['test', 'jung'],
+      learningObjectives: [],
+      quiz: {
+        id: 'quiz-default',
+        title: 'Default Quiz',
+        description: 'Default quiz for testing',
+        questions: [{
+          id: 'q1',
+          type: 'multiple-choice',
+          question: 'Default question?',
+          options: [
+            { id: 0, text: 'Option A', isCorrect: true },
+            { id: 1, text: 'Option B', isCorrect: false },
+            { id: 2, text: 'Option C', isCorrect: false },
+            { id: 3, text: 'Option D', isCorrect: false }
+          ],
+          correctAnswers: [0],
+          allowMultiple: false,
+          points: 1,
+          explanation: 'Default explanation'
+        }],
+        passingScore: 70
+      },
       bibliography: [],
       filmReferences: [],
-      tags: ['test', 'jung'],
-      timeEstimate: { hours: 1, minutes: 0 },
-      difficultyLevel: 'intermediate',
       metadata: {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         version: '1.0.0',
-        author: { id: 'test-author', name: 'Test Author' },
-        status: 'draft',
-        language: 'en'
+        status: ModuleStatus.DRAFT,
+        language: 'en',
+        author: {
+          id: 'test-author',
+          name: 'Test Author'
+        }
       }
     };
   }
@@ -54,20 +103,23 @@ export class ModuleBuilder {
     return {
       id: 'quiz-default',
       title: 'Default Quiz',
+      description: 'Default quiz for testing',
       questions: [{
         id: 'q1',
         type: 'multiple-choice',
         question: 'Default question?',
         options: [
-          { id: '0', text: 'Option A', isCorrect: true },
-          { id: '1', text: 'Option B', isCorrect: false },
-          { id: '2', text: 'Option C', isCorrect: false },
-          { id: '3', text: 'Option D', isCorrect: false }
+          { id: 0, text: 'Option A', isCorrect: true },
+          { id: 1, text: 'Option B', isCorrect: false },
+          { id: 2, text: 'Option C', isCorrect: false },
+          { id: 3, text: 'Option D', isCorrect: false }
         ],
-        correctAnswer: 0,
-        explanation: 'Default explanation',
-        difficulty: 'medium'
-      }]
+        correctAnswers: [0],
+        allowMultiple: false,
+        points: 1,
+        explanation: 'Default explanation'
+      }],
+      passingScore: 70
     };
   }
 
@@ -87,7 +139,13 @@ export class ModuleBuilder {
   }
 
   withDifficulty(level: 'beginner' | 'intermediate' | 'advanced' | 'expert'): ModuleBuilder {
-    this.module.difficultyLevel = level;
+    const difficultyMap = {
+      'beginner': DifficultyLevel.BEGINNER,
+      'intermediate': DifficultyLevel.INTERMEDIATE,
+      'advanced': DifficultyLevel.ADVANCED,
+      'expert': DifficultyLevel.ADVANCED // Map expert to advanced since there's no expert level
+    };
+    this.module.difficultyLevel = difficultyMap[level];
     return this;
   }
 
@@ -117,39 +175,94 @@ export class ModuleBuilder {
     return this;
   }
 
-  withVideos(...videos: Video[]): ModuleBuilder {
+  withVideos(...videos: any[]): ModuleBuilder {
     this.module.videos = videos;
     return this;
   }
 
-  withMindMaps(...mindMaps: MindMap[]): ModuleBuilder {
-    this.module.mindMaps = mindMaps;
+  withMindmap(mindmap: { nodes: any[], edges: any[] }): ModuleBuilder {
+    this.module.mindMaps = [{
+      id: 'mindmap-custom',
+      title: 'Custom Mind Map',
+      description: 'Custom mind map',
+      nodes: mindmap.nodes,
+      edges: mindmap.edges,
+      layout: {
+        type: 'hierarchical',
+        direction: 'TB',
+        spacing: {
+          nodeSpacing: 100,
+          levelSpacing: 100
+        }
+      },
+      metadata: {
+        created: new Date().toISOString(),
+        lastModified: new Date().toISOString(),
+        version: '1.0.0',
+        isInteractive: true,
+        allowEditing: false
+      }
+    }];
     return this;
   }
 
-  withBibliography(...items: Bibliography[]): ModuleBuilder {
+  withBibliography(...items: any[]): ModuleBuilder {
     this.module.bibliography = items;
     return this;
   }
 
+  withFilmReferences(...items: any[]): ModuleBuilder {
+    this.module.filmReferences = items;
+    return this;
+  }
+
   withStatus(status: 'draft' | 'published' | 'archived'): ModuleBuilder {
-    if (!this.module.metadata) {
-      this.module.metadata = {} as any;
+    if (this.module.metadata) {
+      const statusMap = {
+        'draft': ModuleStatus.DRAFT,
+        'published': ModuleStatus.PUBLISHED,
+        'archived': ModuleStatus.ARCHIVED
+      };
+      this.module.metadata.status = statusMap[status] || ModuleStatus.DRAFT;
     }
-    this.module.metadata.status = status;
     return this;
   }
 
   withAuthor(id: string, name: string): ModuleBuilder {
-    if (!this.module.metadata) {
-      this.module.metadata = {} as any;
+    if (this.module.metadata) {
+      this.module.metadata.author = { id, name };
     }
-    this.module.metadata.author = { id, name };
     return this;
   }
 
   build(): EducationalModule {
-    return this.module as EducationalModule;
+    // Ensure all required fields are present
+    const module: EducationalModule = {
+      id: this.module.id || `module-${Date.now()}`,
+      title: this.module.title || 'Untitled Module',
+      description: this.module.description || 'No description',
+      content: this.module.content || this.createDefaultContent(),
+      videos: this.module.videos || [],
+      mindMaps: this.module.mindMaps || [],
+      quiz: this.module.quiz || this.createDefaultQuiz(),
+      bibliography: this.module.bibliography || [],
+      filmReferences: this.module.filmReferences || [],
+      tags: this.module.tags || [],
+      difficultyLevel: this.module.difficultyLevel || DifficultyLevel.BEGINNER,
+      timeEstimate: this.module.timeEstimate || { hours: 0, minutes: 30 },
+      metadata: this.module.metadata || {
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        version: '1.0.0',
+        status: ModuleStatus.DRAFT,
+        language: 'en',
+        author: { id: 'system', name: 'System' }
+      },
+      prerequisites: this.module.prerequisites,
+      learningObjectives: this.module.learningObjectives,
+      icon: this.module.icon
+    };
+    return module;
   }
 
   /**
@@ -180,8 +293,17 @@ export class ModuleBuilder {
             title: 'The Collective Unconscious',
             content: 'Jung\'s concept of the collective unconscious represents...',
             order: 0,
-            keyTerms: ['collective unconscious', 'archetypes', 'instincts'],
-            images: [{ url: 'https://example.com/image1.jpg', caption: 'Jung\'s model' }],
+            keyTerms: [
+              { term: 'collective unconscious', definition: 'A part of the unconscious mind shared by all humanity' },
+              { term: 'archetypes', definition: 'Universal, archaic patterns and images' },
+              { term: 'instincts', definition: 'Inherited patterns of behavior' }
+            ],
+            images: [{ 
+              id: 'img1',
+              url: 'https://example.com/image1.jpg', 
+              caption: 'Jung\'s model',
+              alt: 'Diagram of Jung\'s model of the psyche'
+            }],
             interactiveElements: [],
             estimatedTime: 20
           },
@@ -190,7 +312,13 @@ export class ModuleBuilder {
             title: 'Major Archetypes',
             content: 'The major archetypes include the Self, Shadow, Anima/Animus...',
             order: 1,
-            keyTerms: ['Self', 'Shadow', 'Anima', 'Animus', 'Persona'],
+            keyTerms: [
+              { term: 'Self', definition: 'The unified totality of conscious and unconscious' },
+              { term: 'Shadow', definition: 'The repressed or undeveloped aspects of the personality' },
+              { term: 'Anima', definition: 'The feminine aspect in the male psyche' },
+              { term: 'Animus', definition: 'The masculine aspect in the female psyche' },
+              { term: 'Persona', definition: 'The mask or social face presented to the world' }
+            ],
             images: [],
             interactiveElements: [],
             estimatedTime: 25
@@ -211,11 +339,14 @@ export class ModuleBuilder {
         platform: 'youtube',
         description: 'An introduction to Carl Jung\'s life and work'
       })
-      .withMindMaps({
-        id: 'mindmap-1',
-        title: 'Jungian Concepts Map',
-        data: {},
-        thumbnail: 'https://example.com/mindmap-thumb.jpg'
+      .withMindmap({
+        nodes: [
+          { id: 'n1', label: 'Jung', position: { x: 100, y: 100 } },
+          { id: 'n2', label: 'Collective Unconscious', position: { x: 200, y: 200 } }
+        ],
+        edges: [
+          { id: 'e1', source: 'n1', target: 'n2', label: 'developed' }
+        ]
       })
       .withBibliography({
         id: 'bib-1',

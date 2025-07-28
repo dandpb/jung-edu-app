@@ -3,7 +3,7 @@
  * Creates different types of questions with specific patterns and validation
  */
 
-import { ILLMProvider } from '../llm/provider';
+import { ILLMProvider } from '../llm/types';
 import { Question } from '../../types';
 
 export interface QuestionGenerationContext {
@@ -86,7 +86,7 @@ export class QuestionTypeGenerators {
     };
 
     try {
-      const rawQuestions = await this.provider.generateStructuredResponse<any[]>(
+      const rawQuestions = await this.provider.generateStructuredOutput<any[]>(
         prompt, schema, { temperature: 0.3, maxTokens: 3000 }
       );
 
@@ -123,7 +123,7 @@ export class QuestionTypeGenerators {
     };
 
     try {
-      const rawQuestions = await this.provider.generateStructuredResponse<any[]>(
+      const rawQuestions = await this.provider.generateStructuredOutput<any[]>(
         prompt, schema, { temperature: 0.4, maxTokens: 2000 }
       );
 
@@ -174,7 +174,7 @@ export class QuestionTypeGenerators {
     };
 
     try {
-      const rawQuestions = await this.provider.generateStructuredResponse<any[]>(
+      const rawQuestions = await this.provider.generateStructuredOutput<any[]>(
         prompt, schema, { temperature: 0.5, maxTokens: 2500 }
       );
 
@@ -227,7 +227,7 @@ export class QuestionTypeGenerators {
     };
 
     try {
-      const rawQuestions = await this.provider.generateStructuredResponse<any[]>(
+      const rawQuestions = await this.provider.generateStructuredOutput<any[]>(
         prompt, schema, { temperature: 0.6, maxTokens: 3500 }
       );
 
@@ -289,7 +289,7 @@ export class QuestionTypeGenerators {
     };
 
     try {
-      const rawQuestions = await this.provider.generateStructuredResponse<any[]>(
+      const rawQuestions = await this.provider.generateStructuredOutput<any[]>(
         prompt, schema, { temperature: 0.4, maxTokens: 2000 }
       );
 

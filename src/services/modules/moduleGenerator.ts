@@ -4,7 +4,8 @@
  */
 
 import { EducationalModule, DifficultyLevel, ModuleStatus } from '../../schemas/module.schema';
-import { ILLMProvider, OpenAIProvider, MockLLMProvider } from '../llm/provider';
+import { ILLMProvider } from '../llm/types';
+import { OpenAIProvider, MockLLMProvider } from '../llm/provider';
 import { ModuleService } from './moduleService';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -200,19 +201,21 @@ export class ModuleGenerator {
   private async generateTitle(options: GenerationOptions): Promise<string> {
     const prompt = `Generate a concise, engaging title for an educational module about ${options.topic} in Jungian psychology. The title should be appropriate for ${options.difficulty} level learners.`;
     
-    return await this.llmProvider.generateCompletion(prompt, {
+    const response = await this.llmProvider.generateCompletion(prompt, {
       maxTokens: 50,
       temperature: 0.7
     });
+    return response.content;
   }
 
   private async generateDescription(options: GenerationOptions): Promise<string> {
     const prompt = `Write a compelling 2-3 sentence description for an educational module about ${options.topic} in Jungian psychology. The description should clearly state what learners will gain from this module.`;
     
-    return await this.llmProvider.generateCompletion(prompt, {
+    const response = await this.llmProvider.generateCompletion(prompt, {
       maxTokens: 150,
       temperature: 0.7
     });
+    return response.content;
   }
 
   private async generateTags(options: GenerationOptions): Promise<string[]> {
@@ -223,7 +226,7 @@ export class ModuleGenerator {
       temperature: 0.5
     });
 
-    return response.split(',').map(tag => tag.trim());
+    return response.content.split(',').map(tag => tag.trim());
   }
 
   private async generateContent(options: GenerationOptions): Promise<any> {
@@ -258,7 +261,7 @@ Format the response as a structured JSON object matching the ModuleContent schem
       keyTakeaways: ['string']
     };
 
-    return await this.llmProvider.generateStructuredResponse(prompt, schema, {
+    return await this.llmProvider.generateStructuredOutput(prompt, schema, {
       maxTokens: 3000,
       temperature: 0.7
     });
@@ -288,7 +291,7 @@ Difficulty level: ${options.difficulty}`;
       passingScore: 'number'
     };
 
-    return await this.llmProvider.generateStructuredResponse(prompt, schema, {
+    return await this.llmProvider.generateStructuredOutput(prompt, schema, {
       maxTokens: 2000,
       temperature: 0.6
     });
@@ -299,7 +302,7 @@ Difficulty level: ${options.difficulty}`;
     // For now, we'll generate mock video recommendations
     const prompt = `Recommend 3-5 educational videos about ${options.topic} in Jungian psychology. For each video, provide a title, description, estimated duration, and why it's relevant to the topic.`;
 
-    const videos = await this.llmProvider.generateStructuredResponse(prompt, [{
+    const videos = await this.llmProvider.generateStructuredOutput(prompt, [{
       id: 'string',
       title: 'string',
       description: 'string',
@@ -355,7 +358,7 @@ Generate nodes and edges that represent the conceptual structure.`;
       }
     };
 
-    const mindMap = await this.llmProvider.generateStructuredResponse(prompt, schema, {
+    const mindMap = await this.llmProvider.generateStructuredOutput(prompt, schema, {
       maxTokens: 1500,
       temperature: 0.6
     });
@@ -375,7 +378,7 @@ Generate nodes and edges that represent the conceptual structure.`;
       relevanceNote: 'string'
     }];
 
-    return await this.llmProvider.generateStructuredResponse(prompt, schema, {
+    return await this.llmProvider.generateStructuredOutput(prompt, schema, {
       maxTokens: 1200,
       temperature: 0.6
     });
@@ -392,7 +395,7 @@ Generate nodes and edges that represent the conceptual structure.`;
       relevance: 'string'
     }];
 
-    return await this.llmProvider.generateStructuredResponse(prompt, schema, {
+    return await this.llmProvider.generateStructuredOutput(prompt, schema, {
       maxTokens: 800,
       temperature: 0.7
     });
@@ -426,7 +429,7 @@ Generate nodes and edges that represent the conceptual structure.`;
       temperature: 0.6
     });
 
-    return response.split('\n').filter(obj => obj.trim().length > 0);
+    return response.content.split('\n').filter(obj => obj.trim().length > 0);
   }
 
   private async generatePrerequisites(module: EducationalModule): Promise<string[]> {
@@ -441,7 +444,7 @@ Generate nodes and edges that represent the conceptual structure.`;
       temperature: 0.6
     });
 
-    return response.split('\n').filter(prereq => prereq.trim().length > 0);
+    return response.content.split('\n').filter(prereq => prereq.trim().length > 0);
   }
 
   private estimateTime(targetMinutes?: number): { hours: number; minutes: number; description?: string } {

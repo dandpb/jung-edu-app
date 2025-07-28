@@ -10,14 +10,14 @@ const BibliographyPage: React.FC<BibliographyPageProps> = ({ modules }) => {
   const [activeTab, setActiveTab] = useState<'books' | 'films'>('books');
 
   const allBibliography: Bibliography[] = modules.reduce((acc, module) => {
-    if (module.content.bibliography) {
+    if (module.content?.bibliography) {
       return [...acc, ...module.content.bibliography];
     }
     return acc;
   }, [] as Bibliography[]);
 
   const allFilms: Film[] = modules.reduce((acc, module) => {
-    if (module.content.films) {
+    if (module.content?.films) {
       return [...acc, ...module.content.films];
     }
     return acc;

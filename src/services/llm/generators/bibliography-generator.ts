@@ -1,4 +1,4 @@
-import { ILLMProvider } from '../provider';
+import { ILLMProvider } from '../types';
 
 export interface BibliographyEntry {
   id: string;
@@ -143,8 +143,8 @@ Response format (JSON):
     let sources: Array<Omit<BibliographyEntry, 'id' | 'formattedCitation'>>;
     
     try {
-      console.log('BibliographyGenerator: Calling generateStructuredResponse with prompt snippet:', prompt.substring(0, 100));
-      sources = await this.provider.generateStructuredResponse<Array<Omit<BibliographyEntry, 'id' | 'formattedCitation'>>>(
+      console.log('BibliographyGenerator: Calling generateStructuredOutput with prompt snippet:', prompt.substring(0, 100));
+      sources = await this.provider.generateStructuredOutput<Array<Omit<BibliographyEntry, 'id' | 'formattedCitation'>>>(
         prompt,
         schema,
         { temperature: 0.7 }
@@ -157,7 +157,7 @@ Response format (JSON):
 
     // Ensure sources is an array
     if (!Array.isArray(sources)) {
-      console.error('generateStructuredResponse did not return an array, got:', sources);
+      console.error('generateStructuredOutput did not return an array, got:', sources);
       return [];
     }
 
@@ -287,7 +287,7 @@ Response format (JSON):
     let films: Array<any>;
     
     try {
-      films = await this.provider.generateStructuredResponse<Array<any>>(
+      films = await this.provider.generateStructuredOutput<Array<any>>(
         prompt,
         schema,
         { temperature: 0.7 }
@@ -298,7 +298,7 @@ Response format (JSON):
     }
 
     if (!Array.isArray(films)) {
-      console.error('generateStructuredResponse did not return an array for films, got:', films);
+      console.error('generateStructuredOutput did not return an array for films, got:', films);
       return [];
     }
 
@@ -346,10 +346,11 @@ ${entry.url ? `URL: ${entry.url}` : ''}
 Provide only the formatted citation, nothing else.
 `;
 
-    return await this.provider.generateCompletion(prompt, {
+    const response = await this.provider.generateCompletion(prompt, {
       temperature: 0.1,
       maxTokens: 200,
     });
+    return response.content;
   }
 
   async generateAnnotatedBibliography(
@@ -391,12 +392,12 @@ The annotation should:
 4. Mention how to access the resource (if freely available, etc.)
 `;
 
-        const annotation = await this.provider.generateCompletion(prompt, {
+        const response = await this.provider.generateCompletion(prompt, {
           temperature: 0.6,
           maxTokens: 300,
         });
 
-        return { entry, annotation };
+        return { entry, annotation: response.content };
       })
     );
 
@@ -470,7 +471,7 @@ Response format:
     let order: number[];
     
     try {
-      order = await this.provider.generateStructuredResponse<number[]>(
+      order = await this.provider.generateStructuredOutput<number[]>(
         prompt,
         orderSchema,
         { temperature: 0.3 }
@@ -482,7 +483,7 @@ Response format:
 
     // Ensure order is an array
     if (!Array.isArray(order)) {
-      console.error('generateStructuredResponse did not return an array for order, got:', order);
+      console.error('generateStructuredOutput did not return an array for order, got:', order);
       return entries;
     }
 

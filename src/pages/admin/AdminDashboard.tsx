@@ -41,13 +41,13 @@ const AdminDashboard: React.FC = () => {
     },
     {
       label: 'Total de Questionários',
-      value: modules.filter(m => m.content.quiz).length,
+      value: modules.filter(m => m.content?.quiz).length,
       icon: BarChart3,
       color: 'text-purple-600'
     },
     {
       label: 'Conteúdo de Vídeo',
-      value: modules.reduce((acc, m) => acc + (m.content.videos?.length || 0), 0),
+      value: modules.reduce((acc, m) => acc + (m.content?.videos?.length || 0), 0),
       icon: Library,
       color: 'text-green-600'
     },

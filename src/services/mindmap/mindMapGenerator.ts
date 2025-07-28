@@ -82,14 +82,14 @@ export class MindMapGenerator {
       module.description,
       { x: 400, y: 300 },
       NodeImportance.CORE,
-      this.categorizeContent(module.title, module.content.introduction),
+      this.categorizeContent(module.title, module.content?.introduction || ''),
       module.id
     );
     nodes.push(rootNode);
 
     // Process sections as primary nodes
-    module.content.sections.forEach((section, index) => {
-      const angle = (index / module.content.sections.length) * 2 * Math.PI;
+    module.content?.sections?.forEach((section, index) => {
+      const angle = (index / (module.content?.sections?.length || 1)) * 2 * Math.PI;
       const radius = 250;
       const position = {
         x: 400 + radius * Math.cos(angle),
@@ -379,8 +379,8 @@ export class MindMapGenerator {
     const fullText = [
       module.title,
       module.description,
-      module.content.introduction,
-      ...module.content.sections.map((s: any) => s.title + ' ' + s.content)
+      module.content?.introduction || '',
+      ...(module.content?.sections?.map((s: any) => s.title + ' ' + s.content) || [])
     ].join(' ');
 
     return this.categorizeContent(module.title, fullText);

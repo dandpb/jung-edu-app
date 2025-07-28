@@ -1,7 +1,9 @@
 import { render, RenderOptions, RenderResult } from '@testing-library/react';
 import React, { ReactElement } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import { EducationalModule, Quiz, Question } from '../../types/schema';
+import { Quiz } from '../../types/schema';
+import { Question } from '../../types';
+import { EducationalModule } from '../../schemas/module.schema';
 
 /**
  * Custom render function that includes commonly needed providers
@@ -136,30 +138,30 @@ export const sessionStorageUtils = {
 /**
  * Assert that a module is valid according to schema
  */
-export const assertValidModule = (module: any): asserts module is EducationalModule => {
+export function assertValidModule(module: any): asserts module is EducationalModule {
   expect(module).toHaveProperty('id');
   expect(module).toHaveProperty('title');
   expect(module).toHaveProperty('content');
   expect(module.content).toHaveProperty('introduction');
   expect(module.content).toHaveProperty('sections');
   expect(Array.isArray(module.content.sections)).toBe(true);
-};
+}
 
 /**
  * Assert that a quiz is valid
  */
-export const assertValidQuiz = (quiz: any): asserts quiz is Quiz => {
+export function assertValidQuiz(quiz: any): asserts quiz is Quiz {
   expect(quiz).toHaveProperty('id');
   expect(quiz).toHaveProperty('title');
   expect(quiz).toHaveProperty('questions');
   expect(Array.isArray(quiz.questions)).toBe(true);
   expect(quiz.questions.length).toBeGreaterThan(0);
-};
+}
 
 /**
  * Assert that a question is valid
  */
-export const assertValidQuestion = (question: any): asserts question is Question => {
+export function assertValidQuestion(question: any): asserts question is Question {
   expect(question).toHaveProperty('id');
   expect(question).toHaveProperty('type');
   expect(question).toHaveProperty('question');
@@ -173,7 +175,7 @@ export const assertValidQuestion = (question: any): asserts question is Question
   if (question.type !== 'essay') {
     expect(question).toHaveProperty('correctAnswer');
   }
-};
+}
 
 /**
  * Create a mock console to suppress or capture logs in tests

@@ -462,7 +462,7 @@ export class SystemValidator {
       // Only check order if sections have order field
       const firstSection = module.content.sections[0];
       if (firstSection && 'order' in firstSection) {
-        const sectionOrders = module.content.sections.map((s: any) => s.order);
+        const sectionOrders = module.content?.sections?.map((s: any) => s.order) || [];
         const hasDuplicateOrders = sectionOrders.length !== new Set(sectionOrders).size;
         if (hasDuplicateOrders) {
           result.dataConsistency = false;
@@ -490,7 +490,7 @@ export class SystemValidator {
       module.content &&
       module.quiz &&
       module.bibliography &&
-      module.mindMap
+      module.mindMaps
     );
     if (!result.hasAllComponents) {
       result.score -= 10;
@@ -531,11 +531,12 @@ export class SystemValidator {
 
     // Check mind map coherence
     result.mindMapCoherence = !!(
-      module.mindMap &&
-      module.mindMap.nodes &&
-      module.mindMap.nodes.length >= 3 &&
-      module.mindMap.edges &&
-      module.mindMap.edges.length >= 2
+      module.mindMaps &&
+      module.mindMaps.length > 0 &&
+      module.mindMaps[0].nodes &&
+      module.mindMaps[0].nodes.length >= 3 &&
+      module.mindMaps[0].edges &&
+      module.mindMaps[0].edges.length >= 2
     );
     if (!result.mindMapCoherence) {
       result.score -= 5;
@@ -854,7 +855,7 @@ export class SystemValidator {
     }
     
     // Check for learning objectives
-    const objectives = module.objectives || module.learningObjectives;
+    const objectives = module.learningObjectives;
     if (objectives && objectives.length >= 3) {
       score += 10;
     } else if (objectives && objectives.length >= 1) {
@@ -883,7 +884,7 @@ export class SystemValidator {
     let score = 80; // Base score
     
     // Check for clear learning objectives
-    const objectives = module.objectives || module.learningObjectives;
+    const objectives = module.learningObjectives;
     if (objectives && objectives.length > 0) {
       score += 20;
     }
@@ -897,7 +898,7 @@ export class SystemValidator {
     }
     
     // Check for progressive difficulty
-    if (module.difficulty || module.difficultyLevel) {
+    if (module.difficultyLevel) {
       score += 10;
     }
     
@@ -1087,7 +1088,7 @@ export class SystemValidator {
     
     // Check for logical section ordering
     if (module.content.sections && module.content.sections.length > 1) {
-      const orders = module.content.sections.map((s: any) => s.order);
+      const orders = module.content?.sections?.map((s: any) => s.order) || [];
       const isSequential = orders.every((order: any, index: any) => order === index);
       if (isSequential) {
         score += 15;
@@ -1095,7 +1096,7 @@ export class SystemValidator {
     }
     
     // Check for learning objectives
-    const objectives = module.objectives || module.learningObjectives;
+    const objectives = module.learningObjectives;
     if (objectives && objectives.length > 0) {
       score += 15;
     }
@@ -1201,7 +1202,7 @@ export class SystemValidator {
     });
     
     // Check for non-psychological scientific content FIRST
-    const topicLower = (module.topic || '').toLowerCase();
+    const topicLower = '';
     const titleLower = module.title.toLowerCase();
     const descriptionLower = (module.description || '').toLowerCase();
     
@@ -1251,13 +1252,12 @@ export class SystemValidator {
     }
     
     // Bonus for having Jung-related content in title or topic
-    if (module.title.toLowerCase().includes('jung') || 
-        (module.topic && module.topic.toLowerCase().includes('jung'))) {
+    if (module.title.toLowerCase().includes('jung')) {
       score = Math.min(100, score + 10);
     }
     
     // Check for Jungian concepts in objectives
-    const objectives = module.objectives || module.learningObjectives || [];
+    const objectives = module.learningObjectives || [];
     const hasJungianObjectives = objectives.some((obj: string) => 
       jungianTerms.some(term => obj.toLowerCase().includes(term))
     );

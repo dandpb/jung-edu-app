@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { UserProgress } from './types';
+import { AuthProvider } from './contexts/AuthContext';
 import { AdminProvider, useAdmin } from './contexts/AdminContext';
 import Navigation from './components/Navigation';
 import Dashboard from './pages/Dashboard';
@@ -18,7 +19,13 @@ import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminModules from './pages/admin/AdminModules';
 import AdminResources from './pages/admin/AdminResources';
-import ProtectedRoute from './components/ProtectedRoute';
+import { LoginPage } from './pages/auth/LoginPage';
+import { RegisterPage } from './pages/auth/RegisterPage';
+import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
+import { UnauthorizedPage } from './pages/UnauthorizedPage';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { PublicRoute } from './components/auth/PublicRoute';
+import { UserRole } from './types/auth';
 
 function AppContent() {
   const { modules } = useAdmin();
@@ -62,112 +69,179 @@ function AppContent() {
   }, []);
 
   return (
-    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <div className="min-h-screen bg-gray-50">
-        <Navigation />
-        <main className="container mx-auto px-4 py-8">
-          <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route 
-              path="/dashboard" 
-              element={
+    <div className="min-h-screen bg-gray-50">
+      <Navigation />
+      <main className="container mx-auto px-4 py-8">
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={
+            <PublicRoute>
+              <LoginPage />
+            </PublicRoute>
+          } />
+          <Route path="/register" element={
+            <PublicRoute>
+              <RegisterPage />
+            </PublicRoute>
+          } />
+          <Route path="/forgot-password" element={
+            <PublicRoute>
+              <ForgotPasswordPage />
+            </PublicRoute>
+          } />
+          <Route path="/unauthorized" element={<UnauthorizedPage />} />
+          
+          {/* Protected Routes - All pages require authentication */}
+          <Route path="/" element={
+            <ProtectedRoute>
+              <Navigate to="/dashboard" replace />
+            </ProtectedRoute>
+          } />
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
                 <Dashboard 
                   modules={modules}
                   userProgress={userProgress} 
                 />
-              } 
-            />
-            <Route 
-              path="/module/:moduleId" 
-              element={
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/module/:moduleId" 
+            element={
+              <ProtectedRoute>
                 <ModulePage 
                   modules={modules}
                   userProgress={userProgress}
                   updateProgress={updateProgress}
                 />
-              } 
-            />
-              <Route 
-                path="/mindmap" 
-                element={<MindMapPage modules={modules} />} 
-              />
-              <Route 
-                path="/minimap-demo" 
-                element={<MiniMapDemo />} 
-              />
-              <Route 
-                path="/enhanced-mindmap" 
-                element={<EnhancedMindMapPage modules={modules} />} 
-              />
-              <Route 
-                path="/ai-demo" 
-                element={<AIDemo />} 
-              />
-              <Route 
-                path="/notes" 
-                element={
-                  <NotesPage 
-                    modules={modules}
-                    userProgress={userProgress}
-                    updateProgress={updateProgress}
-                  />
-                } 
-              />
-              <Route 
-                path="/bibliography" 
-                element={<BibliographyPage modules={modules} />} 
-              />
-              <Route 
-                path="/search" 
-                element={<SearchPage modules={modules} />} 
-              />
-              <Route 
-                path="/test-youtube" 
-                element={<TestYouTubeIntegration />} 
-              />
-              <Route 
-                path="/test-api" 
-                element={<TestYouTubeAPI />} 
-              />
-              
-              {/* Admin Routes */}
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute>
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/modules"
-                element={
-                  <ProtectedRoute>
-                    <AdminModules />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/resources"
-                element={
-                  <ProtectedRoute>
-                    <AdminResources />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </main>
-        </div>
-      </Router>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/mindmap" 
+            element={
+              <ProtectedRoute>
+                <MindMapPage modules={modules} />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/minimap-demo" 
+            element={
+              <ProtectedRoute>
+                <MiniMapDemo />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/enhanced-mindmap" 
+            element={
+              <ProtectedRoute>
+                <EnhancedMindMapPage modules={modules} />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/ai-demo" 
+            element={
+              <ProtectedRoute requiredRole={UserRole.ADMIN}>
+                <AIDemo />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/notes" 
+            element={
+              <ProtectedRoute>
+                <NotesPage 
+                  modules={modules}
+                  userProgress={userProgress}
+                  updateProgress={updateProgress}
+                />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/bibliography" 
+            element={
+              <ProtectedRoute>
+                <BibliographyPage modules={modules} />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/search" 
+            element={
+              <ProtectedRoute>
+                <SearchPage modules={modules} />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/test-youtube" 
+            element={
+              <ProtectedRoute requiredRole={UserRole.ADMIN}>
+                <TestYouTubeIntegration />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/test-api" 
+            element={
+              <ProtectedRoute requiredRole={UserRole.ADMIN}>
+                <TestYouTubeAPI />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Admin Routes */}
+          <Route path="/admin/login" element={
+            <PublicRoute redirectTo="/admin">
+              <AdminLogin />
+            </PublicRoute>
+          } />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute requiredRole={UserRole.ADMIN}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/modules"
+            element={
+              <ProtectedRoute requiredRole={UserRole.ADMIN}>
+                <AdminModules />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/resources"
+            element={
+              <ProtectedRoute requiredRole={UserRole.ADMIN}>
+                <AdminResources />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </main>
+    </div>
   );
 }
 
 function App() {
   return (
-    <AdminProvider>
-      <AppContent />
-    </AdminProvider>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <AuthProvider>
+        <AdminProvider>
+          <AppContent />
+        </AdminProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 

@@ -9,14 +9,17 @@ import {
   Home,
   Settings,
   LogOut,
-  Brain
+  Brain,
+  User,
+  LogIn
 } from 'lucide-react';
-import { useAdmin } from '../contexts/AdminContext';
+import { useAuth } from '../contexts/AuthContext';
+import { UserRole } from '../types/auth';
 
 const Navigation: React.FC = () => {
   const location = useLocation();
-  const navigate = useNavigate();
-  const { isAdmin, logout } = useAdmin();
+  const { isAuthenticated, user, logout, hasRole } = useAuth();
+  const isAdmin = hasRole(UserRole.ADMIN);
 
   const navItems = [
     { path: '/dashboard', label: 'Painel', icon: Home },
@@ -27,10 +30,16 @@ const Navigation: React.FC = () => {
     { path: '/search', label: 'Buscar', icon: Search },
   ];
 
-  const handleLogout = () => {
-    logout();
-    navigate('/dashboard');
+  const handleLogout = async () => {
+    await logout();
   };
+
+  // Don't show navigation on auth pages
+  if (location.pathname.startsWith('/login') || 
+      location.pathname.startsWith('/register') ||
+      location.pathname.startsWith('/forgot-password')) {
+    return null;
+  }
 
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200">
@@ -44,7 +53,7 @@ const Navigation: React.FC = () => {
           </Link>
           
           <div className="flex items-center space-x-1">
-            {navItems.map((item) => {
+            {isAuthenticated && navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
               
@@ -67,22 +76,32 @@ const Navigation: React.FC = () => {
               );
             })}
             
-            {isAdmin ? (
+            {isAuthenticated ? (
               <>
-                <Link
-                  to="/admin"
-                  className={`
-                    flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium
-                    transition-all duration-200
-                    ${location.pathname.startsWith('/admin') 
-                      ? 'bg-primary-50 text-primary-700' 
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                    }
-                  `}
-                >
-                  <Settings className="w-4 h-4" />
-                  <span className="hidden sm:inline">Administrador</span>
-                </Link>
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    className={`
+                      flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium
+                      transition-all duration-200
+                      ${location.pathname.startsWith('/admin') 
+                        ? 'bg-primary-50 text-primary-700' 
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      }
+                    `}
+                  >
+                    <Settings className="w-4 h-4" />
+                    <span className="hidden sm:inline">Administrador</span>
+                  </Link>
+                )}
+                
+                <div className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600">
+                  <User className="w-4 h-4" />
+                  <span className="hidden sm:inline font-medium">
+                    {user?.profile.firstName} {user?.profile.lastName}
+                  </span>
+                </div>
+                
                 <button
                   onClick={handleLogout}
                   className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200"
@@ -93,11 +112,11 @@ const Navigation: React.FC = () => {
               </>
             ) : (
               <Link
-                to="/admin/login"
+                to="/login"
                 className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200"
               >
-                <Settings className="w-4 h-4" />
-                <span className="hidden sm:inline">Admin</span>
+                <LogIn className="w-4 h-4" />
+                <span className="hidden sm:inline">Entrar</span>
               </Link>
             )}
           </div>

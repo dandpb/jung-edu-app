@@ -1,4 +1,4 @@
-import { ILLMProvider } from '../provider';
+import { ILLMProvider } from '../types';
 import { Video } from '../../../types'; // Use the simpler Video type from types
 import { YouTubeService, YouTubeVideo } from '../../video/youtubeService';
 import { VideoEnricher, VideoMetadata } from '../../video/videoEnricher';
@@ -243,19 +243,19 @@ Example format (respond with exactly this structure):
       maxItems: 10
     };
 
-    console.log('About to call generateStructuredResponse with schema:', schema);
+    console.log('About to call generateStructuredOutput with schema:', schema);
     
-    const result = await this.provider.generateStructuredResponse<string[]>(
+    const result = await this.provider.generateStructuredOutput<string[]>(
       prompt,
       schema,
-      { temperature: 0.5, retries: 3 }
+      { temperature: 0.5 }
     );
 
     console.log('Generated search queries:', result, 'Type:', typeof result, 'Is array:', Array.isArray(result));
     
     // Double-check if result is actually the schema (cast to any for comparison)
     if ((result as any) === schema || (result as any)?.type === 'array') {
-      console.error('CRITICAL: generateStructuredResponse returned the schema object instead of a response!');
+      console.error('CRITICAL: generateStructuredOutput returned the schema object instead of a response!');
       // Force a fallback
       const fallbackQueries = language === 'pt-BR' ? [
         `${topic} Jung psicologia palestra português`,
@@ -388,7 +388,7 @@ Response format:
 ]
 `;
 
-    const suggestions = await this.provider.generateStructuredResponse<Array<{
+    const suggestions = await this.provider.generateStructuredOutput<Array<{
       title: string;
       description: string;
       url: string;
@@ -748,7 +748,7 @@ Response format:
   ...
 ]`;
 
-    const recommendationQueries = await this.provider.generateStructuredResponse<string[]>(
+    const recommendationQueries = await this.provider.generateStructuredOutput<string[]>(
       prompt,
       [],
       { temperature: 0.7 }

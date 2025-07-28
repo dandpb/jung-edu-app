@@ -78,13 +78,13 @@ Module: ${module.title}
 Description: ${module.description}
 
 Content:
-${module.content.introduction}
+${module.content?.introduction || ''}
 
 Sections:
-${module.content.sections.map(s => `- ${s.title}: ${s.content.substring(0, 200)}...`).join('\n')}
+${module.content?.sections?.map(s => `- ${s.title}: ${s.content.substring(0, 200)}...`).join('\n') || ''}
 
 Key Terms:
-${module.content.sections.flatMap(s => s.keyTerms || []).map(kt => `- ${kt.term}: ${kt.definition}`).join('\n')}
+${module.content?.sections?.flatMap(s => s.keyTerms || []).map(kt => `- ${kt.term}: ${kt.definition}`).join('\n') || ''}
 
 Please provide a structured list of concepts with the following format for each:
 1. Main concepts (3-5 core ideas)
@@ -488,7 +488,7 @@ Return the same JSON structure but with updated parent relationships and potenti
     });
 
     // Add section concepts
-    module.content.sections.forEach(section => {
+    module.content?.sections?.forEach(section => {
       const sectionConcept: ConceptNode = {
         id: `concept-${idCounter++}`,
         label: section.title,

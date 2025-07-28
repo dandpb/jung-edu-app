@@ -3,7 +3,7 @@
  * Integrates templates and enhancement features for better educational quizzes
  */
 
-import { ILLMProvider } from '../llm/provider';
+import { ILLMProvider } from '../llm/types';
 import { Quiz, Question } from '../../types';
 import { QuizGenerator } from '../llm/generators/quiz-generator';
 import { quizEnhancer, EnhancementOptions } from './quizEnhancer';
@@ -207,7 +207,7 @@ export class EnhancedQuizGenerator extends QuizGenerator {
       concepts
     );
 
-    const rawQuestions = await this.provider.generateStructuredResponse<Array<{
+    const rawQuestions = await this.provider.generateStructuredOutput<Array<{
       question: string;
       type: string;
       options?: string[];
@@ -367,7 +367,7 @@ For each question provide:
 }
 `;
 
-    const rawQuestions = await this.provider.generateStructuredResponse<Array<{
+    const rawQuestions = await this.provider.generateStructuredOutput<Array<{
       question: string;
       type: string;
       rubric: any;
@@ -537,6 +537,7 @@ Include:
 Format as a structured study plan.
 `;
 
-    return await this.provider.generateCompletion(prompt, { temperature: 0.7, maxTokens: 1500 });
+    const response = await this.provider.generateCompletion(prompt, { temperature: 0.7, maxTokens: 1500 });
+    return response.content;
   }
 }

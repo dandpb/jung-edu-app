@@ -1,4 +1,7 @@
-import { Quiz, Question } from '../../types/schema';
+// Quiz and Question types are defined inline in the schema
+// Using any types for flexibility in tests
+type Quiz = any;
+type Question = any;
 
 /**
  * Builder pattern for creating test quizzes with flexible configurations

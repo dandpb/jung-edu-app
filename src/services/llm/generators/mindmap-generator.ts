@@ -1,4 +1,4 @@
-import { ILLMProvider } from '../provider';
+import { ILLMProvider } from '../types';
 
 export interface MindMapNode {
   id: string;
@@ -126,7 +126,7 @@ Response format:
 }
 `;
 
-    const structure = await this.provider.generateStructuredResponse<any>(
+    const structure = await this.provider.generateStructuredOutput<any>(
       prompt,
       {},
       { temperature: 0.6, maxTokens: 2000 }
@@ -212,10 +212,11 @@ Focus on:
 Keep it concise and educational.
 `;
 
-    return await this.provider.generateCompletion(prompt, {
+    const response = await this.provider.generateCompletion(prompt, {
       temperature: 0.6,
       maxTokens: 150,
     });
+    return response.content;
   }
 
   private async generateConnections(
@@ -270,7 +271,7 @@ Response format:
 Limit to the most meaningful 5-8 connections.
 `;
 
-    const connections = await this.provider.generateStructuredResponse<Array<{
+    const connections = await this.provider.generateStructuredOutput<Array<{
       from: string;
       to: string;
       type: 'opposing' | 'associative' | 'complementary';
@@ -350,7 +351,7 @@ Response format:
 ["node-id-1", "node-id-2", ...]
 `;
 
-    return await this.provider.generateStructuredResponse<string[]>(
+    return await this.provider.generateStructuredOutput<string[]>(
       prompt,
       [],
       { temperature: 0.4 }

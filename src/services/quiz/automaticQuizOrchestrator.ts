@@ -3,7 +3,7 @@
  * Coordinates the full automatic quiz generation process from content analysis to final quiz
  */
 
-import { ILLMProvider } from '../llm/provider';
+import { ILLMProvider } from '../llm/types';
 import { EnhancedQuizGenerator, EnhancedQuizOptions } from './enhancedQuizGenerator';
 import { contentAnalyzer } from './contentAnalyzer';
 import { quizValidator } from './quizValidator';

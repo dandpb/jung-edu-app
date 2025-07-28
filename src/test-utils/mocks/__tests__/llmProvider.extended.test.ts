@@ -4,7 +4,7 @@ import {
   mockLLMResponses,
   createMockLLMProviderWithPatterns
 } from '../llmProvider';
-import { ILLMProvider } from '../../../services/llm/provider';
+import { ILLMProvider } from '../../../services/llm/types';
 import { Question } from '../../../types';
 
 describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
@@ -13,14 +13,14 @@ describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
       const mockProvider = createMockLLMProvider();
       
       expect(mockProvider.generateCompletion).toBeDefined();
-      expect(mockProvider.generateStructuredResponse).toBeDefined();
+      expect(mockProvider.generateStructuredOutput).toBeDefined();
       expect(mockProvider.generateStructuredOutput).toBeDefined();
       expect(mockProvider.getTokenCount).toBeDefined();
       expect(mockProvider.isAvailable).toBeDefined();
       
       // All should be jest mock functions
       expect(jest.isMockFunction(mockProvider.generateCompletion)).toBe(true);
-      expect(jest.isMockFunction(mockProvider.generateStructuredResponse)).toBe(true);
+      expect(jest.isMockFunction(mockProvider.generateStructuredOutput)).toBe(true);
       expect(jest.isMockFunction(mockProvider.generateStructuredOutput)).toBe(true);
       expect(jest.isMockFunction(mockProvider.getTokenCount)).toBe(true);
       expect(jest.isMockFunction(mockProvider.isAvailable)).toBe(true);
@@ -48,7 +48,7 @@ describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
       });
       
       expect(mockProvider.isAvailable()).resolves.toBe(false);
-      expect(mockProvider.generateCompletion('test')).resolves.toBe('Mock completion response');
+      expect(mockProvider.generateCompletion('test')).resolves.toEqual({ content: 'Mock completion response', usage: undefined });
       expect(mockProvider.getTokenCount('test')).toBe(100);
     });
 
@@ -63,7 +63,7 @@ describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
       const mockProvider = createMockLLMProvider({
         generateCompletion: jest.fn().mockImplementation((prompt) => {
           callCount++;
-          return Promise.resolve(`Response ${callCount}: ${prompt}`);
+          return Promise.resolve({ content: `Response ${callCount}: ${prompt}`, usage: undefined });
         })
       });
       
@@ -71,8 +71,8 @@ describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
         mockProvider.generateCompletion('test1'),
         mockProvider.generateCompletion('test2')
       ]).then(([result1, result2]) => {
-        expect(result1).toBe('Response 1: test1');
-        expect(result2).toBe('Response 2: test2');
+        expect(result1.content).toBe('Response 1: test1');
+        expect(result2.content).toBe('Response 2: test2');
       });
     });
   });
@@ -120,11 +120,16 @@ describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
 
     it('should apply single difficulty level when specified', () => {
       const difficulties: Array<'easy' | 'medium' | 'hard'> = ['easy', 'medium', 'hard'];
+      const expectedDifficulties = {
+        'easy': 'beginner',
+        'medium': 'intermediate', 
+        'hard': 'advanced'
+      };
       
       difficulties.forEach(difficulty => {
         const questions = createMockQuestions(5, { difficulty });
         questions.forEach(q => {
-          expect(q.difficulty).toBe(difficulty);
+          expect(q.difficulty).toBe(expectedDifficulties[difficulty]);
         });
       });
     });
@@ -132,13 +137,13 @@ describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
     it('should cycle through difficulties when mixed', () => {
       const questions = createMockQuestions(9, { difficulty: 'mixed' });
       
-      const easy = questions.filter(q => q.difficulty === 'easy');
-      const medium = questions.filter(q => q.difficulty === 'medium');
-      const hard = questions.filter(q => q.difficulty === 'hard');
+      const beginner = questions.filter(q => q.difficulty === 'beginner');
+      const intermediate = questions.filter(q => q.difficulty === 'intermediate');
+      const advanced = questions.filter(q => q.difficulty === 'advanced');
       
-      expect(easy).toHaveLength(3);
-      expect(medium).toHaveLength(3);
-      expect(hard).toHaveLength(3);
+      expect(beginner).toHaveLength(3);
+      expect(intermediate).toHaveLength(3);
+      expect(advanced).toHaveLength(3);
     });
 
     it('should use custom concepts when provided', () => {
@@ -146,7 +151,7 @@ describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
       const questions = createMockQuestions(6, { concepts: customConcepts });
       
       questions.forEach((q, i) => {
-        expect(q.concept).toBe(customConcepts[i % customConcepts.length]);
+        expect(q.tags?.[0]).toBe(customConcepts[i % customConcepts.length]);
         expect(q.question).toContain(customConcepts[i % customConcepts.length]);
         expect(q.explanation).toContain(customConcepts[i % customConcepts.length]);
       });
@@ -165,7 +170,7 @@ describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
       const questions = createMockQuestions(3, { concepts: [] });
       
       questions.forEach(q => {
-        expect(q.concept).toBeUndefined();
+        expect(q.tags).toEqual(['undefined']);
         expect(q.question).toContain('undefined');
       });
     });
@@ -268,17 +273,17 @@ describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
       const provider = createMockLLMProviderWithPatterns('success');
       
       // Test quiz generation
-      const quizResult = await provider.generateStructuredResponse('Generate quiz questions');
+      const quizResult = await provider.generateStructuredOutput('Generate quiz questions');
       expect(Array.isArray(quizResult)).toBe(true);
       expect(quizResult).toHaveLength(5);
       
       // Test module outline generation
-      const outlineResult = await provider.generateStructuredResponse('Create module outline');
+      const outlineResult = await provider.generateStructuredOutput('Create module outline');
       expect(outlineResult).toHaveProperty('title');
       expect(outlineResult).toHaveProperty('concepts');
       
       // Test generic content
-      const contentResult = await provider.generateStructuredResponse('Generate content');
+      const contentResult = await provider.generateStructuredOutput('Generate content');
       expect(contentResult).toHaveProperty('introduction');
       
       expect(await provider.isAvailable()).toBe(true);
@@ -288,20 +293,20 @@ describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
       const provider = createMockLLMProviderWithPatterns('failure');
       
       await expect(provider.generateCompletion('test')).rejects.toThrow('API Error');
-      await expect(provider.generateStructuredResponse('test')).rejects.toThrow('API Error');
+      await expect(provider.generateStructuredOutput('test')).rejects.toThrow('API Error');
       expect(await provider.isAvailable()).toBe(false);
     });
 
     it('should create partial response provider pattern', async () => {
       const provider = createMockLLMProviderWithPatterns('partial');
       
-      const result1 = await provider.generateStructuredResponse('test1');
+      const result1 = await provider.generateStructuredOutput('test1');
       expect(result1).toBeNull();
       
-      const result2 = await provider.generateStructuredResponse('test2');
+      const result2 = await provider.generateStructuredOutput('test2');
       expect(result2).toEqual({ partial: 'data' });
       
-      const result3 = await provider.generateStructuredResponse('test3');
+      const result3 = await provider.generateStructuredOutput('test3');
       expect(result3).toHaveProperty('introduction');
     });
 
@@ -312,7 +317,7 @@ describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
       const result = await provider.generateCompletion('test');
       const duration = Date.now() - startTime;
       
-      expect(result).toBe('Slow response');
+      expect(result.content).toBe('Slow response');
       expect(duration).toBeGreaterThanOrEqual(2900); // Allow some timing variance
       expect(duration).toBeLessThan(3500);
     });
@@ -326,7 +331,7 @@ describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
         
         // All providers should have the base methods
         expect(provider.generateCompletion).toBeDefined();
-        expect(provider.generateStructuredResponse).toBeDefined();
+        expect(provider.generateStructuredOutput).toBeDefined();
         expect(provider.generateStructuredOutput).toBeDefined();
         expect(provider.getTokenCount).toBeDefined();
         expect(provider.isAvailable).toBeDefined();
@@ -340,7 +345,7 @@ describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
       // Test that invalid pattern falls back to base behavior
       const provider = createMockLLMProviderWithPatterns('invalid' as any);
       
-      expect(provider.generateCompletion('test')).resolves.toBe('Mock completion response');
+      expect(provider.generateCompletion('test')).resolves.toEqual({ content: 'Mock completion response', usage: undefined });
       expect(provider.isAvailable()).resolves.toBe(true);
     });
   });
@@ -355,7 +360,7 @@ describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
       const attemptGeneration = async (provider: ILLMProvider): Promise<any> => {
         attempts++;
         try {
-          return await provider.generateStructuredResponse('Generate quiz');
+          return await provider.generateStructuredOutput('Generate quiz');
         } catch (error) {
           if (attempts < 3 && provider === failureProvider) {
             // Switch to success provider after failures
@@ -374,23 +379,23 @@ describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
       const provider = createMockLLMProvider();
       
       // Chain multiple behaviors
-      provider.generateStructuredResponse
+      provider.generateStructuredOutput
         .mockResolvedValueOnce(null)
         .mockRejectedValueOnce(new Error('Temporary failure'))
         .mockResolvedValueOnce(createMockQuestions(3));
       
-      const result1 = await provider.generateStructuredResponse('test1');
+      const result1 = await provider.generateStructuredOutput('test1');
       expect(result1).toBeNull();
       
-      await expect(provider.generateStructuredResponse('test2')).rejects.toThrow('Temporary failure');
+      await expect(provider.generateStructuredOutput('test2')).rejects.toThrow('Temporary failure');
       
-      const result3 = await provider.generateStructuredResponse('test3');
+      const result3 = await provider.generateStructuredOutput('test3');
       expect(result3).toHaveLength(3);
     });
 
     it('should support conditional responses', () => {
       const provider = createMockLLMProvider({
-        generateStructuredResponse: jest.fn().mockImplementation(async (prompt) => {
+        generateStructuredOutput: jest.fn().mockImplementation(async (prompt) => {
           if (prompt.includes('error')) {
             throw new Error('Requested error');
           }
@@ -404,10 +409,10 @@ describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
         })
       });
       
-      expect(provider.generateStructuredResponse('normal')).resolves.toEqual({ default: 'response' });
-      expect(provider.generateStructuredResponse('quiz time')).resolves.toHaveLength(10);
-      expect(provider.generateStructuredResponse('empty result')).resolves.toBeNull();
-      expect(provider.generateStructuredResponse('cause error')).rejects.toThrow('Requested error');
+      expect(provider.generateStructuredOutput('normal')).resolves.toEqual({ default: 'response' });
+      expect(provider.generateStructuredOutput('quiz time')).resolves.toHaveLength(10);
+      expect(provider.generateStructuredOutput('empty result')).resolves.toBeNull();
+      expect(provider.generateStructuredOutput('cause error')).rejects.toThrow('Requested error');
     });
   });
 });

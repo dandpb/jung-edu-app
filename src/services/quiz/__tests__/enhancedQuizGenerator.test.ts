@@ -4,7 +4,7 @@
  */
 
 import { EnhancedQuizGenerator, EnhancedQuizOptions } from '../enhancedQuizGenerator';
-import { ILLMProvider } from '../../llm/provider';
+import { ILLMProvider } from '../../llm/types';
 import { Quiz, Question } from '../../../types';
 import { quizEnhancer } from '../quizEnhancer';
 import {

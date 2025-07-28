@@ -6,7 +6,7 @@
 
 import { getTestConfig, shouldUseRealAPI } from './testConfig';
 import { createMockLLMProvider } from './mocks/llmProvider';
-import { LLMProvider } from '../services/llm/types';
+import { ILLMProvider } from '../services/llm/types';
 
 // Import Jest globals explicitly
 declare const test: jest.It;
@@ -37,7 +37,7 @@ export function setupIntegrationTest(testName: string) {
 /**
  * Get an LLM provider based on the current test configuration
  */
-export async function getTestLLMProvider(): Promise<LLMProvider> {
+export async function getTestLLMProvider(): Promise<ILLMProvider> {
   if (shouldUseRealAPI('openai')) {
     // Dynamically import to avoid loading OpenAI when not needed
     const { OpenAIProvider } = await import('../services/llm/provider');
@@ -78,7 +78,7 @@ export function testWithAPI(
 ) {
   const isUsingRealAPI = shouldUseRealAPI(service);
   if (isUsingRealAPI) {
-    test(`${testName} (REAL API)`, testFn);
+    test(`${testName} (REAL API)`, testFn as any);
   } else {
     test(`${testName} (SKIPPED - Mock Mode)`, () => {
       console.log(`Skipping test in mock mode: ${testName}`);

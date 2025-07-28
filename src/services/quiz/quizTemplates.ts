@@ -432,8 +432,8 @@ export function getTopicConcepts(topic: string): string[] {
       key.toLowerCase().includes(normalizedTopic)
     );
     
-    if (jungTypeKey) {
-      return jungQuestionTypes[jungTypeKey].concepts;
+    if (jungTypeKey && jungTypeKey in jungQuestionTypes) {
+      return jungQuestionTypes[jungTypeKey as keyof typeof jungQuestionTypes].concepts;
     }
     
     // Return general Jungian concepts for unknown topics

@@ -7,7 +7,7 @@ import { quizValidator } from './quizValidator';
 
 // Mock provider for testing
 class MockProvider {
-  async generateStructuredResponse<T>(prompt: string, schema: any, options?: any): Promise<T> {
+  async generateStructuredOutput<T>(prompt: string, schema: any, options?: any): Promise<T> {
     // Simulate high-quality quiz generation
     const mockQuestions = [
       {

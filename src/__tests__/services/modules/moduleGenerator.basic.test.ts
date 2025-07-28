@@ -1,5 +1,5 @@
 import { ModuleGenerator, GenerationOptions, GenerationStage } from '../../../services/modules/moduleGenerator';
-import { ILLMProvider } from '../../../services/llm/provider';
+import { ILLMProvider } from '../../../services/llm/types';
 import { DifficultyLevel, ModuleStatus } from '../../../schemas/module.schema';
 import { ModuleService } from '../../../services/modules/moduleService';
 

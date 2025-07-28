@@ -190,3 +190,6 @@ export interface AppSettings {
   mindMapEdges: MindMapEdge[];
   adminUsers: AdminUser[];
 }
+
+// Re-export auth types
+export * from './auth';

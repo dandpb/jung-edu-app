@@ -1,5 +1,5 @@
 import { VideoGenerator } from '../video-generator';
-import { ILLMProvider } from '../../provider';
+import { ILLMProvider } from '../../types';
 import { YouTubeService } from '../../../video/youtubeService';
 import { VideoEnricher } from '../../../video/videoEnricher';
 import { Video } from '../../../../types';

@@ -40,7 +40,7 @@ const AdminResources: React.FC = () => {
   const getAllBibliography = () => {
     const allBibliography: Array<Bibliography & { moduleId: string, moduleTitle: string }> = [];
     modules.forEach(module => {
-      module.content.bibliography?.forEach(book => {
+      module.content?.bibliography?.forEach(book => {
         allBibliography.push({
           ...book,
           moduleId: module.id,
@@ -54,7 +54,7 @@ const AdminResources: React.FC = () => {
   const getAllFilms = () => {
     const allFilms: Array<Film & { moduleId: string, moduleTitle: string }> = [];
     modules.forEach(module => {
-      module.content.films?.forEach(film => {
+      module.content?.films?.forEach(film => {
         allFilms.push({
           ...film,
           moduleId: module.id,
@@ -90,8 +90,14 @@ const AdminResources: React.FC = () => {
         ? {
             ...module,
             content: {
-              ...module.content,
-              bibliography: [...(module.content.bibliography || []), bibliography]
+              introduction: module.content?.introduction || '',
+              sections: module.content?.sections || [],
+              videos: module.content?.videos,
+              quiz: module.content?.quiz,
+              bibliography: [...(module.content?.bibliography || []), bibliography],
+              films: module.content?.films,
+              summary: module.content?.summary,
+              keyTakeaways: module.content?.keyTakeaways
             }
           }
         : module
@@ -118,8 +124,14 @@ const AdminResources: React.FC = () => {
         ? {
             ...module,
             content: {
-              ...module.content,
-              films: [...(module.content.films || []), film]
+              introduction: module.content?.introduction || '',
+              sections: module.content?.sections || [],
+              videos: module.content?.videos,
+              quiz: module.content?.quiz,
+              bibliography: module.content?.bibliography,
+              films: [...(module.content?.films || []), film],
+              summary: module.content?.summary,
+              keyTakeaways: module.content?.keyTakeaways
             }
           }
         : module
@@ -141,10 +153,16 @@ const AdminResources: React.FC = () => {
         ? {
             ...module,
             content: {
-              ...module.content,
-              bibliography: (module.content.bibliography || []).map(book =>
+              introduction: module.content?.introduction || '',
+              sections: module.content?.sections || [],
+              videos: module.content?.videos,
+              quiz: module.content?.quiz,
+              bibliography: (module.content?.bibliography || []).map(book =>
                 book.id === itemId ? { ...book, ...updates } : book
-              )
+              ),
+              films: module.content?.films,
+              summary: module.content?.summary,
+              keyTakeaways: module.content?.keyTakeaways
             }
           }
         : module
@@ -157,10 +175,16 @@ const AdminResources: React.FC = () => {
         ? {
             ...module,
             content: {
-              ...module.content,
-              films: (module.content.films || []).map(film =>
+              introduction: module.content?.introduction || '',
+              sections: module.content?.sections || [],
+              videos: module.content?.videos,
+              quiz: module.content?.quiz,
+              bibliography: module.content?.bibliography,
+              films: (module.content?.films || []).map(film =>
                 film.id === itemId ? { ...film, ...updates } : film
-              )
+              ),
+              summary: module.content?.summary,
+              keyTakeaways: module.content?.keyTakeaways
             }
           }
         : module
@@ -174,8 +198,14 @@ const AdminResources: React.FC = () => {
           ? {
               ...module,
               content: {
-                ...module.content,
-                bibliography: (module.content.bibliography || []).filter(book => book.id !== itemId)
+                introduction: module.content?.introduction || '',
+                sections: module.content?.sections || [],
+                videos: module.content?.videos,
+                quiz: module.content?.quiz,
+                bibliography: (module.content?.bibliography || []).filter(book => book.id !== itemId),
+                films: module.content?.films,
+                summary: module.content?.summary,
+                keyTakeaways: module.content?.keyTakeaways
               }
             }
           : module
@@ -190,8 +220,14 @@ const AdminResources: React.FC = () => {
           ? {
               ...module,
               content: {
-                ...module.content,
-                films: (module.content.films || []).filter(film => film.id !== itemId)
+                introduction: module.content?.introduction || '',
+                sections: module.content?.sections || [],
+                videos: module.content?.videos,
+                quiz: module.content?.quiz,
+                bibliography: module.content?.bibliography,
+                films: (module.content?.films || []).filter(film => film.id !== itemId),
+                summary: module.content?.summary,
+                keyTakeaways: module.content?.keyTakeaways
               }
             }
           : module

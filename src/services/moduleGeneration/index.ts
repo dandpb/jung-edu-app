@@ -20,7 +20,8 @@ import { VideoEnricher } from '../video/videoEnricher';
 import { BibliographyEnricher } from '../bibliography/bibliographyEnricher';
 import { allReferences } from '../bibliography/referenceDatabase';
 import { quizEnhancer } from '../quiz/quizEnhancer';
-import { ILLMProvider, OpenAIProvider } from '../llm/provider';
+import { ILLMProvider } from '../llm/types';
+import { OpenAIProvider } from '../llm/provider';
 import { defaultConfig } from '../llm/config';
 
 /**

@@ -143,8 +143,8 @@ const generateAIModule = async (
     };
     
     console.log('🎯 Debug: Final module quiz:', {
-      hasQuiz: !!module.content.quiz,
-      finalQuestionCount: module.content.quiz?.questions?.length || 0
+      hasQuiz: !!module.content?.quiz,
+      finalQuestionCount: module.content?.quiz?.questions?.length || 0
     });
     
     return module;
@@ -261,7 +261,7 @@ export const useModuleGenerator = (): UseModuleGeneratorReturn => {
     // Simula regeneração de uma seção
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    const updatedSections = generatedModule.content.sections.map(section => {
+    const updatedSections = generatedModule.content?.sections?.map(section => {
       if (section.id === sectionId) {
         return {
           ...section,
@@ -276,15 +276,17 @@ export const useModuleGenerator = (): UseModuleGeneratorReturn => {
         };
       }
       return section;
-    });
+    }) || [];
     
-    setGeneratedModule({
-      ...generatedModule,
-      content: {
-        ...generatedModule.content,
-        sections: updatedSections
-      }
-    });
+    if (generatedModule.content) {
+      setGeneratedModule({
+        ...generatedModule,
+        content: {
+          ...generatedModule.content,
+          sections: updatedSections
+        }
+      });
+    }
   }, [generatedModule]);
 
   const reset = useCallback(() => {

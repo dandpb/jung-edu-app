@@ -450,8 +450,8 @@ export class PipelineIntegrationHooks extends EventEmitter {
   // ==================== HELPER METHODS ====================
 
   private analyzeModuleComplexity(module: Module): 'low' | 'medium' | 'high' {
-    const contentLength = module.content.introduction.length + 
-      module.content.sections.reduce((sum, s) => sum + s.content.length, 0);
+    const contentLength = (module.content?.introduction?.length || 0) + 
+      (module.content?.sections?.reduce((sum, s) => sum + s.content.length, 0) || 0);
     
     if (contentLength > 2000) return 'high';
     if (contentLength > 1000) return 'medium';

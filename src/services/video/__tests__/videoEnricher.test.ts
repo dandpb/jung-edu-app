@@ -6,7 +6,7 @@
 import { VideoEnricher, VideoMetadata, EnrichmentOptions } from '../videoEnricher';
 import { YouTubeVideo } from '../youtubeService';
 import { VideoPlatform } from '../../../schemas/module.schema';
-import { ILLMProvider } from '../../llm/provider';
+import { ILLMProvider } from '../../llm/types';
 
 // Mock LLM Provider
 class MockLLMProvider implements ILLMProvider {

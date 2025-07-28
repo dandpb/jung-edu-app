@@ -1,4 +1,4 @@
-import { ILLMProvider } from '../../services/llm/provider';
+import { ILLMProvider } from '../../services/llm/types';
 import { Question } from '../../types';
 
 /**
@@ -6,8 +6,7 @@ import { Question } from '../../types';
  */
 export const createMockLLMProvider = (overrides?: Partial<jest.Mocked<ILLMProvider>>): jest.Mocked<ILLMProvider> => {
   const mockProvider: jest.Mocked<ILLMProvider> = {
-    generateCompletion: jest.fn().mockResolvedValue('Mock completion response'),
-    generateStructuredResponse: jest.fn().mockResolvedValue({}),
+    generateCompletion: jest.fn().mockResolvedValue({ content: 'Mock completion response', usage: undefined }),
     generateStructuredOutput: jest.fn().mockResolvedValue({}),
     getTokenCount: jest.fn().mockReturnValue(100),
     isAvailable: jest.fn().mockResolvedValue(true),
@@ -35,22 +34,30 @@ export const createMockQuestions = (count: number, options?: {
   
   for (let i = 0; i < count; i++) {
     const isMultipleChoice = type === 'multiple-choice' || (type === 'mixed' && i % 2 === 0);
-    const questionDifficulty = difficulty === 'mixed' 
-      ? ['easy', 'medium', 'hard'][i % 3] 
-      : difficulty;
+    const questionDifficulty: 'beginner' | 'intermediate' | 'advanced' = difficulty === 'mixed' 
+      ? (['beginner', 'intermediate', 'advanced'][i % 3] as 'beginner' | 'intermediate' | 'advanced')
+      : (difficulty === 'easy' ? 'beginner' : difficulty === 'medium' ? 'intermediate' : 'advanced');
     
     questions.push({
       id: `q${i + 1}`,
       type: isMultipleChoice ? 'multiple-choice' : 'true-false',
       question: `Test question ${i + 1} about ${concepts[i % concepts.length]}`,
       options: isMultipleChoice 
-        ? [`Option A for ${i + 1}`, `Option B for ${i + 1}`, `Option C for ${i + 1}`, `Option D for ${i + 1}`]
-        : undefined,
-      correctAnswer: isMultipleChoice ? i % 4 : Boolean(i % 2),
+        ? [
+            { id: `${i + 1}a`, text: `Option A for ${i + 1}` },
+            { id: `${i + 1}b`, text: `Option B for ${i + 1}` },
+            { id: `${i + 1}c`, text: `Option C for ${i + 1}` },
+            { id: `${i + 1}d`, text: `Option D for ${i + 1}` }
+          ]
+        : [
+            { id: `${i + 1}t`, text: 'True' },
+            { id: `${i + 1}f`, text: 'False' }
+          ],
+      correctAnswer: isMultipleChoice ? i % 4 : (i % 2),
       explanation: `Explanation for question ${i + 1} about ${concepts[i % concepts.length]}`,
       difficulty: questionDifficulty,
-      concept: concepts[i % concepts.length],
-      cognitiveLevel: ['remembering', 'understanding', 'applying', 'analyzing'][i % 4]
+      cognitiveLevel: ['remembering', 'understanding', 'applying', 'analyzing'][i % 4],
+      tags: [concepts[i % concepts.length]]
     });
   }
   
@@ -108,7 +115,7 @@ export const createMockLLMProviderWithPatterns = (pattern: 'success' | 'failure'
   
   switch (pattern) {
     case 'success':
-      baseProvider.generateStructuredResponse.mockImplementation(async (prompt) => {
+      baseProvider.generateStructuredOutput.mockImplementation(async (prompt) => {
         if (prompt.includes('quiz') || prompt.includes('questions')) {
           return createMockQuestions(5);
         }
@@ -121,19 +128,19 @@ export const createMockLLMProviderWithPatterns = (pattern: 'success' | 'failure'
       
     case 'failure':
       baseProvider.generateCompletion.mockRejectedValue(new Error('API Error'));
-      baseProvider.generateStructuredResponse.mockRejectedValue(new Error('API Error'));
+      baseProvider.generateStructuredOutput.mockRejectedValue(new Error('API Error'));
       baseProvider.isAvailable.mockResolvedValue(false);
       break;
       
     case 'partial':
-      baseProvider.generateStructuredResponse.mockResolvedValueOnce(null)
+      baseProvider.generateStructuredOutput.mockResolvedValueOnce(null)
         .mockResolvedValueOnce({ partial: 'data' })
         .mockResolvedValue(mockLLMResponses.contentGeneration);
       break;
       
     case 'slow':
       baseProvider.generateCompletion.mockImplementation(
-        () => new Promise(resolve => setTimeout(() => resolve('Slow response'), 3000))
+        () => new Promise(resolve => setTimeout(() => resolve({ content: 'Slow response', usage: undefined }), 3000))
       );
       break;
   }

@@ -55,13 +55,20 @@ const ModulePreview: React.FC<ModulePreviewProps> = ({
   };
 
   const handleSectionEdit = (sectionId: string, updates: Partial<Section>) => {
+    if (!module.content) return;
     const updatedSections = module.content.sections.map(section =>
       section.id === sectionId ? { ...section, ...updates } : section
     );
     onEdit({
       content: {
-        ...module.content,
-        sections: updatedSections
+        introduction: module.content?.introduction || '',
+        sections: updatedSections,
+        videos: module.content?.videos,
+        quiz: module.content?.quiz,
+        bibliography: module.content?.bibliography,
+        films: module.content?.films,
+        summary: module.content?.summary,
+        keyTakeaways: module.content?.keyTakeaways
       }
     });
   };
@@ -169,7 +176,7 @@ const ModulePreview: React.FC<ModulePreviewProps> = ({
                   <span className="font-medium text-gray-700">Introduction</span>
                 </button>
                 
-                {module.content.sections.map((section, index) => (
+                {module.content?.sections?.map((section, index) => (
                   <button
                     key={section.id}
                     className={`
@@ -185,7 +192,7 @@ const ModulePreview: React.FC<ModulePreviewProps> = ({
                   </button>
                 ))}
                 
-                {module.content.quiz && (
+                {module.content?.quiz && (
                   <button
                     className="w-full text-left p-2 rounded hover:bg-gray-50"
                     onClick={() => toggleSection('quiz')}
@@ -219,9 +226,18 @@ const ModulePreview: React.FC<ModulePreviewProps> = ({
                   </div>
                   {isEditing && editingSection === 'intro' ? (
                     <textarea
-                      value={module.content.introduction}
+                      value={module.content?.introduction || ''}
                       onChange={(e) => onEdit({
-                        content: { ...module.content, introduction: e.target.value }
+                        content: { 
+                          introduction: e.target.value,
+                          sections: module.content?.sections || [],
+                          videos: module.content?.videos,
+                          quiz: module.content?.quiz,
+                          bibliography: module.content?.bibliography,
+                          films: module.content?.films,
+                          summary: module.content?.summary,
+                          keyTakeaways: module.content?.keyTakeaways
+                        }
                       })}
                       className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                       rows={6}
@@ -232,7 +248,7 @@ const ModulePreview: React.FC<ModulePreviewProps> = ({
                       onClick={() => isEditing && setEditingSection('intro')}
                     >
                       <MarkdownContent 
-                        content={module.content.introduction}
+                        content={module.content?.introduction || ''}
                         className="text-gray-700"
                         prose={false}
                       />
@@ -242,7 +258,7 @@ const ModulePreview: React.FC<ModulePreviewProps> = ({
               )}
 
               {/* Content Sections */}
-              {module.content.sections.map((section, index) => {
+              {module.content?.sections?.map((section, index) => {
                 if (!expandedSections.includes(section.id) && expandedSections.length > 0) {
                   return null;
                 }
@@ -322,11 +338,11 @@ const ModulePreview: React.FC<ModulePreviewProps> = ({
               })}
 
               {/* Quiz Section */}
-              {expandedSections.includes('quiz') && module.content.quiz && (
+              {expandedSections.includes('quiz') && module.content?.quiz && (
                 <div className="mb-8">
                   <h3 className="text-xl font-semibold text-gray-900 mb-4">Quiz</h3>
                   <div className="space-y-4">
-                    {module.content.quiz.questions.map((question, idx) => (
+                    {module.content?.quiz?.questions?.map((question, idx) => (
                       <div key={question.id} className="bg-gray-50 p-4 rounded-lg">
                         <p className="font-medium text-gray-900 mb-2">
                           {idx + 1}. {question.question}

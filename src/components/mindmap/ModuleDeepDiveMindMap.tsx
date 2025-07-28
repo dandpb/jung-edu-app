@@ -13,8 +13,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { Module } from '../../types';
 import { LLMMindMapGenerator, LLMGeneratedMindMap } from '../../services/mindmap/llmMindMapGenerator';
-import { OpenAIProvider } from '../../services/llm/providers/openai';
-import { MockLLMProvider } from '../../services/llm/providers/mock';
+import { OpenAIProvider, MockLLMProvider } from '../../services/llm/provider';
 import { Loader2, Brain, BookOpen, Lightbulb, ArrowLeft } from 'lucide-react';
 import { ModuleNode } from '../MiniMapSector';
 
@@ -57,7 +56,7 @@ const ModuleDeepDiveMindMap: React.FC<ModuleDeepDiveMindMapProps> = ({
       
       if (apiKey) {
         try {
-          provider = new OpenAIProvider();
+          provider = new OpenAIProvider(apiKey);
           setUsingRealAI(true);
           console.log('Using OpenAI provider with real API');
         } catch (err) {
@@ -289,8 +288,8 @@ const ModuleDeepDiveMindMap: React.FC<ModuleDeepDiveMindMapProps> = ({
                 Show Learning Path
               </button>
               
-              {/* AI Insights */}
-              {mindMapData.insights && mindMapData.insights.length > 0 && (
+              {/* AI Insights - TODO: Add insights to LLMGeneratedMindMap type */}
+              {/* {mindMapData.insights && mindMapData.insights.length > 0 && (
                 <div className="mt-3 p-2 bg-blue-50 rounded-lg">
                   <h4 className="text-xs font-semibold text-blue-900 mb-1">AI Insights</h4>
                   <div className="space-y-1">
@@ -301,7 +300,7 @@ const ModuleDeepDiveMindMap: React.FC<ModuleDeepDiveMindMapProps> = ({
                     ))}
                   </div>
                 </div>
-              )}
+              )} */}
             </div>
           )}
           

@@ -1,5 +1,5 @@
 import { BibliographyGenerator, BibliographyEntry } from '../bibliography-generator';
-import { ILLMProvider } from '../../provider';
+import { ILLMProvider } from '../../types';
 
 // Mock the provider
 jest.mock('../../provider');

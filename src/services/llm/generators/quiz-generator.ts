@@ -1,4 +1,4 @@
-import { ILLMProvider } from '../provider';
+import { ILLMProvider } from '../types';
 import { Quiz, Question } from '../../../types';
 import { quizEnhancer } from '../../../services/quiz/quizEnhancer';
 import { quizValidator } from '../../../services/quiz/quizValidator';
@@ -203,14 +203,14 @@ Respond with exactly ${count} questions following the good example format:`;
       }
     };
 
-    const rawQuestions = await this.provider.generateStructuredResponse<Array<{
+    const rawQuestions = await this.provider.generateStructuredOutput<Array<{
       question: string;
       options: string[];
       correctAnswer: number;
       explanation: string;
       difficulty: string;
       cognitiveLevel: string;
-    }>>(prompt, schema, { temperature: 0.3, maxTokens: 3000, retries: 3 });
+    }>>(prompt, schema, { temperature: 0.3, maxTokens: 3000 });
 
     console.log('Generated raw questions:', rawQuestions, 'Type:', typeof rawQuestions, 'Is array:', Array.isArray(rawQuestions));
     
@@ -473,7 +473,7 @@ IMPORTANTE: Responda apenas com um objeto JSON:
 `;
 
     try {
-      const response = await this.provider.generateStructuredResponse<{
+      const response = await this.provider.generateStructuredOutput<{
         question: string;
         options: string[];
         correctAnswer: number;
@@ -593,7 +593,7 @@ IMPORTANTE: Escreva todas as questões em português brasileiro (pt-BR).
 Formato de resposta: mesmo que antes
 `;
 
-    const questions = await this.provider.generateStructuredResponse<Array<{
+    const questions = await this.provider.generateStructuredOutput<Array<{
       question: string;
       options: string[];
       correctAnswer: number;
@@ -635,7 +635,7 @@ Requisitos:
 Formato de resposta: mesmo que questões padrão
 `;
 
-    const questions = await this.provider.generateStructuredResponse<Array<{
+    const questions = await this.provider.generateStructuredOutput<Array<{
       question: string;
       options: string[];
       correctAnswer: number;

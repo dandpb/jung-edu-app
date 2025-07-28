@@ -25,6 +25,18 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
   const [activeTab, setActiveTab] = useState('basic');
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
 
+  // Helper function to ensure valid ModuleContent
+  const getValidContent = (content: any = {}) => ({
+    introduction: content?.introduction || '',
+    sections: content?.sections || [],
+    videos: content?.videos,
+    quiz: content?.quiz,
+    bibliography: content?.bibliography,
+    films: content?.films,
+    summary: content?.summary,
+    keyTakeaways: content?.keyTakeaways
+  });
+
   const handleSave = () => {
     // Validate required fields
     if (!editedModule.title.trim() || !editedModule.description.trim()) {
@@ -45,19 +57,21 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
       order: editedModule.content?.sections?.length || 0,
       keyTerms: []
     };
+    const currentContent = getValidContent(editedModule.content);
     updateModule({
       content: {
-        ...editedModule.content,
-        sections: [...(editedModule.content?.sections || []), newSection]
+        ...currentContent,
+        sections: [...currentContent.sections, newSection]
       }
     });
   };
 
   const updateSection = (sectionId: string, updates: Partial<Section>) => {
+    const currentContent = getValidContent(editedModule.content);
     updateModule({
       content: {
-        ...editedModule.content,
-        sections: editedModule.content?.sections?.map(s =>
+        ...currentContent,
+        sections: currentContent.sections.map((s: Section) =>
           s.id === sectionId ? { ...s, ...updates } : s
         )
       }
@@ -65,10 +79,11 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
   };
 
   const deleteSection = (sectionId: string) => {
+    const currentContent = getValidContent(editedModule.content);
     updateModule({
       content: {
-        ...editedModule.content,
-        sections: editedModule.content?.sections?.filter(s => s.id !== sectionId) || []
+        ...currentContent,
+        sections: currentContent.sections.filter((s: Section) => s.id !== sectionId)
       }
     });
   };
@@ -81,19 +96,21 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
       description: '',
       duration: 0
     };
+    const currentContent = getValidContent(editedModule.content);
     updateModule({
       content: {
-        ...editedModule.content,
-        videos: [...(editedModule.content?.videos || []), newVideo]
+        ...currentContent,
+        videos: [...(currentContent.videos || []), newVideo]
       }
     });
   };
 
   const updateVideo = (videoId: string, updates: Partial<Video>) => {
+    const currentContent = getValidContent(editedModule.content);
     updateModule({
       content: {
-        ...editedModule.content,
-        videos: editedModule.content?.videos?.map(v =>
+        ...currentContent,
+        videos: currentContent.videos?.map((v: Video) =>
           v.id === videoId ? { ...v, ...updates } : v
         )
       }
@@ -101,10 +118,11 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
   };
 
   const deleteVideo = (videoId: string) => {
+    const currentContent = getValidContent(editedModule.content);
     updateModule({
       content: {
-        ...editedModule.content,
-        videos: editedModule.content?.videos?.filter(v => v.id !== videoId) || []
+        ...currentContent,
+        videos: currentContent.videos?.filter((v: Video) => v.id !== videoId) || []
       }
     });
   };
@@ -282,9 +300,12 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                   <textarea
                     id="module-introduction"
                     value={editedModule.content?.introduction || ''}
-                    onChange={(e) => updateModule({
-                      content: { ...editedModule.content, introduction: e.target.value }
-                    })}
+                    onChange={(e) => {
+                      const currentContent = getValidContent(editedModule.content);
+                      updateModule({
+                        content: { ...currentContent, introduction: e.target.value }
+                      });
+                    }}
                     rows={4}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                   />
@@ -491,9 +512,12 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
             {activeTab === 'quiz' && (
               <QuizEditor
                 quiz={editedModule.content?.quiz}
-                onUpdate={(quiz) => updateModule({
-                  content: { ...editedModule.content, quiz }
-                })}
+                onUpdate={(quiz) => {
+                  const currentContent = getValidContent(editedModule.content);
+                  updateModule({
+                    content: { ...currentContent, quiz }
+                  });
+                }}
               />
             )}
 
@@ -511,10 +535,11 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                           year: new Date().getFullYear(),
                           type: 'book'
                         };
+                        const currentContent = getValidContent(editedModule.content);
                         updateModule({
                           content: {
-                            ...editedModule.content,
-                            bibliography: [...(editedModule.content?.bibliography || []), newBibliography]
+                            ...currentContent,
+                            bibliography: [...(currentContent.bibliography || []), newBibliography]
                           }
                         });
                       }}
@@ -536,14 +561,17 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                             <input
                               type="text"
                               value={book.title}
-                              onChange={(e) => updateModule({
-                                content: {
-                                  ...editedModule.content,
-                                  bibliography: (editedModule.content?.bibliography || []).map(b =>
-                                    b.id === book.id ? { ...b, title: e.target.value } : b
-                                  )
-                                }
-                              })}
+                              onChange={(e) => {
+                                const currentContent = getValidContent(editedModule.content);
+                                updateModule({
+                                  content: {
+                                    ...currentContent,
+                                    bibliography: (currentContent.bibliography || []).map((b: Bibliography) =>
+                                      b.id === book.id ? { ...b, title: e.target.value } : b
+                                    )
+                                  }
+                                });
+                              }}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                             />
                           </div>
@@ -554,14 +582,17 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                             <input
                               type="text"
                               value={book.authors[0] || ''}
-                              onChange={(e) => updateModule({
-                                content: {
-                                  ...editedModule.content,
-                                  bibliography: (editedModule.content?.bibliography || []).map(b =>
-                                    b.id === book.id ? { ...b, authors: [e.target.value] } : b
-                                  )
-                                }
-                              })}
+                              onChange={(e) => {
+                                const currentContent = getValidContent(editedModule.content);
+                                updateModule({
+                                  content: {
+                                    ...currentContent,
+                                    bibliography: (currentContent.bibliography || []).map((b: Bibliography) =>
+                                      b.id === book.id ? { ...b, authors: [e.target.value] } : b
+                                    )
+                                  }
+                                });
+                              }}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                             />
                           </div>
@@ -574,14 +605,17 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                             <input
                               type="number"
                               value={book.year}
-                              onChange={(e) => updateModule({
-                                content: {
-                                  ...editedModule.content,
-                                  bibliography: (editedModule.content?.bibliography || []).map(b =>
-                                    b.id === book.id ? { ...b, year: parseInt(e.target.value) } : b
-                                  )
-                                }
-                              })}
+                              onChange={(e) => {
+                                const currentContent = getValidContent(editedModule.content);
+                                updateModule({
+                                  content: {
+                                    ...currentContent,
+                                    bibliography: (currentContent.bibliography || []).map((b: Bibliography) =>
+                                      b.id === book.id ? { ...b, year: parseInt(e.target.value) } : b
+                                    )
+                                  }
+                                });
+                              }}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                             />
                           </div>
@@ -591,14 +625,17 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                             </label>
                             <select
                               value={book.type}
-                              onChange={(e) => updateModule({
-                                content: {
-                                  ...editedModule.content,
-                                  bibliography: (editedModule.content?.bibliography || []).map(b =>
-                                    b.id === book.id ? { ...b, type: e.target.value as 'book' | 'article' | 'journal' } : b
-                                  )
-                                }
-                              })}
+                              onChange={(e) => {
+                                const currentContent = getValidContent(editedModule.content);
+                                updateModule({
+                                  content: {
+                                    ...currentContent,
+                                    bibliography: (currentContent.bibliography || []).map((b: Bibliography) =>
+                                      b.id === book.id ? { ...b, type: e.target.value as 'book' | 'article' | 'journal' } : b
+                                    )
+                                  }
+                                });
+                              }}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                             >
                               <option value="book">Livro</option>
@@ -609,12 +646,15 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                         </div>
                         <div className="mt-4 flex items-center justify-end">
                           <button
-                            onClick={() => updateModule({
-                              content: {
-                                ...editedModule.content,
-                                bibliography: (editedModule.content?.bibliography || []).filter(b => b.id !== book.id)
-                              }
-                            })}
+                            onClick={() => {
+                              const currentContent = getValidContent(editedModule.content);
+                              updateModule({
+                                content: {
+                                  ...currentContent,
+                                  bibliography: (currentContent.bibliography || []).filter((b: Bibliography) => b.id !== book.id)
+                                }
+                              });
+                            }}
                             className="text-red-600 hover:text-red-700"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -637,10 +677,11 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                           year: new Date().getFullYear(),
                           relevance: ''
                         };
+                        const currentContent = getValidContent(editedModule.content);
                         updateModule({
                           content: {
-                            ...editedModule.content,
-                            films: [...(editedModule.content?.films || []), newFilm]
+                            ...currentContent,
+                            films: [...(currentContent.films || []), newFilm]
                           }
                         });
                       }}
@@ -662,14 +703,17 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                             <input
                               type="text"
                               value={film.title}
-                              onChange={(e) => updateModule({
-                                content: {
-                                  ...editedModule.content,
-                                  films: (editedModule.content?.films || []).map(f =>
-                                    f.id === film.id ? { ...f, title: e.target.value } : f
-                                  )
-                                }
-                              })}
+                              onChange={(e) => {
+                                const currentContent = getValidContent(editedModule.content);
+                                updateModule({
+                                  content: {
+                                    ...currentContent,
+                                    films: (currentContent.films || []).map((f: Film) =>
+                                      f.id === film.id ? { ...f, title: e.target.value } : f
+                                    )
+                                  }
+                                });
+                              }}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                             />
                           </div>
@@ -680,14 +724,17 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                             <input
                               type="text"
                               value={film.director}
-                              onChange={(e) => updateModule({
-                                content: {
-                                  ...editedModule.content,
-                                  films: (editedModule.content?.films || []).map(f =>
-                                    f.id === film.id ? { ...f, director: e.target.value } : f
-                                  )
-                                }
-                              })}
+                              onChange={(e) => {
+                                const currentContent = getValidContent(editedModule.content);
+                                updateModule({
+                                  content: {
+                                    ...currentContent,
+                                    films: (currentContent.films || []).map((f: Film) =>
+                                      f.id === film.id ? { ...f, director: e.target.value } : f
+                                    )
+                                  }
+                                });
+                              }}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                             />
                           </div>
@@ -700,14 +747,17 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                             <input
                               type="number"
                               value={film.year}
-                              onChange={(e) => updateModule({
-                                content: {
-                                  ...editedModule.content,
-                                  films: (editedModule.content?.films || []).map(f =>
-                                    f.id === film.id ? { ...f, year: parseInt(e.target.value) } : f
-                                  )
-                                }
-                              })}
+                              onChange={(e) => {
+                                const currentContent = getValidContent(editedModule.content);
+                                updateModule({
+                                  content: {
+                                    ...currentContent,
+                                    films: (currentContent.films || []).map((f: Film) =>
+                                      f.id === film.id ? { ...f, year: parseInt(e.target.value) } : f
+                                    )
+                                  }
+                                });
+                              }}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                             />
                           </div>
@@ -717,14 +767,17 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                             </label>
                             <textarea
                               value={film.relevance}
-                              onChange={(e) => updateModule({
-                                content: {
-                                  ...editedModule.content,
-                                  films: (editedModule.content?.films || []).map(f =>
-                                    f.id === film.id ? { ...f, relevance: e.target.value } : f
-                                  )
-                                }
-                              })}
+                              onChange={(e) => {
+                                const currentContent = getValidContent(editedModule.content);
+                                updateModule({
+                                  content: {
+                                    ...currentContent,
+                                    films: (currentContent.films || []).map((f: Film) =>
+                                      f.id === film.id ? { ...f, relevance: e.target.value } : f
+                                    )
+                                  }
+                                });
+                              }}
                               rows={2}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                               placeholder="Como este filme é relevante para os conceitos de Jung?"
@@ -733,12 +786,15 @@ const ModuleEditor: React.FC<ModuleEditorProps> = ({ module, modules, onSave, on
                         </div>
                         <div className="mt-4 flex items-center justify-end">
                           <button
-                            onClick={() => updateModule({
-                              content: {
-                                ...editedModule.content,
-                                films: (editedModule.content?.films || []).filter(f => f.id !== film.id)
-                              }
-                            })}
+                            onClick={() => {
+                              const currentContent = getValidContent(editedModule.content);
+                              updateModule({
+                                content: {
+                                  ...currentContent,
+                                  films: (currentContent.films || []).filter((f: Film) => f.id !== film.id)
+                                }
+                              });
+                            }}
                             className="text-red-600 hover:text-red-700"
                           >
                             <Trash2 className="w-4 h-4" />

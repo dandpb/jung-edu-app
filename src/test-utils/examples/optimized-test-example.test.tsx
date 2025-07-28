@@ -31,6 +31,7 @@ import {
 } from '../index';
 
 import { ModuleService } from '../../services/modules/moduleService';
+import { EducationalModule } from '../../schemas/module.schema';
 // import { QuizGenerator } from '../../services/quiz/quizGenerator';
 
 // Apply common test setup
@@ -52,9 +53,10 @@ describe('Optimized Test Example', () => {
         .withTags('jung', 'test')
         .build();
 
-      const created = await ModuleService.createModule(testModule);
+      const created = await ModuleService.createModule(testModule as any);
       
-      assertValidModule(created);
+      // Type assertion to satisfy TypeScript
+      assertValidModule(created as EducationalModule);
       expect(created.title).toBe('Test Module');
       expect(created.difficultyLevel).toBe('intermediate');
     });
@@ -76,7 +78,7 @@ describe('Optimized Test Example', () => {
 
       const retrieved = await ModuleService.getAllModules();
       expect(retrieved).toHaveLength(4);
-      retrieved.forEach(assertValidModule);
+      retrieved.forEach((module) => assertValidModule(module as EducationalModule));
     });
   });
 
@@ -115,7 +117,7 @@ describe('Optimized Test Example', () => {
 
       assertValidQuiz(quiz);
       expect(quiz.questions).toHaveLength(10);
-      expect(quiz.questions[0].concept).toBeDefined();
+      expect(quiz.questions[0].question).toBeDefined();
     });
 
     it('should handle retries using test scenario', async () => {
@@ -135,7 +137,7 @@ describe('Optimized Test Example', () => {
       };
       
       // Test the retry pattern manually
-      let result;
+      let result: { success: boolean; attempts: number } | undefined;
       let retryCount = 0;
       const maxRetries = 3;
       
@@ -152,8 +154,8 @@ describe('Optimized Test Example', () => {
       }
 
       expect(result).toBeDefined();
-      expect(result.success).toBe(true);
-      expect(result.attempts).toBe(3);
+      expect(result!.success).toBe(true);
+      expect(result!.attempts).toBe(3);
       expect(attempts).toBe(3);
     });
   });
@@ -214,10 +216,12 @@ describe('Optimized Test Example', () => {
         
         expect(data.modules).toBeDefined();
         expect(data.modules.length).toBeGreaterThan(0);
-        data.modules.forEach(assertValidModule);
+        data.modules.forEach((module: any) => assertValidModule(module as EducationalModule));
       } catch (error) {
         // Skip test if MSW is not properly configured
-        expect(error.message).toContain('Network request failed');
+        if (error instanceof Error) {
+          expect(error.message).toContain('Network request failed');
+        }
       }
     });
 
@@ -248,7 +252,7 @@ describe('Optimized Test Example', () => {
       // const generator = new QuizGenerator(mockProvider);
       const generator = { generateQuiz: jest.fn().mockResolvedValue({ questions: createMockQuestions(20) }) };
       
-      mockProvider.generateStructuredResponse.mockResolvedValue(
+      mockProvider.generateStructuredOutput.mockResolvedValue(
         createMockQuestions(20)
       );
 

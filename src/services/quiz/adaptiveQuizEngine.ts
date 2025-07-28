@@ -5,7 +5,7 @@
 
 import { Quiz, Question } from '../../types';
 import { QuizGenerator } from '../llm/generators/quiz-generator';
-import { ILLMProvider } from '../llm/provider';
+import { ILLMProvider } from '../llm/types';
 
 export interface UserPerformanceProfile {
   userId: string;

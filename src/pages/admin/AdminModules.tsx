@@ -125,11 +125,17 @@ const AdminModules: React.FC = () => {
 
   const handleQuizGenerated = (quiz: any) => {
     if (quizGenerationModule) {
-      const updatedModule = {
+      const updatedModule: Module = {
         ...quizGenerationModule,
         content: {
-          ...quizGenerationModule.content,
-          quiz: quiz
+          introduction: quizGenerationModule.content?.introduction || '',
+          sections: quizGenerationModule.content?.sections || [],
+          videos: quizGenerationModule.content?.videos,
+          quiz: quiz,
+          bibliography: quizGenerationModule.content?.bibliography,
+          films: quizGenerationModule.content?.films,
+          summary: quizGenerationModule.content?.summary,
+          keyTakeaways: quizGenerationModule.content?.keyTakeaways
         }
       };
       updateModules(modules.map(m => m.id === quizGenerationModule.id ? updatedModule : m));
@@ -230,12 +236,12 @@ const AdminModules: React.FC = () => {
                     </span>
                     <span className="flex items-center">
                       <BookOpen className="w-4 h-4 mr-1" />
-                      {module.content.sections.length} seções
+                      {module.content?.sections?.length || 0} seções
                     </span>
-                    {module.content.quiz && (
+                    {module.content?.quiz && (
                       <span className="flex items-center">
                         <FileText className="w-4 h-4 mr-1" />
-                        {module.content.quiz.questions.length} questões
+                        {module.content?.quiz?.questions?.length || 0} questões
                       </span>
                     )}
                   </div>
@@ -271,14 +277,14 @@ const AdminModules: React.FC = () => {
                   <div>
                     <h4 className="font-medium text-gray-900 mb-2">Introdução</h4>
                     <p className="text-sm text-gray-600 line-clamp-3">
-                      {module.content.introduction}
+                      {module.content?.introduction}
                     </p>
                   </div>
 
                   <div>
                     <h4 className="font-medium text-gray-900 mb-2">Seções</h4>
                     <div className="space-y-2">
-                      {module.content.sections.map((section, index) => (
+                      {module.content?.sections?.map((section, index) => (
                         <div key={section.id} className="flex items-center space-x-2 text-sm">
                           <span className="text-gray-400">{index + 1}.</span>
                           <span className="text-gray-700">{section.title}</span>
@@ -359,8 +365,8 @@ const AdminModules: React.FC = () => {
               </div>
               <AutomaticQuizGenerator
                 onQuizGenerated={handleQuizGenerated}
-                moduleContent={quizGenerationModule.content.introduction + ' ' + 
-                              (quizGenerationModule.content.sections || []).map(s => s.content).join(' ')}
+                moduleContent={(quizGenerationModule.content?.introduction || '') + ' ' + 
+                              (quizGenerationModule.content?.sections || []).map(s => s.content).join(' ')}
                 moduleTopic={quizGenerationModule.title}
                 learningObjectives={[quizGenerationModule.description]}
               />

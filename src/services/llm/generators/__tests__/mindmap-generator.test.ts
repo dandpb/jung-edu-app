@@ -1,5 +1,5 @@
 import { MindMapGenerator, MindMap, MindMapNode } from '../mindmap-generator';
-import { ILLMProvider } from '../../provider';
+import { ILLMProvider } from '../../types';
 
 // Mock the provider
 jest.mock('../../provider');

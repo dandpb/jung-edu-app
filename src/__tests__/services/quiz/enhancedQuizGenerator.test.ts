@@ -1,5 +1,5 @@
 import { EnhancedQuizGenerator } from '../../../services/quiz/enhancedQuizGenerator';
-import { ILLMProvider } from '../../../services/llm/provider';
+import { ILLMProvider } from '../../../services/llm/types';
 import { Question } from '../../../types';
 
 // Mock data

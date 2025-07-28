@@ -3,7 +3,8 @@
  * Analyzes educational content to extract key concepts, structure, and learning points
  */
 
-import { ILLMProvider, LLMProviderFactory } from '../llm/provider';
+import { ILLMProvider } from '../llm/types';
+import { LLMProviderFactory } from '../llm/provider';
 
 export interface ContentAnalysisResult {
   keyConcepts: string[];
@@ -121,7 +122,7 @@ IMPORTANTE: Responda em JSON no formato:
 `;
 
     try {
-      const result = await this.provider.generateStructuredResponse<{
+      const result = await this.provider.generateStructuredOutput<{
         concepts: string[];
         cognitivelevels: string[];
         objectives: string[];
@@ -175,7 +176,7 @@ Responda em JSON:
 `;
 
     try {
-      return await this.provider.generateStructuredResponse(prompt, {
+      return await this.provider.generateStructuredOutput(prompt, {
         type: "object",
         properties: {
           mainTopics: { type: "array", items: { type: "string" } },
@@ -221,7 +222,7 @@ Responda em JSON:
 `;
 
     try {
-      return await this.provider.generateStructuredResponse(prompt, {
+      return await this.provider.generateStructuredOutput(prompt, {
         type: "object",
         properties: {
           level: { type: "string", enum: ["beginner", "intermediate", "advanced"] },
@@ -274,7 +275,7 @@ Responda em JSON como array:
 `;
 
     try {
-      const result = await this.provider.generateStructuredResponse<Array<{
+      const result = await this.provider.generateStructuredOutput<Array<{
         area: string;
         concepts: string[];
         suggestedQuestionTypes: string[];
@@ -338,7 +339,7 @@ Responda em JSON:
 `;
 
     try {
-      const result = await this.provider.generateStructuredResponse<Array<{
+      const result = await this.provider.generateStructuredOutput<Array<{
         concept1: string;
         concept2: string;
         relationship: string;

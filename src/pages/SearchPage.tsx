@@ -42,19 +42,19 @@ const SearchPage: React.FC<SearchPageProps> = ({ modules }) => {
       }
 
       // Search in introduction
-      if (module.content.introduction.toLowerCase().includes(query)) {
+      if (module.content?.introduction?.toLowerCase().includes(query)) {
         results.push({
           type: 'content',
           moduleId: module.id,
           moduleTitle: module.title,
           title: 'Introdução',
-          content: module.content.introduction,
-          matches: (module.content.introduction.toLowerCase().match(new RegExp(query, 'g')) || []).length
+          content: module.content?.introduction || '',
+          matches: (module.content?.introduction?.toLowerCase().match(new RegExp(query, 'g')) || []).length
         });
       }
 
       // Search in sections
-      module.content.sections.forEach(section => {
+      module.content?.sections?.forEach(section => {
         if (section.title.toLowerCase().includes(query) ||
             section.content.toLowerCase().includes(query)) {
           results.push({

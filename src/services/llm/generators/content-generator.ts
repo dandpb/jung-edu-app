@@ -1,4 +1,4 @@
-import { ILLMProvider, LLMGenerationOptions } from '../provider';
+import { ILLMProvider, LLMGenerationOptions } from '../types';
 import { ModuleContent } from '../../../types';
 
 interface ModuleContentOptions {
@@ -115,10 +115,11 @@ Format using Markdown:
 - Structure with clear paragraphs
 `;
 
-    return await this.provider.generateCompletion(prompt, {
+    const response = await this.provider.generateCompletion(prompt, {
       temperature: 0.7,
       maxTokens: 500,
     });
+    return response.content;
   }
 
   private async generateSections(
@@ -207,11 +208,11 @@ Example format (respond with exactly this structure):
       }
     };
 
-    let structure = await this.provider.generateStructuredResponse<Array<{
+    let structure = await this.provider.generateStructuredOutput<Array<{
       title: string;
       concepts: string[];
       duration: number;
-    }>>(structurePrompt, schema, { temperature: 0.2, retries: 3 });
+    }>>(structurePrompt, schema, { temperature: 0.2 });
 
     // Debug logging removed - structure generation working correctly
     
@@ -354,10 +355,11 @@ IMPORTANT: Format the content using Markdown:
 - Write in a clear, educational style
 `;
 
-    return await this.provider.generateCompletion(prompt, {
+    const response = await this.provider.generateCompletion(prompt, {
       temperature: 0.7,
       maxTokens: 800,
     });
+    return response.content;
   }
 
   private async generateConclusion(topic: string, objectives: string[], language: string = 'pt-BR'): Promise<string> {
@@ -388,10 +390,11 @@ Requirements:
 - Keep it between 150-200 words
 `;
 
-    return await this.provider.generateCompletion(prompt, {
+    const response = await this.provider.generateCompletion(prompt, {
       temperature: 0.7,
       maxTokens: 300,
     });
+    return response.content;
   }
 
   private async generateSummary(sections: ModuleContent['sections'], language: string = 'pt-BR'): Promise<string> {
@@ -410,10 +413,11 @@ Write a 100-150 word summary that captures the essential concepts and their rela
 Focus on the main insights and practical applications.
 `;
 
-    return await this.provider.generateCompletion(prompt, {
+    const response = await this.provider.generateCompletion(prompt, {
       temperature: 0.6,
       maxTokens: 200,
     });
+    return response.content;
   }
 
   private async generateKeyTakeaways(
@@ -455,7 +459,7 @@ Provide the takeaways as a JSON array of strings. Each takeaway should be:
 Example format: ["Takeaway 1", "Takeaway 2", ...]
 `;
 
-    const response = await this.provider.generateStructuredResponse<string[]>(
+    const response = await this.provider.generateStructuredOutput<string[]>(
       prompt,
       [],
       { temperature: 0.7, maxTokens: 400 }
@@ -506,7 +510,7 @@ Target depth: ${depth}`;
       prompt += '\nIMPORTANTE: Responda em português brasileiro (pt-BR).';
     }
 
-    const response = await this.provider.generateStructuredResponse<{
+    const response = await this.provider.generateStructuredOutput<{
       concept: string;
       definition?: string;
       explanation?: string;
@@ -579,7 +583,7 @@ Requested additions:`;
       prompt += '\nIMPORTANTE: Todo o conteúdo deve ser em português brasileiro (pt-BR).';
     }
 
-    const response = await this.provider.generateStructuredResponse<{
+    const response = await this.provider.generateStructuredOutput<{
       originalContent?: string;
       enrichedContent?: string;
       enrichments?: {
@@ -662,7 +666,7 @@ Requirements:
       prompt += '\nIMPORTANTE: Escreva o resumo em português brasileiro (pt-BR).';
     }
 
-    const response = await this.provider.generateStructuredResponse<{
+    const response = await this.provider.generateStructuredOutput<{
       mainPoints?: string[];
       keyTakeaways?: string[];
       briefSummary?: string;

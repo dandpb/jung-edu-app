@@ -1,6 +1,6 @@
 import { YouTubeVideo } from './youtubeService';
 import { Video, VideoPlatform } from '../../schemas/module.schema';
-import { ILLMProvider } from '../llm/provider';
+import { ILLMProvider } from '../llm/types';
 
 export interface VideoMetadata {
   educationalValue: number; // 0-1 score
@@ -134,7 +134,7 @@ Response format:
 }`;
 
     try {
-      const analysis = await this.llmProvider!.generateStructuredResponse<{
+      const analysis = await this.llmProvider!.generateStructuredOutput<{
         educationalValue: number;
         relevanceScore: number;
         difficulty: 'beginner' | 'intermediate' | 'advanced';
@@ -144,8 +144,8 @@ Response format:
         contentWarnings?: string[];
       }>(prompt, {}, { temperature: 0.3 });
 
-      // Generate timestamps if requested, otherwise use the ones from analysis
-      let keyTimestamps = analysis.keyTimestamps;
+      // Generate timestamps if requested
+      let keyTimestamps;
       if (options.generateTimestamps) {
         keyTimestamps = await this.generateKeyTimestamps(video, analysis.relatedConcepts);
       }
@@ -287,7 +287,7 @@ Response format:
 ]`;
 
     try {
-      return await this.llmProvider.generateStructuredResponse(prompt, [], { temperature: 0.5 });
+      return await this.llmProvider.generateStructuredOutput(prompt, [], { temperature: 0.5 });
     } catch (error) {
       return this.generateBasicTimestamps(video.duration, concepts);
     }
@@ -515,7 +515,8 @@ Key Concepts: ${video.metadata.relatedConcepts.join(', ')}
 Focus on what students will learn and why it's valuable.`;
 
       try {
-        return await this.llmProvider.generateCompletion(prompt, { temperature: 0.5 });
+        const response = await this.llmProvider.generateCompletion(prompt, { temperature: 0.5 });
+        return response.content;
       } catch (error) {
         // Fallback to basic summary
       }

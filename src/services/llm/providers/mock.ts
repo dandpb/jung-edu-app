@@ -37,6 +37,16 @@ export class MockLLMProvider implements ILLMProvider {
     return { concepts: [] } as unknown as T;
   }
 
+  getTokenCount(text: string): number {
+    // Simple approximation: 1 token ≈ 4 characters
+    return Math.ceil(text.length / 4);
+  }
+
+  async isAvailable(): Promise<boolean> {
+    // Mock provider is always available
+    return true;
+  }
+
   private generateMockResponse(prompt: string): string {
     if (prompt.includes('mind map')) {
       return 'Generated mind map structure with key concepts and relationships.';

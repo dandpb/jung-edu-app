@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
-import { ILLMProvider, OpenAIProvider, MockLLMProvider } from './provider';
+import { ILLMProvider } from './types';
+import { OpenAIProvider, MockLLMProvider } from './provider';
 import { ConfigManager, RateLimiter } from './config';
 import { ContentGenerator } from './generators/content-generator';
 import { QuizGenerator } from './generators/quiz-generator';
@@ -204,17 +205,19 @@ export class ModuleGenerationOrchestrator extends EventEmitter {
       this.updateProgress('finalizing', 95, 'Finalizing module...');
       
       // Update module content with all generated resources
-      if (videos) {
-        module.content.videos = videos;
-      }
-      if (quiz) {
-        module.content.quiz = quiz;
-      }
-      if (bibliography) {
-        module.content.bibliography = bibliography;
-      }
-      if (films) {
-        module.content.films = films;
+      if (module.content) {
+        if (videos) {
+          module.content.videos = videos;
+        }
+        if (quiz) {
+          module.content.quiz = quiz;
+        }
+        if (bibliography) {
+          module.content.bibliography = bibliography;
+        }
+        if (films) {
+          module.content.films = films;
+        }
       }
       
       const result: GenerationResult = {

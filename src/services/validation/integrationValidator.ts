@@ -397,7 +397,7 @@ export class IntegrationValidator {
       for (const module of modules) {
         if (module.content.sections && module.content.sections.length > 1) {
           // Check section ordering
-          const orders = module.content.sections.map((s: any) => s.order);
+          const orders = module.content?.sections?.map((s: any) => s.order) || [];
           const sortedOrders = [...orders].sort((a, b) => a - b);
           const isSequential = orders.every((order: any, index: any) => order === sortedOrders[index]);
           
@@ -1470,7 +1470,7 @@ export class IntegrationValidator {
     let content = module.title + ' ' + module.description + ' ' + module.content.introduction;
     
     if (module.content.sections) {
-      content += ' ' + module.content.sections.map((s: any) => s.content).join(' ');
+      content += ' ' + (module.content?.sections?.map((s: any) => s.content).join(' ') || '');
     }
     
     return content;

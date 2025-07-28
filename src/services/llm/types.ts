@@ -28,6 +28,10 @@ export interface ILLMProvider {
     options?: LLMGenerationOptions
   ): Promise<T>;
   
+  getTokenCount(text: string): number;
+  
+  isAvailable(): Promise<boolean>;
+  
   streamCompletion?(
     prompt: string,
     onChunk: (chunk: string) => void,

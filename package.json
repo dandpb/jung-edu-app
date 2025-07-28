@@ -42,6 +42,7 @@
     "test:validate-coverage": "node scripts/coverage-validation.js",
     "test:coverage-report": "npm run test:coverage && npm run test:validate-coverage",
     "test:critical": "react-scripts test --testPathPattern='(provider|moduleService|enhancedQuizGenerator|auth|AIModuleGenerator)' --watchAll=false",
+    "serve": "serve -s build",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

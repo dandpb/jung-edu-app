@@ -185,4 +185,24 @@ export class OpenAIProvider implements ILLMProvider {
       reader.releaseLock();
     }
   }
+
+  getTokenCount(text: string): number {
+    // Simple approximation: 1 token ≈ 4 characters
+    // For more accurate counting, use tiktoken library
+    return Math.ceil(text.length / 4);
+  }
+
+  async isAvailable(): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.baseURL}/models`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`
+        }
+      });
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }
 }
