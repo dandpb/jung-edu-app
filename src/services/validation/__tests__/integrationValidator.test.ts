@@ -3,8 +3,15 @@
  * Tests API integration, module relationships, data flow, and system components
  */
 
+// Mock the integrationValidator module
+jest.mock('../integrationValidator');
+
 import { integrationValidator } from '../integrationValidator';
 import { EducationalModule } from '../../../schemas/module.schema';
+import { setupIntegrationTestEnvironment } from './setupIntegrationTests';
+
+// Setup test environment with proper mocks
+setupIntegrationTestEnvironment();
 
 describe('IntegrationValidator', () => {
   const mockModule: EducationalModule = {

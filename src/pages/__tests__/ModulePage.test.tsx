@@ -1,6 +1,6 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { render, screen, fireEvent, waitFor } from '../../utils/test-utils';
+import { Route, Routes } from 'react-router-dom';
 import ModulePage from '../ModulePage';
 import { modules } from '../../data/modules';
 import { UserProgress } from '../../types';
@@ -16,24 +16,21 @@ const mockUserProgress: UserProgress = {
   notes: []
 };
 
-const renderWithRouter = (initialRoute: string = '/module/intro-jung') => {
-  window.history.pushState({}, 'Test page', initialRoute);
-  
+const renderModulePage = (initialRoute: string = '/module/intro-jung') => {
   return render(
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <Routes>
-        <Route 
-          path="/module/:moduleId" 
-          element={
-            <ModulePage 
-              modules={modules} 
-              userProgress={mockUserProgress}
-              updateProgress={mockUpdateProgress}
-            />
-          } 
-        />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      <Route 
+        path="/module/:moduleId" 
+        element={
+          <ModulePage 
+            modules={modules} 
+            userProgress={mockUserProgress}
+            updateProgress={mockUpdateProgress}
+          />
+        } 
+      />
+    </Routes>,
+    { initialEntries: [initialRoute] }
   );
 };
 
@@ -51,7 +48,7 @@ describe('ModulePage Component', () => {
   });
 
   test('renders module content correctly', () => {
-    renderWithRouter();
+    renderModulePage();
     
     const introModule = modules.find(m => m.id === 'intro-jung');
     expect(screen.getByText(introModule!.title)).toBeInTheDocument();
@@ -59,7 +56,7 @@ describe('ModulePage Component', () => {
   });
 
   test('displays module icon and metadata', () => {
-    renderWithRouter();
+    renderModulePage();
     
     const introModule = modules.find(m => m.id === 'intro-jung');
     expect(screen.getByText(introModule!.icon)).toBeInTheDocument();
@@ -67,14 +64,14 @@ describe('ModulePage Component', () => {
   });
 
   test('shows content tab by default', () => {
-    renderWithRouter();
+    renderModulePage();
     
     expect(screen.getByText('Introdução')).toBeInTheDocument();
     expect(screen.getByText(/Carl Gustav Jung \(1875-1961\)/)).toBeInTheDocument();
   });
 
   test('switches between tabs correctly', () => {
-    renderWithRouter();
+    renderModulePage();
     
     const videosTab = screen.getByText('Vídeos');
     fireEvent.click(videosTab);
@@ -88,7 +85,7 @@ describe('ModulePage Component', () => {
   });
 
   test('displays key terms in content sections', () => {
-    renderWithRouter();
+    renderModulePage();
     
     // Check for Key Terms section headers (there are multiple sections with key terms)
     const keyTermHeaders = screen.getAllByText('Termos-Chave');
@@ -99,7 +96,7 @@ describe('ModulePage Component', () => {
   });
 
   test('opens note editor when Add Note is clicked', () => {
-    renderWithRouter();
+    renderModulePage();
     
     const addNoteButton = screen.getByText('Adicionar Anotação');
     fireEvent.click(addNoteButton);
@@ -108,7 +105,7 @@ describe('ModulePage Component', () => {
   });
 
   test('saves note correctly', async () => {
-    renderWithRouter();
+    renderModulePage();
     
     const addNoteButton = screen.getByText('Adicionar Anotação');
     fireEvent.click(addNoteButton);
@@ -134,7 +131,7 @@ describe('ModulePage Component', () => {
   });
 
   test('handles quiz completion', () => {
-    renderWithRouter();
+    renderModulePage();
     
     const quizTab = screen.getByText('Questionário');
     fireEvent.click(quizTab);
@@ -164,7 +161,7 @@ describe('ModulePage Component', () => {
 
   test('tracks time spent on module', () => {
     jest.useFakeTimers();
-    const { unmount } = renderWithRouter();
+    const { unmount } = renderModulePage();
     
     // Advance timers to simulate time passing
     jest.advanceTimersByTime(5000); // 5 seconds
@@ -185,7 +182,7 @@ describe('ModulePage Component', () => {
   });
 
   test('handles non-existent module gracefully', () => {
-    renderWithRouter('/module/non-existent');
+    renderModulePage('/module/non-existent');
     
     expect(screen.getByText('Módulo não encontrado')).toBeInTheDocument();
   });

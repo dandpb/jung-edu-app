@@ -1,8 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { screen, waitFor } from '@testing-library/react';
+import { render, userEvent, mockLocalStorage } from '../../../utils/test-utils';
+import { setupConsoleHandlers } from '../../../utils/test-setup';
 import AdminLogin from '../AdminLogin';
-import { AdminProvider } from '../../../contexts/AdminContext';
+
+// Setup console handlers
+setupConsoleHandlers();
 
 // Mock useNavigate
 const mockNavigate = jest.fn();
@@ -16,10 +19,10 @@ const mockLogin = jest.fn();
 jest.mock('../../../contexts/AdminContext', () => ({
   ...jest.requireActual('../../../contexts/AdminContext'),
   useAdmin: () => ({
-    login: mockLogin,
+    adminLogin: mockLogin, // Note: changed from 'login' to 'adminLogin' to match the interface
     isAdmin: false,
     currentAdmin: null,
-    logout: jest.fn(),
+    adminLogout: jest.fn(),
     modules: [],
     updateModules: jest.fn(),
     mindMapNodes: [],
@@ -29,24 +32,14 @@ jest.mock('../../../contexts/AdminContext', () => ({
 }));
 
 describe('AdminLogin Component', () => {
-  const renderWithProviders = () => {
-    return render(
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <AdminProvider>
-          <AdminLogin />
-        </AdminProvider>
-      </BrowserRouter>
-    );
-  };
-
   beforeEach(() => {
     mockNavigate.mockClear();
     mockLogin.mockClear();
-    localStorage.clear();
+    mockLocalStorage.clear();
   });
 
   test('renders login form with all elements', () => {
-    renderWithProviders();
+    render(<AdminLogin />);
     
     // Check for heading
     expect(screen.getByRole('heading', { name: /login de administrador/i })).toBeInTheDocument();
@@ -65,16 +58,16 @@ describe('AdminLogin Component', () => {
     // Mock failed login
     mockLogin.mockReturnValue(false);
     
-    renderWithProviders();
+    const { user } = render(<AdminLogin />);
     
     const usernameInput = screen.getByLabelText(/usuário/i);
     const passwordInput = screen.getByLabelText(/senha/i);
     const submitButton = screen.getByRole('button', { name: /entrar/i });
     
     // Enter invalid credentials
-    fireEvent.change(usernameInput, { target: { value: 'wronguser' } });
-    fireEvent.change(passwordInput, { target: { value: 'wrongpass' } });
-    fireEvent.click(submitButton);
+    await user.type(usernameInput, 'wronguser');
+    await user.type(passwordInput, 'wrongpass');
+    await user.click(submitButton);
     
     // Check for error message
     await waitFor(() => {
@@ -86,16 +79,16 @@ describe('AdminLogin Component', () => {
     // Mock successful login
     mockLogin.mockReturnValue(true);
     
-    renderWithProviders();
+    const { user } = render(<AdminLogin />);
     
     const usernameInput = screen.getByLabelText(/usuário/i);
     const passwordInput = screen.getByLabelText(/senha/i);
     const submitButton = screen.getByRole('button', { name: /entrar/i });
     
     // Enter valid credentials
-    fireEvent.change(usernameInput, { target: { value: 'admin' } });
-    fireEvent.change(passwordInput, { target: { value: 'jungadmin123' } });
-    fireEvent.click(submitButton);
+    await user.type(usernameInput, 'admin');
+    await user.type(passwordInput, 'jungadmin123');
+    await user.click(submitButton);
     
     // Check that login was called with correct credentials
     expect(mockLogin).toHaveBeenCalledWith('admin', 'jungadmin123');
@@ -107,7 +100,7 @@ describe('AdminLogin Component', () => {
   });
 
   test('form validation requires both fields', () => {
-    renderWithProviders();
+    render(<AdminLogin />);
     
     const usernameInput = screen.getByLabelText(/usuário/i);
     const passwordInput = screen.getByLabelText(/senha/i);
@@ -118,7 +111,7 @@ describe('AdminLogin Component', () => {
   });
 
   test('password field is of type password', () => {
-    renderWithProviders();
+    render(<AdminLogin />);
     
     const passwordInput = screen.getByLabelText(/senha/i);
     expect(passwordInput).toHaveAttribute('type', 'password');
@@ -128,16 +121,16 @@ describe('AdminLogin Component', () => {
     // Mock failed login initially
     mockLogin.mockReturnValue(false);
     
-    renderWithProviders();
+    const { user } = render(<AdminLogin />);
     
     const usernameInput = screen.getByLabelText(/usuário/i);
     const passwordInput = screen.getByLabelText(/senha/i);
     const submitButton = screen.getByRole('button', { name: /entrar/i });
     
     // Trigger error
-    fireEvent.change(usernameInput, { target: { value: 'wrong' } });
-    fireEvent.change(passwordInput, { target: { value: 'wrong' } });
-    fireEvent.click(submitButton);
+    await user.type(usernameInput, 'wrong');
+    await user.type(passwordInput, 'wrong');
+    await user.click(submitButton);
     
     // Wait for error to appear
     await waitFor(() => {
@@ -148,9 +141,11 @@ describe('AdminLogin Component', () => {
     mockLogin.mockReturnValue(true);
     
     // Submit again with correct credentials - error should clear on submit
-    fireEvent.change(usernameInput, { target: { value: 'admin' } });
-    fireEvent.change(passwordInput, { target: { value: 'admin123' } });
-    fireEvent.click(submitButton);
+    await user.clear(usernameInput);
+    await user.clear(passwordInput);
+    await user.type(usernameInput, 'admin');
+    await user.type(passwordInput, 'admin123');
+    await user.click(submitButton);
     
     // Wait for navigation (error will be cleared)
     await waitFor(() => {
@@ -159,47 +154,46 @@ describe('AdminLogin Component', () => {
   });
 
   test('displays icons in input fields', () => {
-    renderWithProviders();
+    const { container } = render(<AdminLogin />);
     
     // Check for User and Lock icons (Lucide icons) using their SVG classes
-    const container = screen.getByRole('heading', { name: /login de administrador/i }).closest('div')?.parentElement;
-    const userIcons = container?.querySelectorAll('svg.lucide-user');
-    const lockIcons = container?.querySelectorAll('svg.lucide-lock');
+    const userIcons = container.querySelectorAll('svg.lucide-user');
+    const lockIcons = container.querySelectorAll('svg.lucide-lock');
     
     // Should have at least one of each (in input fields and header)
-    expect(userIcons?.length).toBeGreaterThanOrEqual(1);
-    expect(lockIcons?.length).toBeGreaterThanOrEqual(2); // One in header, one in password field
+    expect(userIcons.length).toBeGreaterThanOrEqual(1);
+    expect(lockIcons.length).toBeGreaterThanOrEqual(2); // One in header, one in password field
   });
 
-  test('form prevents default submission', () => {
-    renderWithProviders();
+  test('form prevents default submission', async () => {
+    render(<AdminLogin />);
     
     const form = screen.getByRole('button', { name: /entrar/i }).closest('form');
     expect(form).toBeInTheDocument();
     
     // Create a submit event and check it's prevented
     const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-    fireEvent(form!, submitEvent);
+    form!.dispatchEvent(submitEvent);
     
     // The form should prevent default behavior (e.preventDefault() is called in handleSubmit)
     expect(submitEvent.defaultPrevented).toBe(true);
   });
 
-  test('updates input values on change', () => {
-    renderWithProviders();
+  test('updates input values on change', async () => {
+    const { user } = render(<AdminLogin />);
     
     const usernameInput = screen.getByLabelText(/usuário/i) as HTMLInputElement;
     const passwordInput = screen.getByLabelText(/senha/i) as HTMLInputElement;
     
-    fireEvent.change(usernameInput, { target: { value: 'testuser' } });
-    fireEvent.change(passwordInput, { target: { value: 'testpass' } });
+    await user.type(usernameInput, 'testuser');
+    await user.type(passwordInput, 'testpass');
     
     expect(usernameInput.value).toBe('testuser');
     expect(passwordInput.value).toBe('testpass');
   });
 
   test('shows security notice with proper styling', () => {
-    renderWithProviders();
+    render(<AdminLogin />);
     
     const notice = screen.getByText(/aviso de segurança/i).closest('div');
     expect(notice).toHaveClass('bg-amber-50', 'border', 'border-amber-200');

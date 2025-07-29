@@ -57,8 +57,8 @@ export class OpenAIProvider implements ILLMProvider {
     throw new Error(`Failed after ${retries} attempts: ${lastError?.message}`);
   }
 
-  async generateStructuredOutput<T>(prompt: string, schema: any, options: LLMGenerationOptions = {}): Promise<T> {
-    const retries = 3;
+  async generateStructuredOutput<T>(prompt: string, schema: any, options: LLMGenerationOptions & { retries?: number } = {}): Promise<T> {
+    const retries = options.retries || 3;
     
     for (let attempt = 0; attempt < retries; attempt++) {
       try {
@@ -168,7 +168,7 @@ export class MockLLMProvider implements ILLMProvider {
     };
   }
 
-  async generateStructuredOutput<T>(prompt: string, schema: any, options: LLMGenerationOptions = {}): Promise<T> {
+  async generateStructuredOutput<T>(prompt: string, schema: any, options: LLMGenerationOptions & { retries?: number } = {}): Promise<T> {
     await this.simulateDelay();
     
     // Handle quiz questions first - they pass an empty array as schema

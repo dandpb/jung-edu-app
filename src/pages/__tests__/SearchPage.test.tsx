@@ -1,27 +1,18 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { render, screen, fireEvent } from '../../utils/test-utils';
 import SearchPage from '../SearchPage';
 import { modules } from '../../data/modules';
 
-const renderWithRouter = (component: React.ReactElement) => {
-  return render(
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      {component}
-    </BrowserRouter>
-  );
-};
-
 describe('SearchPage Component', () => {
   test('renders search input and placeholder text', () => {
-    renderWithRouter(<SearchPage modules={modules} />);
+    render(<SearchPage modules={modules} />);
     
     expect(screen.getByPlaceholderText('Buscar conceitos, termos ou tópicos...')).toBeInTheDocument();
     expect(screen.getByText('Comece a digitar para buscar em todo o conteúdo')).toBeInTheDocument();
   });
 
   test('searches in module titles', () => {
-    renderWithRouter(<SearchPage modules={modules} />);
+    render(<SearchPage modules={modules} />);
     
     const searchInput = screen.getByPlaceholderText('Buscar conceitos, termos ou tópicos...');
     fireEvent.change(searchInput, { target: { value: 'Jung' } });
@@ -32,7 +23,7 @@ describe('SearchPage Component', () => {
   });
 
   test('searches in module descriptions', () => {
-    renderWithRouter(<SearchPage modules={modules} />);
+    render(<SearchPage modules={modules} />);
     
     const searchInput = screen.getByPlaceholderText('Buscar conceitos, termos ou tópicos...');
     fireEvent.change(searchInput, { target: { value: 'analytical psychology' } });
@@ -42,7 +33,7 @@ describe('SearchPage Component', () => {
   });
 
   test('searches in section content', () => {
-    renderWithRouter(<SearchPage modules={modules} />);
+    render(<SearchPage modules={modules} />);
     
     const searchInput = screen.getByPlaceholderText('Buscar conceitos, termos ou tópicos...');
     fireEvent.change(searchInput, { target: { value: 'Freud' } });
@@ -53,7 +44,7 @@ describe('SearchPage Component', () => {
   });
 
   test('searches in key terms', () => {
-    renderWithRouter(<SearchPage modules={modules} />);
+    render(<SearchPage modules={modules} />);
     
     const searchInput = screen.getByPlaceholderText('Buscar conceitos, termos ou tópicos...');
     fireEvent.change(searchInput, { target: { value: 'libido' } });
@@ -62,7 +53,7 @@ describe('SearchPage Component', () => {
   });
 
   test('highlights search matches', () => {
-    renderWithRouter(<SearchPage modules={modules} />);
+    render(<SearchPage modules={modules} />);
     
     const searchInput = screen.getByPlaceholderText('Buscar conceitos, termos ou tópicos...');
     fireEvent.change(searchInput, { target: { value: 'Jung' } });
@@ -72,7 +63,7 @@ describe('SearchPage Component', () => {
   });
 
   test('displays result count', () => {
-    renderWithRouter(<SearchPage modules={modules} />);
+    render(<SearchPage modules={modules} />);
     
     const searchInput = screen.getByPlaceholderText('Buscar conceitos, termos ou tópicos...');
     fireEvent.change(searchInput, { target: { value: 'unconscious' } });
@@ -81,7 +72,7 @@ describe('SearchPage Component', () => {
   });
 
   test('shows no results message for non-matching search', () => {
-    renderWithRouter(<SearchPage modules={modules} />);
+    render(<SearchPage modules={modules} />);
     
     const searchInput = screen.getByPlaceholderText('Buscar conceitos, termos ou tópicos...');
     fireEvent.change(searchInput, { target: { value: 'xyz123notfound' } });
@@ -90,7 +81,7 @@ describe('SearchPage Component', () => {
   });
 
   test('displays result type badges', () => {
-    renderWithRouter(<SearchPage modules={modules} />);
+    render(<SearchPage modules={modules} />);
     
     const searchInput = screen.getByPlaceholderText('Buscar conceitos, termos ou tópicos...');
     fireEvent.change(searchInput, { target: { value: 'psychology' } });
@@ -100,7 +91,7 @@ describe('SearchPage Component', () => {
   });
 
   test('shows module context for each result', () => {
-    renderWithRouter(<SearchPage modules={modules} />);
+    render(<SearchPage modules={modules} />);
     
     const searchInput = screen.getByPlaceholderText('Buscar conceitos, termos ou tópicos...');
     fireEvent.change(searchInput, { target: { value: 'inconsciente' } }); // Use Portuguese term that exists
@@ -119,7 +110,7 @@ describe('SearchPage Component', () => {
   });
 
   test('sorts results by relevance (match count)', () => {
-    renderWithRouter(<SearchPage modules={modules} />);
+    render(<SearchPage modules={modules} />);
     
     const searchInput = screen.getByPlaceholderText('Buscar conceitos, termos ou tópicos...');
     fireEvent.change(searchInput, { target: { value: 'unconscious' } });
@@ -129,7 +120,7 @@ describe('SearchPage Component', () => {
   });
 
   test('clears results when search is cleared', () => {
-    renderWithRouter(<SearchPage modules={modules} />);
+    render(<SearchPage modules={modules} />);
     
     const searchInput = screen.getByPlaceholderText('Buscar conceitos, termos ou tópicos...');
     
@@ -141,7 +132,7 @@ describe('SearchPage Component', () => {
   });
 
   test('handles case-insensitive search', () => {
-    renderWithRouter(<SearchPage modules={modules} />);
+    render(<SearchPage modules={modules} />);
     
     const searchInput = screen.getByPlaceholderText('Buscar conceitos, termos ou tópicos...');
     fireEvent.change(searchInput, { target: { value: 'JUNG' } });

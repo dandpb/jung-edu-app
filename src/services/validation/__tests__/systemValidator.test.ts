@@ -87,7 +87,7 @@ describe('SystemValidator', () => {
         relevance: 'Essential introduction to Jungian concepts'
       }
     ],
-    mindMap: {
+    mindMaps: [{
       id: 'mindmap-1',
       moduleId: 'test-module-1',
       nodes: [
@@ -102,7 +102,7 @@ describe('SystemValidator', () => {
       centralConcept: 'Jungian Psychology',
       createdAt: new Date(),
       updatedAt: new Date()
-    },
+    }],
     createdAt: new Date(),
     updatedAt: new Date(),
     videos: [],

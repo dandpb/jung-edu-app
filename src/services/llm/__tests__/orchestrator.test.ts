@@ -7,6 +7,7 @@ import { QuizGenerator } from '../generators/quiz-generator';
 import { VideoGenerator } from '../generators/video-generator';
 import { BibliographyGenerator } from '../generators/bibliography-generator';
 import { MindMapGenerator } from '../generators/mindmap-generator';
+import { cleanupEventEmitter, flushPromises } from '../../../test-utils/asyncTestHelpers';
 
 // Mock all dependencies
 jest.mock('../provider');
@@ -114,22 +115,39 @@ describe('ModuleGenerationOrchestrator', () => {
     orchestrator = new ModuleGenerationOrchestrator(false); // Use mock services for tests
   });
 
+  afterEach(async () => {
+    // Clean up EventEmitter listeners to prevent memory leaks
+    cleanupEventEmitter(orchestrator);
+    
+    // Clear all mocks
+    jest.clearAllMocks();
+    
+    // Ensure all promises are resolved
+    await flushPromises();
+  });
+
   describe('Constructor', () => {
     it('should initialize with mock provider when useRealServices is false', () => {
       const testOrchestrator = new ModuleGenerationOrchestrator(false);
       expect(MockLLMProvider).toHaveBeenCalledWith(50);
       expect(testOrchestrator).toBeInstanceOf(EventEmitter);
+      // Clean up
+      cleanupEventEmitter(testOrchestrator);
     });
 
     it('should initialize with OpenAI provider when config has API key', () => {
       const testOrchestrator = new ModuleGenerationOrchestrator(true);
       expect(OpenAIProvider).toHaveBeenCalledWith('test-api-key', 'gpt-4');
+      // Clean up
+      cleanupEventEmitter(testOrchestrator);
     });
 
     it('should initialize with mock provider when no API key is available', () => {
       mockConfig.apiKey = null;
       const testOrchestrator = new ModuleGenerationOrchestrator(true);
       expect(MockLLMProvider).toHaveBeenCalled();
+      // Clean up
+      cleanupEventEmitter(testOrchestrator);
     });
 
     it('should initialize all generators', () => {

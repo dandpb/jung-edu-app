@@ -1,6 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { render, screen } from '../../utils/test-utils';
 import Dashboard from '../Dashboard';
 import { modules } from '../../data/modules';
 import { UserProgress } from '../../types';
@@ -14,17 +13,9 @@ const mockUserProgress: UserProgress = {
   notes: []
 };
 
-const renderWithRouter = (component: React.ReactElement) => {
-  return render(
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      {component}
-    </BrowserRouter>
-  );
-};
-
 describe('Dashboard Component', () => {
   test('renders welcome message', () => {
-    renderWithRouter(<Dashboard modules={modules} userProgress={mockUserProgress} />);
+    render(<Dashboard modules={modules} userProgress={mockUserProgress} />);
     
     expect(screen.getByText(/Bem-vindo à Psicologia Analítica de Jung/i)).toBeInTheDocument();
   });
@@ -32,7 +23,7 @@ describe('Dashboard Component', () => {
   // Removed: These individual tests are now covered by the consolidated test above
 
   test('displays progress and study information correctly', () => {
-    renderWithRouter(<Dashboard modules={modules} userProgress={mockUserProgress} />);
+    render(<Dashboard modules={modules} userProgress={mockUserProgress} />);
     
     // Check progress percentage
     const completionPercentage = Math.round((2 / modules.length) * 100);
@@ -48,7 +39,7 @@ describe('Dashboard Component', () => {
   });
 
   test('renders all modules with completion status', () => {
-    renderWithRouter(<Dashboard modules={modules} userProgress={mockUserProgress} />);
+    render(<Dashboard modules={modules} userProgress={mockUserProgress} />);
     
     // Check that all modules are displayed
     modules.forEach(module => {
@@ -62,7 +53,7 @@ describe('Dashboard Component', () => {
   });
 
   test('indicates locked modules with prerequisites', () => {
-    renderWithRouter(<Dashboard modules={modules} userProgress={mockUserProgress} />);
+    render(<Dashboard modules={modules} userProgress={mockUserProgress} />);
     
     const lockedModules = modules.filter(m => 
       m.prerequisites?.some(req => !mockUserProgress.completedModules.includes(req))

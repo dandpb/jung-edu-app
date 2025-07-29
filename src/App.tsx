@@ -26,6 +26,7 @@ import { UnauthorizedPage } from './pages/UnauthorizedPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { PublicRoute } from './components/auth/PublicRoute';
 import { UserRole } from './types/auth';
+import CreateTestUser from './pages/CreateTestUser';
 
 function AppContent() {
   const { modules } = useAdmin();
@@ -90,6 +91,7 @@ function AppContent() {
             </PublicRoute>
           } />
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
+          <Route path="/create-test-user" element={<CreateTestUser />} />
           
           {/* Protected Routes - All pages require authentication */}
           <Route path="/" element={

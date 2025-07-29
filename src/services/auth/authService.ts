@@ -341,12 +341,13 @@ export class AuthService {
       );
     }
     
-    if (!user.isVerified) {
-      throw new AuthError(
-        AuthErrorType.EMAIL_NOT_VERIFIED,
-        'Please verify your email before logging in'
-      );
-    }
+    // Email verification temporarily disabled
+    // if (!user.isVerified) {
+    //   throw new AuthError(
+    //     AuthErrorType.EMAIL_NOT_VERIFIED,
+    //     'Please verify your email before logging in'
+    //   );
+    // }
     
     // Clear failed attempts
     this.loginAttempts.delete(attemptsKey);

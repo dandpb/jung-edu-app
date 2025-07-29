@@ -1,14 +1,14 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { BrowserRouter, MemoryRouter, useNavigate } from 'react-router-dom';
+import { render, screen } from '../../utils/test-utils';
+import { useNavigate } from 'react-router-dom';
 import Navigation from '../Navigation';
-import { AdminProvider, useAdmin } from '../../contexts/AdminContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { UserRole } from '../../types/auth';
 
-// Mock the useAdmin hook
-jest.mock('../../contexts/AdminContext', () => ({
-  ...jest.requireActual('../../contexts/AdminContext'),
-  useAdmin: jest.fn()
+// Mock the useAuth hook
+jest.mock('../../contexts/AuthContext', () => ({
+  ...jest.requireActual('../../contexts/AuthContext'),
+  useAuth: jest.fn()
 }));
 
 // Mock react-router-dom navigation
@@ -32,31 +32,56 @@ jest.mock('lucide-react', () => {
     Settings: ({ className }: any) => React.createElement('div', { 'data-testid': 'settings-icon', className }, 'Settings'),
     LogOut: ({ className }: any) => React.createElement('div', { 'data-testid': 'logout-icon', className }, 'LogOut'),
     Brain: ({ className }: any) => React.createElement('div', { 'data-testid': 'brain-icon', className }, 'Brain'),
+    User: ({ className }: any) => React.createElement('div', { 'data-testid': 'user-icon', className }, 'User'),
+    LogIn: ({ className }: any) => React.createElement('div', { 'data-testid': 'login-icon', className }, 'LogIn'),
   };
 });
 
 describe('Navigation Component', () => {
-  const user = userEvent.setup();
+  const mockLogout = jest.fn();
+  const mockHasRole = jest.fn();
   
-  const defaultAdminContextValue = {
-    isAdmin: false,
+  const defaultAuthContextValue = {
+    isAuthenticated: false,
+    user: null,
+    logout: mockLogout,
+    hasRole: mockHasRole,
     login: jest.fn(),
-    logout: jest.fn()
+    register: jest.fn(),
+    requestPasswordReset: jest.fn(),
+    resetPassword: jest.fn(),
+    changePassword: jest.fn(),
+    verifyEmail: jest.fn(),
+    resendVerificationEmail: jest.fn(),
+    hasPermission: jest.fn(),
+    refreshSession: jest.fn(),
+    clearError: jest.fn(),
+    isLoading: false,
+    error: null
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useAdmin as jest.Mock).mockReturnValue(defaultAdminContextValue);
+    mockHasRole.mockReturnValue(false);
+    (useAuth as jest.Mock).mockReturnValue(defaultAuthContextValue);
   });
 
   test('renders all navigation links', () => {
-    render(
-      <AdminProvider>
-        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <Navigation />
-        </BrowserRouter>
-      </AdminProvider>
-    );
+    (useAuth as jest.Mock).mockReturnValue({
+      ...defaultAuthContextValue,
+      isAuthenticated: true,
+      user: { 
+        id: '1', 
+        name: 'Test User', 
+        role: UserRole.STUDENT,
+        profile: {
+          firstName: 'Test',
+          lastName: 'User'
+        }
+      }
+    });
+    
+    render(<Navigation />);
     
     expect(screen.getByText("Psicologia de Jung")).toBeInTheDocument();
     expect(screen.getByText('Painel')).toBeInTheDocument();
@@ -68,62 +93,76 @@ describe('Navigation Component', () => {
   });
 
   test('highlights active link based on current route', () => {
-    render(
-      <AdminProvider>
-        <MemoryRouter initialEntries={['/mindmap']}>
-          <Navigation />
-        </MemoryRouter>
-      </AdminProvider>
-    );
+    (useAuth as jest.Mock).mockReturnValue({
+      ...defaultAuthContextValue,
+      isAuthenticated: true,
+      user: { 
+        id: '1', 
+        name: 'Test User', 
+        role: UserRole.STUDENT,
+        profile: {
+          firstName: 'Test',
+          lastName: 'User'
+        }
+      }
+    });
+    
+    render(<Navigation />, { initialEntries: ['/mindmap'] });
     
     const mindMapLink = screen.getByText('Mapa Mental').closest('a');
     expect(mindMapLink).toHaveClass('bg-primary-50', 'text-primary-700');
   });
 
   test('shows inactive links with correct styling', () => {
-    render(
-      <AdminProvider>
-        <MemoryRouter initialEntries={['/dashboard']}>
-          <Navigation />
-        </MemoryRouter>
-      </AdminProvider>
-    );
+    (useAuth as jest.Mock).mockReturnValue({
+      ...defaultAuthContextValue,
+      isAuthenticated: true,
+      user: { 
+        id: '1', 
+        name: 'Test User', 
+        role: UserRole.STUDENT,
+        profile: {
+          firstName: 'Test',
+          lastName: 'User'
+        }
+      }
+    });
+    
+    render(<Navigation />, { initialEntries: ['/dashboard'] });
     
     const notesLink = screen.getByText('Anotações').closest('a');
     expect(notesLink).toHaveClass('text-gray-600');
     expect(notesLink).not.toHaveClass('bg-primary-50');
   });
 
-  test('shows admin link when not logged in as admin', () => {
-    render(
-      <AdminProvider>
-        <MemoryRouter initialEntries={['/dashboard']}>
-          <Navigation />
-        </MemoryRouter>
-      </AdminProvider>
-    );
+  test('shows login link when not authenticated', () => {
+    render(<Navigation />, { initialEntries: ['/dashboard'] });
     
-    const adminLink = screen.getByText('Admin').closest('a');
-    expect(adminLink).toBeInTheDocument();
-    expect(adminLink).toHaveAttribute('href', '/admin/login');
+    const loginLink = screen.getByText('Entrar').closest('a');
+    expect(loginLink).toBeInTheDocument();
+    expect(loginLink).toHaveAttribute('href', '/login');
     expect(screen.queryByText('Administrador')).not.toBeInTheDocument();
     expect(screen.queryByText('Sair')).not.toBeInTheDocument();
   });
 
   test('shows admin controls when logged in as admin', () => {
-    (useAdmin as jest.Mock).mockReturnValue({
-      isAdmin: true,
-      login: jest.fn(),
-      logout: jest.fn()
+    mockHasRole.mockReturnValue(true);
+    (useAuth as jest.Mock).mockReturnValue({
+      ...defaultAuthContextValue,
+      isAuthenticated: true,
+      user: { 
+        id: '1', 
+        name: 'Admin User', 
+        role: UserRole.ADMIN,
+        profile: {
+          firstName: 'Admin',
+          lastName: 'User'
+        }
+      },
+      hasRole: mockHasRole
     });
 
-    render(
-      <AdminProvider>
-        <MemoryRouter initialEntries={['/dashboard']}>
-          <Navigation />
-        </MemoryRouter>
-      </AdminProvider>
-    );
+    render(<Navigation />, { initialEntries: ['/dashboard'] });
     
     expect(screen.getByText('Administrador')).toBeInTheDocument();
     expect(screen.getByText('Sair')).toBeInTheDocument();
@@ -131,55 +170,69 @@ describe('Navigation Component', () => {
   });
 
   test('highlights admin link when on admin route', () => {
-    (useAdmin as jest.Mock).mockReturnValue({
-      isAdmin: true,
-      login: jest.fn(),
-      logout: jest.fn()
+    mockHasRole.mockReturnValue(true);
+    (useAuth as jest.Mock).mockReturnValue({
+      ...defaultAuthContextValue,
+      isAuthenticated: true,
+      user: { 
+        id: '1', 
+        name: 'Admin User', 
+        role: UserRole.ADMIN,
+        profile: {
+          firstName: 'Admin',
+          lastName: 'User'
+        }
+      },
+      hasRole: mockHasRole
     });
 
-    render(
-      <AdminProvider>
-        <MemoryRouter initialEntries={['/admin/modules']}>
-          <Navigation />
-        </MemoryRouter>
-      </AdminProvider>
-    );
+    render(<Navigation />, { initialEntries: ['/admin'] });
     
     const adminLink = screen.getByText('Administrador').closest('a');
     expect(adminLink).toHaveClass('bg-primary-50', 'text-primary-700');
   });
 
   test('handles logout when logout button is clicked', async () => {
-    const mockLogout = jest.fn();
-    (useAdmin as jest.Mock).mockReturnValue({
-      isAdmin: true,
-      login: jest.fn(),
-      logout: mockLogout
+    mockHasRole.mockReturnValue(true);
+    (useAuth as jest.Mock).mockReturnValue({
+      ...defaultAuthContextValue,
+      isAuthenticated: true,
+      user: { 
+        id: '1', 
+        name: 'Admin User', 
+        role: UserRole.ADMIN,
+        profile: {
+          firstName: 'Admin',
+          lastName: 'User'
+        }
+      },
+      hasRole: mockHasRole
     });
 
-    render(
-      <AdminProvider>
-        <MemoryRouter initialEntries={['/dashboard']}>
-          <Navigation />
-        </MemoryRouter>
-      </AdminProvider>
-    );
+    const { user } = render(<Navigation />, { initialEntries: ['/dashboard'] });
     
     const logoutButton = screen.getByText('Sair').closest('button');
     await user.click(logoutButton!);
     
     expect(mockLogout).toHaveBeenCalled();
-    expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
   });
 
   test('renders icons for all navigation items', () => {
-    render(
-      <AdminProvider>
-        <MemoryRouter>
-          <Navigation />
-        </MemoryRouter>
-      </AdminProvider>
-    );
+    (useAuth as jest.Mock).mockReturnValue({
+      ...defaultAuthContextValue,
+      isAuthenticated: true,
+      user: { 
+        id: '1', 
+        name: 'Test User', 
+        role: UserRole.STUDENT,
+        profile: {
+          firstName: 'Test',
+          lastName: 'User'
+        }
+      }
+    });
+    
+    render(<Navigation />);
     
     expect(screen.getByTestId('book-icon')).toBeInTheDocument();
     expect(screen.getByTestId('home-icon')).toBeInTheDocument();
@@ -191,13 +244,21 @@ describe('Navigation Component', () => {
   });
 
   test('applies responsive classes to navigation items', () => {
-    render(
-      <AdminProvider>
-        <MemoryRouter>
-          <Navigation />
-        </MemoryRouter>
-      </AdminProvider>
-    );
+    (useAuth as jest.Mock).mockReturnValue({
+      ...defaultAuthContextValue,
+      isAuthenticated: true,
+      user: { 
+        id: '1', 
+        name: 'Test User', 
+        role: UserRole.STUDENT,
+        profile: {
+          firstName: 'Test',
+          lastName: 'User'
+        }
+      }
+    });
+    
+    render(<Navigation />);
     
     const navLabels = screen.getAllByText(/Painel|Mapa Mental|Anotações|Recursos|Buscar/);
     navLabels.forEach(label => {
@@ -208,26 +269,28 @@ describe('Navigation Component', () => {
   });
 
   test('logo links to dashboard', () => {
-    render(
-      <AdminProvider>
-        <MemoryRouter>
-          <Navigation />
-        </MemoryRouter>
-      </AdminProvider>
-    );
+    render(<Navigation />);
     
     const logoLink = screen.getByText('Psicologia de Jung').closest('a');
     expect(logoLink).toHaveAttribute('href', '/dashboard');
   });
 
   test('applies correct icon sizing', () => {
-    render(
-      <AdminProvider>
-        <MemoryRouter>
-          <Navigation />
-        </MemoryRouter>
-      </AdminProvider>
-    );
+    (useAuth as jest.Mock).mockReturnValue({
+      ...defaultAuthContextValue,
+      isAuthenticated: true,
+      user: { 
+        id: '1', 
+        name: 'Test User', 
+        role: UserRole.STUDENT,
+        profile: {
+          firstName: 'Test',
+          lastName: 'User'
+        }
+      }
+    });
+    
+    render(<Navigation />);
     
     const bookIcon = screen.getByTestId('book-icon');
     expect(bookIcon).toHaveClass('w-8', 'h-8', 'text-primary-600');
@@ -236,45 +299,50 @@ describe('Navigation Component', () => {
     expect(homeIcon).toHaveClass('w-4', 'h-4');
   });
 
-  test('admin settings icon shows when not admin', () => {
-    render(
-      <AdminProvider>
-        <MemoryRouter>
-          <Navigation />
-        </MemoryRouter>
-      </AdminProvider>
-    );
+  test('shows user menu when authenticated but not admin', () => {
+    (useAuth as jest.Mock).mockReturnValue({
+      ...defaultAuthContextValue,
+      isAuthenticated: true,
+      user: { 
+        id: '1', 
+        name: 'Test User', 
+        role: UserRole.STUDENT,
+        profile: {
+          firstName: 'Test',
+          lastName: 'User'
+        }
+      }
+    });
     
-    const settingsIcons = screen.getAllByTestId('settings-icon');
-    expect(settingsIcons.length).toBeGreaterThan(0);
+    render(<Navigation />);
+    
+    expect(screen.getByTestId('user-icon')).toBeInTheDocument();
   });
 
   test('logout icon shows when admin', () => {
-    (useAdmin as jest.Mock).mockReturnValue({
-      isAdmin: true,
-      login: jest.fn(),
-      logout: jest.fn()
+    mockHasRole.mockReturnValue(true);
+    (useAuth as jest.Mock).mockReturnValue({
+      ...defaultAuthContextValue,
+      isAuthenticated: true,
+      user: { 
+        id: '1', 
+        name: 'Admin User', 
+        role: UserRole.ADMIN,
+        profile: {
+          firstName: 'Admin',
+          lastName: 'User'
+        }
+      },
+      hasRole: mockHasRole
     });
 
-    render(
-      <AdminProvider>
-        <MemoryRouter>
-          <Navigation />
-        </MemoryRouter>
-      </AdminProvider>
-    );
+    render(<Navigation />);
     
     expect(screen.getByTestId('logout-icon')).toBeInTheDocument();
   });
 
   test('navigation has correct container and layout classes', () => {
-    const { container } = render(
-      <AdminProvider>
-        <MemoryRouter>
-          <Navigation />
-        </MemoryRouter>
-      </AdminProvider>
-    );
+    const { container } = render(<Navigation />);
     
     const nav = container.querySelector('nav');
     expect(nav).toHaveClass('bg-white', 'shadow-sm', 'border-b', 'border-gray-200');
@@ -287,13 +355,21 @@ describe('Navigation Component', () => {
   });
 
   test('all navigation links have correct transition classes', () => {
-    render(
-      <AdminProvider>
-        <MemoryRouter>
-          <Navigation />
-        </MemoryRouter>
-      </AdminProvider>
-    );
+    (useAuth as jest.Mock).mockReturnValue({
+      ...defaultAuthContextValue,
+      isAuthenticated: true,
+      user: { 
+        id: '1', 
+        name: 'Test User', 
+        role: UserRole.STUDENT,
+        profile: {
+          firstName: 'Test',
+          lastName: 'User'
+        }
+      }
+    });
+    
+    render(<Navigation />);
     
     const links = screen.getAllByRole('link').filter(link => 
       link.textContent?.match(/Painel|Mapa Mental|Anotações|Recursos|Buscar/)
@@ -305,13 +381,21 @@ describe('Navigation Component', () => {
   });
 
   test('handles navigation for enhanced mindmap', () => {
-    render(
-      <AdminProvider>
-        <MemoryRouter initialEntries={['/enhanced-mindmap']}>
-          <Navigation />
-        </MemoryRouter>
-      </AdminProvider>
-    );
+    (useAuth as jest.Mock).mockReturnValue({
+      ...defaultAuthContextValue,
+      isAuthenticated: true,
+      user: { 
+        id: '1', 
+        name: 'Test User', 
+        role: UserRole.STUDENT,
+        profile: {
+          firstName: 'Test',
+          lastName: 'User'
+        }
+      }
+    });
+    
+    render(<Navigation />, { initialEntries: ['/enhanced-mindmap'] });
     
     const enhancedMindmapLink = screen.getByText('Mapa Mental IA').closest('a');
     expect(enhancedMindmapLink).toHaveClass('bg-primary-50', 'text-primary-700');

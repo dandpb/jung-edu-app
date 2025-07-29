@@ -7,7 +7,7 @@ export const ADMIN_CONFIG = {
     username: process.env.REACT_APP_ADMIN_USERNAME || 'admin',
     // This is the hash of 'jungadmin123' - DO NOT store plain passwords
     passwordHash: process.env.REACT_APP_ADMIN_PASSWORD_HASH || 
-      'a1b2c3d4e5f6789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890',
+      '000000006341cfbf',
     salt: process.env.REACT_APP_ADMIN_SALT || 
       '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
   },

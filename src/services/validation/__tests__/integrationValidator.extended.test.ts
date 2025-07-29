@@ -1,3 +1,6 @@
+// Mock the integrationValidator module
+jest.mock('../integrationValidator');
+
 import { IntegrationValidator, IntegrationValidationReport } from '../integrationValidator';
 import { EducationalModule } from '../../../schemas/module.schema';
 

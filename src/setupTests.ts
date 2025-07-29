@@ -15,7 +15,8 @@ if (process.env.SKIP_INTEGRATION === 'true') {
       testPath.includes('integrationValidator') ||
       testPath.includes('endToEndValidator') ||
       testPath.includes('/integration/') ||
-      testPath.includes('integration.test');
+      testPath.includes('integration.test') ||
+      testPath.includes('e2e.test');
     
     if (isIntegrationTest) {
       // Skip all tests in this file
@@ -27,6 +28,34 @@ if (process.env.SKIP_INTEGRATION === 'true') {
       // Make all tests in this file pending
       global.test = global.test.skip;
       global.it = global.it.skip;
+    }
+  }
+} else {
+  // When running integration tests, ensure proper environment setup
+  const State = expect.getState();
+  if (State && State.testPath) {
+    const testPath = State.testPath;
+    const isIntegrationTest = 
+      testPath.includes('integrationValidator') ||
+      testPath.includes('endToEndValidator') ||
+      testPath.includes('/integration/') ||
+      testPath.includes('integration.test') ||
+      testPath.includes('e2e.test');
+    
+    if (isIntegrationTest) {
+      beforeAll(() => {
+        console.log(`🧪 Running integration test: ${testPath}`);
+        // Ensure localStorage is cleared before each integration test suite
+        localStorage.clear();
+        sessionStorage.clear();
+      });
+      
+      afterEach(() => {
+        // Clean up after each integration test
+        localStorage.clear();
+        sessionStorage.clear();
+        jest.clearAllMocks();
+      });
     }
   }
 }
@@ -44,28 +73,6 @@ console.log = jest.fn((...args) => {
   originalLog.call(console, ...args);
 });
 
-// Mock global timer functions to ensure they exist in all test environments
-// This fixes "clearInterval is not defined" errors that occur in different test execution contexts
-if (typeof global.setInterval === 'undefined') {
-  global.setInterval = setInterval;
-}
-if (typeof global.clearInterval === 'undefined') {
-  global.clearInterval = clearInterval;
-}
-if (typeof global.setTimeout === 'undefined') {
-  global.setTimeout = setTimeout;
-}
-if (typeof global.clearTimeout === 'undefined') {
-  global.clearTimeout = clearTimeout;
-}
-
-// Ensure these are also available on the window object for consistency
-if (typeof window !== 'undefined') {
-  window.setInterval = window.setInterval || setInterval;
-  window.clearInterval = window.clearInterval || clearInterval;
-  window.setTimeout = window.setTimeout || setTimeout;
-  window.clearTimeout = window.clearTimeout || clearTimeout;
-}
 
 // Test utilities will be imported directly in test files
 
@@ -84,31 +91,29 @@ beforeEach(() => {
 
 // Ensure timer functions are properly available in the test environment
 // Use Node.js timer functions directly from the timers module
-const { setInterval: nodeSetInterval, clearInterval: nodeClearInterval, setTimeout: nodeSetTimeout, clearTimeout: nodeClearTimeout } = require('timers');
+const timers = require('timers');
 
-Object.defineProperty(global, 'setInterval', {
-  value: nodeSetInterval,
-  writable: true,
-  configurable: true
-});
+// Ensure global timer functions are available and properly bound
+if (!global.setInterval || typeof global.setInterval !== 'function') {
+  global.setInterval = timers.setInterval.bind(timers);
+}
+if (!global.clearInterval || typeof global.clearInterval !== 'function') {
+  global.clearInterval = timers.clearInterval.bind(timers);
+}
+if (!global.setTimeout || typeof global.setTimeout !== 'function') {
+  global.setTimeout = timers.setTimeout.bind(timers);
+}
+if (!global.clearTimeout || typeof global.clearTimeout !== 'function') {
+  global.clearTimeout = timers.clearTimeout.bind(timers);
+}
 
-Object.defineProperty(global, 'clearInterval', {
-  value: nodeClearInterval,
-  writable: true,
-  configurable: true
-});
-
-Object.defineProperty(global, 'setTimeout', {
-  value: nodeSetTimeout,
-  writable: true,
-  configurable: true
-});
-
-Object.defineProperty(global, 'clearTimeout', {
-  value: nodeClearTimeout,
-  writable: true,
-  configurable: true
-});
+// Also ensure they are available on window object for browser-like environment
+if (typeof window !== 'undefined') {
+  window.setInterval = global.setInterval;
+  window.clearInterval = global.clearInterval;
+  window.setTimeout = global.setTimeout;
+  window.clearTimeout = global.clearTimeout;
+}
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
@@ -167,6 +172,27 @@ if (typeof global.TextEncoder === 'undefined') {
 if (typeof global.TextDecoder === 'undefined') {
   const util = require('util');
   global.TextDecoder = util.TextDecoder;
+}
+
+// Add crypto polyfill for test environment
+if (typeof global.crypto === 'undefined') {
+  const crypto = require('crypto');
+  global.crypto = {
+    getRandomValues: (array: Uint8Array) => {
+      const bytes = crypto.randomBytes(array.length);
+      array.set(bytes);
+      return array;
+    }
+  } as any;
+}
+
+// Add btoa/atob polyfills for test environment
+if (typeof global.btoa === 'undefined') {
+  global.btoa = (str: string) => Buffer.from(str, 'binary').toString('base64');
+}
+
+if (typeof global.atob === 'undefined') {
+  global.atob = (str: string) => Buffer.from(str, 'base64').toString('binary');
 }
 
 // Mock fetch if not available

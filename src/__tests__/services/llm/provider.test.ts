@@ -45,7 +45,10 @@ describe('OpenAIProvider', () => {
   });
   
   afterEach(() => {
+    jest.clearAllMocks();
     jest.resetAllMocks();
+    // Clear any module cache to ensure fresh mocks
+    jest.resetModules();
   });
   
   describe('constructor', () => {
@@ -68,7 +71,7 @@ describe('OpenAIProvider', () => {
       const result = await provider.generateCompletion('Test prompt');
       
       expect(result).toBeDefined();
-      expect(result).toBe('Generated content about Jungian psychology');
+      expect(result.content).toBe('Generated content about Jungian psychology');
       expect(mockOpenAIApi.chat.completions.create).toHaveBeenCalledWith({
         model: 'gpt-3.5-turbo',
         messages: [
@@ -105,7 +108,7 @@ describe('OpenAIProvider', () => {
         retries: 2
       });
       
-      expect(result).toBe('Success after retry');
+      expect(result.content).toBe('Success after retry');
       expect(mockOpenAIApi.chat.completions.create).toHaveBeenCalledTimes(2);
     });
     
@@ -116,10 +119,12 @@ describe('OpenAIProvider', () => {
         }]
       });
       
-      await provider.generateCompletion('Test prompt', {
+      const result = await provider.generateCompletion('Test prompt', {
         temperature: 0.5,
         maxTokens: 1000
       });
+      
+      expect(result).toBeDefined();
       
       expect(mockOpenAIApi.chat.completions.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -130,7 +135,7 @@ describe('OpenAIProvider', () => {
     });
   });
   
-  describe('generateStructuredResponse', () => {
+  describe('generateStructuredOutput', () => {
     it('should generate and parse JSON output', async () => {
       const mockStructuredData = {
         title: 'Test Title',
@@ -145,11 +150,14 @@ describe('OpenAIProvider', () => {
         }]
       });
       
-      const result = await provider.generateStructuredResponse(
+      const result = await provider.generateStructuredOutput(
         'Generate a module outline',
         {
-          title: 'string',
-          concepts: 'string[]'
+          type: 'object',
+          properties: {
+            title: { type: 'string' },
+            concepts: { type: 'array', items: { type: 'string' } }
+          }
         }
       );
       
@@ -180,7 +188,7 @@ describe('OpenAIProvider', () => {
           }]
         });
       
-      await expect(provider.generateStructuredResponse('Test', {}))
+      await expect(provider.generateStructuredOutput('Test', { type: 'object' }))
         .rejects.toThrow('Failed to generate valid JSON');
     });
   });
@@ -225,14 +233,14 @@ describe('MockLLMProvider', () => {
   it('should generate mock completions', async () => {
     const result = await mockProvider.generateCompletion('Generate an introduction');
     
-    expect(result).toContain('mock introduction');
-    expect(result).toContain('Jungian psychology');
+    expect(result.content).toContain('mock introduction');
+    expect(result.content).toContain('Jungian psychology');
   });
   
   it('should generate mock structured responses', async () => {
-    const result = await mockProvider.generateStructuredResponse(
+    const result = await mockProvider.generateStructuredOutput(
       'Generate quiz',
-      {}
+      { type: 'array' }
     );
     
     expect(Array.isArray(result)).toBe(true);

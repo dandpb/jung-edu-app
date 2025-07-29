@@ -61,15 +61,15 @@ describe('API Integration Tests', () => {
         );
         
         expect(result).toBeDefined();
-        expect(result).toContain('mock introduction');
-        expect(result).toContain('Jungian psychology');
+        expect(result.content).toContain('mock introduction');
+        expect(result.content).toContain('Jungian psychology');
         expect(duration).toBeLessThan(100); // Mocks should be fast
       });
       
       test('should generate structured response with mock provider', async () => {
         const provider = new MockLLMProvider(50); // Fast mock with 50ms delay
         
-        const result = await provider.generateStructuredResponse(
+        const result = await provider.generateStructuredOutput(
           'Generate quiz questions about Jung',
           { type: 'array' },
           { temperature: 0.2 }
@@ -88,7 +88,7 @@ describe('API Integration Tests', () => {
       test('should handle video search queries', async () => {
         const provider = new MockLLMProvider(50); // Fast mock with 50ms delay
         
-        const result = await provider.generateStructuredResponse(
+        const result = await provider.generateStructuredOutput(
           'Generate YouTube search queries',
           { type: 'array' }
         );
@@ -101,7 +101,7 @@ describe('API Integration Tests', () => {
       test('should handle section generation', async () => {
         const provider = new MockLLMProvider(50); // Fast mock with 50ms delay
         
-        const result = await provider.generateStructuredResponse(
+        const result = await provider.generateStructuredOutput(
           'Generate sections outline',
           { type: 'array' }
         );
@@ -121,7 +121,7 @@ describe('API Integration Tests', () => {
         
         expect(provider).toBeDefined();
         expect(provider.generateCompletion).toBeDefined();
-        expect(provider.generateStructuredResponse).toBeDefined();
+        expect(provider.generateStructuredOutput).toBeDefined();
         
         const isAvailable = await provider.isAvailable();
         expect(isAvailable).toBe(true);
@@ -152,7 +152,7 @@ describe('API Integration Tests', () => {
         
         const { result, duration } = await measureAPICall(
           'OpenAI structured response',
-          () => provider.generateStructuredResponse(
+          () => provider.generateStructuredOutput(
             'Generate 2 quiz questions about Carl Jung\'s concept of the collective unconscious',
             { 
               type: 'array',

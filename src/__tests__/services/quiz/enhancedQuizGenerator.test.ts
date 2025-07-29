@@ -24,11 +24,13 @@ describe('EnhancedQuizGenerator', () => {
   
   beforeEach(() => {
     mockProvider = {
-      generateCompletion: jest.fn(),
-      generateStructuredResponse: jest.fn(),
+      generateCompletion: jest.fn().mockResolvedValue({
+        content: 'Generated content',
+        usage: { promptTokens: 100, completionTokens: 50, totalTokens: 150 }
+      }),
       generateStructuredOutput: jest.fn(),
-      getTokenCount: jest.fn(),
-      isAvailable: jest.fn()
+      getTokenCount: jest.fn().mockReturnValue(100),
+      isAvailable: jest.fn().mockResolvedValue(true)
     } as any;
     
     generator = new EnhancedQuizGenerator(mockProvider);
@@ -81,7 +83,7 @@ describe('EnhancedQuizGenerator', () => {
     
     beforeEach(() => {
       // Return a reasonable number of questions per call (difficulty level)
-      mockProvider.generateStructuredResponse.mockImplementation(async (prompt) => {
+      mockProvider.generateStructuredOutput.mockImplementation(async (prompt) => {
         // Extract count from prompt or use default
         const countMatch = prompt.toString().match(/(\d+)\s+questions?/i);
         const requestedCount = countMatch ? parseInt(countMatch[1]) : 3;
@@ -103,12 +105,12 @@ describe('EnhancedQuizGenerator', () => {
       expect(result.questions.length).toBeGreaterThanOrEqual(8);
       expect(result.questions.length).toBeLessThanOrEqual(12);
       expect(result.questions[0].type).toBe('multiple-choice');
-      expect(mockProvider.generateStructuredResponse).toHaveBeenCalled();
+      expect(mockProvider.generateStructuredOutput).toHaveBeenCalled();
     });
     
     it('should use templates when enabled', async () => {
       // Mock to return 12 questions
-      mockProvider.generateStructuredResponse.mockResolvedValueOnce(generateMockQuestions(12));
+      mockProvider.generateStructuredOutput.mockResolvedValueOnce(generateMockQuestions(12));
       
       const result = await generator.generateEnhancedQuiz(
         'module-1',
@@ -126,7 +128,7 @@ describe('EnhancedQuizGenerator', () => {
         }
       );
       
-      expect(mockProvider.generateStructuredResponse).toHaveBeenCalled();
+      expect(mockProvider.generateStructuredOutput).toHaveBeenCalled();
       // Similar flexibility for 12 questions - enhanced quiz may generate more
       expect(result.questions.length).toBeGreaterThanOrEqual(10);
       expect(result.questions.length).toBeLessThanOrEqual(20);
@@ -141,7 +143,7 @@ describe('EnhancedQuizGenerator', () => {
         5
       );
       
-      const call = mockProvider.generateStructuredResponse.mock.calls[0];
+      const call = mockProvider.generateStructuredOutput.mock.calls[0];
       expect(call[0]).toContain('shadow');
     });
     
@@ -162,7 +164,7 @@ describe('EnhancedQuizGenerator', () => {
         }
       );
       
-      expect(mockProvider.generateStructuredResponse).toHaveBeenCalled();
+      expect(mockProvider.generateStructuredOutput).toHaveBeenCalled();
     });
     
     it('should adapt difficulty based on user level', async () => {
@@ -182,13 +184,13 @@ describe('EnhancedQuizGenerator', () => {
         }
       );
       
-      expect(mockProvider.generateStructuredResponse).toHaveBeenCalled();
+      expect(mockProvider.generateStructuredOutput).toHaveBeenCalled();
     });
   });
   
   describe('generateQuiz (base method)', () => {
     beforeEach(() => {
-      mockProvider.generateStructuredResponse.mockResolvedValue([
+      mockProvider.generateStructuredOutput.mockResolvedValue([
         {
           question: 'Basic question',
           options: ['A', 'B', 'C', 'D'],
@@ -218,7 +220,7 @@ describe('EnhancedQuizGenerator', () => {
   
   describe('error handling', () => {
     it('should handle generation failures', async () => {
-      mockProvider.generateStructuredResponse.mockRejectedValue(
+      mockProvider.generateStructuredOutput.mockRejectedValue(
         new Error('API error')
       );
       
@@ -233,7 +235,7 @@ describe('EnhancedQuizGenerator', () => {
     
     it('should handle invalid parameters gracefully', async () => {
       // Test with empty objectives - should still work
-      mockProvider.generateStructuredResponse.mockResolvedValue([]);
+      mockProvider.generateStructuredOutput.mockResolvedValue([]);
       
       const result = await generator.generateQuiz(
         'module-1',
@@ -248,7 +250,7 @@ describe('EnhancedQuizGenerator', () => {
     });
     
     it('should handle malformed LLM responses', async () => {
-      mockProvider.generateStructuredResponse.mockResolvedValue(null);
+      mockProvider.generateStructuredOutput.mockResolvedValue(null);
       
       const result = await generator.generateQuiz(
         'module-1',

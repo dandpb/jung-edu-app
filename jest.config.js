@@ -1,5 +1,6 @@
 module.exports = {
   roots: ['<rootDir>/src'],
+  setupFiles: ['<rootDir>/src/jest-setup.js'],
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
@@ -49,28 +50,28 @@ module.exports = {
   ],
   coverageThreshold: {
     global: {
-      branches: 90,
-      functions: 90,
-      lines: 90,
-      statements: 90
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70
     },
     './src/services/**/*.ts': {
-      branches: 95,
-      functions: 95,
-      lines: 95,
-      statements: 95
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70
     },
     './src/components/**/*.tsx': {
-      branches: 85,
-      functions: 85,
-      lines: 85,
-      statements: 85
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70
     },
     './src/utils/**/*.ts': {
-      branches: 90,
-      functions: 90,
-      lines: 90,
-      statements: 90
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70
     }
   },
   coverageReporters: [

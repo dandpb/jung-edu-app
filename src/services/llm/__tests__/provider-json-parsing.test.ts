@@ -48,7 +48,7 @@ describe('OpenAIProvider JSON Parsing', () => {
       choices: [{ message: { content: mockResponse } }]
     });
 
-    const result = await provider.generateStructuredResponse<{ test: string }>('test prompt', {});
+    const result = await provider.generateStructuredOutput<{ test: string }>('test prompt', {});
     expect(result).toEqual({ test: 'value' });
   });
 
@@ -58,7 +58,7 @@ describe('OpenAIProvider JSON Parsing', () => {
       choices: [{ message: { content: mockResponse } }]
     });
 
-    const result = await provider.generateStructuredResponse<Array<{ title: string; concepts: string[] }>>('test prompt', []);
+    const result = await provider.generateStructuredOutput<Array<{ title: string; concepts: string[] }>>('test prompt', []);
     expect(result).toEqual([{ title: 'Test', concepts: ['concept1'] }]);
   });
 
@@ -68,7 +68,7 @@ describe('OpenAIProvider JSON Parsing', () => {
       choices: [{ message: { content: mockResponse } }]
     });
 
-    const result = await provider.generateStructuredResponse<{ test: string }>('test prompt', {});
+    const result = await provider.generateStructuredOutput<{ test: string }>('test prompt', {});
     expect(result).toEqual({ test: 'value' });
   });
 
@@ -78,7 +78,7 @@ describe('OpenAIProvider JSON Parsing', () => {
       choices: [{ message: { content: mockResponse } }]
     });
 
-    const result = await provider.generateStructuredResponse<{ test: string }>('test prompt', {});
+    const result = await provider.generateStructuredOutput<{ test: string }>('test prompt', {});
     expect(result).toEqual({ test: 'value' });
   });
 
@@ -91,7 +91,7 @@ describe('OpenAIProvider JSON Parsing', () => {
         choices: [{ message: { content: '{"test": "success"}' } }]
       });
 
-    const result = await provider.generateStructuredResponse<{ test: string }>('test prompt', {}, { retries: 2 });
+    const result = await provider.generateStructuredOutput<{ test: string }>('test prompt', {}, { retries: 2 });
     expect(result).toEqual({ test: 'success' });
     expect(mockCreate).toHaveBeenCalledTimes(2);
   });

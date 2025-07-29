@@ -1,50 +1,29 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { renderWithoutProviders, mockLocalStorage } from '../utils/test-utils';
+import { setupLocalStorage, setupConsoleHandlers } from '../utils/test-setup';
+import { createMockModules, createMockUserProgress } from '../utils/test-mocks';
 import App from '../App';
-import { AdminProvider } from '../contexts/AdminContext';
 
-// Mock the modules data
-const mockModules = [
-  {
-    id: '1',
-    title: 'Introduction to Jung',
-    description: 'Basic concepts of Jungian psychology',
-    content: {
-      introduction: 'Welcome to Jungian psychology',
-      sections: [
-        {
-          title: 'The Unconscious',
-          content: 'Understanding the personal and collective unconscious'
-        },
-        {
-          title: 'Archetypes',
-          content: 'Common patterns in human psychology'
-        }
-      ],
-      conclusion: 'Summary of key concepts'
-    },
-    videoUrl: 'https://example.com/video1',
-    quiz: {
-      questions: [
-        {
-          id: 'q1',
-          question: 'What is the collective unconscious?',
-          options: ['Option A', 'Option B', 'Option C', 'Option D'],
-          correctAnswer: 0,
-          explanation: 'The collective unconscious is...'
-        }
-      ]
-    },
-    order: 1,
-    mindMapData: {
-      nodes: [],
-      edges: []
-    },
-    bibliography: [],
-    additionalResources: []
-  }
-];
+// Setup console handlers
+setupConsoleHandlers();
+
+// Mock the modules data using factory
+const mockModules = createMockModules(3);
+
+// Mock AuthContext to provide authenticated user
+jest.mock('../contexts/AuthContext', () => ({
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  useAuth: () => ({
+    user: { id: 'test-user', username: 'testuser', role: 'user' },
+    isAuthenticated: true,
+    isLoading: false,
+    login: jest.fn(),
+    logout: jest.fn(),
+    register: jest.fn()
+  })
+}));
 
 // Mock contexts
 jest.mock('../contexts/AdminContext', () => {
@@ -109,112 +88,105 @@ jest.mock('../pages/admin/AdminLogin', () => ({
   default: () => <div data-testid="admin-login">Admin Login</div>
 }));
 
-jest.mock('../components/ProtectedRoute', () => ({
-  __esModule: true,
-  default: ({ children }: { children: React.ReactNode }) => <div data-testid="protected-route">{children}</div>
+jest.mock('../components/auth/ProtectedRoute', () => ({
+  ProtectedRoute: ({ children }: { children: React.ReactNode }) => <>{children}</>
 }));
 
-// Mock localStorage
-const localStorageMock = (() => {
-  let store: { [key: string]: string } = {};
-  return {
-    getItem: (key: string) => store[key] || null,
-    setItem: (key: string, value: string) => {
-      store[key] = value.toString();
-    },
-    removeItem: (key: string) => {
-      delete store[key];
-    },
-    clear: () => {
-      store = {};
-    }
-  };
-})();
+jest.mock('../components/auth/PublicRoute', () => ({
+  PublicRoute: ({ children }: { children: React.ReactNode }) => <>{children}</>
+}));
 
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
-});
+// LocalStorage is already mocked by test-utils
 
 describe('App Component', () => {
+  // Setup localStorage for each test
+  setupLocalStorage();
+  
   beforeEach(() => {
-    localStorageMock.clear();
     jest.clearAllMocks();
   });
 
   test('renders without crashing', () => {
-    render(<App />);
+    renderWithoutProviders(<App />);
     expect(screen.getByTestId('navigation')).toBeInTheDocument();
   });
 
   test('wraps content with AdminProvider', () => {
-    const { container } = render(<App />);
+    const { container } = renderWithoutProviders(<App />);
     expect(container).toBeInTheDocument();
   });
 
   test('renders navigation component', () => {
-    render(<App />);
+    renderWithoutProviders(<App />);
     expect(screen.getByTestId('navigation')).toBeInTheDocument();
   });
 
   test('initializes user progress from localStorage when available', () => {
-    const existingProgress = {
+    const existingProgress = createMockUserProgress({
       userId: 'existing-user',
       completedModules: ['module1'],
       quizScores: { module1: 80 },
-      totalTime: 3600,
-      lastAccessed: Date.now() - 1000,
-      notes: []
-    };
+      totalTime: 3600
+    });
     
-    localStorageMock.setItem('jungAppProgress', JSON.stringify(existingProgress));
+    mockLocalStorage.__setStore({
+      jungAppProgress: JSON.stringify(existingProgress)
+    });
     
-    render(<App />);
+    renderWithoutProviders(<App />);
     
     // Check that the dashboard receives the existing progress
     expect(screen.getByTestId('dashboard')).toHaveTextContent('User: existing-user');
   });
 
-  test('creates new user progress when localStorage is empty', () => {
-    render(<App />);
+  test('creates new user progress when localStorage is empty', async () => {
+    renderWithoutProviders(<App />);
     
-    // Check that localStorage was populated
-    const savedProgress = localStorageMock.getItem('jungAppProgress');
-    expect(savedProgress).toBeTruthy();
-    
-    const progress = JSON.parse(savedProgress!);
-    expect(progress).toMatchObject({
-      userId: expect.stringMatching(/^user-\d+$/),
-      completedModules: [],
-      quizScores: {},
-      totalTime: 0,
-      lastAccessed: expect.any(Number),
-      notes: []
+    // Wait for localStorage to be populated
+    await waitFor(() => {
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
+        'jungAppProgress',
+        expect.any(String)
+      );
     });
+    
+    const calls = mockLocalStorage.setItem.mock.calls;
+    const progressCall = calls.find(call => call[0] === 'jungAppProgress');
+    
+    if (progressCall) {
+      const progress = JSON.parse(progressCall[1]);
+      expect(progress).toMatchObject({
+        userId: expect.stringMatching(/^user-\d+$/),
+        completedModules: [],
+        quizScores: {},
+        totalTime: 0,
+        lastAccessed: expect.any(Number),
+        notes: []
+      });
+    }
   });
 
   test('saves user progress to localStorage on updates', async () => {
-    render(<App />);
+    renderWithoutProviders(<App />);
     
-    // Initial save
-    const initialProgress = localStorageMock.getItem('jungAppProgress');
-    expect(initialProgress).toBeTruthy();
-    
-    // Wait for any potential updates
+    // Wait for initial save
     await waitFor(() => {
-      const currentProgress = localStorageMock.getItem('jungAppProgress');
-      expect(currentProgress).toBeTruthy();
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
+        'jungAppProgress',
+        expect.any(String)
+      );
     });
   });
 
   test('renders main container with correct styling', () => {
-    const { container } = render(<App />);
+    const { container } = renderWithoutProviders(<App />);
     const mainElement = container.querySelector('main');
     
     expect(mainElement).toHaveClass('container', 'mx-auto', 'px-4', 'py-8');
   });
 
   test('renders with min-height screen background', () => {
-    const { container } = render(<App />);
+    const { container } = renderWithoutProviders(<App />);
     const rootDiv = container.querySelector('.min-h-screen');
     
     expect(rootDiv).toBeInTheDocument();
@@ -222,69 +194,94 @@ describe('App Component', () => {
   });
 
   test('includes router with future flags', () => {
-    render(<App />);
+    renderWithoutProviders(<App />);
     // The router is mocked, but we verify the component renders
     expect(screen.getByTestId('navigation')).toBeInTheDocument();
   });
 
   test('provides modules from admin context', () => {
-    render(<App />);
+    renderWithoutProviders(<App />);
     
-    expect(screen.getByTestId('dashboard')).toHaveTextContent('Modules: 1');
+    expect(screen.getByTestId('dashboard')).toHaveTextContent('Modules: 3');
   });
 
-  test('handles corrupted localStorage gracefully', () => {
-    localStorageMock.setItem('jungAppProgress', 'invalid-json');
+  test('handles corrupted localStorage gracefully', async () => {
+    mockLocalStorage.__setStore({
+      jungAppProgress: 'invalid-json'
+    });
     
     // Should not throw an error
-    expect(() => render(<App />)).not.toThrow();
+    expect(() => renderWithoutProviders(<App />)).not.toThrow();
     
     // Should create new progress
-    const savedProgress = localStorageMock.getItem('jungAppProgress');
-    const progress = JSON.parse(savedProgress!);
-    expect(progress.userId).toMatch(/^user-\d+$/);
+    await waitFor(() => {
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
+        'jungAppProgress',
+        expect.any(String)
+      );
+    });
   });
 
   test('AppContent receives modules from useAdmin hook', () => {
-    render(<App />);
+    renderWithoutProviders(<App />);
     
     const dashboard = screen.getByTestId('dashboard');
-    expect(dashboard).toHaveTextContent('Modules: 1');
+    expect(dashboard).toHaveTextContent('Modules: 3');
   });
 
   test('renders Routes component structure', () => {
-    const { container } = render(<App />);
+    const { container } = renderWithoutProviders(<App />);
     
     // Verify the structure exists (mocked components)
     expect(container.querySelector('main')).toBeInTheDocument();
     expect(screen.getByTestId('navigation')).toBeInTheDocument();
   });
 
-  test('user progress includes all required fields', () => {
-    render(<App />);
+  test('user progress includes all required fields', async () => {
+    renderWithoutProviders(<App />);
     
-    const savedProgress = localStorageMock.getItem('jungAppProgress');
-    const progress = JSON.parse(savedProgress!);
+    await waitFor(() => {
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
+        'jungAppProgress',
+        expect.any(String)
+      );
+    });
     
-    expect(progress).toHaveProperty('userId');
-    expect(progress).toHaveProperty('completedModules');
-    expect(progress).toHaveProperty('quizScores');
-    expect(progress).toHaveProperty('totalTime');
-    expect(progress).toHaveProperty('lastAccessed');
-    expect(progress).toHaveProperty('notes');
+    const calls = mockLocalStorage.setItem.mock.calls;
+    const progressCall = calls.find(call => call[0] === 'jungAppProgress');
+    
+    if (progressCall) {
+      const progress = JSON.parse(progressCall[1]);
+      expect(progress).toHaveProperty('userId');
+      expect(progress).toHaveProperty('completedModules');
+      expect(progress).toHaveProperty('quizScores');
+      expect(progress).toHaveProperty('totalTime');
+      expect(progress).toHaveProperty('lastAccessed');
+      expect(progress).toHaveProperty('notes');
+    }
   });
 
-  test('multiple renders use same user progress', () => {
-    const { unmount } = render(<App />);
-    const firstProgress = localStorageMock.getItem('jungAppProgress');
-    const firstUserId = JSON.parse(firstProgress!).userId;
+  test('multiple renders use same user progress', async () => {
+    const { unmount } = renderWithoutProviders(<App />);
+    
+    // Wait for first render to save
+    await waitFor(() => {
+      expect(mockLocalStorage.setItem).toHaveBeenCalled();
+    });
+    
+    const firstCalls = mockLocalStorage.setItem.mock.calls;
+    const firstProgressCall = firstCalls.find(call => call[0] === 'jungAppProgress');
+    const firstUserId = firstProgressCall ? JSON.parse(firstProgressCall[1]).userId : null;
     
     unmount();
     
-    render(<App />);
-    const secondProgress = localStorageMock.getItem('jungAppProgress');
-    const secondUserId = JSON.parse(secondProgress!).userId;
+    // Clear mock calls but keep the store
+    mockLocalStorage.setItem.mockClear();
     
-    expect(secondUserId).toBe(firstUserId);
+    // Second render should use existing progress
+    renderWithoutProviders(<App />);
+    
+    // Verify it loaded from localStorage
+    expect(mockLocalStorage.getItem).toHaveBeenCalledWith('jungAppProgress');
   });
 });

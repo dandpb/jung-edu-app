@@ -116,14 +116,18 @@ describe('EnhancedQuizGenerator', () => {
 
     // Setup mock provider
     mockProvider = {
-      generateStructuredResponse: jest.fn(),
+      generateStructuredOutput: jest.fn(),
       generateCompletion: jest.fn(),
-      validateApiKey: jest.fn().mockReturnValue(true)
+      getTokenCount: jest.fn().mockReturnValue(100),
+      isAvailable: jest.fn().mockResolvedValue(true)
     } as any;
 
     // Setup mock returns
-    mockProvider.generateStructuredResponse.mockResolvedValue(mockRawQuestions);
-    mockProvider.generateCompletion.mockResolvedValue('Generated study guide content');
+    mockProvider.generateStructuredOutput.mockResolvedValue(mockRawQuestions);
+    mockProvider.generateCompletion.mockResolvedValue({ 
+      content: 'Generated study guide content',
+      usage: { promptTokens: 100, completionTokens: 50, totalTokens: 150 }
+    });
 
     // Setup template mocks
     (getQuestionTemplate as jest.Mock).mockReturnValue(mockQuestionTemplate);
@@ -261,7 +265,7 @@ describe('EnhancedQuizGenerator', () => {
 
     it('should include essay questions when requested', async () => {
       // For templated generation: easy (3), medium (5), hard (2) = 3 calls + 1 call for essays
-      mockProvider.generateStructuredResponse
+      mockProvider.generateStructuredOutput
         .mockResolvedValueOnce([mockRawQuestions[0]]) // For easy questions (3)
         .mockResolvedValueOnce([mockRawQuestions[1]]) // For medium questions (5)  
         .mockResolvedValueOnce([]) // For hard questions (2) - empty response
@@ -311,7 +315,7 @@ describe('EnhancedQuizGenerator', () => {
 
   describe('templated question generation', () => {
     it('should distribute questions by difficulty correctly', async () => {
-      mockProvider.generateStructuredResponse
+      mockProvider.generateStructuredOutput
         .mockResolvedValueOnce([mockRawQuestions[0]]) // easy
         .mockResolvedValueOnce([mockRawQuestions[1]]) // medium
         .mockResolvedValueOnce([]); // hard (empty)
@@ -329,7 +333,7 @@ describe('EnhancedQuizGenerator', () => {
       );
 
       expect(quiz.questions.length).toBeGreaterThan(0);
-      expect(mockProvider.generateStructuredResponse).toHaveBeenCalledTimes(3);
+      expect(mockProvider.generateStructuredOutput).toHaveBeenCalledTimes(3);
     });
 
     it('should handle different user levels', async () => {
@@ -368,12 +372,12 @@ describe('EnhancedQuizGenerator', () => {
   describe('essay question generation', () => {
     beforeEach(() => {
       // Reset the mock to clear previous calls and set new behavior
-      mockProvider.generateStructuredResponse.mockReset();
+      mockProvider.generateStructuredOutput.mockReset();
     });
 
     it('should generate essay questions with proper structure', async () => {
       // Setup responses for templated generation then essay generation
-      mockProvider.generateStructuredResponse
+      mockProvider.generateStructuredOutput
         .mockResolvedValueOnce([mockRawQuestions[0]]) // For easy questions
         .mockResolvedValueOnce([mockRawQuestions[1]]) // For medium questions  
         .mockResolvedValueOnce([]) // For hard questions
@@ -406,7 +410,7 @@ describe('EnhancedQuizGenerator', () => {
 
     it('should handle essay generation failure gracefully', async () => {
       // Setup responses: difficulty questions then null for essay generation
-      mockProvider.generateStructuredResponse
+      mockProvider.generateStructuredOutput
         .mockResolvedValueOnce([mockRawQuestions[0]]) // For easy questions
         .mockResolvedValueOnce([mockRawQuestions[1]]) // For medium questions  
         .mockResolvedValueOnce([]) // For hard questions
@@ -431,7 +435,7 @@ describe('EnhancedQuizGenerator', () => {
   describe('error handling and edge cases', () => {
     it('should handle provider returning non-array', async () => {
       // Set up non-array responses for difficulty questions to trigger fallback
-      mockProvider.generateStructuredResponse
+      mockProvider.generateStructuredOutput
         .mockResolvedValueOnce({} as any) // For easy questions - non-array
         .mockResolvedValueOnce({} as any) // For medium questions - non-array
         .mockResolvedValueOnce({} as any); // For hard questions - non-array
@@ -450,7 +454,7 @@ describe('EnhancedQuizGenerator', () => {
     });
 
     it('should handle provider errors', async () => {
-      mockProvider.generateStructuredResponse.mockRejectedValue(new Error('Provider error'));
+      mockProvider.generateStructuredOutput.mockRejectedValue(new Error('Provider error'));
 
       await expect(
         generator.generateEnhancedQuiz(
@@ -722,7 +726,7 @@ describe('EnhancedQuizGenerator', () => {
         testOptions
       );
 
-      expect(mockProvider.generateStructuredResponse).toHaveBeenCalledWith(
+      expect(mockProvider.generateStructuredOutput).toHaveBeenCalledWith(
         expect.stringContaining('Complex Topic'),
         expect.any(Array),
         expect.objectContaining({
@@ -733,7 +737,7 @@ describe('EnhancedQuizGenerator', () => {
     });
 
     it('should handle provider timeout', async () => {
-      mockProvider.generateStructuredResponse.mockImplementation(
+      mockProvider.generateStructuredOutput.mockImplementation(
         () => new Promise((_, reject) => 
           setTimeout(() => reject(new Error('Timeout')), 100)
         )

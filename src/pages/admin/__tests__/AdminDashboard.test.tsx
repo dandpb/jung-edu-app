@@ -1,9 +1,6 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
-import userEvent from '@testing-library/user-event';
+import { render, screen, userEvent } from '../../../utils/test-utils';
 import AdminDashboard from '../AdminDashboard';
-import { AdminProvider } from '../../../contexts/AdminContext';
 import { AdminUser, Module } from '../../../types';
 
 // Mock the useAdmin hook
@@ -79,15 +76,6 @@ const mockUseAdmin = () => ({
   updateModules: jest.fn()
 });
 
-const renderWithRouter = (component: React.ReactElement) => {
-  return render(
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <AdminProvider>
-        {component}
-      </AdminProvider>
-    </BrowserRouter>
-  );
-};
 
 describe('AdminDashboard Component', () => {
   beforeEach(() => {
@@ -100,14 +88,14 @@ describe('AdminDashboard Component', () => {
   });
 
   test('renders admin dashboard with correct title and welcome message', () => {
-    renderWithRouter(<AdminDashboard />);
+    render(<AdminDashboard />);
     
     expect(screen.getByText('Painel Administrativo')).toBeInTheDocument();
     expect(screen.getByText(/Bem-vindo de volta, testadmin!/)).toBeInTheDocument();
   });
 
   test('displays correct statistics', () => {
-    renderWithRouter(<AdminDashboard />);
+    render(<AdminDashboard />);
     
     // Total Modules
     expect(screen.getByText('Total de Módulos')).toBeInTheDocument();
@@ -131,7 +119,7 @@ describe('AdminDashboard Component', () => {
   });
 
   test('renders all admin cards with correct information', () => {
-    renderWithRouter(<AdminDashboard />);
+    render(<AdminDashboard />);
     
     // Manage Modules card
     expect(screen.getByText('Gerenciar Módulos')).toBeInTheDocument();
@@ -145,7 +133,7 @@ describe('AdminDashboard Component', () => {
   });
 
   test('admin cards are clickable links with correct paths', () => {
-    renderWithRouter(<AdminDashboard />);
+    render(<AdminDashboard />);
     
     const manageModulesLink = screen.getByRole('link', { name: /Gerenciar Módulos/i });
     expect(manageModulesLink).toHaveAttribute('href', '/admin/modules');
@@ -155,7 +143,7 @@ describe('AdminDashboard Component', () => {
   });
 
   test('renders quick action buttons', () => {
-    renderWithRouter(<AdminDashboard />);
+    render(<AdminDashboard />);
     
     expect(screen.getByText('Ações Rápidas')).toBeInTheDocument();
     
@@ -167,7 +155,7 @@ describe('AdminDashboard Component', () => {
   });
 
   test('displays system status with last login information', () => {
-    renderWithRouter(<AdminDashboard />);
+    render(<AdminDashboard />);
     
     expect(screen.getByText(/Status do Sistema:/)).toBeInTheDocument();
     expect(screen.getByText(/Todos os sistemas operacionais/)).toBeInTheDocument();
@@ -184,7 +172,7 @@ describe('AdminDashboard Component', () => {
       currentAdmin: null
     });
     
-    renderWithRouter(<AdminDashboard />);
+    render(<AdminDashboard />);
     
     expect(screen.getByText(/Bem-vindo de volta, !/)).toBeInTheDocument();
     expect(screen.getByText(/Último login: Nunca/)).toBeInTheDocument();
@@ -197,7 +185,7 @@ describe('AdminDashboard Component', () => {
       modules: []
     });
     
-    renderWithRouter(<AdminDashboard />);
+    render(<AdminDashboard />);
     
     // Check all stats show 0
     const zeroStats = screen.getAllByText('0');
@@ -216,7 +204,7 @@ describe('AdminDashboard Component', () => {
       modules: modulesWithoutVideos
     });
     
-    renderWithRouter(<AdminDashboard />);
+    render(<AdminDashboard />);
     
     // Video count should be 0
     expect(screen.getByText('Conteúdo de Vídeo')).toBeInTheDocument();
@@ -228,7 +216,7 @@ describe('AdminDashboard Component', () => {
 
   test('hover effects on cards work correctly', async () => {
     const user = userEvent.setup();
-    renderWithRouter(<AdminDashboard />);
+    render(<AdminDashboard />);
     
     const manageModulesCard = screen.getByRole('link', { name: /Gerenciar Módulos/i });
     
@@ -244,7 +232,7 @@ describe('AdminDashboard Component', () => {
   });
 
   test('renders all icon components correctly', () => {
-    renderWithRouter(<AdminDashboard />);
+    render(<AdminDashboard />);
     
     // Check for presence of lucide icons by their SVG elements
     const container = screen.getByText('Painel Administrativo').closest('div')?.parentElement;

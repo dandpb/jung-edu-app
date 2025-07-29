@@ -1,8 +1,7 @@
 import React from 'react';
-import { render, screen, waitFor, act } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor, userEvent } from '../../../utils/test-utils';
+import { act } from '@testing-library/react';
 import AdminModules from '../AdminModules';
-import { AdminProvider } from '../../../contexts/AdminContext';
 import { Module } from '../../../types';
 
 // Mock the child components
@@ -122,7 +121,6 @@ const mockUseAdmin = () => ({
 });
 
 describe('AdminModules Component', () => {
-  const user = userEvent.setup();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -206,7 +204,7 @@ describe('AdminModules Component', () => {
   });
 
   test('expanding module shows additional details', async () => {
-    render(<AdminModules />);
+    const { user } = render(<AdminModules />);
     
     // Initially, expanded content should not be visible
     expect(screen.queryByText('This module introduces the fundamental concepts')).not.toBeInTheDocument();
@@ -232,7 +230,7 @@ describe('AdminModules Component', () => {
   });
 
   test('collapsing expanded module hides details', async () => {
-    render(<AdminModules />);
+    const { user } = render(<AdminModules />);
     
     // Expand first module
     const expandButtons = screen.getAllByRole('button').filter(btn => 
@@ -264,7 +262,7 @@ describe('AdminModules Component', () => {
   });
 
   test('displays prerequisites for modules that have them', async () => {
-    render(<AdminModules />);
+    const { user } = render(<AdminModules />);
     
     // Expand the third module which has prerequisites
     const expandButtons = screen.getAllByRole('button').filter(btn => 
@@ -285,7 +283,7 @@ describe('AdminModules Component', () => {
   });
 
   test('clicking add module button opens module editor for new module', async () => {
-    render(<AdminModules />);
+    const { user } = render(<AdminModules />);
     
     const addButton = screen.getByRole('button', { name: /Adicionar Módulo/i });
     
@@ -301,7 +299,7 @@ describe('AdminModules Component', () => {
   });
 
   test('clicking edit button opens module editor with existing module', async () => {
-    render(<AdminModules />);
+    const { user } = render(<AdminModules />);
     
     const editButtons = screen.getAllByRole('button').filter(btn => 
       btn.querySelector('svg') && btn.querySelector('svg')?.parentElement === btn && 
@@ -324,7 +322,7 @@ describe('AdminModules Component', () => {
   });
 
   test('saving edited module updates the modules list', async () => {
-    render(<AdminModules />);
+    const { user } = render(<AdminModules />);
     
     // Click edit on first module
     const editButtons = screen.getAllByRole('button').filter(btn => 
@@ -360,7 +358,7 @@ describe('AdminModules Component', () => {
   });
 
   test('canceling module editor closes it without saving', async () => {
-    render(<AdminModules />);
+    const { user } = render(<AdminModules />);
     
     // Open editor
     const addButton = screen.getByRole('button', { name: /Adicionar Módulo/i });
@@ -389,7 +387,7 @@ describe('AdminModules Component', () => {
   });
 
   test('deleting a module shows confirmation and removes it', async () => {
-    render(<AdminModules />);
+    const { user } = render(<AdminModules />);
     
     // Click delete button on first module
     const deleteButtons = screen.getAllByRole('button').filter(btn => 
@@ -422,7 +420,7 @@ describe('AdminModules Component', () => {
 
   test('canceling delete confirmation does not delete module', async () => {
     window.confirm = jest.fn(() => false);
-    render(<AdminModules />);
+    const { user } = render(<AdminModules />);
     
     const deleteButtons = screen.getAllByRole('button').filter(btn => 
       btn.querySelector('svg') && btn.querySelector('svg')?.parentElement === btn && 
@@ -454,7 +452,7 @@ describe('AdminModules Component', () => {
   });
 
   test('creating a new module adds it to the list', async () => {
-    render(<AdminModules />);
+    const { user } = render(<AdminModules />);
     
     // Click add module
     const addButton = screen.getByRole('button', { name: /Adicionar Módulo/i });

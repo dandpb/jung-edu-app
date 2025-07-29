@@ -8,7 +8,10 @@ export const createMockLLMProvider = (overrides?: Partial<jest.Mocked<ILLMProvid
   const mockProvider: jest.Mocked<ILLMProvider> = {
     generateCompletion: jest.fn().mockResolvedValue({ content: 'Mock completion response', usage: undefined }),
     generateStructuredOutput: jest.fn().mockResolvedValue({}),
-    getTokenCount: jest.fn().mockReturnValue(100),
+    getTokenCount: jest.fn((text: string) => {
+      // More realistic token count approximation
+      return Math.ceil(text.length / 4);
+    }),
     isAvailable: jest.fn().mockResolvedValue(true),
     ...overrides
   };

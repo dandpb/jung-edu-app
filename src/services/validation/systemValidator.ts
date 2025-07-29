@@ -1583,6 +1583,17 @@ export class SystemValidator {
         description: 'The system validation shows excellent results. Consider minor optimizations for even better performance.',
         impact: 'Minor improvements to maintain high quality standards'
       });
+    } else if (result.overall.score >= 70 && result.overall.score < 90) {
+      recommendations.push({
+        type: 'important',
+        category: 'content',
+        message: 'System is performing adequately, but there is room for improvement',
+        actionable: 'Focus on enhancing content depth, interactivity, and assessment quality',
+        priority: 'medium',
+        area: 'Overall System',
+        description: 'The system validation shows good results with opportunities for meaningful improvements.',
+        impact: 'Moderate - Improvements will enhance the learning experience'
+      });
     }
     
     // Generate recommendations based on validation results

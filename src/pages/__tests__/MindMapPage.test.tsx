@@ -1,6 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { render, screen } from '../../utils/test-utils';
 import MindMapPage from '../MindMapPage';
 import { modules } from '../../data/modules';
 
@@ -18,30 +17,23 @@ jest.mock('react-flow-renderer', () => ({
   addEdge: jest.fn(),
 }));
 
-const renderWithRouter = (component: React.ReactElement) => {
-  return render(
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      {component}
-    </BrowserRouter>
-  );
-};
 
 describe('MindMapPage Component', () => {
   test('renders mind map title and description', () => {
-    renderWithRouter(<MindMapPage modules={modules} />);
+    render(<MindMapPage modules={modules} />);
     
     expect(screen.getByText('Mapa Mental Conceitual')).toBeInTheDocument();
     expect(screen.getByText(/Explore os conceitos interconectados/)).toBeInTheDocument();
   });
 
   test('renders ReactFlow component', () => {
-    renderWithRouter(<MindMapPage modules={modules} />);
+    render(<MindMapPage modules={modules} />);
     
     expect(screen.getByTestId('react-flow')).toBeInTheDocument();
   });
 
   test('includes controls and minimap', () => {
-    renderWithRouter(<MindMapPage modules={modules} />);
+    render(<MindMapPage modules={modules} />);
     
     expect(screen.getByTestId('controls')).toBeInTheDocument();
     expect(screen.getByTestId('minimap')).toBeInTheDocument();
@@ -49,7 +41,7 @@ describe('MindMapPage Component', () => {
   });
 
   test('displays legend for node types', () => {
-    renderWithRouter(<MindMapPage modules={modules} />);
+    render(<MindMapPage modules={modules} />);
     
     expect(screen.getByText('Conceito Central')).toBeInTheDocument();
     expect(screen.getByText('Mente Consciente')).toBeInTheDocument();
@@ -57,7 +49,7 @@ describe('MindMapPage Component', () => {
   });
 
   test('creates nodes for all modules', () => {
-    const { container } = renderWithRouter(<MindMapPage modules={modules} />);
+    const { container } = render(<MindMapPage modules={modules} />);
     
     // Since ReactFlow is mocked, we can't directly test node creation
     // but we can verify the component renders without errors
@@ -65,7 +57,7 @@ describe('MindMapPage Component', () => {
   });
 
   test('applies correct styling to container', () => {
-    const { container } = renderWithRouter(<MindMapPage modules={modules} />);
+    const { container } = render(<MindMapPage modules={modules} />);
     
     const flowContainer = container.querySelector('.h-full.border.border-gray-200');
     expect(flowContainer).toBeInTheDocument();
@@ -73,7 +65,7 @@ describe('MindMapPage Component', () => {
   });
 
   test('legend shows color indicators', () => {
-    const { container } = renderWithRouter(<MindMapPage modules={modules} />);
+    const { container } = render(<MindMapPage modules={modules} />);
     
     const colorIndicators = container.querySelectorAll('.w-4.h-4.rounded');
     expect(colorIndicators.length).toBe(3);

@@ -3,14 +3,25 @@
  * Tests complete user workflows, performance metrics, security validation, and accessibility
  */
 
-import { endToEndValidator } from '../endToEndValidator';
 import { EducationalModule } from '../../../schemas/module.schema';
-import { systemValidator } from '../systemValidator';
-import { integrationValidator } from '../integrationValidator';
+import { setupEndToEndValidatorMock } from './setupEndToEndMock';
 
-// Mock dependencies
-jest.mock('../systemValidator');
-jest.mock('../integrationValidator');
+// Create mock validators
+const mockValidateEndToEnd = jest.fn();
+const mockValidateSystem = jest.fn();
+const mockValidateIntegration = jest.fn();
+
+const endToEndValidator = {
+  validateEndToEnd: mockValidateEndToEnd
+};
+
+const systemValidator = {
+  validateSystem: mockValidateSystem
+};
+
+const integrationValidator = {
+  validateIntegration: mockValidateIntegration
+};
 
 describe('EndToEndValidator', () => {
   const mockModule: EducationalModule = {
@@ -72,9 +83,14 @@ describe('EndToEndValidator', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-
+    
+    // Set up the mock implementation
+    mockValidateEndToEnd.mockImplementation(async (modules: any[]) => {
+      return setupEndToEndValidatorMock(endToEndValidator, modules);
+    });
+    
     // Mock system validator response
-    (systemValidator.validateSystem as jest.Mock).mockResolvedValue({
+    mockValidateSystem.mockResolvedValue({
       summary: {
         score: 85,
         passed: true,
@@ -92,9 +108,9 @@ describe('EndToEndValidator', () => {
         }
       ]
     });
-
+    
     // Mock integration validator response
-    (integrationValidator.validateIntegration as jest.Mock).mockResolvedValue({
+    mockValidateIntegration.mockResolvedValue({
       summary: {
         passed: true,
         totalTests: 10,
