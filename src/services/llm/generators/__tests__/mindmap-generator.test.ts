@@ -12,11 +12,11 @@ describe('MindMapGenerator', () => {
     jest.clearAllMocks();
     
     mockProvider = {
-      generateStructuredResponse: jest.fn(),
+      generateStructuredOutput: jest.fn(),
       generateCompletion: jest.fn(),
-      generateText: jest.fn(),
+      getTokenCount: jest.fn(),
       isAvailable: jest.fn().mockResolvedValue(true),
-      validateApiKey: jest.fn().mockReturnValue(true),
+      streamCompletion: jest.fn()
     } as any;
 
     generator = new MindMapGenerator(mockProvider);
@@ -83,12 +83,12 @@ describe('MindMapGenerator', () => {
 
     beforeEach(() => {
       // Mock structure generation
-      mockProvider.generateStructuredResponse
+      mockProvider.generateStructuredOutput
         .mockResolvedValueOnce(mockStructure) // For structure
         .mockResolvedValueOnce(mockConnections); // For connections
 
       // Mock description generation
-      mockProvider.generateCompletion.mockResolvedValue('Brief description of the concept in Jungian psychology');
+      mockProvider.generateCompletion.mockResolvedValue({ content: 'Brief description of the concept in Jungian psychology' });
     });
 
     it('should generate a complete mind map with all components', async () => {
@@ -139,7 +139,7 @@ describe('MindMapGenerator', () => {
       expect(mindMap.description).toBe('Uma exploração visual de Arquétipo da Sombra através dos conceitos psicológicos junguianos');
 
       // Check Portuguese prompts were used
-      expect(mockProvider.generateStructuredResponse).toHaveBeenCalledWith(
+      expect(mockProvider.generateStructuredOutput).toHaveBeenCalledWith(
         expect.stringContaining('Crie uma estrutura de mapa mental'),
         expect.any(Object),
         expect.any(Object)
@@ -192,11 +192,11 @@ describe('MindMapGenerator', () => {
 
     it('should handle errors in structure generation', async () => {
       // Reset all mocks to clear any previous setup
-      mockProvider.generateStructuredResponse.mockReset();
+      mockProvider.generateStructuredOutput.mockReset();
       mockProvider.generateCompletion.mockReset();
       
       // Set up rejection for the first call
-      mockProvider.generateStructuredResponse.mockRejectedValueOnce(new Error('Generation failed'));
+      mockProvider.generateStructuredOutput.mockRejectedValueOnce(new Error('Generation failed'));
 
       await expect(generator.generateMindMap(
         'Failed Topic',
@@ -243,12 +243,12 @@ describe('MindMapGenerator', () => {
     };
 
     it('should generate a study path for the mind map', async () => {
-      mockProvider.generateStructuredResponse.mockResolvedValue(['root', 'node1', 'node2']);
+      mockProvider.generateStructuredOutput.mockResolvedValue(['root', 'node1', 'node2']);
 
       const studyPath = await generator.generateStudyPath(mockMindMap, 'en');
 
       expect(studyPath).toEqual(['root', 'node1', 'node2']);
-      expect(mockProvider.generateStructuredResponse).toHaveBeenCalledWith(
+      expect(mockProvider.generateStructuredOutput).toHaveBeenCalledWith(
         expect.stringContaining('create an optimal study path'),
         [],
         { temperature: 0.4 }
@@ -258,12 +258,12 @@ describe('MindMapGenerator', () => {
     it('should include node importance in prompt', async () => {
       await generator.generateStudyPath(mockMindMap, 'pt-BR');
 
-      expect(mockProvider.generateStructuredResponse).toHaveBeenCalledWith(
+      expect(mockProvider.generateStructuredOutput).toHaveBeenCalledWith(
         expect.stringContaining('Central: Shadow Work, Recognition'),
         expect.any(Array),
         expect.any(Object)
       );
-      expect(mockProvider.generateStructuredResponse).toHaveBeenCalledWith(
+      expect(mockProvider.generateStructuredOutput).toHaveBeenCalledWith(
         expect.stringContaining('Apoio: Integration'),
         expect.any(Array),
         expect.any(Object)
@@ -404,7 +404,7 @@ describe('MindMapGenerator', () => {
 
     describe('generateNodeDescription', () => {
       it('should generate description with context', async () => {
-        mockProvider.generateCompletion.mockResolvedValue('This concept represents the hidden aspects of personality');
+        mockProvider.generateCompletion.mockResolvedValue({ content: 'This concept represents the hidden aspects of personality' });
 
         const description = await (generator as any).generateNodeDescription(
           'Shadow',
@@ -425,6 +425,10 @@ describe('MindMapGenerator', () => {
       });
 
       it('should handle Portuguese descriptions', async () => {
+        mockProvider.generateCompletion.mockResolvedValue({ 
+          content: 'A sombra representa os aspectos ocultos da personalidade' 
+        });
+        
         await (generator as any).generateNodeDescription(
           'Sombra',
           'Psicologia Junguiana',
@@ -480,7 +484,7 @@ describe('MindMapGenerator', () => {
           }
         ];
 
-        mockProvider.generateStructuredResponse.mockResolvedValue(mockCustomConnections);
+        mockProvider.generateStructuredOutput.mockResolvedValue(mockCustomConnections);
 
         const connections = await (generator as any).generateConnections(
           nodes,
@@ -512,7 +516,7 @@ describe('MindMapGenerator', () => {
 
         await (generator as any).generateConnections(nodes, 'Test Topic', 'pt-BR');
 
-        expect(mockProvider.generateStructuredResponse).toHaveBeenCalledWith(
+        expect(mockProvider.generateStructuredOutput).toHaveBeenCalledWith(
           expect.stringContaining('Limite às 5-8 conexões mais significativas'),
           expect.any(Array),
           expect.any(Object)

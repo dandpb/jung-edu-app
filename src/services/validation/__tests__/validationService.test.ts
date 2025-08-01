@@ -4,42 +4,85 @@
  */
 
 import { ValidationService, validationService } from '../index';
-import * as systemValidatorModule from '../systemValidator';
-import * as integrationValidatorModule from '../integrationValidator';
-import * as endToEndValidatorModule from '../endToEndValidator';
 import { EducationalModule } from '../../../schemas/module.schema';
 
-// Mock the validator modules
+// Mock the validator modules with factory functions
 jest.mock('../systemValidator', () => ({
   systemValidator: {
-    validateSystem: jest.fn()
+    validateSystem: jest.fn(),
+    validateModule: jest.fn()
   }
 }));
+
 jest.mock('../integrationValidator', () => ({
   integrationValidator: {
     validateIntegration: jest.fn()
   }
 }));
+
 jest.mock('../endToEndValidator', () => ({
   endToEndValidator: {
     validateEndToEnd: jest.fn()
   }
 }));
 
+// Import mocked modules
+import { systemValidator } from '../systemValidator';
+import { integrationValidator } from '../integrationValidator';
+import { endToEndValidator } from '../endToEndValidator';
+
+// Cast as mocks for TypeScript
+const mockSystemValidator = systemValidator as jest.Mocked<typeof systemValidator>;
+const mockIntegrationValidator = integrationValidator as jest.Mocked<typeof integrationValidator>;
+const mockEndToEndValidator = endToEndValidator as jest.Mocked<typeof endToEndValidator>;
+
 describe('ValidationService', () => {
   let service: ValidationService;
   let mockModule: EducationalModule;
-  
-  // Get the mocked functions
-  const mockSystemValidator = systemValidatorModule.systemValidator;
-  const mockIntegrationValidator = integrationValidatorModule.integrationValidator;
-  const mockEndToEndValidator = endToEndValidatorModule.endToEndValidator;
 
   beforeEach(() => {
     service = new ValidationService();
     
     // Reset all mocks
     jest.clearAllMocks();
+    
+    // Set up default mock return values
+    mockSystemValidator.validateSystem.mockResolvedValue({
+      isValid: true,
+      overall: { score: 85, grade: 'B', status: 'good' },
+      modules: [{ moduleId: 'test-module-1', isValid: true, score: 85 }],
+      errors: [],
+      warnings: [],
+      recommendations: [{ message: 'Test recommendation', priority: 'medium' }]
+    });
+    
+    mockIntegrationValidator.validateIntegration.mockResolvedValue({
+      overall: {
+        score: 90,
+        passed: true,
+        totalTests: 10,
+        passedTests: 9,
+        failedTests: 1
+      },
+      recommendations: []
+    });
+    
+    mockEndToEndValidator.validateEndToEnd.mockResolvedValue({
+      overall: {
+        score: 88,
+        passed: true
+      },
+      workflows: [
+        { passed: true, userExperienceScore: 85 },
+        { passed: true, userExperienceScore: 90 }
+      ],
+      criticalIssues: [],
+      performanceMetrics: { overallScore: 85 },
+      securityValidation: { overallScore: 90 },
+      accessibilityValidation: { overallScore: 87 },
+      reliabilityMetrics: { overallScore: 92 },
+      recommendations: []
+    });
     
     // Create mock module
     mockModule = {
@@ -84,48 +127,6 @@ describe('ValidationService', () => {
       lastModifiedBy: 'test-user',
       metadata: {}
     };
-
-    // Setup default mock returns
-    const mockSystemResult = {
-      isValid: true,
-      overall: { score: 85, grade: 'B', status: 'good' },
-      modules: [{ moduleId: 'test-module-1', isValid: true, score: 85 }],
-      errors: [],
-      warnings: [],
-      recommendations: [{ message: 'Test recommendation', priority: 'medium' }]
-    };
-
-    const mockIntegrationResult = {
-      overall: {
-        score: 90,
-        passed: true,
-        totalTests: 10,
-        passedTests: 9,
-        failedTests: 1
-      },
-      recommendations: []
-    };
-
-    const mockE2EResult = {
-      overall: {
-        score: 88,
-        passed: true
-      },
-      workflows: [
-        { passed: true, userExperienceScore: 85 },
-        { passed: true, userExperienceScore: 90 }
-      ],
-      criticalIssues: [],
-      performanceMetrics: { overallScore: 85 },
-      securityValidation: { overallScore: 90 },
-      accessibilityValidation: { overallScore: 87 },
-      reliabilityMetrics: { overallScore: 92 },
-      recommendations: []
-    };
-
-    (mockSystemValidator.validateSystem as jest.Mock).mockResolvedValue(mockSystemResult as any);
-    (mockIntegrationValidator.validateIntegration as jest.Mock).mockResolvedValue(mockIntegrationResult as any);
-    (mockEndToEndValidator.validateEndToEnd as jest.Mock).mockResolvedValue(mockE2EResult as any);
   });
 
   describe('validateComplete', () => {
@@ -174,7 +175,8 @@ describe('ValidationService', () => {
 
     it('should handle validation failures gracefully', async () => {
       const error = new Error('Validation failed');
-      (mockSystemValidator.validateSystem as jest.Mock).mockRejectedValue(error);
+      // Override the default mock for this test
+      (systemValidator.validateSystem as jest.Mock).mockRejectedValueOnce(error);
 
       const result = await service.validateComplete([mockModule]);
 
@@ -210,8 +212,8 @@ describe('ValidationService', () => {
       });
 
       expect(mockSystemValidator.validateSystem).toHaveBeenCalledWith([mockModule]);
-      expect(mockIntegrationValidator.validateIntegration).not.toHaveBeenCalled();
-      expect(mockEndToEndValidator.validateEndToEnd).not.toHaveBeenCalled();
+      expect(integrationValidator.validateIntegration).not.toHaveBeenCalled();
+      expect(endToEndValidator.validateEndToEnd).not.toHaveBeenCalled();
     });
   });
 

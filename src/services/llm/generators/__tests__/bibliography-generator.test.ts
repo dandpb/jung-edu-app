@@ -12,11 +12,11 @@ describe('BibliographyGenerator', () => {
     jest.clearAllMocks();
     
     mockProvider = {
-      generateStructuredResponse: jest.fn(),
+      generateStructuredOutput: jest.fn(),
       generateCompletion: jest.fn(),
-      generateText: jest.fn(),
+      getTokenCount: jest.fn(),
       isAvailable: jest.fn().mockResolvedValue(true),
-      validateApiKey: jest.fn().mockReturnValue(true),
+      streamCompletion: jest.fn()
     } as any;
 
     generator = new BibliographyGenerator(mockProvider);
@@ -55,7 +55,7 @@ describe('BibliographyGenerator', () => {
     ];
 
     it('should generate bibliography with proper formatting', async () => {
-      mockProvider.generateStructuredResponse.mockResolvedValue(mockBibliographyData);
+      mockProvider.generateStructuredOutput.mockResolvedValue(mockBibliographyData);
 
       const bibliography = await generator.generateBibliography(
         'Sombra Junguiana',
@@ -75,7 +75,7 @@ describe('BibliographyGenerator', () => {
         readingLevel: 'beginner'
       });
 
-      expect(mockProvider.generateStructuredResponse).toHaveBeenCalledWith(
+      expect(mockProvider.generateStructuredOutput).toHaveBeenCalledWith(
         expect.stringContaining('Gere 10 recursos educacionais'),
         expect.objectContaining({
           type: 'array',
@@ -93,7 +93,7 @@ describe('BibliographyGenerator', () => {
     });
 
     it('should handle English language requests', async () => {
-      mockProvider.generateStructuredResponse.mockResolvedValue([
+      mockProvider.generateStructuredOutput.mockResolvedValue([
         {
           type: 'book',
           authors: ['Jung, Carl Gustav'],
@@ -117,7 +117,7 @@ describe('BibliographyGenerator', () => {
       );
 
       expect(bibliography).toHaveLength(1);
-      expect(mockProvider.generateStructuredResponse).toHaveBeenCalledWith(
+      expect(mockProvider.generateStructuredOutput).toHaveBeenCalledWith(
         expect.stringContaining('Generate 5 educational resources'),
         expect.any(Object),
         expect.any(Object)
@@ -125,7 +125,7 @@ describe('BibliographyGenerator', () => {
     });
 
     it('should handle provider errors gracefully', async () => {
-      mockProvider.generateStructuredResponse.mockRejectedValue(new Error('Provider error'));
+      mockProvider.generateStructuredOutput.mockRejectedValue(new Error('Provider error'));
 
       const bibliography = await generator.generateBibliography(
         'Test Topic',
@@ -138,7 +138,7 @@ describe('BibliographyGenerator', () => {
     });
 
     it('should handle non-array responses', async () => {
-      mockProvider.generateStructuredResponse.mockResolvedValue({ items: 'not an array' });
+      mockProvider.generateStructuredOutput.mockResolvedValue({ items: 'not an array' });
 
       const bibliography = await generator.generateBibliography(
         'Test Topic',
@@ -151,7 +151,7 @@ describe('BibliographyGenerator', () => {
     });
 
     it('should handle string entries in response', async () => {
-      mockProvider.generateStructuredResponse.mockResolvedValue([
+      mockProvider.generateStructuredOutput.mockResolvedValue([
         'Invalid string entry',
         mockBibliographyData[0]
       ]);
@@ -178,7 +178,7 @@ describe('BibliographyGenerator', () => {
     });
 
     it('should set reading level based on provided level', async () => {
-      mockProvider.generateStructuredResponse.mockResolvedValue([
+      mockProvider.generateStructuredOutput.mockResolvedValue([
         { ...mockBibliographyData[0], readingLevel: undefined }
       ]);
 
@@ -215,7 +215,7 @@ describe('BibliographyGenerator', () => {
     ];
 
     it('should generate film suggestions with streaming links', async () => {
-      mockProvider.generateStructuredResponse.mockResolvedValue(mockFilmData);
+      mockProvider.generateStructuredOutput.mockResolvedValue(mockFilmData);
 
       const films = await generator.generateFilmSuggestions(
         'Psicologia Analítica',
@@ -234,7 +234,7 @@ describe('BibliographyGenerator', () => {
         streamingUrl: 'https://www.youtube.com/watch?v=exemplo'
       });
 
-      expect(mockProvider.generateStructuredResponse).toHaveBeenCalledWith(
+      expect(mockProvider.generateStructuredOutput).toHaveBeenCalledWith(
         expect.stringContaining('Gere 5 sugestões de filmes'),
         expect.objectContaining({
           type: 'array',
@@ -253,7 +253,7 @@ describe('BibliographyGenerator', () => {
     });
 
     it('should filter out films without any URL', async () => {
-      mockProvider.generateStructuredResponse.mockResolvedValue([
+      mockProvider.generateStructuredOutput.mockResolvedValue([
         mockFilmData[0],
         {
           title: 'Film Without URL',
@@ -276,7 +276,7 @@ describe('BibliographyGenerator', () => {
     });
 
     it('should handle provider errors for films', async () => {
-      mockProvider.generateStructuredResponse.mockRejectedValue(new Error('Provider error'));
+      mockProvider.generateStructuredOutput.mockRejectedValue(new Error('Provider error'));
 
       const films = await generator.generateFilmSuggestions(
         'Test',
@@ -288,7 +288,7 @@ describe('BibliographyGenerator', () => {
     });
 
     it('should handle non-array film responses', async () => {
-      mockProvider.generateStructuredResponse.mockResolvedValue({ films: 'not an array' });
+      mockProvider.generateStructuredOutput.mockResolvedValue({ films: 'not an array' });
 
       const films = await generator.generateFilmSuggestions(
         'Test',
@@ -316,9 +316,9 @@ describe('BibliographyGenerator', () => {
     };
 
     it('should format APA citation in Portuguese', async () => {
-      mockProvider.generateCompletion.mockResolvedValue(
-        'Jung, C. G. (2009). O livro vermelho. W. W. Norton & Company.'
-      );
+      mockProvider.generateCompletion.mockResolvedValue({
+        content: 'Jung, C. G. (2009). O livro vermelho. W. W. Norton & Company.'
+      });
 
       const citation = await generator.formatCitation(testEntry, 'APA', 'pt-BR');
 
@@ -333,9 +333,9 @@ describe('BibliographyGenerator', () => {
     });
 
     it('should format MLA citation in English', async () => {
-      mockProvider.generateCompletion.mockResolvedValue(
-        'Jung, Carl Gustav. The Red Book. W. W. Norton & Company, 2009.'
-      );
+      mockProvider.generateCompletion.mockResolvedValue({
+        content: 'Jung, Carl Gustav. The Red Book. W. W. Norton & Company, 2009.'
+      });
 
       const citation = await generator.formatCitation(testEntry, 'MLA', 'en');
 
@@ -356,6 +356,10 @@ describe('BibliographyGenerator', () => {
         pages: '345-367',
         doi: '10.1111/j.1468-5922.2009.01793.x'
       };
+
+      mockProvider.generateCompletion.mockResolvedValue({
+        content: 'Jung, Carl Gustav. "The Red Book." Journal of Analytical Psychology 54, no. 3 (2009): 345-367.'
+      });
 
       await generator.formatCitation(articleEntry, 'Chicago');
 
@@ -403,8 +407,8 @@ describe('BibliographyGenerator', () => {
 
     it('should generate annotations for bibliography entries', async () => {
       mockProvider.generateCompletion
-        .mockResolvedValueOnce('This seminal work explores the rich symbolism of alchemy...')
-        .mockResolvedValueOnce('Von Franz provides an accessible introduction to individuation...');
+        .mockResolvedValueOnce({ content: 'This seminal work explores the rich symbolism of alchemy...' })
+        .mockResolvedValueOnce({ content: 'Von Franz provides an accessible introduction to individuation...' });
 
       const annotated = await generator.generateAnnotatedBibliography(
         testEntries,
@@ -433,6 +437,10 @@ describe('BibliographyGenerator', () => {
     });
 
     it('should include focus areas and access information in prompt', async () => {
+      mockProvider.generateCompletion.mockResolvedValue({
+        content: 'This work explores psychological transformation through alchemical symbolism...'
+      });
+
       await generator.generateAnnotatedBibliography(
         [testEntries[0]],
         ['dream analysis', 'active imagination'],
@@ -518,7 +526,7 @@ describe('BibliographyGenerator', () => {
         readingLevel: undefined
       }));
 
-      mockProvider.generateStructuredResponse.mockResolvedValue([3, 1, 4, 2]);
+      mockProvider.generateStructuredOutput.mockResolvedValue([3, 1, 4, 2]);
 
       const ordered = await generator.suggestReadingOrder(
         entriesWithoutLevels,
@@ -534,7 +542,7 @@ describe('BibliographyGenerator', () => {
 
     it('should handle invalid indices in LLM response', async () => {
       const entries = testEntries.slice(0, 2);
-      mockProvider.generateStructuredResponse.mockResolvedValue([1, 5, 2]); // 5 is out of bounds
+      mockProvider.generateStructuredOutput.mockResolvedValue([1, 5, 2]); // 5 is out of bounds
 
       const ordered = await generator.suggestReadingOrder(
         entries.map(e => ({ ...e, readingLevel: undefined })),
@@ -546,7 +554,7 @@ describe('BibliographyGenerator', () => {
 
     it('should return original order on LLM error', async () => {
       const entries = testEntries.slice(0, 2).map(e => ({ ...e, readingLevel: undefined }));
-      mockProvider.generateStructuredResponse.mockRejectedValue(new Error('LLM error'));
+      mockProvider.generateStructuredOutput.mockRejectedValue(new Error('LLM error'));
 
       const ordered = await generator.suggestReadingOrder(
         entries,
@@ -558,7 +566,7 @@ describe('BibliographyGenerator', () => {
 
     it('should handle non-array order response', async () => {
       const entries = testEntries.slice(0, 2).map(e => ({ ...e, readingLevel: undefined }));
-      mockProvider.generateStructuredResponse.mockResolvedValue({ order: [1, 2] });
+      mockProvider.generateStructuredOutput.mockResolvedValue({ order: [1, 2] });
 
       const ordered = await generator.suggestReadingOrder(
         entries,

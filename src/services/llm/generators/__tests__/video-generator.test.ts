@@ -19,11 +19,10 @@ describe('VideoGenerator', () => {
     
     // Mock provider
     mockProvider = {
-      generateStructuredResponse: jest.fn(),
-      generateText: jest.fn(),
-      isAvailable: jest.fn().mockResolvedValue(true),
-      validateApiKey: jest.fn().mockReturnValue(true),
+      generateStructuredOutput: jest.fn(),
       generateCompletion: jest.fn(),
+      getTokenCount: jest.fn().mockReturnValue(100),
+      isAvailable: jest.fn().mockResolvedValue(true),
     } as any;
 
     // Setup YouTube service mock
@@ -103,7 +102,7 @@ describe('VideoGenerator', () => {
 
     beforeEach(() => {
       // Mock search queries generation
-      mockProvider.generateStructuredResponse.mockResolvedValue([
+      mockProvider.generateStructuredOutput.mockResolvedValue([
         'Jung shadow psychology lecture português',
         'shadow archetype explained legendado',
         'Jung shadow work tutorial Brasil'
@@ -143,7 +142,7 @@ describe('VideoGenerator', () => {
         duration: 15
       });
 
-      expect(mockProvider.generateStructuredResponse).toHaveBeenCalledWith(
+      expect(mockProvider.generateStructuredOutput).toHaveBeenCalledWith(
         expect.stringContaining('Gere exatamente 8 queries de busca'),
         expect.any(Object),
         expect.any(Object)
@@ -170,7 +169,7 @@ describe('VideoGenerator', () => {
 
     it('should handle invalid search query response', async () => {
       // Return invalid response (not an array)
-      mockProvider.generateStructuredResponse.mockResolvedValue({ queries: 'invalid' });
+      mockProvider.generateStructuredOutput.mockResolvedValue({ queries: 'invalid' });
 
       const videos = await videoGenerator.generateVideos(
         'Archetypes',
@@ -186,7 +185,7 @@ describe('VideoGenerator', () => {
     it('should handle schema object returned instead of result', async () => {
       // Mock returning the schema itself (edge case bug)
       const schema = { type: 'array', items: { type: 'string' } };
-      mockProvider.generateStructuredResponse.mockResolvedValue(schema as any);
+      mockProvider.generateStructuredOutput.mockResolvedValue(schema as any);
 
       const videos = await videoGenerator.generateVideos(
         'Dreams',
@@ -584,7 +583,7 @@ describe('VideoGenerator', () => {
       };
 
       mockYouTubeService.getVideoById.mockResolvedValue(watchedVideo);
-      mockProvider.generateStructuredResponse.mockResolvedValue([
+      mockProvider.generateStructuredOutput.mockResolvedValue([
         'advanced shadow work techniques',
         'shadow integration exercises',
         'shadow and anima relationship'
@@ -605,7 +604,7 @@ describe('VideoGenerator', () => {
 
     it('should filter out already watched videos', async () => {
       mockYouTubeService.getVideoById.mockResolvedValue(null);
-      mockProvider.generateStructuredResponse.mockResolvedValue(['search query']);
+      mockProvider.generateStructuredOutput.mockResolvedValue(['search query']);
       mockYouTubeService.searchVideos.mockResolvedValue([
         { ...mockSearchResults[0], videoId: 'watched1' }, // Already watched
         mockSearchResults[1] // New video

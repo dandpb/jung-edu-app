@@ -11,12 +11,10 @@ describe('ContentGenerator', () => {
   beforeEach(() => {
     mockProvider = {
       generateCompletion: jest.fn(),
-      generateStructuredResponse: jest.fn(),
       generateStructuredOutput: jest.fn(),
-      streamCompletion: jest.fn(),
-      updateConfig: jest.fn(),
       getTokenCount: jest.fn(),
-      isAvailable: jest.fn()
+      isAvailable: jest.fn(),
+      streamCompletion: jest.fn()
     } as any;
     
     generator = new ContentGenerator(mockProvider);
@@ -56,7 +54,7 @@ describe('ContentGenerator', () => {
     
     beforeEach(() => {
       // Mock for generateSections structure call
-      mockProvider.generateStructuredResponse
+      mockProvider.generateStructuredOutput
         .mockResolvedValueOnce([
           { title: 'The Collective Unconscious', concepts: ['collective unconscious', 'archetypes'], duration: 15 },
           { title: 'Major Archetypes', concepts: ['shadow', 'anima', 'animus'], duration: 15 }
@@ -66,7 +64,7 @@ describe('ContentGenerator', () => {
           'Understand the collective unconscious',
           'Identify major archetypes'
         ]);
-      mockProvider.generateCompletion.mockResolvedValue('Mock content');
+      mockProvider.generateCompletion.mockResolvedValue({ content: 'Mock content' });
     });
     
     it('should generate module content successfully', async () => {
@@ -77,7 +75,7 @@ describe('ContentGenerator', () => {
       });
       
       expect(result).toEqual(mockContentResponse);
-      expect(mockProvider.generateStructuredResponse).toHaveBeenCalledTimes(2);
+      expect(mockProvider.generateStructuredOutput).toHaveBeenCalledTimes(2);
       expect(mockProvider.generateCompletion).toHaveBeenCalled();
     });
     
@@ -145,7 +143,7 @@ describe('ContentGenerator', () => {
     };
     
     beforeEach(() => {
-      mockProvider.generateStructuredResponse.mockResolvedValue(mockExplanation);
+      mockProvider.generateStructuredOutput.mockResolvedValue(mockExplanation);
     });
     
     it('should generate concept explanation', async () => {
@@ -155,7 +153,7 @@ describe('ContentGenerator', () => {
       });
       
       expect(result).toEqual(mockExplanation);
-      expect(mockProvider.generateStructuredResponse).toHaveBeenCalledWith(
+      expect(mockProvider.generateStructuredOutput).toHaveBeenCalledWith(
         expect.stringContaining('Shadow'),
         expect.objectContaining({
           type: 'object',
@@ -174,7 +172,7 @@ describe('ContentGenerator', () => {
         depth: 'beginner'
       });
       
-      const prompt = mockProvider.generateStructuredResponse.mock.calls[0][0];
+      const prompt = mockProvider.generateStructuredOutput.mock.calls[0][0];
       expect(prompt).toContain('iniciante');
     });
   });
@@ -191,7 +189,7 @@ describe('ContentGenerator', () => {
         }
       };
       
-      mockProvider.generateStructuredResponse.mockResolvedValue(enrichedContent);
+      mockProvider.generateStructuredOutput.mockResolvedValue(enrichedContent);
       
       const result = await generator.enrichContent(
         'The shadow contains...',
@@ -221,7 +219,7 @@ describe('ContentGenerator', () => {
         briefSummary: 'This module explored Jung\'s core concepts...'
       };
       
-      mockProvider.generateStructuredResponse.mockResolvedValue(mockSummary);
+      mockProvider.generateStructuredOutput.mockResolvedValue(mockSummary);
       
       const result = await generator.summarizeContent(
         'Long content about Jungian psychology...',
@@ -237,7 +235,7 @@ describe('ContentGenerator', () => {
   
   describe('error handling', () => {
     it('should handle generation failures', async () => {
-      mockProvider.generateStructuredResponse.mockRejectedValue(
+      mockProvider.generateStructuredOutput.mockRejectedValue(
         new Error('API error')
       );
       
@@ -263,13 +261,11 @@ describe('ContentGenerator', () => {
       const onChunk = (chunk: string) => chunks.push(chunk);
       
       // Mock for generateSections structure call
-      mockProvider.generateStructuredResponse
+      mockProvider.generateStructuredOutput
         .mockResolvedValueOnce([
           { title: 'The Collective Unconscious', concepts: ['collective unconscious', 'archetypes'], duration: 15 },
           { title: 'Major Archetypes', concepts: ['shadow', 'anima', 'animus'], duration: 15 }
         ])
-        // Mock for generateSummary - return simple string
-        .mockResolvedValueOnce('This module explored the collective unconscious and archetypes')
         // Mock for generateKeyTakeaways call
         .mockResolvedValueOnce([
           'Understand the collective unconscious',
@@ -277,7 +273,7 @@ describe('ContentGenerator', () => {
         ]);
 
       // Mock generateCompletion for generateSummary
-      mockProvider.generateCompletion.mockResolvedValue('This module explored the collective unconscious and archetypes');
+      mockProvider.generateCompletion.mockResolvedValue({ content: 'This module explored the collective unconscious and archetypes' });
       
       // Mock streamCompletion for introduction and section content
       mockProvider.streamCompletion.mockImplementation(async (prompt, callback, options) => {

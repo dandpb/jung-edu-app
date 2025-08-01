@@ -27,13 +27,15 @@ describe('ModuleGenerator Basic Tests', () => {
       generateStructuredOutput: jest.fn(),
       generateStructuredResponse: jest.fn(),
       streamCompletion: jest.fn(),
-      updateConfig: jest.fn()
+      updateConfig: jest.fn(),
+      validateApiKey: jest.fn().mockReturnValue(true),
+      getName: jest.fn().mockReturnValue('mock-provider')
     } as any;
     
     generator = new ModuleGenerator(mockProvider);
     
     // Setup default mock responses
-    mockProvider.generateCompletion.mockResolvedValue('Generated text');
+    mockProvider.generateCompletion.mockResolvedValue({ content: 'Generated text' });
     mockProvider.generateStructuredOutput.mockResolvedValue([]);
     mockProvider.generateStructuredResponse.mockResolvedValue({});
   });
@@ -48,11 +50,11 @@ describe('ModuleGenerator Basic Tests', () => {
       
       // Mock specific responses for module generation
       mockProvider.generateCompletion
-        .mockResolvedValueOnce('Shadow Work in Jungian Psychology') // title
-        .mockResolvedValueOnce('An exploration of the shadow concept') // description
-        .mockResolvedValueOnce('shadow,jung,psychology,unconscious') // tags
-        .mockResolvedValueOnce('Objective 1\nObjective 2\nObjective 3') // learning objectives
-        .mockResolvedValueOnce('Basic psychology\nIntroductory concepts'); // prerequisites
+        .mockResolvedValueOnce({ content: 'Shadow Work in Jungian Psychology' }) // title
+        .mockResolvedValueOnce({ content: 'An exploration of the shadow concept' }) // description
+        .mockResolvedValueOnce({ content: 'shadow,jung,psychology,unconscious' }) // tags
+        .mockResolvedValueOnce({ content: 'Objective 1\nObjective 2\nObjective 3' }) // learning objectives
+        .mockResolvedValueOnce({ content: 'Basic psychology\nIntroductory concepts' }); // prerequisites
         
       // Content should be returned by generateStructuredResponse, not generateStructuredOutput
       
@@ -207,11 +209,11 @@ describe('ModuleGenerator Basic Tests', () => {
       
       // Mock responses for this test
       mockProvider.generateCompletion
-        .mockResolvedValueOnce('Archetypes in Jungian Psychology')
-        .mockResolvedValueOnce('Understanding basic archetypes')
-        .mockResolvedValueOnce('archetypes,jung,psychology')
-        .mockResolvedValueOnce('Learn archetype basics\nUnderstand Jung theory') // learning objectives
-        .mockResolvedValueOnce(''); // prerequisites (empty for beginner)
+        .mockResolvedValueOnce({ content: 'Archetypes in Jungian Psychology' })
+        .mockResolvedValueOnce({ content: 'Understanding basic archetypes' })
+        .mockResolvedValueOnce({ content: 'archetypes,jung,psychology' })
+        .mockResolvedValueOnce({ content: 'Learn archetype basics\nUnderstand Jung theory' }) // learning objectives
+        .mockResolvedValueOnce({ content: '' }); // prerequisites (empty for beginner)
         
       // Content will be handled by generateStructuredResponse below
       
@@ -414,8 +416,8 @@ describe('ModuleGenerator Basic Tests', () => {
       
       // Mock the completion calls for finalization
       mockProvider.generateCompletion
-        .mockResolvedValueOnce('Draft Learning Objective 1\nDraft Learning Objective 2')
-        .mockResolvedValueOnce('Basic understanding\nFoundational concepts');
+        .mockResolvedValueOnce({ content: 'Draft Learning Objective 1\nDraft Learning Objective 2' })
+        .mockResolvedValueOnce({ content: 'Basic understanding\nFoundational concepts' });
       
       const result = await generator.resumeFromDraft(draftId, {
         topic: 'Draft Topic',

@@ -1,8 +1,8 @@
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { renderWithoutProviders, mockLocalStorage } from './utils/test-utils';
-import { setupLocalStorage, setupConsoleHandlers, expectLocalStorageUpdate } from './utils/test-setup';
-import { createMockModules, createMockUserProgress, createMockLocalStorageData } from './utils/test-mocks';
+import { setupConsoleHandlers } from './utils/test-setup';
+import { createMockModules, createMockUserProgress } from './utils/test-mocks';
 import App from './App';
 import { useAdmin } from './contexts/AdminContext';
 
@@ -94,11 +94,12 @@ describe('App Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     
-    // Setup localStorage with mock data
-    setupLocalStorage({
-      jungAppEducationalModules: mockModules,
-      jungAppMindMapNodes: [],
-      jungAppMindMapEdges: []
+    // Clear and setup localStorage directly
+    mockLocalStorage.clear();
+    mockLocalStorage.__setStore({
+      jungAppEducationalModules: JSON.stringify(mockModules),
+      jungAppMindMapNodes: JSON.stringify([]),
+      jungAppMindMapEdges: JSON.stringify([])
     });
 
     // Mock useAdmin hook

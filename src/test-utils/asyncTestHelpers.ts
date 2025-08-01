@@ -21,7 +21,12 @@ export async function actAsync<T>(callback: () => Promise<T>): Promise<T> {
  * Useful for ensuring async operations complete before assertions
  */
 export function flushPromises(): Promise<void> {
-  return new Promise((resolve) => setImmediate(resolve));
+  // Use setTimeout with 0 delay as a fallback for environments without setImmediate
+  if (typeof setImmediate !== 'undefined') {
+    return new Promise((resolve) => setImmediate(resolve));
+  } else {
+    return new Promise((resolve) => setTimeout(resolve, 0));
+  }
 }
 
 /**

@@ -1,4 +1,4 @@
-import { ILLMProvider } from '../../services/llm/types';
+import { ILLMProvider, LLMResponse } from '../../services/llm/types';
 import { Question } from '../../types';
 
 /**
@@ -8,11 +8,14 @@ export const createMockLLMProvider = (overrides?: Partial<jest.Mocked<ILLMProvid
   const mockProvider: jest.Mocked<ILLMProvider> = {
     generateCompletion: jest.fn().mockResolvedValue({ content: 'Mock completion response', usage: undefined }),
     generateStructuredOutput: jest.fn().mockResolvedValue({}),
-    getTokenCount: jest.fn((text: string) => {
-      // More realistic token count approximation
-      return Math.ceil(text.length / 4);
-    }),
+    getTokenCount: jest.fn().mockReturnValue(100), // Fixed value for predictable tests
     isAvailable: jest.fn().mockResolvedValue(true),
+    streamCompletion: jest.fn().mockImplementation(async (prompt: string, onChunk: (chunk: string) => void) => {
+      // Default streaming implementation
+      onChunk('Mock ');
+      onChunk('streaming ');
+      onChunk('response');
+    }),
     ...overrides
   };
 
@@ -41,27 +44,39 @@ export const createMockQuestions = (count: number, options?: {
       ? (['beginner', 'intermediate', 'advanced'][i % 3] as 'beginner' | 'intermediate' | 'advanced')
       : (difficulty === 'easy' ? 'beginner' : difficulty === 'medium' ? 'intermediate' : 'advanced');
     
-    questions.push({
-      id: `q${i + 1}`,
-      type: isMultipleChoice ? 'multiple-choice' : 'true-false',
-      question: `Test question ${i + 1} about ${concepts[i % concepts.length]}`,
-      options: isMultipleChoice 
-        ? [
-            { id: `${i + 1}a`, text: `Option A for ${i + 1}` },
-            { id: `${i + 1}b`, text: `Option B for ${i + 1}` },
-            { id: `${i + 1}c`, text: `Option C for ${i + 1}` },
-            { id: `${i + 1}d`, text: `Option D for ${i + 1}` }
-          ]
-        : [
-            { id: `${i + 1}t`, text: 'True' },
-            { id: `${i + 1}f`, text: 'False' }
-          ],
-      correctAnswer: isMultipleChoice ? i % 4 : (i % 2),
-      explanation: `Explanation for question ${i + 1} about ${concepts[i % concepts.length]}`,
-      difficulty: questionDifficulty,
-      cognitiveLevel: ['remembering', 'understanding', 'applying', 'analyzing'][i % 4],
-      tags: [concepts[i % concepts.length]]
-    });
+    // Handle empty concepts array
+    const conceptIndex = concepts.length > 0 ? i % concepts.length : 0;
+    const concept = concepts.length > 0 ? concepts[conceptIndex] : 'undefined';
+    
+    if (isMultipleChoice) {
+      questions.push({
+        id: `q${i + 1}`,
+        type: 'multiple-choice',
+        question: `Test question ${i + 1} about ${concept}`,
+        options: [
+          { id: `${i + 1}a`, text: `Option A for ${i + 1}` },
+          { id: `${i + 1}b`, text: `Option B for ${i + 1}` },
+          { id: `${i + 1}c`, text: `Option C for ${i + 1}` },
+          { id: `${i + 1}d`, text: `Option D for ${i + 1}` }
+        ],
+        correctAnswer: i % 4,
+        explanation: `Explanation for question ${i + 1} about ${concept}`,
+        difficulty: questionDifficulty,
+        cognitiveLevel: ['remembering', 'understanding', 'applying', 'analyzing'][i % 4],
+        tags: [concept]
+      });
+    } else {
+      questions.push({
+        id: `q${i + 1}`,
+        type: 'true-false',
+        question: `Test question ${i + 1} about ${concept}`,
+        correctAnswer: i % 2 === 0, // boolean value
+        explanation: `Explanation for question ${i + 1} about ${concept}`,
+        difficulty: questionDifficulty,
+        cognitiveLevel: ['remembering', 'understanding', 'applying', 'analyzing'][i % 4],
+        tags: [concept]
+      });
+    }
   }
   
   return questions;
@@ -115,6 +130,9 @@ export const mockLLMResponses = {
  */
 export const createMockLLMProviderWithPatterns = (pattern: 'success' | 'failure' | 'partial' | 'slow'): jest.Mocked<ILLMProvider> => {
   const baseProvider = createMockLLMProvider();
+  
+  // Ensure getTokenCount always returns the fixed value
+  baseProvider.getTokenCount.mockReturnValue(100);
   
   switch (pattern) {
     case 'success':

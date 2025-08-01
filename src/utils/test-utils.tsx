@@ -40,6 +40,8 @@ export const mockLocalStorage = (() => {
     // Helper to set initial store state
     __setStore: (initialStore: Record<string, string>) => {
       store = { ...initialStore };
+      // Update the mock implementation to return from the new store
+      mockLocalStorage.getItem.mockImplementation((key: string) => store[key] || null);
     }
   };
 })();
@@ -71,23 +73,24 @@ const AllTheProviders: React.FC<AllTheProvidersProps> = ({ children, options = {
   
   if (isAuthMocked) {
     return (
-      <AdminProvider>
-        <Router {...routerProps}>
+      <Router {...routerProps}>
+        <AdminProvider>
           {children}
-        </Router>
-      </AdminProvider>
+        </AdminProvider>
+      </Router>
     );
   }
   
   // Otherwise, include AuthProvider
+  // Router must wrap AuthProvider since AuthProvider uses useNavigate
   return (
-    <AuthProvider>
-      <AdminProvider>
-        <Router {...routerProps}>
+    <Router {...routerProps}>
+      <AuthProvider>
+        <AdminProvider>
           {children}
-        </Router>
-      </AdminProvider>
-    </AuthProvider>
+        </AdminProvider>
+      </AuthProvider>
+    </Router>
   );
 };
 

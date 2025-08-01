@@ -27,6 +27,7 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { PublicRoute } from './components/auth/PublicRoute';
 import { UserRole } from './types/auth';
 import CreateTestUser from './pages/CreateTestUser';
+import MonitoringDashboard from './pages/MonitoringDashboard';
 
 function AppContent() {
   const { modules } = useAdmin();
@@ -195,6 +196,16 @@ function AppContent() {
             element={
               <ProtectedRoute requiredRole={UserRole.ADMIN}>
                 <TestYouTubeAPI />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Monitoring Dashboard */}
+          <Route 
+            path="/monitoring" 
+            element={
+              <ProtectedRoute requiredRole={UserRole.ADMIN}>
+                <MonitoringDashboard />
               </ProtectedRoute>
             } 
           />

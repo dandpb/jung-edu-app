@@ -4,7 +4,7 @@
  */
 
 import { EducationalModule } from '../../../schemas/module.schema';
-import { setupEndToEndValidatorMock } from './setupEndToEndMock';
+import { setupEndToEndValidatorMock } from '../test-utils/setupEndToEndMock';
 
 // Create mock validators
 const mockValidateEndToEnd = jest.fn();

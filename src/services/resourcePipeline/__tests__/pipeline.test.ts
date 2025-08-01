@@ -3,12 +3,73 @@
  * Comprehensive test suite for the resource generation pipeline
  */
 
-import { AIResourcePipeline, ResourceGenerationConfig } from '../pipeline';
+// Mock all dependencies before importing the module
+jest.mock('../integrationHooks');
+jest.mock('../monitoring');
+jest.mock('../../../schemas/module.validator');
+jest.mock('../../moduleGeneration', () => ({
+  QuizService: jest.fn().mockImplementation(() => ({
+    generateQuizForModule: jest.fn().mockResolvedValue({
+      id: 'quiz-1',
+      title: 'Test Quiz',
+      questions: []
+    })
+  })),
+  VideoService: jest.fn().mockImplementation(() => ({
+    generateVideosForModule: jest.fn().mockResolvedValue([])
+  })),
+  BibliographyService: jest.fn().mockImplementation(() => ({
+    generateBibliographyForModule: jest.fn().mockResolvedValue([])
+  })),
+  MindMapService: jest.fn().mockImplementation(() => ({
+    generateMindMapForModule: jest.fn().mockResolvedValue({
+      id: 'mindmap-1',
+      nodes: [],
+      edges: []
+    })
+  })),
+  TestService: jest.fn().mockImplementation(() => ({
+    generateTestsForModule: jest.fn().mockResolvedValue({
+      tests: []
+    })
+  }))
+}));
+jest.mock('../../llm/orchestrator');
+
+// Import mocked modules to set up their behavior
 import { PipelineIntegrationHooks } from '../integrationHooks';
 import { PipelineMonitoringService } from '../monitoring';
-import { Module, ModuleContent } from '../../../types';
+import { ModuleValidator } from '../../../schemas/module.validator';
+import { ModuleGenerationOrchestrator } from '../../llm/orchestrator';
+import { 
+  QuizService, 
+  VideoService, 
+  BibliographyService, 
+  MindMapService, 
+  TestService 
+} from '../../moduleGeneration';
 
-// Mock implementation for PipelineIntegrationHooks
+// Create mocked instances
+const mockOrchestrator = {
+  generateModule: jest.fn().mockResolvedValue({
+    id: 'module-1',
+    title: 'Test Module',
+    content: {},
+    quiz: {},
+    videos: [],
+    mindMaps: [],
+    bibliography: []
+  }),
+  on: jest.fn(),
+  emit: jest.fn(),
+  removeListener: jest.fn(),
+  removeAllListeners: jest.fn()
+};
+
+const mockValidator = {
+  validateModule: jest.fn().mockReturnValue({ isValid: true, errors: [] })
+};
+
 const mockHooks = {
   registerHook: jest.fn(),
   unregisterHook: jest.fn(),
@@ -24,7 +85,6 @@ const mockHooks = {
   emit: jest.fn()
 };
 
-// Mock implementation for PipelineMonitoringService
 const mockMonitoring = {
   getMetrics: jest.fn(() => ({
     totalModulesProcessed: 0,
@@ -58,16 +118,15 @@ const mockMonitoring = {
   emit: jest.fn()
 };
 
-// Mock constructors
+// Set up the mocks
+(ModuleGenerationOrchestrator as jest.MockedClass<typeof ModuleGenerationOrchestrator>).mockImplementation(() => mockOrchestrator as any);
+(ModuleValidator as jest.MockedClass<typeof ModuleValidator>).mockImplementation(() => mockValidator as any);
 (PipelineIntegrationHooks as jest.MockedClass<typeof PipelineIntegrationHooks>).mockImplementation(() => mockHooks as any);
 (PipelineMonitoringService as jest.MockedClass<typeof PipelineMonitoringService>).mockImplementation(() => mockMonitoring as any);
 
-// Mock dependencies
-jest.mock('../../llm/orchestrator');
-jest.mock('../../../schemas/module.validator');
-jest.mock('../integrationHooks');
-jest.mock('../monitoring');
-jest.mock('../../moduleGeneration');
+// Now import the pipeline class after all mocks are set up
+import { AIResourcePipeline, ResourceGenerationConfig } from '../pipeline';
+import { Module, ModuleContent } from '../../../types';
 
 // Test utilities
 const createMockModule = (overrides: Partial<Module> = {}): Module => ({
@@ -117,15 +176,15 @@ describe('AIResourcePipeline', () => {
   let mockModule: Module;
 
   beforeEach(() => {
+    jest.clearAllMocks();
     pipeline = new AIResourcePipeline(createMockConfig());
     mockModule = createMockModule();
-    
-    // Reset any existing state
-    jest.clearAllMocks();
   });
 
   afterEach(() => {
-    pipeline.clearCompleted();
+    if (pipeline) {
+      pipeline.clearCompleted();
+    }
   });
 
   describe('Pipeline Initialization', () => {
@@ -143,6 +202,7 @@ describe('AIResourcePipeline', () => {
     test('should setup resource dependencies correctly', () => {
       // Test that pipeline initializes with expected dependencies
       expect(pipeline).toBeDefined();
+      expect(mockOrchestrator.on).toHaveBeenCalled();
     });
   });
 
@@ -356,63 +416,50 @@ describe('AIResourcePipeline', () => {
 
 describe('PipelineIntegrationHooks', () => {
   let pipeline: AIResourcePipeline;
-  let hooks: any;
   let mockModule: Module;
 
   beforeEach(() => {
+    jest.clearAllMocks();
     pipeline = new AIResourcePipeline(createMockConfig());
     mockModule = createMockModule();
-    jest.clearAllMocks();
-    
-    // Restore mock implementations after clearAllMocks
-    hooks = {
-      registerHook: jest.fn(),
-      unregisterHook: jest.fn(),
-      getRegisteredHooks: jest.fn((type) => {
-        if (type === 'pre_generation') return 1;
-        return 0;
-      }),
-      executeHooks: jest.fn(),
-      getConfig: jest.fn(() => ({ enablePreGenerationHooks: false })),
-      updateConfig: jest.fn(),
-      getActiveHooksCount: jest.fn(() => 3),
-      on: jest.fn(),
-      emit: jest.fn()
-    };
   });
 
   describe('Hook Registration', () => {
     test('should register custom hooks', () => {
       const customHook = jest.fn();
-      hooks.registerHook('pre_generation', customHook);
+      // Access the hooks through the pipeline's internal instance
+      const hooksInstance = (pipeline as any).hooks;
+      hooksInstance.registerHook('pre_generation', customHook);
       
       // Hook should be registered
-      expect(hooks.registerHook).toHaveBeenCalledWith('pre_generation', customHook);
+      expect(hooksInstance.registerHook).toHaveBeenCalledWith('pre_generation', customHook);
     });
 
     test('should unregister hooks', () => {
       const customHook = jest.fn();
-      hooks.registerHook('pre_generation', customHook);
-      hooks.unregisterHook('pre_generation', customHook);
+      const hooksInstance = (pipeline as any).hooks;
+      hooksInstance.registerHook('pre_generation', customHook);
+      hooksInstance.unregisterHook('pre_generation', customHook);
       
-      expect(hooks.unregisterHook).toHaveBeenCalledWith('pre_generation', customHook);
+      expect(hooksInstance.unregisterHook).toHaveBeenCalledWith('pre_generation', customHook);
     });
   });
 
   describe('Hook Execution', () => {
     test('should execute pre-generation hooks', async () => {
       const hookExecuted = jest.fn();
+      const hooksInstance = (pipeline as any).hooks;
       
-      hooks.registerHook('pre_generation', hookExecuted);
+      hooksInstance.registerHook('pre_generation', hookExecuted);
       
       // Mock the hook execution since we're using mocks
       setTimeout(() => {
-        hooks.emit('hooks_executed');
+        hooksInstance.emit('hooks_executed');
       }, 100);
       
       const hookPromise = new Promise((resolve) => {
-        hooks.on('hooks_executed', () => {
-          expect(hooks.registerHook).toHaveBeenCalledWith('pre_generation', hookExecuted);
+        hooksInstance.on('hooks_executed', () => {
+          expect(hooksInstance.registerHook).toHaveBeenCalledWith('pre_generation', hookExecuted);
           resolve(true);
         });
       });
@@ -423,17 +470,18 @@ describe('PipelineIntegrationHooks', () => {
 
     test('should execute post-generation hooks', async () => {
       const hookExecuted = jest.fn();
+      const hooksInstance = (pipeline as any).hooks;
       
-      hooks.registerHook('post_generation', hookExecuted);
+      hooksInstance.registerHook('post_generation', hookExecuted);
       
       // Mock the hook execution since we're using mocks
       setTimeout(() => {
-        hooks.emit('hooks_executed');
+        hooksInstance.emit('hooks_executed');
       }, 100);
       
       const hookPromise = new Promise((resolve) => {
-        hooks.on('hooks_executed', () => {
-          expect(hooks.registerHook).toHaveBeenCalledWith('post_generation', hookExecuted);
+        hooksInstance.on('hooks_executed', () => {
+          expect(hooksInstance.registerHook).toHaveBeenCalledWith('post_generation', hookExecuted);
           resolve(true);
         });
       });
@@ -446,18 +494,20 @@ describe('PipelineIntegrationHooks', () => {
   describe('Hook Configuration', () => {
     test('should update hook configuration', () => {
       const newConfig = { enablePreGenerationHooks: false };
-      hooks.updateConfig(newConfig);
+      const hooksInstance = (pipeline as any).hooks;
+      hooksInstance.updateConfig(newConfig);
       
-      expect(hooks.updateConfig).toHaveBeenCalledWith(newConfig);
+      expect(hooksInstance.updateConfig).toHaveBeenCalledWith(newConfig);
       
       // Verify configuration is accessible
-      const config = hooks.getConfig();
-      expect(hooks.getConfig).toHaveBeenCalled();
+      const config = hooksInstance.getConfig();
+      expect(hooksInstance.getConfig).toHaveBeenCalled();
       expect(config).toBeDefined();
     });
 
     test('should track active hooks', () => {
-      const activeCount = hooks.getActiveHooksCount();
+      const hooksInstance = (pipeline as any).hooks;
+      const activeCount = hooksInstance.getActiveHooksCount();
       expect(typeof activeCount).toBe('number');
       expect(activeCount).toBeGreaterThanOrEqual(0);
     });
@@ -466,72 +516,25 @@ describe('PipelineIntegrationHooks', () => {
 
 describe('PipelineMonitoringService', () => {
   let pipeline: AIResourcePipeline;
-  let hooks: any;
-  let monitoring: any;
   let mockModule: Module;
 
   beforeEach(() => {
+    jest.clearAllMocks();
     pipeline = new AIResourcePipeline(createMockConfig());
     mockModule = createMockModule();
-    jest.clearAllMocks();
-    
-    // Restore mock implementations after clearAllMocks
-    hooks = {
-      registerHook: jest.fn(),
-      unregisterHook: jest.fn(),
-      getRegisteredHooks: jest.fn((type) => {
-        if (type === 'pre_generation') return 1;
-        return 0;
-      }),
-      executeHooks: jest.fn(),
-      getConfig: jest.fn(() => ({ enablePreGenerationHooks: false })),
-      updateConfig: jest.fn(),
-      getActiveHooksCount: jest.fn(() => 3),
-      on: jest.fn(),
-      emit: jest.fn()
-    };
-    
-    monitoring = {
-      getMetrics: jest.fn(() => ({
-        totalModulesProcessed: 0,
-        totalResourcesGenerated: 0,
-        successRate: 1.0,
-        errorRate: 0,
-        health: {
-          status: 'healthy',
-          lastUpdate: new Date(),
-          issues: []
-        }
-      })),
-      getStatus: jest.fn(() => ({
-        isRunning: true,
-        activeModules: 0,
-        lastActivity: new Date(),
-        uptime: 0
-      })),
-      getAlerts: jest.fn(() => []),
-      acknowledgeAlert: jest.fn(() => true),
-      getPerformanceSummary: jest.fn(() => ({
-        totalModules: 0,
-        totalResources: 0,
-        successRate: 1.0,
-        healthStatus: 'healthy',
-        uptime: 0
-      })),
-      start: jest.fn(),
-      stop: jest.fn(),
-      on: jest.fn(),
-      emit: jest.fn()
-    };
   });
 
   afterEach(() => {
-    monitoring.stop();
+    const monitoringInstance = (pipeline as any).monitoring;
+    if (monitoringInstance && monitoringInstance.stop) {
+      monitoringInstance.stop();
+    }
   });
 
   describe('Metrics Tracking', () => {
     test('should track basic metrics', () => {
-      const metrics = monitoring.getMetrics();
+      const monitoringInstance = (pipeline as any).monitoring;
+      const metrics = monitoringInstance.getMetrics();
       
       expect(metrics.totalModulesProcessed).toBeDefined();
       expect(metrics.totalResourcesGenerated).toBeDefined();
@@ -540,16 +543,17 @@ describe('PipelineMonitoringService', () => {
     });
 
     test('should update metrics on pipeline events', async () => {
-      const initialMetrics = monitoring.getMetrics();
+      const monitoringInstance = (pipeline as any).monitoring;
+      const initialMetrics = monitoringInstance.getMetrics();
       
       // Mock the event emission since we're using mocks
       setTimeout(() => {
-        monitoring.emit('pipeline_event_monitored');
+        monitoringInstance.emit('pipeline_event_monitored');
       }, 100);
       
       const eventPromise = new Promise((resolve) => {
-        monitoring.on('pipeline_event_monitored', () => {
-          const updatedMetrics = monitoring.getMetrics();
+        monitoringInstance.on('pipeline_event_monitored', () => {
+          const updatedMetrics = monitoringInstance.getMetrics();
           expect(updatedMetrics.health.lastUpdate.getTime()).toBeGreaterThanOrEqual(
             initialMetrics.health.lastUpdate.getTime()
           );
@@ -564,7 +568,8 @@ describe('PipelineMonitoringService', () => {
 
   describe('Status Tracking', () => {
     test('should track pipeline status', () => {
-      const status = monitoring.getStatus();
+      const monitoringInstance = (pipeline as any).monitoring;
+      const status = monitoringInstance.getStatus();
       
       expect(status.isRunning).toBeDefined();
       expect(status.activeModules).toBeDefined();
@@ -573,16 +578,17 @@ describe('PipelineMonitoringService', () => {
     });
 
     test('should update status on activity', async () => {
-      const initialStatus = monitoring.getStatus();
+      const monitoringInstance = (pipeline as any).monitoring;
+      const initialStatus = monitoringInstance.getStatus();
       
       // Mock the event emission since we're using mocks
       setTimeout(() => {
-        monitoring.emit('pipeline_event_monitored');
+        monitoringInstance.emit('pipeline_event_monitored');
       }, 100);
       
       const eventPromise = new Promise((resolve) => {
-        monitoring.on('pipeline_event_monitored', () => {
-          const updatedStatus = monitoring.getStatus();
+        monitoringInstance.on('pipeline_event_monitored', () => {
+          const updatedStatus = monitoringInstance.getStatus();
           expect(updatedStatus.lastActivity.getTime()).toBeGreaterThanOrEqual(
             initialStatus.lastActivity.getTime()
           );
@@ -597,9 +603,10 @@ describe('PipelineMonitoringService', () => {
 
   describe('Alert System', () => {
     test('should create alerts for errors', async () => {
+      const monitoringInstance = (pipeline as any).monitoring;
       // Mock the alert creation since we're using mocks
       setTimeout(() => {
-        monitoring.emit('alert_created', {
+        monitoringInstance.emit('alert_created', {
           type: 'error',
           severity: 'high',
           message: 'Test alert',
@@ -608,7 +615,7 @@ describe('PipelineMonitoringService', () => {
       }, 100);
       
       const alertPromise = new Promise((resolve) => {
-        monitoring.on('alert_created', (alert) => {
+        monitoringInstance.on('alert_created', (alert) => {
           expect(alert.type).toBeDefined();
           expect(alert.severity).toBeDefined();
           expect(alert.message).toBeDefined();
@@ -631,18 +638,20 @@ describe('PipelineMonitoringService', () => {
 
     test('should acknowledge alerts', () => {
       // Test that acknowledgeAlert function works
+      const monitoringInstance = (pipeline as any).monitoring;
       const mockAlertId = 'test-alert-123';
-      const acknowledged = monitoring.acknowledgeAlert(mockAlertId);
-      expect(monitoring.acknowledgeAlert).toHaveBeenCalledWith(mockAlertId);
+      const acknowledged = monitoringInstance.acknowledgeAlert(mockAlertId);
+      expect(monitoringInstance.acknowledgeAlert).toHaveBeenCalledWith(mockAlertId);
       expect(acknowledged).toBe(true);
     });
   });
 
   describe('Health Checks', () => {
     test('should perform health checks', async () => {
+      const monitoringInstance = (pipeline as any).monitoring;
       // Mock the health check since we're using mocks
       setTimeout(() => {
-        monitoring.emit('health_check_complete', {
+        monitoringInstance.emit('health_check_complete', {
           status: 'healthy',
           issues: [],
           timestamp: new Date()
@@ -650,7 +659,7 @@ describe('PipelineMonitoringService', () => {
       }, 100);
       
       const healthCheckPromise = new Promise((resolve) => {
-        monitoring.on('health_check_complete', (data) => {
+        monitoringInstance.on('health_check_complete', (data) => {
           expect(data.status).toBeDefined();
           expect(data.issues).toBeDefined();
           expect(data.timestamp).toBeInstanceOf(Date);
@@ -669,14 +678,16 @@ describe('PipelineMonitoringService', () => {
     });
 
     test('should update health status', () => {
-      const metrics = monitoring.getMetrics();
+      const monitoringInstance = (pipeline as any).monitoring;
+      const metrics = monitoringInstance.getMetrics();
       expect(metrics.health.status).toBeDefined();
     });
   });
 
   describe('Performance Summary', () => {
     test('should provide performance summary', () => {
-      const summary = monitoring.getPerformanceSummary();
+      const monitoringInstance = (pipeline as any).monitoring;
+      const summary = monitoringInstance.getPerformanceSummary();
       
       expect(summary).toBeDefined();
       expect(typeof summary.totalModules).toBe('number');
@@ -691,56 +702,6 @@ describe('PipelineMonitoringService', () => {
 describe('Integration Tests', () => {
   test('should work end-to-end with all components', async () => {
     const pipeline = new AIResourcePipeline(createMockConfig());
-    
-    // Create fresh mock instances for integration test
-    const hooks = {
-      registerHook: jest.fn(),
-      unregisterHook: jest.fn(),
-      getRegisteredHooks: jest.fn((type) => {
-        if (type === 'pre_generation') return 1;
-        return 0;
-      }),
-      executeHooks: jest.fn(),
-      getConfig: jest.fn(() => ({ enablePreGenerationHooks: false })),
-      updateConfig: jest.fn(),
-      getActiveHooksCount: jest.fn(() => 3),
-      on: jest.fn(),
-      emit: jest.fn()
-    };
-    
-    const monitoring = {
-      getMetrics: jest.fn(() => ({
-        totalModulesProcessed: 0,
-        totalResourcesGenerated: 0,
-        successRate: 1.0,
-        errorRate: 0,
-        health: {
-          status: 'healthy',
-          lastUpdate: new Date(),
-          issues: []
-        }
-      })),
-      getStatus: jest.fn(() => ({
-        isRunning: true,
-        activeModules: 0,
-        lastActivity: new Date(),
-        uptime: 0
-      })),
-      getAlerts: jest.fn(() => []),
-      acknowledgeAlert: jest.fn(() => true),
-      getPerformanceSummary: jest.fn(() => ({
-        totalModules: 0,
-        totalResources: 0,
-        successRate: 1.0,
-        healthStatus: 'healthy',
-        uptime: 0
-      })),
-      start: jest.fn(),
-      stop: jest.fn(),
-      on: jest.fn(),
-      emit: jest.fn()
-    };
-    
     const mockModule = createMockModule();
     
     try {
@@ -749,14 +710,18 @@ describe('Integration Tests', () => {
       expect(resources).toBeDefined();
       expect(resources.length).toBeGreaterThan(0);
       
-      const metrics = monitoring.getMetrics();
+      const monitoringInstance = (pipeline as any).monitoring;
+      const metrics = monitoringInstance.getMetrics();
       expect(metrics).toBeDefined();
       
-      const status = monitoring.getStatus();
+      const status = monitoringInstance.getStatus();
       expect(status).toBeDefined();
       
     } finally {
-      monitoring.stop();
+      const monitoringInstance = (pipeline as any).monitoring;
+      if (monitoringInstance && monitoringInstance.stop) {
+        monitoringInstance.stop();
+      }
     }
   });
 

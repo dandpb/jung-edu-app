@@ -23,6 +23,8 @@ describe('OpenAIProvider', () => {
   const mockApiKey = 'test-api-key';
   
   beforeEach(() => {
+    jest.clearAllMocks();
+    
     // Mock OpenAI API instance
     mockOpenAIApi = {
       chat: {
@@ -35,13 +37,15 @@ describe('OpenAIProvider', () => {
       }
     };
     
-    const { OpenAI } = require('openai');
-    OpenAI.mockImplementation(() => mockOpenAIApi);
+    // Reset the module and re-mock
+    jest.resetModules();
+    jest.doMock('openai', () => ({
+      OpenAI: jest.fn().mockImplementation(() => mockOpenAIApi)
+    }));
     
-    provider = new OpenAIProvider(mockApiKey, 'gpt-3.5-turbo');
-    
-    // Mock the delay method to speed up tests
-    jest.spyOn(provider as any, 'delay').mockImplementation(() => Promise.resolve());
+    // Now require the provider after mocking
+    const { OpenAIProvider: OpenAIProviderClass } = require('../../../services/llm/provider');
+    provider = new OpenAIProviderClass(mockApiKey, 'gpt-3.5-turbo');
   });
   
   afterEach(() => {
@@ -54,7 +58,11 @@ describe('OpenAIProvider', () => {
   describe('constructor', () => {
     it('should initialize with OpenAI provider', () => {
       expect(provider).toBeDefined();
-      expect(provider).toBeInstanceOf(OpenAIProvider);
+      // Check that provider has the expected methods instead of instanceof check
+      expect(typeof provider.generateCompletion).toBe('function');
+      expect(typeof provider.generateStructuredOutput).toBe('function');
+      expect(typeof provider.getTokenCount).toBe('function');
+      expect(typeof provider.isAvailable).toBe('function');
     });
   });
   
@@ -84,6 +92,9 @@ describe('OpenAIProvider', () => {
     });
     
     it('should handle API errors', async () => {
+      // Mock the delay to speed up test
+      jest.spyOn(provider as any, 'delay').mockImplementation(() => Promise.resolve());
+      
       mockOpenAIApi.chat.completions.create
         .mockRejectedValueOnce(new Error('Rate limit exceeded'))
         .mockRejectedValueOnce(new Error('Rate limit exceeded'))
@@ -96,6 +107,9 @@ describe('OpenAIProvider', () => {
     });
     
     it('should retry on temporary failures', async () => {
+      // Mock the delay to speed up test
+      jest.spyOn(provider as any, 'delay').mockImplementation(() => Promise.resolve());
+      
       mockOpenAIApi.chat.completions.create
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValueOnce({
@@ -104,9 +118,7 @@ describe('OpenAIProvider', () => {
           }]
         });
       
-      const result = await provider.generateCompletion('Test prompt', {
-        retries: 2
-      });
+      const result = await provider.generateCompletion('Test prompt');
       
       expect(result.content).toBe('Success after retry');
       expect(mockOpenAIApi.chat.completions.create).toHaveBeenCalledTimes(2);
@@ -165,6 +177,9 @@ describe('OpenAIProvider', () => {
     });
     
     it('should handle invalid JSON responses', async () => {
+      // Mock the delay to speed up test
+      jest.spyOn(provider as any, 'delay').mockImplementation(() => Promise.resolve());
+      
       mockOpenAIApi.chat.completions.create
         .mockResolvedValueOnce({
           choices: [{
@@ -189,7 +204,7 @@ describe('OpenAIProvider', () => {
         });
       
       await expect(provider.generateStructuredOutput('Test', { type: 'object' }))
-        .rejects.toThrow('Failed to generate valid JSON');
+        .rejects.toThrow('Failed to generate valid JSON after 3 attempts');
     });
   });
   

@@ -5,11 +5,10 @@ export const ADMIN_CONFIG = {
   // Default admin account (for initial setup only)
   defaultAdmin: {
     username: process.env.REACT_APP_ADMIN_USERNAME || 'admin',
-    // This is the hash of 'jungadmin123' - DO NOT store plain passwords
-    passwordHash: process.env.REACT_APP_ADMIN_PASSWORD_HASH || 
-      '000000006341cfbf',
-    salt: process.env.REACT_APP_ADMIN_SALT || 
-      '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+    // Security: Password hash and salt MUST come from environment variables
+    // Never store default credentials in source code
+    passwordHash: process.env.REACT_APP_ADMIN_PASSWORD_HASH || '',
+    salt: process.env.REACT_APP_ADMIN_SALT || ''
   },
   
   // Session configuration

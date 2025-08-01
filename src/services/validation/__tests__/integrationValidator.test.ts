@@ -8,7 +8,7 @@ jest.mock('../integrationValidator');
 
 import { integrationValidator } from '../integrationValidator';
 import { EducationalModule } from '../../../schemas/module.schema';
-import { setupIntegrationTestEnvironment } from './setupIntegrationTests';
+import { setupIntegrationTestEnvironment } from '../test-utils/setupIntegrationTests';
 
 // Setup test environment with proper mocks
 setupIntegrationTestEnvironment();

@@ -99,32 +99,43 @@ describe('Example Test Patterns', () => {
   
   // Pattern 3: LocalStorage Integration
   describe('LocalStorage Integration', () => {
-    // Setup localStorage before each test
-    setupLocalStorage();
-    
-    test('saves data to localStorage', async () => {
-      const { user } = render(<ExampleComponent />);
+    describe('with clean localStorage', () => {
+      // Setup localStorage before each test
+      setupLocalStorage();
       
-      const input = screen.getByLabelText('Example Input');
-      const submitButton = screen.getByRole('button', { name: 'Save' });
-      
-      await user.type(input, 'Stored value');
-      await user.click(submitButton);
-      
-      expectLocalStorageUpdate('exampleData', { value: 'Stored value' });
+      test('saves data to localStorage', async () => {
+        const { user } = render(<ExampleComponent />);
+        
+        const input = screen.getByLabelText('Example Input');
+        const submitButton = screen.getByRole('button', { name: 'Save' });
+        
+        await user.type(input, 'Stored value');
+        await user.click(submitButton);
+        
+        expectLocalStorageUpdate('exampleData', { value: 'Stored value' });
+      });
     });
     
-    test('loads existing data from localStorage', () => {
-      // Pre-populate localStorage
-      mockLocalStorage.__setStore({
-        exampleData: JSON.stringify({ value: 'Existing value' })
+    describe('with pre-populated localStorage', () => {
+      // Don't use setupLocalStorage here to avoid conflicts
+      beforeEach(() => {
+        mockLocalStorage.clear();
+        // Manually set the store
+        mockLocalStorage.__setStore({
+          exampleData: JSON.stringify({ value: 'Existing value' })
+        });
       });
       
-      // Component would typically load this data on mount
-      // This is just an example pattern
-      expect(mockLocalStorage.getItem('exampleData')).toBe(
-        JSON.stringify({ value: 'Existing value' })
-      );
+      afterEach(() => {
+        mockLocalStorage.clear();
+      });
+      
+      test('loads existing data from localStorage', () => {
+        // Component would typically load this data on mount
+        // This is just an example pattern
+        const storedData = mockLocalStorage.getItem('exampleData');
+        expect(storedData).toBe(JSON.stringify({ value: 'Existing value' }));
+      });
     });
   });
   
