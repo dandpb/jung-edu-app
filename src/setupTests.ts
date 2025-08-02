@@ -6,7 +6,7 @@ import { setupTestEnvironment } from './test-utils/testConfig';
 // Setup test environment based on USE_REAL_API flag
 setupTestEnvironment();
 
-// Skip integration tests when SKIP_INTEGRATION is set
+// Handle integration tests based on SKIP_INTEGRATION flag
 if (process.env.SKIP_INTEGRATION === 'true') {
   const State = expect.getState();
   if (State && State.testPath) {
@@ -19,18 +19,20 @@ if (process.env.SKIP_INTEGRATION === 'true') {
       testPath.includes('e2e.test');
     
     if (isIntegrationTest) {
-      // Skip all tests in this file
+      // Log integration test skipping but don't globally disable tests
       beforeAll(() => {
         console.log(`⏭️  Skipping integration test: ${testPath}`);
         console.log('   Use "npm run test:integration" to run integration tests');
       });
       
-      // Make all tests in this file pending
-      global.test = global.test.skip;
-      global.it = global.it.skip;
+      // Note: Individual tests should handle their own skipping based on environment
+      // Removed global test.skip and it.skip assignment to prevent all tests from being disabled
     }
   }
-} else {
+}
+
+// When running integration tests, ensure proper environment setup
+if (process.env.SKIP_INTEGRATION !== 'true') {
   // When running integration tests, ensure proper environment setup
   const State = expect.getState();
   if (State && State.testPath) {

@@ -17,12 +17,14 @@ process.env.SMTP_PASS = 'testpass';
 process.env.WEBHOOK_URL = 'https://webhook.test.com';
 process.env.SLACK_WEBHOOK_URL = 'https://hooks.slack.com/test';
 
-// Mock external modules
-jest.mock('nodemailer', () => ({
-  createTransport: () => ({
-    sendMail: () => Promise.resolve({ messageId: 'test-123' })
-  })
-}));
+// Mock external modules - using manual mock since nodemailer may not be installed
+const mockNodemailer = {
+  createTransport: jest.fn(() => ({
+    sendMail: jest.fn(() => Promise.resolve({ messageId: 'test-123' }))
+  }))
+};
+
+jest.doMock('nodemailer', () => mockNodemailer, { virtual: true });
 
 // Mock fetch for webhook calls with proper typing
 global.fetch = jest.fn((_input: RequestInfo | URL, _init?: RequestInit) =>

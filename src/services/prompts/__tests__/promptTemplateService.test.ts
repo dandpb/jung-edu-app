@@ -65,9 +65,10 @@ describe('PromptTemplateService', () => {
     });
 
     it('should delete a template', async () => {
-      // Create a template to delete
+      // Create a template to delete - use unique key to avoid test interference
+      const uniqueKey = `delete.test.${Date.now()}`;
       const newTemplate = {
-        key: 'delete.test',
+        key: uniqueKey,
         category: 'test',
         name: 'Delete Test',
         template: 'Will be deleted',
@@ -79,14 +80,15 @@ describe('PromptTemplateService', () => {
       const created = await promptTemplateServiceMock.createTemplate(newTemplate);
       
       // Verify it exists
-      let exists = await promptTemplateServiceMock.getTemplateByKey('delete.test');
+      let exists = await promptTemplateServiceMock.getTemplateByKey(uniqueKey);
       expect(exists).toBeDefined();
+      expect(exists?.id).toBe(created.id);
 
       // Delete it
       await promptTemplateServiceMock.deleteTemplate(created.id);
 
       // Verify it's gone
-      exists = await promptTemplateServiceMock.getTemplateByKey('delete.test');
+      exists = await promptTemplateServiceMock.getTemplateByKey(uniqueKey);
       expect(exists).toBeNull();
     });
 
@@ -124,6 +126,32 @@ describe('PromptTemplateService', () => {
       const compiled = promptTemplateServiceMock.compilePrompt(template, variables);
       expect(compiled).toContain('"key": "value"');
       expect(compiled).toContain('"number": 42');
+    });
+
+    it('should handle missing variables gracefully', () => {
+      const template = 'Hello {{name}}, your age is {{age}}';
+      const variables = { name: 'John' }; // missing age
+      
+      const compiled = promptTemplateServiceMock.compilePrompt(template, variables);
+      expect(compiled).toBe('Hello John, your age is {{age}}');
+    });
+
+    it('should handle empty template', () => {
+      const template = '';
+      const variables = { name: 'John' };
+      
+      const compiled = promptTemplateServiceMock.compilePrompt(template, variables);
+      expect(compiled).toBe('');
+    });
+
+    it('should handle null and undefined values', () => {
+      const template = 'Value: {{value}}';
+      
+      let compiled = promptTemplateServiceMock.compilePrompt(template, { value: null });
+      expect(compiled).toBe('Value: null');
+      
+      compiled = promptTemplateServiceMock.compilePrompt(template, { value: undefined });
+      expect(compiled).toBe('Value: undefined');
     });
 
     it('should validate required variables', () => {
@@ -216,6 +244,83 @@ describe('PromptTemplateService', () => {
       const rolled = await promptTemplateServiceMock.rollbackToVersion(template.id, 'version-id');
       expect(rolled).toBeDefined();
       expect(rolled.id).toBe(template.id);
+    });
+
+    it('should filter templates by category', async () => {
+      const allTemplates = await promptTemplateServiceMock.getTemplates();
+      const contentTemplates = await promptTemplateServiceMock.getTemplates('content');
+      
+      expect(allTemplates.length).toBeGreaterThan(contentTemplates.length);
+      contentTemplates.forEach(template => {
+        expect(template.category).toBe('content');
+      });
+    });
+
+    it('should handle invalid template updates', async () => {
+      await expect(
+        promptTemplateServiceMock.updateTemplate('non-existent-id', { name: 'Updated' })
+      ).rejects.toThrow('Template not found');
+    });
+
+    it('should handle invalid rollback', async () => {
+      await expect(
+        promptTemplateServiceMock.rollbackToVersion('non-existent-id', 'version-id')
+      ).rejects.toThrow('Template not found');
+    });
+
+    it('should delete non-existent template gracefully', async () => {
+      // Should not throw error when deleting non-existent template
+      await expect(
+        promptTemplateServiceMock.deleteTemplate('non-existent-id')
+      ).resolves.not.toThrow();
+    });
+
+    describe('Edge Cases and Error Handling', () => {
+      it('should handle template with no variables', async () => {
+        const template = await promptTemplateServiceMock.getTemplateByKey('content.introduction');
+        if (template) {
+          const validation = promptTemplateServiceMock.validateVariables(
+            { ...template, variables: [] }, 
+            {}
+          );
+          expect(validation.valid).toBe(true);
+          expect(validation.errors).toHaveLength(0);
+        }
+      });
+
+      it('should handle template compilation with spaces in variable names', () => {
+        const template = 'Hello {{ name }}, age {{ age }}';
+        const variables = { name: 'John', age: 30 };
+        
+        const compiled = promptTemplateServiceMock.compilePrompt(template, variables);
+        expect(compiled).toBe('Hello John, age 30');
+      });
+
+      it('should maintain template state after operations', async () => {
+        const initialCount = (await promptTemplateServiceMock.getTemplates()).length;
+        
+        // Create template
+        const newTemplate = await promptTemplateServiceMock.createTemplate({
+          key: 'test.temp',
+          category: 'test',
+          name: 'Temp',
+          template: 'Test',
+          variables: [],
+          language: 'pt-BR',
+          isActive: true
+        });
+        
+        expect((await promptTemplateServiceMock.getTemplates()).length).toBe(initialCount + 1);
+        
+        // Update template
+        await promptTemplateServiceMock.updateTemplate(newTemplate.id, { name: 'Updated Temp' });
+        const updated = await promptTemplateServiceMock.getTemplateByKey('test.temp');
+        expect(updated?.name).toBe('Updated Temp');
+        
+        // Delete template
+        await promptTemplateServiceMock.deleteTemplate(newTemplate.id);
+        expect((await promptTemplateServiceMock.getTemplates()).length).toBe(initialCount);
+      });
     });
   });
 });

@@ -8,7 +8,7 @@ export const createMockLLMProvider = (overrides?: Partial<jest.Mocked<ILLMProvid
   const mockProvider: jest.Mocked<ILLMProvider> = {
     generateCompletion: jest.fn().mockResolvedValue({ content: 'Mock completion response', usage: undefined }),
     generateStructuredOutput: jest.fn().mockResolvedValue({}),
-    getTokenCount: jest.fn().mockReturnValue(100), // Fixed value for predictable tests
+    getTokenCount: jest.fn().mockImplementation((text: string) => Math.ceil(text.length / 4)), // Realistic token counting
     isAvailable: jest.fn().mockResolvedValue(true),
     streamCompletion: jest.fn().mockImplementation(async (prompt: string, onChunk: (chunk: string) => void) => {
       // Default streaming implementation
@@ -70,8 +70,11 @@ export const createMockQuestions = (count: number, options?: {
         id: `q${i + 1}`,
         type: 'true-false',
         question: `Test question ${i + 1} about ${concept}`,
-        options: [],
-        correctAnswer: i % 2 === 0 ? true : false, // Boolean for true-false questions
+        options: [
+          { id: '0', text: 'False' },
+          { id: '1', text: 'True' }
+        ],
+        correctAnswer: i % 2 === 0 ? 1 : 0, // 1 for true, 0 for false
         explanation: `Explanation for question ${i + 1} about ${concept}`,
         difficulty: questionDifficulty,
         cognitiveLevel: ['remembering', 'understanding', 'applying', 'analyzing'][i % 4],
@@ -132,8 +135,8 @@ export const mockLLMResponses = {
 export const createMockLLMProviderWithPatterns = (pattern: 'success' | 'failure' | 'partial' | 'slow'): jest.Mocked<ILLMProvider> => {
   const baseProvider = createMockLLMProvider();
   
-  // Ensure getTokenCount always returns the fixed value
-  baseProvider.getTokenCount.mockReturnValue(100);
+  // Ensure getTokenCount uses realistic implementation
+  baseProvider.getTokenCount.mockImplementation((text: string) => Math.ceil(text.length / 4));
   
   switch (pattern) {
     case 'success':

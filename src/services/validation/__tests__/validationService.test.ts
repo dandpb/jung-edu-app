@@ -26,28 +26,23 @@ Object.defineProperty(global, 'performance', {
   value: mockPerformance
 });
 
-// Mock the validator modules
-const mockValidateSystem = jest.fn();
-const mockValidateModule = jest.fn();
-const mockValidateIntegration = jest.fn();
-const mockValidateEndToEnd = jest.fn();
-
+// Mock the validator modules with jest.fn() directly in the mock definitions
 jest.mock('../systemValidator', () => ({
   systemValidator: {
-    validateSystem: mockValidateSystem,
-    validateModule: mockValidateModule
+    validateSystem: jest.fn(),
+    validateModule: jest.fn()
   }
 }));
 
 jest.mock('../integrationValidator', () => ({
   integrationValidator: {
-    validateIntegration: mockValidateIntegration
+    validateIntegration: jest.fn()
   }
 }));
 
 jest.mock('../endToEndValidator', () => ({
   endToEndValidator: {
-    validateEndToEnd: mockValidateEndToEnd
+    validateEndToEnd: jest.fn()
   }
 }));
 
@@ -56,10 +51,10 @@ import { systemValidator } from '../systemValidator';
 import { integrationValidator } from '../integrationValidator';
 import { endToEndValidator } from '../endToEndValidator';
 
-// Cast to mocked versions
-const mockSystemValidator = systemValidator as jest.Mocked<typeof systemValidator>;
-const mockIntegrationValidator = integrationValidator as jest.Mocked<typeof integrationValidator>;
-const mockEndToEndValidator = endToEndValidator as jest.Mocked<typeof endToEndValidator>;
+// Extract mock functions for easier access
+const mockValidateSystem = systemValidator.validateSystem as jest.Mock;
+const mockValidateIntegration = integrationValidator.validateIntegration as jest.Mock;
+const mockValidateEndToEnd = endToEndValidator.validateEndToEnd as jest.Mock;
 
 describe('ValidationService', () => {
   let service: ValidationService;
@@ -189,9 +184,9 @@ describe('ValidationService', () => {
       });
 
       // Verify all validators were called
-      expect(mockSystemValidator.validateSystem).toHaveBeenCalledWith([mockModule]);
-      expect(mockIntegrationValidator.validateIntegration).toHaveBeenCalledWith([mockModule]);
-      expect(mockEndToEndValidator.validateEndToEnd).toHaveBeenCalledWith([mockModule]);
+      expect(mockValidateSystem).toHaveBeenCalledWith([mockModule]);
+      expect(mockValidateIntegration).toHaveBeenCalledWith([mockModule]);
+      expect(mockValidateEndToEnd).toHaveBeenCalledWith([mockModule]);
     });
 
     it('should calculate weighted overall score correctly', async () => {
@@ -204,7 +199,7 @@ describe('ValidationService', () => {
     it('should handle validation failures gracefully', async () => {
       const error = new Error('Validation failed');
       // Override the default mock for this test
-      (systemValidator.validateSystem as jest.Mock).mockRejectedValueOnce(error);
+      mockValidateSystem.mockRejectedValueOnce(error);
 
       const result = await service.validateComplete([mockModule]);
 
@@ -247,28 +242,28 @@ describe('ValidationService', () => {
         recommendations: ['Test recommendation']
       });
 
-      expect(mockSystemValidator.validateSystem).toHaveBeenCalledWith([mockModule]);
-      expect(integrationValidator.validateIntegration).not.toHaveBeenCalled();
-      expect(endToEndValidator.validateEndToEnd).not.toHaveBeenCalled();
+      expect(mockValidateSystem).toHaveBeenCalledWith([mockModule]);
+      expect(mockValidateIntegration).not.toHaveBeenCalled();
+      expect(mockValidateEndToEnd).not.toHaveBeenCalled();
     });
   });
 
   describe('validateAspect', () => {
     it('should validate system aspect', async () => {
       const result = await service.validateAspect([mockModule], 'system');
-      expect(mockSystemValidator.validateSystem).toHaveBeenCalledWith([mockModule]);
+      expect(mockValidateSystem).toHaveBeenCalledWith([mockModule]);
       expect(result).toHaveProperty('overall.score', 85);
     });
 
     it('should validate integration aspect', async () => {
       const result = await service.validateAspect([mockModule], 'integration');
-      expect(mockIntegrationValidator.validateIntegration).toHaveBeenCalledWith([mockModule]);
+      expect(mockValidateIntegration).toHaveBeenCalledWith([mockModule]);
       expect(result).toHaveProperty('overall.score', 90);
     });
 
     it('should validate e2e aspect', async () => {
       const result = await service.validateAspect([mockModule], 'e2e');
-      expect(mockEndToEndValidator.validateEndToEnd).toHaveBeenCalledWith([mockModule]);
+      expect(mockValidateEndToEnd).toHaveBeenCalledWith([mockModule]);
       expect(result).toHaveProperty('overall.score', 88);
     });
 

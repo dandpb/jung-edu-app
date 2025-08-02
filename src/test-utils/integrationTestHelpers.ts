@@ -55,13 +55,22 @@ export async function getTestLLMProvider(): Promise<ILLMProvider> {
 }
 
 /**
- * Skip test if real API is not available
+ * Check if real API is available (without skipping)
+ */
+export function isRealAPIAvailable(service: 'openai' | 'youtube'): boolean {
+  return shouldUseRealAPI(service);
+}
+
+/**
+ * Skip test if real API is not available (deprecated - use conditional testing instead)
+ * @deprecated Use isRealAPIAvailable() with conditional test logic instead
  */
 export function skipIfNoRealAPI(service: 'openai' | 'youtube') {
   const shouldSkip = !shouldUseRealAPI(service);
   
   if (shouldSkip) {
-    test.skip(`Skipping real ${service} API test - USE_REAL_API is not true or API key is missing`, () => {});
+    // Return true to indicate test should be skipped, but don't call test.skip globally
+    console.log(`Real ${service} API test would be skipped - USE_REAL_API is not true or API key is missing`);
     return true;
   }
   

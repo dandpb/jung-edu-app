@@ -87,7 +87,7 @@ describe('OpenAIProvider', () => {
           { role: 'user', content: 'Test prompt' }
         ],
         temperature: 0.7,
-        max_tokens: 2000
+        max_tokens: 3000
       });
     });
     

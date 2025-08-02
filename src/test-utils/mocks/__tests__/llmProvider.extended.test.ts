@@ -102,8 +102,12 @@ describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
       
       questions.forEach(q => {
         expect(q.type).toBe('true-false');
-        expect(q.options).toBeUndefined();
-        expect(typeof q.correctAnswer).toBe('boolean');
+        expect(q.options).toBeDefined();
+        expect(q.options).toHaveLength(2);
+        expect(q.options[0].text).toBe('False');
+        expect(q.options[1].text).toBe('True');
+        expect(typeof q.correctAnswer).toBe('number');
+        expect([0, 1]).toContain(q.correctAnswer);
       });
     });
 
@@ -273,17 +277,17 @@ describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
       const provider = createMockLLMProviderWithPatterns('success');
       
       // Test quiz generation
-      const quizResult = await provider.generateStructuredOutput('Generate quiz questions');
+      const quizResult = await provider.generateStructuredOutput('Generate quiz questions', {});
       expect(Array.isArray(quizResult)).toBe(true);
       expect(quizResult).toHaveLength(5);
       
       // Test module outline generation
-      const outlineResult = await provider.generateStructuredOutput('Create module outline');
+      const outlineResult = await provider.generateStructuredOutput('Create module outline', {});
       expect(outlineResult).toHaveProperty('title');
       expect(outlineResult).toHaveProperty('concepts');
       
       // Test generic content
-      const contentResult = await provider.generateStructuredOutput('Generate content');
+      const contentResult = await provider.generateStructuredOutput('Generate content', {});
       expect(contentResult).toHaveProperty('introduction');
       
       expect(await provider.isAvailable()).toBe(true);
@@ -293,20 +297,20 @@ describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
       const provider = createMockLLMProviderWithPatterns('failure');
       
       await expect(provider.generateCompletion('test')).rejects.toThrow('API Error');
-      await expect(provider.generateStructuredOutput('test')).rejects.toThrow('API Error');
+      await expect(provider.generateStructuredOutput('test', {})).rejects.toThrow('API Error');
       expect(await provider.isAvailable()).toBe(false);
     });
 
     it('should create partial response provider pattern', async () => {
       const provider = createMockLLMProviderWithPatterns('partial');
       
-      const result1 = await provider.generateStructuredOutput('test1');
+      const result1 = await provider.generateStructuredOutput('test1', {});
       expect(result1).toBeNull();
       
-      const result2 = await provider.generateStructuredOutput('test2');
+      const result2 = await provider.generateStructuredOutput('test2', {});
       expect(result2).toEqual({ partial: 'data' });
       
-      const result3 = await provider.generateStructuredOutput('test3');
+      const result3 = await provider.generateStructuredOutput('test3', {});
       expect(result3).toHaveProperty('introduction');
     });
 
@@ -360,7 +364,7 @@ describe('LLM Provider Mock Utilities - Extended Edge Case Tests', () => {
       const attemptGeneration = async (provider: ILLMProvider): Promise<any> => {
         attempts++;
         try {
-          return await provider.generateStructuredOutput('Generate quiz');
+          return await provider.generateStructuredOutput('Generate quiz', {});
         } catch (error) {
           if (attempts < 3 && provider === failureProvider) {
             // Switch to success provider after failures

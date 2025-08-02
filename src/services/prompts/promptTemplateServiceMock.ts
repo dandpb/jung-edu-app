@@ -5,10 +5,8 @@
 
 import { 
   PromptTemplate, 
-  PromptVariable, 
   PromptTemplateVersion, 
-  PromptCategory,
-  PromptExecutionLog 
+  PromptCategory
 } from './promptTemplateService';
 
 class PromptTemplateServiceMock {

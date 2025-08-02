@@ -535,6 +535,165 @@ export class YouTubeService {
     ];
   }
 
+  async getChannelVideos(channelId: string, options: YouTubeSearchOptions = {}): Promise<YouTubeVideo[]> {
+    if (this.mockMode) {
+      return this.mockChannelVideos(channelId, options);
+    }
+
+    try {
+      // First, search for videos from the specific channel
+      const searchResponse = await axios.get(`${this.baseUrl}/search`, {
+        params: {
+          key: this.apiKey,
+          channelId: channelId,
+          part: 'snippet',
+          type: 'video',
+          maxResults: options.maxResults || 10,
+          order: options.order || 'date',
+          videoDuration: options.videoDuration,
+          videoDefinition: options.videoDefinition,
+          videoEmbeddable: options.videoEmbeddable !== false,
+          safeSearch: options.safeSearch || 'moderate',
+        },
+      });
+
+      if (!searchResponse.data.items || searchResponse.data.items.length === 0) {
+        return [];
+      }
+
+      const videoIds = searchResponse.data.items.map((item: any) => item.id.videoId).join(',');
+
+      // Get detailed video information
+      const videosResponse = await axios.get(`${this.baseUrl}/videos`, {
+        params: {
+          key: this.apiKey,
+          id: videoIds,
+          part: 'snippet,contentDetails,statistics',
+        },
+      });
+
+      return videosResponse.data.items.map((item: any) => this.mapVideoResponse(item));
+    } catch (error) {
+      console.error('YouTube API error:', error);
+      return this.mockChannelVideos(channelId, options);
+    }
+  }
+
+  async getRelatedVideos(videoId: string, maxResults: number = 10): Promise<YouTubeVideo[]> {
+    if (this.mockMode) {
+      return this.mockRelatedVideos(videoId, maxResults);
+    }
+
+    try {
+      // Get the original video to extract its tags and title for related search
+      const originalVideo = await this.getVideoById(videoId);
+      if (!originalVideo) {
+        return [];
+      }
+
+      // Create a search query based on video tags and title
+      const searchTerms = originalVideo.tags?.slice(0, 3).join(' ') || 
+                         originalVideo.title.split(' ').slice(0, 3).join(' ');
+
+      // Search for related videos
+      const searchResponse = await axios.get(`${this.baseUrl}/search`, {
+        params: {
+          key: this.apiKey,
+          q: searchTerms,
+          part: 'snippet',
+          type: 'video',
+          maxResults: maxResults + 5, // Get a few extra to filter out the original
+          order: 'relevance',
+          videoEmbeddable: true,
+          safeSearch: 'moderate',
+        },
+      });
+
+      if (!searchResponse.data.items || searchResponse.data.items.length === 0) {
+        return [];
+      }
+
+      // Filter out the original video and get video details
+      const relatedVideoIds = searchResponse.data.items
+        .map((item: any) => item.id.videoId)
+        .filter((id: string) => id !== videoId)
+        .slice(0, maxResults)
+        .join(',');
+
+      if (!relatedVideoIds) {
+        return [];
+      }
+
+      const videosResponse = await axios.get(`${this.baseUrl}/videos`, {
+        params: {
+          key: this.apiKey,
+          id: relatedVideoIds,
+          part: 'snippet,contentDetails,statistics',
+        },
+      });
+
+      return videosResponse.data.items.map((item: any) => this.mapVideoResponse(item));
+    } catch (error) {
+      console.error('YouTube API error:', error);
+      return this.mockRelatedVideos(videoId, maxResults);
+    }
+  }
+
+  private async mockChannelVideos(channelId: string, options: YouTubeSearchOptions = {}): Promise<YouTubeVideo[]> {
+    const maxResults = options.maxResults || 10;
+    const mockVideos: YouTubeVideo[] = [];
+
+    for (let i = 0; i < maxResults; i++) {
+      mockVideos.push({
+        videoId: `channel-video-${channelId}-${i + 1}`,
+        title: `Channel Video ${i + 1}: Jung Psychology Lecture`,
+        description: `Educational content from channel ${channelId} exploring Jungian concepts.`,
+        channelId: channelId,
+        channelTitle: 'Educational Channel',
+        publishedAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
+        duration: `PT${10 + i * 2}M${30 + i * 5}S`,
+        viewCount: (10000 - i * 500).toString(),
+        likeCount: (500 - i * 25).toString(),
+        thumbnails: {
+          default: { url: `https://i.ytimg.com/vi/channel-video-${i + 1}/default.jpg`, width: 120, height: 90 },
+          medium: { url: `https://i.ytimg.com/vi/channel-video-${i + 1}/mqdefault.jpg`, width: 320, height: 180 },
+          high: { url: `https://i.ytimg.com/vi/channel-video-${i + 1}/hqdefault.jpg`, width: 480, height: 360 },
+        },
+        tags: ['jung', 'psychology', 'education', `channel-${channelId}`],
+        categoryId: '27',
+      });
+    }
+
+    return mockVideos;
+  }
+
+  private async mockRelatedVideos(videoId: string, maxResults: number = 10): Promise<YouTubeVideo[]> {
+    const mockVideos: YouTubeVideo[] = [];
+
+    for (let i = 0; i < maxResults; i++) {
+      mockVideos.push({
+        videoId: `related-${videoId}-${i + 1}`,
+        title: `Related Video ${i + 1}: Exploring Jungian Themes`,
+        description: `Content related to video ${videoId}, exploring similar psychological concepts.`,
+        channelId: `related-channel-${i + 1}`,
+        channelTitle: `Related Channel ${i + 1}`,
+        publishedAt: new Date(Date.now() - i * 12 * 60 * 60 * 1000).toISOString(),
+        duration: `PT${8 + i}M${20 + i * 3}S`,
+        viewCount: (5000 + i * 200).toString(),
+        likeCount: (250 + i * 10).toString(),
+        thumbnails: {
+          default: { url: `https://i.ytimg.com/vi/related-${i + 1}/default.jpg`, width: 120, height: 90 },
+          medium: { url: `https://i.ytimg.com/vi/related-${i + 1}/mqdefault.jpg`, width: 320, height: 180 },
+          high: { url: `https://i.ytimg.com/vi/related-${i + 1}/hqdefault.jpg`, width: 480, height: 360 },
+        },
+        tags: ['jung', 'psychology', 'related', 'analysis'],
+        categoryId: '27',
+      });
+    }
+
+    return mockVideos;
+  }
+
   private parseDurationToMinutes(isoDuration: string): number {
     const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
     if (!match) return 0;

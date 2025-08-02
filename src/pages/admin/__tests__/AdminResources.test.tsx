@@ -35,6 +35,14 @@ jest.mock('../../../contexts/AdminContext', () => ({
   useAdmin: jest.fn()
 }));
 
+// Mock AdminNavigation component
+jest.mock('../../../components/admin/AdminNavigation', () => {
+  const React = require('react');
+  return function AdminNavigation() {
+    return React.createElement('nav', { 'data-testid': 'admin-navigation' }, 'Admin Navigation');
+  };
+});
+
 const mockModules: Module[] = [
   {
     id: 'module-1',

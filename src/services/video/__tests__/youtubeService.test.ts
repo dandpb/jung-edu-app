@@ -402,8 +402,8 @@ describe('YouTubeService', () => {
     });
   });
 
-  // TODO: Implement getChannelVideos method in YouTubeService
-  describe.skip('getChannelVideos', () => {
+  // getChannelVideos method is now implemented in YouTubeService
+  describe('getChannelVideos', () => {
     const mockChannelVideosResponse = {
       data: {
         items: [
@@ -434,6 +434,18 @@ describe('YouTubeService', () => {
             items: [
               {
                 id: 'video1',
+                snippet: {
+                  title: 'Channel Video 1',
+                  description: 'Description',
+                  channelId: 'channel123',
+                  channelTitle: 'Channel',
+                  publishedAt: '2023-01-01T00:00:00Z',
+                  thumbnails: {
+                    default: { url: 'thumb.jpg', width: 120, height: 90 },
+                    medium: { url: 'thumb-m.jpg', width: 320, height: 180 },
+                    high: { url: 'thumb-h.jpg', width: 480, height: 360 }
+                  }
+                },
                 contentDetails: { duration: 'PT5M' },
                 statistics: { viewCount: '1000', likeCount: '50' }
               }
@@ -465,10 +477,37 @@ describe('YouTubeService', () => {
     });
   });
 
-  // TODO: Implement getRelatedVideos method in YouTubeService
-  describe.skip('getRelatedVideos', () => {
+  // getRelatedVideos method is now implemented in YouTubeService
+  describe('getRelatedVideos', () => {
     it('should search for related videos', async () => {
-      const mockResponse = {
+      // First mock the call to getVideoById for the original video
+      const mockOriginalVideoResponse = {
+        data: {
+          items: [
+            {
+              id: 'original-video-id',
+              snippet: {
+                title: 'Original Video',
+                description: 'Original content',
+                channelId: 'channel1',
+                channelTitle: 'Original Channel',
+                publishedAt: '2023-01-01T00:00:00Z',
+                thumbnails: {
+                  default: { url: 'thumb.jpg', width: 120, height: 90 },
+                  medium: { url: 'thumb-m.jpg', width: 320, height: 180 },
+                  high: { url: 'thumb-h.jpg', width: 480, height: 360 }
+                },
+                tags: ['jung', 'psychology']
+              },
+              contentDetails: { duration: 'PT10M' },
+              statistics: { viewCount: '5000', likeCount: '200' }
+            }
+          ]
+        }
+      };
+
+      // Then mock the search for related videos
+      const mockSearchResponse = {
         data: {
           items: [
             {
@@ -490,24 +529,40 @@ describe('YouTubeService', () => {
         }
       };
 
+      // Finally mock the video details response
+      const mockVideoDetailsResponse = {
+        data: {
+          items: [
+            {
+              id: 'related1',
+              snippet: {
+                title: 'Related Video',
+                description: 'Related content',
+                channelId: 'channel2',
+                channelTitle: 'Another Channel',
+                publishedAt: '2023-02-01T00:00:00Z',
+                thumbnails: {
+                  default: { url: 'thumb.jpg', width: 120, height: 90 },
+                  medium: { url: 'thumb-m.jpg', width: 320, height: 180 },
+                  high: { url: 'thumb-h.jpg', width: 480, height: 360 }
+                }
+              },
+              contentDetails: { duration: 'PT8M' },
+              statistics: { viewCount: '2000', likeCount: '100' }
+            }
+          ]
+        }
+      };
+
       mockedAxios.get
-        .mockResolvedValueOnce(mockResponse)
-        .mockResolvedValueOnce({
-          data: {
-            items: [
-              {
-                id: 'related1',
-                contentDetails: { duration: 'PT8M' },
-                statistics: { viewCount: '2000' }
-              }
-            ]
-          }
-        });
+        .mockResolvedValueOnce(mockOriginalVideoResponse) // getVideoById call
+        .mockResolvedValueOnce(mockSearchResponse) // search call
+        .mockResolvedValueOnce(mockVideoDetailsResponse); // video details call
 
       const videos = await service.getRelatedVideos('original-video-id');
 
       expect(videos.length).toBeGreaterThan(0);
-      expect(mockedAxios.get).toHaveBeenCalled();
+      expect(mockedAxios.get).toHaveBeenCalledTimes(3); // getVideoById + search + video details
     });
 
     it('should use mock mode for related videos', async () => {
