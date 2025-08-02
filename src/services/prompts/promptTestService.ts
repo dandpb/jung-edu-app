@@ -52,12 +52,24 @@ class PromptTestService {
       // Execute with real LLM
       const result = await this.provider.generateCompletion(compiledPrompt, {
         temperature: 0.7,
-        maxTokens: 1000
+        maxTokens: 2500  // Increased from 1000 to accommodate full responses
       });
 
+      // Clean and validate JSON responses if needed
+      let cleanedResponse = result.content;
+      
+      // Check if it's a JSON response that might be incomplete
+      if (compiledPrompt.toLowerCase().includes('json') || 
+          compiledPrompt.toLowerCase().includes('questões') ||
+          compiledPrompt.toLowerCase().includes('questions')) {
+        
+        // Try to extract and fix JSON if it's malformed
+        cleanedResponse = this.cleanJsonResponse(result.content);
+      }
+      
       return {
         success: true,
-        response: result.content,
+        response: cleanedResponse,
         executionTime: Date.now() - startTime,
         tokensUsed: result.usage?.totalTokens
       };
@@ -220,6 +232,49 @@ Esta resposta de demonstração foi gerada com base no tipo de prompt detectado.
 *Resposta gerada em modo de demonstração*`;
   }
 
+  /**
+   * Clean and fix potentially incomplete JSON responses
+   */
+  private cleanJsonResponse(response: string): string {
+    // Remove markdown code blocks if present
+    let cleaned = response.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+    
+    // Try to find JSON array boundaries
+    const arrayStart = cleaned.indexOf('[');
+    const lastCompleteObject = cleaned.lastIndexOf('}');
+    
+    if (arrayStart !== -1 && lastCompleteObject > arrayStart) {
+      // Extract the JSON portion
+      let jsonPortion = cleaned.substring(arrayStart);
+      
+      // Check if array is properly closed
+      if (!jsonPortion.includes(']')) {
+        // Find the last complete object and close the array
+        const lastObjectEnd = jsonPortion.lastIndexOf('}');
+        if (lastObjectEnd > 0) {
+          jsonPortion = jsonPortion.substring(0, lastObjectEnd + 1) + '\n]';
+        }
+      }
+      
+      // Try to parse and re-stringify to validate
+      try {
+        const parsed = JSON.parse(jsonPortion);
+        // If it's an array of questions, add a note about truncation if needed
+        if (Array.isArray(parsed) && parsed.length < 10 && 
+            (response.includes('questões') || response.includes('questions'))) {
+          const noteAboutTruncation = `\n\n⚠️ Nota: Resposta foi truncada. ${parsed.length} de 10 questões retornadas. Considere aumentar o limite de tokens ou simplificar o prompt.`;
+          return JSON.stringify(parsed, null, 2) + noteAboutTruncation;
+        }
+        return JSON.stringify(parsed, null, 2);
+      } catch (e) {
+        // If parsing fails, return the original with a warning
+        return response + '\n\n⚠️ Aviso: A resposta JSON pode estar incompleta ou malformada.';
+      }
+    }
+    
+    return response;
+  }
+  
   /**
    * Check if using mock provider
    */

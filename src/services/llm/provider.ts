@@ -19,7 +19,7 @@ export class OpenAIProvider implements ILLMProvider {
   async generateCompletion(prompt: string, options: LLMGenerationOptions = {}): Promise<LLMResponse> {
     const {
       temperature = 0.7,
-      maxTokens = 2000,
+      maxTokens = 3000,  // Increased default to handle larger responses
     } = options;
 
     const systemPrompt = 'You are an educational content generator specializing in Jungian psychology.';
