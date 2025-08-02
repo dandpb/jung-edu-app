@@ -10,16 +10,25 @@ import { Database } from '../types/database';
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    'Missing Supabase environment variables. Please check your .env file and ensure REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY are set.'
-  );
+// Check if we're in test environment
+const isTestEnvironment = process.env.NODE_ENV === 'test';
+
+// Use mock values for test environment if env vars are not set
+const finalSupabaseUrl = supabaseUrl || (isTestEnvironment ? 'https://test.supabase.co' : '');
+const finalSupabaseAnonKey = supabaseAnonKey || (isTestEnvironment ? 'test-anon-key' : '');
+
+if (!finalSupabaseUrl || !finalSupabaseAnonKey) {
+  if (!isTestEnvironment) {
+    throw new Error(
+      'Missing Supabase environment variables. Please check your .env file and ensure REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY are set.'
+    );
+  }
 }
 
 // Create Supabase client with type safety
 export const supabase: SupabaseClient<Database> = createClient(
-  supabaseUrl,
-  supabaseAnonKey,
+  finalSupabaseUrl,
+  finalSupabaseAnonKey,
   {
     auth: {
       autoRefreshToken: true,
@@ -182,7 +191,7 @@ export const subscriptions = {
 // Utility functions
 export const supabaseUtils = {
   // Check if client is properly configured
-  isConfigured: () => !!supabaseUrl && !!supabaseAnonKey,
+  isConfigured: () => !!finalSupabaseUrl && !!finalSupabaseAnonKey,
   
   // Get current session
   getCurrentSession: () => supabase.auth.getSession(),

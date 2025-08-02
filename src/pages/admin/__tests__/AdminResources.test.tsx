@@ -1,8 +1,34 @@
 import React from 'react';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import AdminResources from '../AdminResources';
 import { Module, Bibliography, Film } from '../../../types';
+
+// Mock lucide-react icons
+jest.mock('lucide-react', () => {
+  const React = require('react');
+  
+  return {
+    Plus: ({ className }: any) => React.createElement('div', { 'data-testid': 'plus-icon', className }, 'Plus'),
+    Edit2: ({ className }: any) => React.createElement('div', { 'data-testid': 'edit-icon', className }, 'Edit2'),
+    Trash2: ({ className }: any) => React.createElement('div', { 'data-testid': 'trash-icon', className }, 'Trash2'),
+    Save: ({ className }: any) => React.createElement('div', { 'data-testid': 'save-icon', className }, 'Save'),
+    X: ({ className }: any) => React.createElement('div', { 'data-testid': 'x-icon', className }, 'X'),
+    Book: ({ className }: any) => React.createElement('div', { 'data-testid': 'book-icon', className }, 'Book'),
+    Film: ({ className }: any) => React.createElement('div', { 'data-testid': 'film-icon', className }, 'Film'),
+    Search: ({ className }: any) => React.createElement('div', { 'data-testid': 'search-icon', className }, 'Search'),
+    Filter: ({ className }: any) => React.createElement('div', { 'data-testid': 'filter-icon', className }, 'Filter'),
+    LogOut: ({ className }: any) => React.createElement('div', { 'data-testid': 'logout-icon', className }, 'LogOut'),
+  };
+});
+
+// Mock useNavigate
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
 
 // Mock the useAdmin hook
 jest.mock('../../../contexts/AdminContext', () => ({
@@ -113,11 +139,24 @@ const mockUseAdmin = () => ({
   updateMindMap: jest.fn()
 });
 
-describe('AdminResources Component', () => {
-  const user = userEvent.setup();
+// Test wrapper component
+const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <MemoryRouter>
+    {children}
+  </MemoryRouter>
+);
 
+// Custom render function for this test file
+const customRender = (ui: React.ReactElement) => {
+  const user = userEvent.setup();
+  const result = render(ui, { wrapper: TestWrapper });
+  return { user, ...result };
+};
+
+describe('AdminResources Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockNavigate.mockClear();
     const { useAdmin } = require('../../../contexts/AdminContext');
     (useAdmin as jest.Mock).mockReturnValue(mockUseAdmin());
     window.confirm = jest.fn(() => true);
@@ -128,28 +167,28 @@ describe('AdminResources Component', () => {
   });
 
   test('renders admin resources page with correct title and description', () => {
-    render(<AdminResources />);
+    customRender(<AdminResources />);
     
     expect(screen.getByText('Gerenciar Recursos')).toBeInTheDocument();
     expect(screen.getByText('Gerenciar recursos de bibliografia e filmes em todos os módulos')).toBeInTheDocument();
   });
 
   test('renders tabs for bibliography and films', () => {
-    render(<AdminResources />);
+    customRender(<AdminResources />);
     
     expect(screen.getByRole('button', { name: /Bibliografia/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Filmes/i })).toBeInTheDocument();
   });
 
   test('bibliography tab is active by default', () => {
-    render(<AdminResources />);
+    customRender(<AdminResources />);
     
     const bibliographyTab = screen.getByRole('button', { name: /Bibliografia/i });
     expect(bibliographyTab).toHaveClass('border-primary-600', 'text-primary-600');
   });
 
   test('displays all bibliography entries from all modules', () => {
-    render(<AdminResources />);
+    customRender(<AdminResources />);
     
     expect(screen.getByText('Memories, Dreams, Reflections')).toBeInTheDocument();
     expect(screen.getByText('Man and His Symbols')).toBeInTheDocument();
@@ -162,14 +201,14 @@ describe('AdminResources Component', () => {
   });
 
   test('displays module association for each bibliography entry', () => {
-    render(<AdminResources />);
+    customRender(<AdminResources />);
     
     expect(screen.getAllByText('Introduction to Jung').length).toBeGreaterThan(0);
     expect(screen.getAllByText('The Shadow').length).toBeGreaterThan(0);
   });
 
   test('switching to films tab shows film entries', async () => {
-    render(<AdminResources />);
+    const { user } = customRender(<AdminResources />);
     
     const filmsTab = screen.getByRole('button', { name: /Filmes/i });
     await user.click(filmsTab);
@@ -183,7 +222,7 @@ describe('AdminResources Component', () => {
   });
 
   test('add button text changes based on active tab', async () => {
-    render(<AdminResources />);
+    const { user } = customRender(<AdminResources />);
     
     // Initially shows "Adicionar Livro"
     expect(screen.getByRole('button', { name: /Adicionar Livro/i })).toBeInTheDocument();
@@ -196,7 +235,7 @@ describe('AdminResources Component', () => {
   });
 
   test('search functionality filters bibliography entries', async () => {
-    render(<AdminResources />);
+    const { user } = customRender(<AdminResources />);
     
     const searchInput = screen.getByPlaceholderText(/Buscar bibliografia/i);
     await user.type(searchInput, 'Memories');
@@ -207,7 +246,7 @@ describe('AdminResources Component', () => {
   });
 
   test('search by author works correctly', async () => {
-    render(<AdminResources />);
+    const { user } = customRender(<AdminResources />);
     
     const searchInput = screen.getByPlaceholderText(/Buscar bibliografia/i);
     await user.type(searchInput, 'Zweig');
@@ -217,7 +256,7 @@ describe('AdminResources Component', () => {
   });
 
   test('module filter works correctly', async () => {
-    render(<AdminResources />);
+    const { user } = customRender(<AdminResources />);
     
     const filterSelect = screen.getByRole('combobox');
     await user.selectOptions(filterSelect, 'module-1');
@@ -228,7 +267,7 @@ describe('AdminResources Component', () => {
   });
 
   test('clicking add book opens add form modal', async () => {
-    render(<AdminResources />);
+    const { user } = customRender(<AdminResources />);
     
     const addButton = screen.getByRole('button', { name: /Adicionar Livro/i });
     await user.click(addButton);
@@ -242,7 +281,7 @@ describe('AdminResources Component', () => {
   });
 
   test('can fill and submit bibliography form', async () => {
-    render(<AdminResources />);
+    const { user } = customRender(<AdminResources />);
     
     await user.click(screen.getByRole('button', { name: /Adicionar Livro/i }));
     
@@ -300,7 +339,7 @@ describe('AdminResources Component', () => {
   });
 
   test('clicking add film opens film form modal', async () => {
-    render(<AdminResources />);
+    const { user } = customRender(<AdminResources />);
     
     await user.click(screen.getByRole('button', { name: /Filmes/i }));
     await user.click(screen.getByRole('button', { name: /Adicionar Filme/i }));
@@ -324,7 +363,7 @@ describe('AdminResources Component', () => {
   });
 
   test('can cancel adding a resource', async () => {
-    render(<AdminResources />);
+    const { user } = customRender(<AdminResources />);
     
     await user.click(screen.getByRole('button', { name: /Adicionar Livro/i }));
     expect(screen.getByText('Add Bibliography')).toBeInTheDocument();
@@ -334,12 +373,11 @@ describe('AdminResources Component', () => {
   });
 
   test('deleting bibliography entry shows confirmation and removes it', async () => {
-    render(<AdminResources />);
+    const { user } = customRender(<AdminResources />);
     
-    // Find delete button for first bibliography entry
+    // Find delete button for first bibliography entry (using test-id for mocked trash icon)
     const deleteButtons = screen.getAllByRole('button').filter(btn => 
-      btn.querySelector('svg') && btn.querySelector('svg')?.parentElement === btn && 
-      !btn.textContent && 
+      btn.querySelector('[data-testid="trash-icon"]') && 
       btn.className.includes('text-gray-600') &&
       btn.className.includes('hover:text-red-600')
     );
@@ -363,11 +401,10 @@ describe('AdminResources Component', () => {
 
   test('canceling delete confirmation does not delete item', async () => {
     window.confirm = jest.fn(() => false);
-    render(<AdminResources />);
+    const { user } = customRender(<AdminResources />);
     
     const deleteButtons = screen.getAllByRole('button').filter(btn => 
-      btn.querySelector('svg') && btn.querySelector('svg')?.parentElement === btn && 
-      !btn.textContent && 
+      btn.querySelector('[data-testid="trash-icon"]') && 
       btn.className.includes('text-gray-600') &&
       btn.className.includes('hover:text-red-600')
     );
@@ -386,7 +423,7 @@ describe('AdminResources Component', () => {
       }]
     });
     
-    render(<AdminResources />);
+    const { user } = customRender(<AdminResources />);
     
     // Should render without crashing but no entries shown
     // Check that the container is rendered but empty
@@ -415,7 +452,7 @@ describe('AdminResources Component', () => {
       }]
     });
     
-    render(<AdminResources />);
+    customRender(<AdminResources />);
     
     // Should not crash and render the component
     const container = screen.getByText('Gerenciar Recursos').closest('.max-w-7xl');
@@ -425,7 +462,7 @@ describe('AdminResources Component', () => {
   });
 
   test('displays correct resource counts', () => {
-    render(<AdminResources />);
+    customRender(<AdminResources />);
     
     // Should display 3 bibliography entries total
     const bookEntries = screen.getAllByText(/Carl Jung|Connie Zweig/);

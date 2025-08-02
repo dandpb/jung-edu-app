@@ -10,25 +10,120 @@ import { ALERT_RULES } from '../../config/alertingThresholds';
 import { NOTIFICATION_CHANNELS } from '../../config/notificationChannels';
 import { PerformanceAlert } from '../../services/resourcePipeline/monitoring';
 
+// Mock environment variables
+process.env.SMTP_HOST = 'smtp.test.com';
+process.env.SMTP_USER = 'test@test.com';
+process.env.SMTP_PASS = 'testpass';
+process.env.WEBHOOK_URL = 'https://webhook.test.com';
+process.env.SLACK_WEBHOOK_URL = 'https://hooks.slack.com/test';
+
+// Mock external modules
+jest.mock('nodemailer', () => ({
+  createTransport: () => ({
+    sendMail: () => Promise.resolve({ messageId: 'test-123' })
+  })
+}));
+
+// Mock fetch for webhook calls with proper typing
+global.fetch = jest.fn((_input: RequestInfo | URL, _init?: RequestInit) =>
+  Promise.resolve({
+    ok: true,
+    status: 200,
+    json: () => Promise.resolve({ success: true })
+  } as Response)
+) as jest.MockedFunction<typeof fetch>;
+
+// Mock setTimeout to prevent real timers in tests
+jest.useFakeTimers();
+
+// Mock external dependencies that might cause issues
+jest.mock('../../config/escalationPolicies', () => ({
+  ESCALATION_POLICIES: [
+    {
+      id: 'test-policy',
+      name: 'Test Policy',
+      enabled: true,
+      triggers: [{ severity: ['high'], category: ['system'] }],
+      levels: [
+        {
+          level: 1,
+          name: 'Level 1',
+          delayMinutes: 5,
+          channels: ['email'],
+          recipients: ['test@test.com']
+        }
+      ],
+      maxEscalations: 1,
+      cooldownPeriod: 30
+    }
+  ],
+  EscalationPolicyManager: function() {
+    return {
+      getPoliciesForAlert: () => [],
+      getPolicy: () => null
+    };
+  }
+}));
+
+jest.mock('../../config/alertTemplates', () => ({
+  ALL_ALERT_TEMPLATES: [
+    {
+      id: 'test-template',
+      name: 'Test Template',
+      category: 'system',
+      severity: 'high',
+      messageTemplate: 'Test message: {{alertName}}',
+      subjectTemplate: 'Test alert: {{alertName}}',
+      variables: ['alertName']
+    }
+  ],
+  AlertTemplateManager: function() {
+    return {
+      getTemplate: () => null,
+      renderTemplate: () => ({
+        subject: 'Test Subject',
+        message: 'Test Message'
+      })
+    };
+  }
+}));
+
 // Mock console methods to avoid noise in tests
-global.console = {
-  ...global.console,
-  log: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
+const consoleSpy = {
+  log: jest.spyOn(console, 'log').mockImplementation(() => {}),
+  warn: jest.spyOn(console, 'warn').mockImplementation(() => {}),
+  error: jest.spyOn(console, 'error').mockImplementation(() => {})
 };
 
 describe('AlertingEngine', () => {
   let alertingEngine: AlertingEngine;
 
   beforeEach(() => {
+    // Clear all mocks
+    jest.clearAllMocks();
+    
+    // Reset timers
+    jest.clearAllTimers();
+    
     alertingEngine = new AlertingEngine();
     // Disable automatic evaluation for testing
     (alertingEngine as any).enabled = false;
+    
+    // Stop evaluation timers to prevent interference
+    alertingEngine.stop();
   });
 
   afterEach(() => {
     alertingEngine.stop();
+    jest.clearAllTimers();
+  });
+  
+  afterAll(() => {
+    // Restore console methods
+    Object.values(consoleSpy).forEach(spy => spy.mockRestore());
+    
+    // Restore real timers
+    jest.useRealTimers();
   });
 
   describe('Initialization', () => {
@@ -97,10 +192,11 @@ describe('AlertingEngine', () => {
   });
 
   describe('Event Emission', () => {
-    it('should emit events correctly', (done) => {
-      alertingEngine.on('alert_acknowledged', (alertState: AlertState) => {
-        expect(alertState.acknowledged).toBe(true);
-        done();
+    it('should emit events correctly', async () => {
+      const eventPromise = new Promise<AlertState>((resolve) => {
+        alertingEngine.on('alert_acknowledged', (alertState: AlertState) => {
+          resolve(alertState);
+        });
       });
 
       // Create and acknowledge an alert
@@ -120,6 +216,9 @@ describe('AlertingEngine', () => {
 
       (alertingEngine as any).alertStates.set('test-state-event', alertState);
       alertingEngine.acknowledgeAlert('test-alert-event', 'test-user');
+      
+      const acknowledgedState = await eventPromise;
+      expect(acknowledgedState.acknowledged).toBe(true);
     });
   });
 });
@@ -162,10 +261,9 @@ describe('AlertingService', () => {
 
     it('should not start if already running', () => {
       alertingService.start();
-      const consoleSpy = jest.spyOn(console, 'warn');
       
       alertingService.start(); // Try to start again
-      expect(consoleSpy).toHaveBeenCalledWith('⚠️ Alerting service is already running');
+      expect(consoleSpy.warn).toHaveBeenCalledWith('⚠️ Alerting service is already running');
     });
   });
 
@@ -198,25 +296,33 @@ describe('AlertingService', () => {
   });
 
   describe('Test Mode', () => {
-    it('should trigger test alerts in test mode', (done) => {
-      alertingService.on('alert_fired', (alert: PerformanceAlert) => {
-        expect(alert.data.testMode).toBe(true);
-        expect(alert.severity).toBe('medium');
-        done();
+    it('should trigger test alerts in test mode', async () => {
+      const alertPromise = new Promise<PerformanceAlert>((resolve) => {
+        alertingService.on('alert_fired', (alert: PerformanceAlert) => {
+          resolve(alert);
+        });
       });
 
       alertingService.triggerTestAlert('medium');
+      
+      const alert = await alertPromise;
+      expect(alert.data.testMode).toBe(true);
+      expect(alert.severity).toBe('medium');
     });
 
-    it('should simulate system alerts', (done) => {
-      alertingService.on('alert_fired', (alert: PerformanceAlert) => {
-        expect(alert.data.simulationType).toBe('cpu');
-        expect(alert.data.testMode).toBe(true);
-        expect(alert.message).toContain('High CPU usage detected');
-        done();
+    it('should simulate system alerts', async () => {
+      const alertPromise = new Promise<PerformanceAlert>((resolve) => {
+        alertingService.on('alert_fired', (alert: PerformanceAlert) => {
+          resolve(alert);
+        });
       });
 
       alertingService.simulateSystemAlert('cpu');
+      
+      const alert = await alertPromise;
+      expect(alert.data.simulationType).toBe('cpu');
+      expect(alert.data.testMode).toBe(true);
+      expect(alert.message).toContain('High CPU usage detected');
     });
 
     it('should not trigger test alerts when test mode is disabled', () => {
@@ -224,10 +330,9 @@ describe('AlertingService', () => {
         enableTestMode: false
       });
 
-      const consoleSpy = jest.spyOn(console, 'warn');
       alertingServiceNoTest.triggerTestAlert();
       
-      expect(consoleSpy).toHaveBeenCalledWith('⚠️ Test mode is disabled');
+      expect(consoleSpy.warn).toHaveBeenCalledWith('⚠️ Test mode is disabled');
       alertingServiceNoTest.stop();
     });
   });
@@ -275,45 +380,66 @@ describe('Alert Integration Tests', () => {
   });
 
   describe('End-to-End Alert Flow', () => {
-    it('should handle complete alert lifecycle', (done) => {
+    it('should handle complete alert lifecycle', async () => {
       let alertFired = false;
       let alertAcknowledged = false;
+      let firedAlert: PerformanceAlert;
 
-      alertingService.on('alert_fired', (alert: PerformanceAlert) => {
-        alertFired = true;
-        
-        // Acknowledge the alert
-        setTimeout(() => {
+      const alertPromise = new Promise<void>((resolve) => {
+        alertingService.on('alert_fired', (alert: PerformanceAlert) => {
+          alertFired = true;
+          firedAlert = alert;
+          
+          // Acknowledge the alert immediately in test
           const acknowledged = alertingService.acknowledgeAlert(alert.id, 'test-user');
           expect(acknowledged).toBe(true);
-        }, 100);
-      });
+        });
 
-      alertingService.on('alert_acknowledged', (alertState: AlertState) => {
-        alertAcknowledged = true;
-        expect(alertState.acknowledgedBy).toBe('test-user');
-        
-        // Verify both events occurred
-        expect(alertFired).toBe(true);
-        expect(alertAcknowledged).toBe(true);
-        done();
+        alertingService.on('alert_acknowledged', (alertState: AlertState) => {
+          alertAcknowledged = true;
+          expect(alertState.acknowledgedBy).toBe('test-user');
+          
+          // Verify both events occurred
+          expect(alertFired).toBe(true);
+          expect(alertAcknowledged).toBe(true);
+          resolve();
+        });
       });
 
       // Trigger test alert
       alertingService.triggerTestAlert('high');
+      
+      await alertPromise;
     });
 
     it('should maintain alert counts correctly', async () => {
       const initialStats = alertingService.getStatistics();
       const initialAlertCount = initialStats.totalHistoryAlerts;
 
+      // Create promises to wait for all alerts
+      const alertPromises = [];
+      let alertCount = 0;
+      
+      alertingService.on('alert_fired', () => {
+        alertCount++;
+      });
+
       // Trigger multiple test alerts
       alertingService.triggerTestAlert('low');
       alertingService.triggerTestAlert('medium');
       alertingService.triggerTestAlert('high');
 
-      // Wait for alerts to be processed
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Wait for all alerts to be processed
+      await new Promise(resolve => {
+        const checkCount = () => {
+          if (alertCount >= 3) {
+            resolve(undefined);
+          } else {
+            setTimeout(checkCount, 10);
+          }
+        };
+        checkCount();
+      });
 
       const finalStats = alertingService.getStatistics();
       expect(finalStats.totalHistoryAlerts).toBe(initialAlertCount + 3);
@@ -357,18 +483,24 @@ describe('Alert Integration Tests', () => {
 
   describe('Performance Tests', () => {
     it('should handle multiple simultaneous alerts', async () => {
-      const alertPromises: Promise<void>[] = [];
       const alertCount = 10;
-
-      for (let i = 0; i < alertCount; i++) {
-        const promise = new Promise<void>((resolve) => {
-          alertingService.once('alert_fired', () => resolve());
-          alertingService.triggerTestAlert('medium');
+      let receivedAlerts = 0;
+      
+      const allAlertsPromise = new Promise<void>((resolve) => {
+        alertingService.on('alert_fired', () => {
+          receivedAlerts++;
+          if (receivedAlerts >= alertCount) {
+            resolve();
+          }
         });
-        alertPromises.push(promise);
+      });
+
+      // Trigger all alerts
+      for (let i = 0; i < alertCount; i++) {
+        alertingService.triggerTestAlert('medium');
       }
 
-      await Promise.all(alertPromises);
+      await allAlertsPromise;
       
       const stats = alertingService.getStatistics();
       expect(stats.totalHistoryAlerts).toBeGreaterThanOrEqual(alertCount);
@@ -377,13 +509,23 @@ describe('Alert Integration Tests', () => {
     it('should maintain performance under load', async () => {
       const start = Date.now();
       const iterations = 50;
+      let processedAlerts = 0;
 
+      const allProcessedPromise = new Promise<void>((resolve) => {
+        alertingService.on('alert_fired', () => {
+          processedAlerts++;
+          if (processedAlerts >= iterations) {
+            resolve();
+          }
+        });
+      });
+
+      // Trigger all alerts
       for (let i = 0; i < iterations; i++) {
         alertingService.triggerTestAlert('low');
       }
 
-      // Wait for all alerts to be processed
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await allProcessedPromise;
 
       const duration = Date.now() - start;
       const avgTimePerAlert = duration / iterations;

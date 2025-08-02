@@ -9,6 +9,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { useAdmin } from '../../contexts/AdminContext';
+import AdminNavigation from '../../components/admin/AdminNavigation';
 
 const AdminDashboard: React.FC = () => {
   const { currentAdmin, modules } = useAdmin();
@@ -29,6 +30,14 @@ const AdminDashboard: React.FC = () => {
       path: '/admin/resources',
       stats: 'Livros, Filmes, Vídeos',
       color: 'bg-green-500'
+    },
+    {
+      title: 'Gerenciar Prompts',
+      description: 'Customizar prompts de IA do sistema',
+      icon: Settings,
+      path: '/admin/prompts',
+      stats: 'Templates LLM',
+      color: 'bg-purple-500'
     }
   ];
 
@@ -60,7 +69,9 @@ const AdminDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <>
+      <AdminNavigation />
+      <div className="max-w-7xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-display font-bold text-gray-900 mb-2">
           Painel Administrativo
@@ -91,7 +102,7 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Admin Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {adminCards.map((card) => {
           const Icon = card.icon;
           return (
@@ -151,7 +162,8 @@ const AdminDashboard: React.FC = () => {
           </p>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

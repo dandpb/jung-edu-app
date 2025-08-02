@@ -19,6 +19,7 @@ import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminModules from './pages/admin/AdminModules';
 import AdminResources from './pages/admin/AdminResources';
+import AdminPrompts from './pages/admin/AdminPrompts';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
@@ -214,7 +215,7 @@ function AppContent() {
           
           {/* Admin Routes */}
           <Route path="/admin/login" element={
-            <AdminPublicRoute redirectTo="/admin/modules">
+            <AdminPublicRoute redirectTo="/admin/dashboard">
               <AdminLogin />
             </AdminPublicRoute>
           } />
@@ -222,7 +223,15 @@ function AppContent() {
             path="/admin"
             element={
               <AdminProtectedRoute>
-                <Navigate to="/admin/modules" replace />
+                <Navigate to="/admin/dashboard" replace />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AdminProtectedRoute>
+                <AdminDashboard />
               </AdminProtectedRoute>
             }
           />
@@ -239,6 +248,14 @@ function AppContent() {
             element={
               <AdminProtectedRoute>
                 <AdminResources />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/prompts"
+            element={
+              <AdminProtectedRoute>
+                <AdminPrompts />
               </AdminProtectedRoute>
             }
           />

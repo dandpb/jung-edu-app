@@ -14,6 +14,17 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
+// Mock lucide-react icons
+jest.mock('lucide-react', () => {
+  const React = require('react');
+  
+  return {
+    Lock: ({ className }: any) => React.createElement('div', { 'data-testid': 'lock-icon', className }, 'Lock'),
+    User: ({ className }: any) => React.createElement('div', { 'data-testid': 'user-icon', className }, 'User'),
+    AlertCircle: ({ className }: any) => React.createElement('div', { 'data-testid': 'alert-icon', className }, 'AlertCircle'),
+  };
+});
+
 // Mock useAdmin
 const mockLogin = jest.fn();
 jest.mock('../../../contexts/AdminContext', () => ({
@@ -95,7 +106,7 @@ describe('AdminLogin Component', () => {
     
     // Check that navigation occurred
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/admin');
+      expect(mockNavigate).toHaveBeenCalledWith('/admin/modules');
     });
   });
 
@@ -149,20 +160,16 @@ describe('AdminLogin Component', () => {
     
     // Wait for navigation (error will be cleared)
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/admin');
+      expect(mockNavigate).toHaveBeenCalledWith('/admin/modules');
     });
   });
 
   test('displays icons in input fields', () => {
-    const { container } = render(<AdminLogin />);
+    render(<AdminLogin />);
     
-    // Check for User and Lock icons (Lucide icons) using their SVG classes
-    const userIcons = container.querySelectorAll('svg.lucide-user');
-    const lockIcons = container.querySelectorAll('svg.lucide-lock');
-    
-    // Should have at least one of each (in input fields and header)
-    expect(userIcons.length).toBeGreaterThanOrEqual(1);
-    expect(lockIcons.length).toBeGreaterThanOrEqual(2); // One in header, one in password field
+    // Check for User and Lock icons using their test IDs (from our mocked icons)
+    expect(screen.getByTestId('user-icon')).toBeInTheDocument();
+    expect(screen.getAllByTestId('lock-icon')).toHaveLength(2); // One in header, one in password field
   });
 
   test('form prevents default submission', async () => {

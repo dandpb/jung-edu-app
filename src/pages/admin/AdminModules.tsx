@@ -20,6 +20,7 @@ import AutomaticQuizGenerator from '../../components/admin/AutomaticQuizGenerato
 import GenerationProgress from '../../components/admin/GenerationProgress';
 import ModulePreview from '../../components/admin/ModulePreview';
 import { useModuleGenerator } from '../../hooks/useModuleGenerator';
+import AdminNavigation from '../../components/admin/AdminNavigation';
 
 const AdminModules: React.FC = () => {
   const { modules, updateModules, logout } = useAdmin();
@@ -179,7 +180,9 @@ const AdminModules: React.FC = () => {
   }, [generatedModule, isGenerating]);
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <>
+      <AdminNavigation />
+      <div className="max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-display font-bold text-gray-900 mb-2">
@@ -427,7 +430,8 @@ const AdminModules: React.FC = () => {
           ]}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 };
 

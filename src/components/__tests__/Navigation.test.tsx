@@ -34,6 +34,7 @@ jest.mock('lucide-react', () => {
     Brain: ({ className }: any) => React.createElement('div', { 'data-testid': 'brain-icon', className }, 'Brain'),
     User: ({ className }: any) => React.createElement('div', { 'data-testid': 'user-icon', className }, 'User'),
     LogIn: ({ className }: any) => React.createElement('div', { 'data-testid': 'login-icon', className }, 'LogIn'),
+    Activity: ({ className }: any) => React.createElement('div', { 'data-testid': 'activity-icon', className }, 'Activity'),
   };
 });
 

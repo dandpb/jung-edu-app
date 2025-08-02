@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../contexts/AdminContext';
 import { Bibliography, Film } from '../../types';
+import AdminNavigation from '../../components/admin/AdminNavigation';
 import { 
   Plus, 
   Edit2, 
@@ -249,7 +250,9 @@ const AdminResources: React.FC = () => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <>
+      <AdminNavigation />
+      <div className="max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-display font-bold text-gray-900 mb-2">
@@ -593,7 +596,8 @@ const AdminResources: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 };
 
