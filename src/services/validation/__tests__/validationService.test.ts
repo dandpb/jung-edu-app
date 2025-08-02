@@ -69,8 +69,9 @@ describe('ValidationService', () => {
     // Reset performance mock
     mockPerformance.now.mockReturnValue(100);
     
-    // Set up default mock return values
-    mockSystemValidator.validateSystem.mockResolvedValue({
+    // Set up default mock return values if validateSystem is a mock function
+    if (mockSystemValidator.validateSystem && typeof mockSystemValidator.validateSystem.mockResolvedValue === 'function') {
+      mockSystemValidator.validateSystem.mockResolvedValue({
       isValid: true,
       overall: { score: 85, grade: 'B', status: 'good' },
       modules: [{ moduleId: 'test-module-1', isValid: true, score: 85 }],

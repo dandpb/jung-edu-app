@@ -6,6 +6,7 @@ import {
   PromptCategory,
   PromptVariable 
 } from '../../services/prompts/promptTemplateService';
+import { promptTestService } from '../../services/prompts/promptTestService';
 import { LoadingSpinner } from '../../components/common';
 import AdminNavigation from '../../components/admin/AdminNavigation';
 
@@ -22,6 +23,9 @@ const AdminPrompts: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [previewVariables, setPreviewVariables] = useState<Record<string, any>>({});
+  const [testingPrompt, setTestingPrompt] = useState(false);
+  const [testResult, setTestResult] = useState<string | null>(null);
+  const [showTestResult, setShowTestResult] = useState(false);
 
   // Form state for editing
   const [formData, setFormData] = useState<{
@@ -150,6 +154,49 @@ const AdminPrompts: React.FC = () => {
     );
     
     setShowPreview(true);
+    setShowTestResult(false);
+    setTestResult(null);
+  };
+
+  const handleTestPrompt = async () => {
+    if (!selectedTemplate) return;
+
+    const compiledPrompt = promptTemplateService.compilePrompt(
+      formData.template,
+      previewVariables
+    );
+
+    setTestingPrompt(true);
+    setTestResult(null);
+    setShowTestResult(false);
+
+    try {
+      const result = await promptTestService.testPrompt(compiledPrompt);
+      
+      if (result.success) {
+        setTestResult(result.response || 'Resposta vazia');
+        setShowTestResult(true);
+        
+        // Show execution info if available
+        if (result.executionTime) {
+          const isUsingMock = promptTestService.isUsingMock();
+          const info = `\n\n---\n⏱️ Tempo de execução: ${result.executionTime}ms${
+            result.tokensUsed ? `\n📊 Tokens utilizados: ${result.tokensUsed}` : ''
+          }${
+            isUsingMock ? '\n⚠️ Modo de demonstração (sem API key configurada)' : '\n✅ Usando OpenAI API'
+          }`;
+          setTestResult((result.response || '') + info);
+        }
+      } else {
+        setTestResult(`❌ Erro ao testar prompt: ${result.error || 'Erro desconhecido'}`);
+        setShowTestResult(true);
+      }
+    } catch (error) {
+      setTestResult(`❌ Erro ao testar prompt: ${(error as Error).message}`);
+      setShowTestResult(true);
+    } finally {
+      setTestingPrompt(false);
+    }
   };
 
   const getCompiledPreview = () => {
@@ -434,12 +481,14 @@ const AdminPrompts: React.FC = () => {
                     <div className="flex justify-between items-center mb-4">
                       <h3 className="text-lg font-semibold">Template do Prompt</h3>
                       {!editMode && (
-                        <button
-                          onClick={handlePreview}
-                          className="px-3 py-1 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors"
-                        >
-                          Visualizar Prévia
-                        </button>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={handlePreview}
+                            className="px-3 py-1 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors"
+                          >
+                            Visualizar Prévia
+                          </button>
+                        </div>
                       )}
                     </div>
                     {editMode ? (
@@ -518,10 +567,60 @@ const AdminPrompts: React.FC = () => {
                       
                       {/* Compiled Preview */}
                       <div className="bg-green-50 rounded-lg p-4">
+                        <div className="flex justify-between items-start mb-3">
+                          <h4 className="text-sm font-medium text-green-900">Prompt Compilado:</h4>
+                          <button
+                            onClick={handleTestPrompt}
+                            disabled={testingPrompt}
+                            className="px-3 py-1 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                          >
+                            {testingPrompt ? (
+                              <>
+                                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>Testando...</span>
+                              </>
+                            ) : (
+                              <>
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                <span>Testar Prompt</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
                         <pre className="whitespace-pre-wrap font-mono text-sm text-green-900">
                           {getCompiledPreview()}
                         </pre>
                       </div>
+
+                      {/* Test Result */}
+                      {showTestResult && testResult && (
+                        <div className="mt-4">
+                          <div className="bg-blue-50 rounded-lg p-4">
+                            <div className="flex justify-between items-start mb-3">
+                              <h4 className="text-sm font-medium text-blue-900">Resposta da IA:</h4>
+                              <button
+                                onClick={() => {
+                                  setShowTestResult(false);
+                                  setTestResult(null);
+                                }}
+                                className="text-blue-600 hover:text-blue-700 text-sm"
+                              >
+                                Fechar
+                              </button>
+                            </div>
+                            <div className="bg-white rounded-lg p-4 border border-blue-200">
+                              <pre className="whitespace-pre-wrap font-mono text-sm text-gray-800">
+                                {testResult}
+                              </pre>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

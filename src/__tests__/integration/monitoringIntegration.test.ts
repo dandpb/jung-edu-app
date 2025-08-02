@@ -767,15 +767,15 @@ describe('Monitoring System Integration', () => {
 
     it('should render dashboard with metrics', async () => {
       // Mock MonitoringDashboard component
-      (MonitoringDashboard as jest.Mock).mockImplementation(({ theme }) => (
-        <div data-testid="monitoring-dashboard">
-          <h1>System Monitoring Dashboard</h1>
-          <p>Real-time pipeline performance and health monitoring</p>
-          <div data-testid="theme">{theme}</div>
-        </div>
-      ));
+      (MonitoringDashboard as jest.Mock).mockImplementation(({ theme }) => 
+        React.createElement('div', { 'data-testid': 'monitoring-dashboard' }, 
+          React.createElement('h1', null, 'System Monitoring Dashboard'),
+          React.createElement('p', null, 'Real-time pipeline performance and health monitoring'),
+          React.createElement('div', { 'data-testid': 'theme' }, theme)
+        )
+      );
       
-      render(<MonitoringDashboard theme="light" />);
+      render(React.createElement(MonitoringDashboard, { theme: 'light' }));
 
       // Wait for dashboard to load
       await waitFor(() => {
@@ -789,30 +789,31 @@ describe('Monitoring System Integration', () => {
 
     it('should show loading state initially', () => {
       // Mock MonitoringDashboard with loading state
-      (MonitoringDashboard as jest.Mock).mockImplementation(() => (
-        <div data-testid="loading-dashboard">
-          <p>Loading monitoring dashboard...</p>
-        </div>
-      ));
+      (MonitoringDashboard as jest.Mock).mockImplementation(() => 
+        React.createElement('div', { 'data-testid': 'loading-dashboard' },
+          React.createElement('p', null, 'Loading monitoring dashboard...')
+        )
+      );
       
-      render(<MonitoringDashboard theme="light" />);
+      render(React.createElement(MonitoringDashboard, { theme: 'light' }));
 
       expect(screen.getByText('Loading monitoring dashboard...')).toBeInTheDocument();
     });
 
     it('should handle theme switching', async () => {
       // Mock MonitoringDashboard with theme switching capability
-      (MonitoringDashboard as jest.Mock).mockImplementation(({ theme }) => (
-        <div data-testid="themed-dashboard">
-          <h1>System Monitoring Dashboard</h1>
-          <div data-testid="current-theme">{theme}</div>
-          <button onClick={() => {}} data-testid="theme-toggle">
-            Switch Theme
-          </button>
-        </div>
-      ));
+      (MonitoringDashboard as jest.Mock).mockImplementation(({ theme }) => 
+        React.createElement('div', { 'data-testid': 'themed-dashboard' },
+          React.createElement('h1', null, 'System Monitoring Dashboard'),
+          React.createElement('div', { 'data-testid': 'current-theme' }, theme),
+          React.createElement('button', { 
+            onClick: () => {}, 
+            'data-testid': 'theme-toggle' 
+          }, 'Switch Theme')
+        )
+      );
       
-      render(<MonitoringDashboard theme="light" />);
+      render(React.createElement(MonitoringDashboard, { theme: 'light' }));
 
       await waitFor(() => {
         expect(screen.getByText('System Monitoring Dashboard')).toBeInTheDocument();
