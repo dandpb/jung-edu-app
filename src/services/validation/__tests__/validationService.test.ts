@@ -26,23 +26,28 @@ Object.defineProperty(global, 'performance', {
   value: mockPerformance
 });
 
-// Mock the validator modules with inline jest.fn() calls
+// Mock the validator modules
+const mockValidateSystem = jest.fn();
+const mockValidateModule = jest.fn();
+const mockValidateIntegration = jest.fn();
+const mockValidateEndToEnd = jest.fn();
+
 jest.mock('../systemValidator', () => ({
   systemValidator: {
-    validateSystem: jest.fn(),
-    validateModule: jest.fn()
+    validateSystem: mockValidateSystem,
+    validateModule: mockValidateModule
   }
 }));
 
 jest.mock('../integrationValidator', () => ({
   integrationValidator: {
-    validateIntegration: jest.fn()
+    validateIntegration: mockValidateIntegration
   }
 }));
 
 jest.mock('../endToEndValidator', () => ({
   endToEndValidator: {
-    validateEndToEnd: jest.fn()
+    validateEndToEnd: mockValidateEndToEnd
   }
 }));
 
@@ -69,9 +74,8 @@ describe('ValidationService', () => {
     // Reset performance mock
     mockPerformance.now.mockReturnValue(100);
     
-    // Set up default mock return values if validateSystem is a mock function
-    if (mockSystemValidator.validateSystem && typeof mockSystemValidator.validateSystem.mockResolvedValue === 'function') {
-      mockSystemValidator.validateSystem.mockResolvedValue({
+    // Set up default mock return values
+    mockValidateSystem.mockResolvedValue({
       isValid: true,
       overall: { score: 85, grade: 'B', status: 'good' },
       modules: [{ moduleId: 'test-module-1', isValid: true, score: 85 }],
@@ -80,7 +84,7 @@ describe('ValidationService', () => {
       recommendations: [{ message: 'Test recommendation', priority: 'medium' }]
     });
     
-    mockIntegrationValidator.validateIntegration.mockResolvedValue({
+    mockValidateIntegration.mockResolvedValue({
       overall: {
         score: 90,
         passed: true,
@@ -91,7 +95,7 @@ describe('ValidationService', () => {
       recommendations: []
     });
     
-    mockEndToEndValidator.validateEndToEnd.mockResolvedValue({
+    mockValidateEndToEnd.mockResolvedValue({
       overall: {
         score: 88,
         passed: true

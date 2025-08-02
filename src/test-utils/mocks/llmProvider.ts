@@ -70,8 +70,8 @@ export const createMockQuestions = (count: number, options?: {
         id: `q${i + 1}`,
         type: 'true-false',
         question: `Test question ${i + 1} about ${concept}`,
-        options: [{id: '0', text: 'False'}, {id: '1', text: 'True'}],
-        correctAnswer: i % 2 === 0 ? 1 : 0, // 1 for true, 0 for false
+        options: [],
+        correctAnswer: i % 2 === 0 ? true : false, // Boolean for true-false questions
         explanation: `Explanation for question ${i + 1} about ${concept}`,
         difficulty: questionDifficulty,
         cognitiveLevel: ['remembering', 'understanding', 'applying', 'analyzing'][i % 4],
