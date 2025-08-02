@@ -52,6 +52,95 @@ class MockWebSocket {
   }
 }
 
+// Helper function to create mock pipeline
+function createMockPipelineForTests() {
+  return {
+    on: jest.fn(),
+    emit: jest.fn(),
+    removeListener: jest.fn(),
+    // Required AIResourcePipeline properties
+    config: {
+      enableAutoQuiz: true,
+      enableAutoVideos: true,
+      enableAutoBibliography: true,
+      enableAutoMindMap: true,
+      enableValidation: true,
+      enableTesting: true,
+      autoLinking: true,
+      maxRetries: 3,
+      timeoutMs: 300000
+    },
+    orchestrator: null,
+    validator: null,
+    activeGenerations: new Map(),
+    // Required methods
+    generateResources: jest.fn(),
+    validateModule: jest.fn(),
+    generateQuizzes: jest.fn(),
+    searchVideos: jest.fn(),
+    generateBibliography: jest.fn(),
+    generateMindMap: jest.fn(),
+    linkResources: jest.fn(),
+    getResourceDependencies: jest.fn(),
+    testResourceIntegration: jest.fn(),
+    getConfig: jest.fn(() => ({})),
+    getActiveGenerations: jest.fn(() => new Map()),
+    clearActiveGenerations: jest.fn(),
+    setConfig: jest.fn(),
+    getOrchestrator: jest.fn(),
+    getValidator: jest.fn()
+  } as any;
+}
+
+// Helper function to create mock hooks
+function createMockHooksForTests() {
+  const events: any[] = [];
+  return {
+    // EventEmitter methods
+    on: jest.fn(),
+    emit: jest.fn(),
+    removeListener: jest.fn(),
+    // PipelineIntegrationHooks properties
+    pipeline: null,
+    moduleGenerator: null,
+    config: {
+      enablePreGenerationHooks: true,
+      enablePostGenerationHooks: true,
+      enableResourceHooks: true,
+      enableValidationHooks: true,
+      enableErrorHooks: true,
+      retryFailedHooks: true,
+      maxHookRetries: 3,
+      hookTimeout: 30000
+    },
+    hooks: new Map(),
+    activeHooks: new Set(),
+    // Required methods
+    registerHook: jest.fn(),
+    unregisterHook: jest.fn(),
+    executeHook: jest.fn(),
+    executeHooks: jest.fn(),
+    clearHooks: jest.fn(),
+    getActiveHooks: jest.fn(() => []),
+    getHookHandlers: jest.fn(() => []),
+    getConfig: jest.fn(() => ({})),
+    setConfig: jest.fn(),
+    // Additional EventEmitter methods
+    addListener: jest.fn(),
+    once: jest.fn(),
+    prependListener: jest.fn(),
+    prependOnceListener: jest.fn(),
+    eventNames: jest.fn(() => []),
+    listeners: jest.fn(() => []),
+    listenerCount: jest.fn(() => 0),
+    getMaxListeners: jest.fn(() => 10),
+    setMaxListeners: jest.fn(),
+    removeAllListeners: jest.fn(),
+    off: jest.fn(),
+    rawListeners: jest.fn(() => [])
+  } as any;
+}
+
 // Mock socket.io-client
 jest.mock('socket.io-client', () => ({
   io: jest.fn(() => ({
@@ -224,18 +313,10 @@ describe('Monitoring System Integration', () => {
 
     beforeEach(() => {
       // Create mock pipeline with EventEmitter functionality
-      mockPipeline = {
-        on: jest.fn(),
-        emit: jest.fn(),
-        removeListener: jest.fn()
-      };
+      mockPipeline = createMockPipelineForTests();
 
       // Create mock hooks with EventEmitter functionality
-      mockHooks = {
-        on: jest.fn(),
-        emit: jest.fn(),
-        removeListener: jest.fn()
-      };
+      mockHooks = createMockHooksForTests();
 
       monitoringService = new PipelineMonitoringService(mockPipeline, mockHooks, {
         enableMetrics: true,
@@ -554,17 +635,9 @@ describe('Monitoring System Integration', () => {
 
   describe('Performance and Load Testing', () => {
     it('should handle rapid metric updates', async () => {
-      const mockPipeline = {
-        on: jest.fn(),
-        emit: jest.fn(),
-        removeListener: jest.fn()
-      };
+      const mockPipeline = createMockPipelineForTests();
 
-      const mockHooks = {
-        on: jest.fn(),
-        emit: jest.fn(),
-        removeListener: jest.fn()
-      };
+      const mockHooks = createMockHooksForTests();
 
       const monitoringService = new PipelineMonitoringService(mockPipeline, mockHooks);
 
@@ -599,17 +672,9 @@ describe('Monitoring System Integration', () => {
     });
 
     it('should handle memory efficiently with large datasets', () => {
-      const mockPipeline = {
-        on: jest.fn(),
-        emit: jest.fn(),
-        removeListener: jest.fn()
-      };
+      const mockPipeline = createMockPipelineForTests();
 
-      const mockHooks = {
-        on: jest.fn(),
-        emit: jest.fn(),
-        removeListener: jest.fn()
-      };
+      const mockHooks = createMockHooksForTests();
 
       const monitoringService = new PipelineMonitoringService(mockPipeline, mockHooks, {
         metricsRetentionDays: 1 // Short retention for testing
@@ -649,17 +714,9 @@ describe('Monitoring System Demo Scenarios', () => {
 
   describe('Real-time Monitoring Demo', () => {
     it('should demonstrate real-time monitoring workflow', async () => {
-      const mockPipeline = {
-        on: jest.fn(),
-        emit: jest.fn(),
-        removeListener: jest.fn()
-      };
+      const mockPipeline = createMockPipelineForTests();
 
-      const mockHooks = {
-        on: jest.fn(),
-        emit: jest.fn(),
-        removeListener: jest.fn()
-      };
+      const mockHooks = createMockHooksForTests();
 
       const monitoringService = new PipelineMonitoringService(mockPipeline, mockHooks);
 
@@ -695,17 +752,9 @@ describe('Monitoring System Demo Scenarios', () => {
 
   describe('Alert Management Demo', () => {
     it('should demonstrate alert management workflow', async () => {
-      const mockPipeline = {
-        on: jest.fn(),
-        emit: jest.fn(),
-        removeListener: jest.fn()
-      };
+      const mockPipeline = createMockPipelineForTests();
 
-      const mockHooks = {
-        on: jest.fn(),
-        emit: jest.fn(),
-        removeListener: jest.fn()
-      };
+      const mockHooks = createMockHooksForTests();
 
       const monitoringService = new PipelineMonitoringService(mockPipeline, mockHooks);
 

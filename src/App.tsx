@@ -25,6 +25,8 @@ import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
 import { UnauthorizedPage } from './pages/UnauthorizedPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { PublicRoute } from './components/auth/PublicRoute';
+import { AdminProtectedRoute } from './components/admin/AdminProtectedRoute';
+import { AdminPublicRoute } from './components/admin/AdminPublicRoute';
 import { UserRole } from './types/auth';
 import CreateTestUser from './pages/CreateTestUser';
 import MonitoringDashboard from './pages/MonitoringDashboard';
@@ -212,32 +214,32 @@ function AppContent() {
           
           {/* Admin Routes */}
           <Route path="/admin/login" element={
-            <PublicRoute redirectTo="/admin">
+            <AdminPublicRoute redirectTo="/admin/modules">
               <AdminLogin />
-            </PublicRoute>
+            </AdminPublicRoute>
           } />
           <Route
             path="/admin"
             element={
-              <ProtectedRoute requiredRole={UserRole.ADMIN}>
-                <AdminDashboard />
-              </ProtectedRoute>
+              <AdminProtectedRoute>
+                <Navigate to="/admin/modules" replace />
+              </AdminProtectedRoute>
             }
           />
           <Route
             path="/admin/modules"
             element={
-              <ProtectedRoute requiredRole={UserRole.ADMIN}>
+              <AdminProtectedRoute>
                 <AdminModules />
-              </ProtectedRoute>
+              </AdminProtectedRoute>
             }
           />
           <Route
             path="/admin/resources"
             element={
-              <ProtectedRoute requiredRole={UserRole.ADMIN}>
+              <AdminProtectedRoute>
                 <AdminResources />
-              </ProtectedRoute>
+              </AdminProtectedRoute>
             }
           />
         </Routes>

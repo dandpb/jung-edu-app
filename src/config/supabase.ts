@@ -196,7 +196,8 @@ export const supabaseUtils = {
   // Health check
   healthCheck: async () => {
     try {
-      const { data, error } = await supabase.from('health_check').select('*').limit(1);
+      // Use a simple query on the users table to check if the database is accessible
+      const { data, error } = await supabase.from(DB_CONFIG.TABLES.USERS).select('id').limit(1);
       return { healthy: !error, error };
     } catch (error) {
       return { healthy: false, error };

@@ -28,7 +28,8 @@ import {
   AuthErrorType,
   LoginResponse,
   PasswordResetRequest,
-  PasswordResetConfirm
+  PasswordResetConfirm,
+  User as AuthUser
 } from '../../types/auth';
 
 export class SupabaseAuthService {
@@ -165,7 +166,10 @@ export class SupabaseAuthService {
       if (userError) {
         // Clean up auth user if database insert fails
         await supabase.auth.admin.deleteUser(authData.user.id);
-        throw this.mapSupabaseError(userError);
+        throw new AuthError(
+          AuthErrorType.DATABASE_ERROR,
+          userError.message || 'Failed to create user record'
+        );
       }
 
       // Create user profile
@@ -261,7 +265,7 @@ export class SupabaseAuthService {
       }
 
       return {
-        user: this.currentUser,
+        user: this.mapDatabaseUserToAuthUser(this.currentUser!) as Omit<AuthUser, 'passwordHash' | 'salt' | 'security'>,
         accessToken: authData.session.access_token,
         refreshToken: authData.session.refresh_token,
         expiresIn: authData.session.expires_in || 3600
@@ -447,7 +451,7 @@ export class SupabaseAuthService {
       
       if (this.currentUser) {
         return {
-          user: this.currentUser,
+          user: this.mapDatabaseUserToAuthUser(this.currentUser) as Omit<AuthUser, 'passwordHash' | 'salt' | 'security'>,
           accessToken: data.session.access_token,
           refreshToken: data.session.refresh_token,
           expiresIn: data.session.expires_in || 3600
@@ -502,6 +506,45 @@ export class SupabaseAuthService {
     } catch (error) {
       console.warn('Failed to create session record:', error);
     }
+  }
+
+  /**
+   * Convert database User to auth User format
+   */
+  private mapDatabaseUserToAuthUser(dbUser: User & { profile?: UserProfile | null }): Partial<AuthUser> {
+    return {
+      id: dbUser.id,
+      email: dbUser.email,
+      username: dbUser.username,
+      role: dbUser.role as any, // Database and auth roles should match
+      permissions: [], // TODO: Load permissions from database
+      profile: dbUser.profile ? {
+        firstName: dbUser.profile.first_name || '',
+        lastName: dbUser.profile.last_name || '',
+        avatar: dbUser.avatar_url || undefined,
+        bio: dbUser.profile.bio || undefined,
+        preferences: {
+          theme: dbUser.profile.theme || 'light',
+          language: dbUser.profile.language || 'en',
+          emailNotifications: dbUser.profile.email_notifications ?? true,
+          pushNotifications: dbUser.profile.push_notifications ?? false
+        }
+      } : {
+        firstName: '',
+        lastName: '',
+        preferences: {
+          theme: 'light',
+          language: 'en',
+          emailNotifications: true,
+          pushNotifications: false
+        }
+      },
+      createdAt: new Date(dbUser.created_at),
+      updatedAt: new Date(dbUser.updated_at),
+      lastLogin: dbUser.last_login ? new Date(dbUser.last_login) : undefined,
+      isActive: dbUser.is_active,
+      isVerified: dbUser.is_verified
+    };
   }
 
   private mapSupabaseError(error: SupabaseAuthError): AuthError {

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../contexts/AdminContext';
 import { Bibliography, Film } from '../../types';
 import { 
@@ -10,11 +11,13 @@ import {
   Book, 
   Film as FilmIcon,
   Search,
-  Filter
+  Filter,
+  LogOut
 } from 'lucide-react';
 
 const AdminResources: React.FC = () => {
-  const { modules, updateModules } = useAdmin();
+  const { modules, updateModules, logout } = useAdmin();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'bibliography' | 'films'>('bibliography');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterModule, setFilterModule] = useState<string>('all');
@@ -78,6 +81,11 @@ const AdminResources: React.FC = () => {
     const matchesModule = filterModule === 'all' || film.moduleId === filterModule;
     return matchesSearch && matchesModule;
   });
+
+  const handleLogout = () => {
+    logout();
+    navigate('/admin/login');
+  };
 
   const handleAddBibliography = (moduleId: string) => {
     const bibliography: Bibliography = {
@@ -251,13 +259,22 @@ const AdminResources: React.FC = () => {
             Gerenciar recursos de bibliografia e filmes em todos os módulos
           </p>
         </div>
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="btn-primary flex items-center space-x-2"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Adicionar {activeTab === 'bibliography' ? 'Livro' : 'Filme'}</span>
-        </button>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="btn-primary flex items-center space-x-2"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Adicionar {activeTab === 'bibliography' ? 'Livro' : 'Filme'}</span>
+          </button>
+          <button
+            onClick={handleLogout}
+            className="btn-secondary flex items-center space-x-2 bg-red-600 text-white hover:bg-red-700"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Sair</span>
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}

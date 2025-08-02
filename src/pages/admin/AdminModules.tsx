@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../contexts/AdminContext';
 import { Module } from '../../types';
 import { 
@@ -10,7 +11,8 @@ import {
   Clock,
   BookOpen,
   FileText,
-  Sparkles
+  Sparkles,
+  LogOut
 } from 'lucide-react';
 import ModuleEditor from '../../components/admin/ModuleEditor';
 import AIModuleGenerator from '../../components/admin/AIModuleGenerator';
@@ -20,7 +22,8 @@ import ModulePreview from '../../components/admin/ModulePreview';
 import { useModuleGenerator } from '../../hooks/useModuleGenerator';
 
 const AdminModules: React.FC = () => {
-  const { modules, updateModules } = useAdmin();
+  const { modules, updateModules, logout } = useAdmin();
+  const navigate = useNavigate();
   const [editingModule, setEditingModule] = useState<Module | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [expandedModules, setExpandedModules] = useState<string[]>([]);
@@ -98,6 +101,11 @@ const AdminModules: React.FC = () => {
       default:
         return 'text-gray-600 bg-gray-50';
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/admin/login');
   };
 
   const handleAIGenerate = async (config: any) => {
@@ -195,6 +203,13 @@ const AdminModules: React.FC = () => {
           >
             <Plus className="w-4 h-4" />
             <span>Adicionar Módulo</span>
+          </button>
+          <button
+            onClick={handleLogout}
+            className="btn-secondary flex items-center space-x-2 bg-red-600 text-white hover:bg-red-700"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Sair</span>
           </button>
         </div>
       </div>

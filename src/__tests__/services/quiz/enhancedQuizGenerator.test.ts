@@ -71,8 +71,8 @@ describe('EnhancedQuizGenerator', () => {
           id: `q${i + 1}`,
           type: i % 2 === 0 ? 'multiple-choice' : 'true-false',
           question: `Question ${i + 1} about Jungian concepts`,
-          options: i % 2 === 0 ? ['A', 'B', 'C', 'D'] : undefined,
-          correctAnswer: i % 2 === 0 ? i % 4 : i % 2 === 0,
+          options: i % 2 === 0 ? ['A', 'B', 'C', 'D'] : [{id: '0', text: 'False'}, {id: '1', text: 'True'}],
+          correctAnswer: i % 2 === 0 ? i % 4 : (i % 2 === 0 ? 1 : 0),
           explanation: `Explanation for question ${i + 1}`,
           difficulty: ['easy', 'medium', 'hard'][i % 3],
           concept: ['collective unconscious', 'shadow', 'archetypes'][i % 3]

@@ -15,7 +15,7 @@ const AdminLogin: React.FC = () => {
     setError('');
 
     if (login(username, password)) {
-      navigate('/admin');
+      navigate('/admin/modules');
     } else {
       setError('Usuário ou senha inválidos');
     }

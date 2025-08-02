@@ -33,17 +33,17 @@ describe('Supabase Integration Tests', () => {
 
   describe('Connection Health Checks', () => {
     test('should establish connection to Supabase', async () => {
-      // Test basic connection
+      // Test basic connection using users table
       const { data, error } = await supabase
-        .from('health_check')
-        .select('*')
+        .from('users')
+        .select('id')
         .limit(1);
 
-      if (error && !error.message.includes('relation "health_check" does not exist')) {
+      if (error && !error.message.includes('relation "users" does not exist')) {
         throw error;
       }
 
-      expect(error === null || error.message.includes('relation "health_check" does not exist')).toBe(true);
+      expect(error === null || error.message.includes('relation "users" does not exist')).toBe(true);
     }, 10000);
 
     test('should validate environment variables', () => {

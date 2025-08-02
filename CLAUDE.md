@@ -4,190 +4,244 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Jung's Analytical Psychology Educational App - A React/TypeScript educational application for learning Carl Jung's analytical psychology concepts. Features interactive modules, mind maps, video integration, note-taking, and AI-powered content generation.
+Jung's Analytical Psychology Educational App - A React/TypeScript web application for learning Carl Jung's analytical psychology concepts. The app features module-based learning, interactive mind maps, video integration, quizzes, note-taking, and progress tracking.
 
-## Key Commands
+## Common Development Commands
 
-### Development Commands
+### Build and Development
 ```bash
-# Start development server
+# Install dependencies
+npm install
+
+# Start development server (http://localhost:3000)
 npm start
 
-# Run all tests
+# Build for production
+npm run build
+
+# Serve production build
+npm run serve
+```
+
+### Testing Commands
+```bash
+# Run unit tests (skip integration tests)
 npm test
 
-# Run tests with coverage report
-npm run test:coverage
+# Run tests with coverage report and validation
+npm run test:coverage-report
 
-# Run unit tests only
-npm run test:unit
+# Run specific test categories
+npm run test:components     # Component tests only
+npm run test:utils         # Utility tests only
+npm run test:critical      # Critical service tests
 
-# Run integration tests only  
+# Run integration tests
 npm run test:integration
-
-# Run all tests without watch mode
-npm run test:all
+npm run test:integration:real  # With real API calls
 
 # Run tests in watch mode
 npm run test:watch
 
-# Build for production
-npm run build
+# Run a single test file
+npm test src/components/__tests__/Navigation.test.tsx
 ```
 
-### Test Coverage Requirements
-- Minimum 70% coverage for branches, functions, lines, and statements
-- Coverage configuration in `jest.config.js`
-- Test files located in `__tests__` directories and `.test.tsx` files
+### Supabase and Deployment
+```bash
+# Deploy to Supabase
+npm run test:deployment  # Validate before deployment
+./scripts/deploy-supabase.sh
+
+# Deploy via different methods
+./scripts/deploy-via-dashboard.sh
+./scripts/deploy-direct.sh
+./scripts/deploy-remote-only.sh
+
+# Health monitoring
+npm run monitor:health
+npm run validate:health
+```
 
 ## Architecture Overview
 
-### Core Application Structure
+### Tech Stack
+- **Frontend**: React 18 with TypeScript
+- **Styling**: Tailwind CSS
+- **Routing**: React Router v6
+- **State Management**: React Context (AuthContext, AdminContext)
+- **Database**: Supabase (PostgreSQL with RLS)
+- **Authentication**: Supabase Auth with JWT
+- **Testing**: Jest + React Testing Library
+- **LLM Integration**: OpenAI API for content generation
 
-**Main App Flow:**
-- `App.tsx` → AdminProvider → Router with protected/public routes
-- User progress stored in localStorage (`jungAppProgress`)
-- Admin functionality requires authentication
-- Real-time progress tracking with localStorage persistence
+### Key Architecture Patterns
 
-**Key Data Models:**
-- `Module` - Educational content with sections, videos, quizzes
-- `UserProgress` - Completion tracking, quiz scores, notes
-- `MindMapNode/Edge` - Interactive mind map components
-- Schema validation in `src/schemas/` with JSON Schema and TypeScript types
+1. **Context-Based Architecture**
+   - `AuthContext`: Handles authentication state and user management
+   - `AdminContext`: Manages admin-specific functionality and module data
+   - Contexts wrap the entire app in `App.tsx`
 
-### Services Architecture
+2. **Protected Routes Pattern**
+   - `ProtectedRoute` component handles authentication checks
+   - Role-based access control (UserRole enum)
+   - Public routes redirect authenticated users
 
-The app uses a modular services architecture in `src/services/`:
+3. **Service Layer Architecture**
+   - Services organized by domain (auth, llm, quiz, modules, etc.)
+   - Each service has dedicated types and test files
+   - Mock providers for testing (see `test-utils/mocks/`)
 
-**Core Services:**
-- **LLM Services** (`llm/`) - AI content generation with OpenAI integration
-  - `orchestrator.ts` - Main orchestration for multi-step generation
-  - `provider.ts` - LLM provider abstraction (OpenAI/Mock)
-  - `generators/` - Specialized content generators
-- **Module Management** (`modules/`) - CRUD operations for educational modules
-- **Mind Map** (`mindmap/`) - React Flow integration for concept visualization  
-- **Quiz Engine** (`quiz/`) - Enhanced quiz generation and management
-- **Video Integration** (`video/`) - YouTube service integration
-- **Bibliography** (`bibliography/`) - Reference management and enrichment
+4. **Module System**
+   - Modules stored as JSON with comprehensive schema validation
+   - Dynamic content generation via LLM integration
+   - Progress tracking stored in localStorage and Supabase
 
-**Data Storage:**
-- All data persisted in localStorage (no backend)
-- Key storage patterns:
-  - `jungAppProgress` - User progress and notes
-  - `jungAppEducationalModules` - Published modules
-  - `jungAppDraftModules` - Draft modules during generation
+### Directory Structure Highlights
 
-### Component Architecture
+```
+src/
+├── components/       # Reusable UI components
+│   ├── auth/        # Authentication components
+│   ├── admin/       # Admin-specific components
+│   ├── quiz/        # Quiz functionality
+│   └── mindmap/     # Mind map visualizations
+├── contexts/        # React contexts for state management
+├── pages/           # Route components
+├── services/        # Business logic and API integration
+│   ├── auth/        # Authentication services
+│   ├── llm/         # LLM integration for content generation
+│   └── supabase/    # Database integration
+├── types/           # TypeScript type definitions
+└── test-utils/      # Testing utilities and mocks
+```
 
-**Layout:**
-- `Navigation.tsx` - Main navigation with admin/user modes
-- `ProtectedRoute.tsx` - Admin route protection
+## Database Architecture
 
-**Pages:**
-- `Dashboard.tsx` - Main learning dashboard
-- `ModulePage.tsx` - Individual module content display
-- `MindMapPage.tsx` - Interactive concept visualization
-- `admin/` - Admin interface for content management
+The app uses Supabase with PostgreSQL. Key tables:
+- `users`: Extended auth.users with roles
+- `modules`: Educational content storage
+- `quizzes`: Quiz questions and configurations
+- `user_progress`: Progress tracking
+- `notes`: User notes per module
 
-**Core Components:**
-- `modules/VideoPlayer.tsx` - YouTube integration
-- `quiz/QuizComponent.tsx` - Interactive quiz interface
-- `notes/NoteEditor.tsx` - Note-taking functionality
-- `admin/AIModuleGenerator.tsx` - AI-powered content creation
+Row Level Security (RLS) is enabled on all tables.
 
-### State Management
+## LLM Integration Architecture
 
-**Context Providers:**
-- `AdminContext` - Admin authentication and module management
-- LocalStorage-based persistence for all user data
-- Real-time progress updates with automatic saving
+The app integrates with OpenAI for dynamic content generation:
 
-### Testing Strategy
+1. **Provider Pattern**: Abstract base class with implementations for different providers
+2. **Generator System**: Specialized generators for content, quizzes, videos, bibliography
+3. **Orchestrator**: Coordinates multiple generators for complete module generation
+4. **Caching Layer**: Reduces API calls and improves performance
 
-**Test Structure:**
-- Unit tests: Individual components and utilities
-- Integration tests: Page components and user flows  
-- Service tests: Business logic and data operations
-- Mock configurations in `__tests__/mocks/`
+See `src/services/llm/API_SERVICE_STRUCTURE.md` for detailed documentation.
 
-**Key Test Files:**
-- Component tests in `components/__tests__/`
-- Page tests in `pages/__tests__/`
-- Service tests in `services/__tests__/`
-- Utility tests in `utils/__tests__/`
+## Testing Strategy
 
-## Development Guidelines
+### Test Coverage Requirements
+- Global: 70% minimum for all metrics
+- Services, Components, Utils: 70% minimum
+- Coverage validation runs automatically
 
-### Working with Modules
-- Module data structure defined in `src/types/index.ts`
-- Schema validation in `src/schemas/module.schema.ts`
-- Default modules in `src/data/modules.ts`
-- Use ModuleService for CRUD operations
+### Test Organization
+- Unit tests: Alongside source files in `__tests__` folders
+- Integration tests: In `src/__tests__/integration/`
+- Test utilities: In `src/test-utils/`
+- Mocks: MSW for API mocking, custom mocks for modules
 
-### AI Content Generation
-- Main orchestrator in `src/services/llm/orchestrator.ts`
-- Provider abstraction supports OpenAI and mock implementations
-- Progress tracking through EventEmitter pattern
-- Draft system for long-running generation processes
+### Key Testing Patterns
+```typescript
+// Use test builders for complex objects
+const module = moduleBuilder()
+  .withTitle('Test Module')
+  .withDifficulty('intermediate')
+  .build();
 
-### Mind Map Integration
-- Built with React Flow (`reactflow` package)
-- Layout algorithms in `src/services/mindmap/mindMapLayouts.ts`
-- React Flow adapter for data transformation
-- Interactive navigation between concepts
+// Mock LLM provider for consistent tests
+jest.mock('../services/llm/provider');
 
-### Admin Interface
-- Authentication required for `/admin` routes
-- Module editing with real-time preview
-- AI-assisted content generation
-- Mind map editing capabilities
+// Use MSW for API mocking
+server.use(
+  rest.get('/api/modules', (req, res, ctx) => {
+    return res(ctx.json({ modules: [] }));
+  })
+);
+```
 
-### Video Integration
-- YouTube embeds via `react-youtube`
-- Video metadata enrichment services
-- Transcript and caption support planned
+## Authentication Flow
 
-### Progress Tracking
-- Automatic progress saving on user actions
-- Quiz score tracking with detailed analytics
-- Time spent tracking per module
-- Achievement system for milestones
+1. User registers/logs in via Supabase Auth
+2. JWT stored in session
+3. AuthContext manages user state
+4. ProtectedRoute components check authentication
+5. Role-based access control for admin features
 
-## Technology Stack
+## Key Features Implementation
 
-- **React 18** with TypeScript
-- **React Router** for navigation  
-- **Tailwind CSS** for styling
-- **React Flow** for mind maps
-- **React YouTube** for video players
-- **Lucide React** for icons
-- **OpenAI** for AI content generation
-- **Jest & React Testing Library** for testing
-- **AJV** for JSON schema validation
+### Module Generation
+- LLM-powered content generation
+- Schema validation for all generated content
+- Progress tracking with visual indicators
+- Multi-language support structure
+
+### Mind Maps
+- React Flow for interactive visualizations
+- Dynamic node generation based on modules
+- Click-to-navigate functionality
+- Multiple layout options
+
+### Quiz System
+- Automatic quiz generation from content
+- Multiple question types
+- Instant feedback with explanations
+- Score tracking and progress integration
+
+## Environment Variables
+
+Required environment variables:
+```
+REACT_APP_SUPABASE_URL=your_supabase_url
+REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
+REACT_APP_OPENAI_API_KEY=your_openai_key (optional for AI features)
+```
 
 ## Common Development Tasks
 
-### Adding New Modules
-1. Define module in `src/data/modules.ts` following the Module interface
-2. Add corresponding mind map nodes in `src/data/mindmap.ts`
-3. Update navigation if needed
-4. Add tests for new content
+### Adding a New Module
+1. Use the Admin panel (`/admin/modules`)
+2. Or programmatically via `moduleGenerator.generateModule()`
+3. Modules are validated against schema before saving
 
-### Modifying Quiz System
-1. Update Quiz/Question interfaces in `src/types/index.ts`
-2. Modify QuizComponent for UI changes
-3. Update quiz generation in `src/services/quiz/`
-4. Test with mock data in `__tests__/mocks/`
+### Running Integration Tests
+```bash
+# Set up environment
+export USE_REAL_API=false  # Use mocks by default
 
-### Extending AI Services
-1. Add new generators in `src/services/llm/generators/`
-2. Update orchestrator to include new generation steps
-3. Add progress tracking stages
-4. Create corresponding tests
+# Run integration tests
+npm run test:integration
 
-### Testing Changes
-- Always run tests before committing: `npm run test:coverage`
-- Maintain 70%+ coverage across all metrics
-- Add integration tests for new user flows
-- Mock external services (OpenAI, YouTube) in tests
+# With real API (requires credentials)
+USE_REAL_API=true npm run test:integration:real
+```
+
+### Debugging Failed Tests
+1. Check if it's an integration test (may need `SKIP_INTEGRATION=true`)
+2. Look for async issues (use `waitFor` from testing-library)
+3. Check mock implementations in `test-utils/mocks/`
+4. Verify test data builders are creating valid data
+
+### Working with Supabase
+1. Schema changes go in `database/schema.sql`
+2. RLS policies in `database/rls_policies.sql`
+3. Run `./scripts/deploy-supabase.sh` to deploy
+4. Generated types in `src/types/database.generated.ts`
+
+## Performance Considerations
+
+- Module content is cached in localStorage
+- LLM responses are cached to reduce API calls
+- Lazy loading for heavy components (mind maps, videos)
+- Debounced search functionality
+- Optimistic UI updates for better UX

@@ -77,6 +77,8 @@ yarn.lock
 
 # React
 .env
+.env.production
+.env.production.local
 
 # Temporary files
 *.tmp

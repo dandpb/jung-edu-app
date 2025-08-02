@@ -3,8 +3,10 @@
  * Main entry point for the alerting system
  */
 
-export { AlertingEngine, AlertState, AlertContext, NotificationRequest, AlertEvaluationResult } from './AlertingEngine';
-export { AlertingService, AlertingServiceConfig } from './AlertingService';
+export { AlertingEngine } from './AlertingEngine';
+export type { AlertState, AlertContext, NotificationRequest, AlertEvaluationResult } from './AlertingEngine';
+export { AlertingService } from './AlertingService';
+export type { AlertingServiceConfig } from './AlertingService';
 
 // Re-export configuration types and constants
 export * from '../../config/alertingThresholds';

@@ -15,7 +15,7 @@ interface MonitoringDashboardProps {
 export const MonitoringDashboard: React.FC<MonitoringDashboardProps> = ({ theme: initialTheme = 'light' }) => {
   const [theme, setTheme] = useState<'light' | 'dark'>(initialTheme);
   const [metrics, setMetrics] = useState<PipelineMetrics | null>(null);
-  const [status, setStatus] = useState<PipelineStatus | null>(null);
+  const [status, setStatus] = useState<PipelineStatus | undefined>(undefined);
   const [alerts, setAlerts] = useState<PerformanceAlert[]>([]);
   const [timeSeriesData, setTimeSeriesData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);

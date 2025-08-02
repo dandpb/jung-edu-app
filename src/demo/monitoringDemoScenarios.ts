@@ -361,6 +361,7 @@ export const performanceBenchmarkDemo: DemoScenario = {
 function createMockPipeline() {
   const events: any[] = [];
   return {
+    // Event emitter methods
     on: (event: string, handler: Function) => {
       events.push({ event, handler });
     },
@@ -370,13 +371,46 @@ function createMockPipeline() {
     },
     removeListener: (event: string, handler: Function) => {
       // Mock implementation
-    }
-  };
+    },
+    // Required AIResourcePipeline properties
+    config: {
+      enableAutoQuiz: true,
+      enableAutoVideos: true,
+      enableAutoBibliography: true,
+      enableAutoMindMap: true,
+      enableValidation: true,
+      enableTesting: true,
+      autoLinking: true,
+      maxRetries: 3,
+      timeoutMs: 300000
+    },
+    orchestrator: null,
+    validator: null,
+    activeGenerations: new Map(),
+    // Required methods
+    generateResources: jest.fn(),
+    validateModule: jest.fn(),
+    generateQuizzes: jest.fn(),
+    searchVideos: jest.fn(),
+    generateBibliography: jest.fn(),
+    generateMindMap: jest.fn(),
+    linkResources: jest.fn(),
+    getResourceDependencies: jest.fn(),
+    testResourceIntegration: jest.fn(),
+    // Additional methods to match the type
+    getConfig: jest.fn(() => ({})),
+    getActiveGenerations: jest.fn(() => new Map()),
+    clearActiveGenerations: jest.fn(),
+    setConfig: jest.fn(),
+    getOrchestrator: jest.fn(),
+    getValidator: jest.fn()
+  } as any;
 }
 
 function createMockHooks() {
   const events: any[] = [];
   return {
+    // EventEmitter methods
     on: (event: string, handler: Function) => {
       events.push({ event, handler });
     },
@@ -386,8 +420,46 @@ function createMockHooks() {
     },
     removeListener: (event: string, handler: Function) => {
       // Mock implementation
-    }
-  };
+    },
+    // PipelineIntegrationHooks properties
+    pipeline: null,
+    moduleGenerator: null,
+    config: {
+      enablePreGenerationHooks: true,
+      enablePostGenerationHooks: true,
+      enableResourceHooks: true,
+      enableValidationHooks: true,
+      enableErrorHooks: true,
+      retryFailedHooks: true,
+      maxHookRetries: 3,
+      hookTimeout: 30000
+    },
+    hooks: new Map(),
+    activeHooks: new Set(),
+    // Required methods
+    registerHook: jest.fn(),
+    unregisterHook: jest.fn(),
+    executeHook: jest.fn(),
+    executeHooks: jest.fn(),
+    clearHooks: jest.fn(),
+    getActiveHooks: jest.fn(() => []),
+    getHookHandlers: jest.fn(() => []),
+    getConfig: jest.fn(() => ({})),
+    setConfig: jest.fn(),
+    // Additional EventEmitter methods
+    addListener: jest.fn(),
+    once: jest.fn(),
+    prependListener: jest.fn(),
+    prependOnceListener: jest.fn(),
+    eventNames: jest.fn(() => []),
+    listeners: jest.fn(() => []),
+    listenerCount: jest.fn(() => 0),
+    getMaxListeners: jest.fn(() => 10),
+    setMaxListeners: jest.fn(),
+    removeAllListeners: jest.fn(),
+    off: jest.fn(),
+    rawListeners: jest.fn(() => [])
+  } as any;
 }
 
 async function simulateModuleProcessing() {

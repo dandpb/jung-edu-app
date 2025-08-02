@@ -184,7 +184,10 @@ export const LoginForm: React.FC = () => {
           
           <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
             <p className="text-sm text-amber-800">
-              <strong>Demo:</strong> Use admin/jungadmin123 para acesso administrativo
+              <strong>Acesso Administrativo:</strong>{' '}
+              <Link to="/admin/login" className="text-amber-900 underline hover:text-amber-700">
+                Clique aqui para login de administrador
+              </Link>
             </p>
           </div>
         </div>
