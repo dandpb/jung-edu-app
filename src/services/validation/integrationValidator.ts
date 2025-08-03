@@ -1598,16 +1598,16 @@ export class IntegrationValidator {
     try {
       switch (operation) {
         case 'create':
-          await this.moduleService.createModule(module);
+          await ModuleService.createModule(module);
           break;
         case 'read':
-          await this.moduleService.getModuleById(module.id);
+          await ModuleService.getModuleById(module.id);
           break;
         case 'update':
-          await this.moduleService.updateModule(module.id, module);
+          await ModuleService.updateModule(module.id, module);
           break;
         case 'delete':
-          await this.moduleService.deleteModule(module.id);
+          await ModuleService.deleteModule(module.id);
           break;
         default:
           throw new Error(`Unknown operation: ${operation}`);

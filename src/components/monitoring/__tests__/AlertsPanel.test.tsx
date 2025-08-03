@@ -203,8 +203,8 @@ describe('AlertsPanel', () => {
       fireEvent.click(screen.getByText(/All \(2\)/));
       
       // Should show formatted timestamps for old dates
-      expect(screen.getByText('1/1/2024')).toBeInTheDocument();
-      expect(screen.getByText('1/2/2024')).toBeInTheDocument(); // Jan 2nd shows as 1/2/2024 format
+      expect(screen.getByText('01/01/2024')).toBeInTheDocument();
+      expect(screen.getByText('02/01/2024')).toBeInTheDocument(); // Jan 2nd shows as 02/01/2024 format
     });
 
     it('should format recent timestamps as relative time', () => {
