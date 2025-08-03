@@ -471,7 +471,11 @@ export class AlertingService extends EventEmitter {
       acknowledged: false
     };
     
-    this.handleAlertFired(testAlert);
+    // Use the alerting engine's createTestAlert method to properly store the alert
+    this.alertingEngine.createTestAlert(testAlert);
+    
+    // Also handle it through our service for history tracking
+    this.addToAlertHistory(testAlert);
     console.log('🧪 Test alert triggered');
   }
 
@@ -498,7 +502,11 @@ export class AlertingService extends EventEmitter {
       acknowledged: false
     };
     
-    this.handleAlertFired(testAlert);
+    // Use the alerting engine's createTestAlert method to properly store the alert
+    this.alertingEngine.createTestAlert(testAlert);
+    
+    // Also handle it through our service for history tracking
+    this.addToAlertHistory(testAlert);
     console.log(`🧪 Simulated ${type} alert`);
   }
 

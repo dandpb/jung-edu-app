@@ -322,43 +322,52 @@ describe('HealthService', () => {
 
   describe('System Metrics', () => {
     test('should collect system metrics', async () => {
-      // Ensure performance API is properly mocked
+      // Ensure performance API is properly mocked with complete implementation
+      const mockPerformance = {
+        now: jest.fn(() => 100),
+        getEntriesByType: jest.fn((type: string) => {
+          if (type === 'navigation') return [{ type: 'navigation', startTime: 0 }];
+          if (type === 'resource') return [{}, {}, {}]; // 3 resources
+          return [];
+        }),
+        memory: {
+          usedJSHeapSize: 50000000,
+          totalJSHeapSize: 100000000,
+          jsHeapSizeLimit: 2000000000,
+        },
+      };
+
       Object.defineProperty(global, 'performance', {
+        value: mockPerformance,
+        writable: true,
+      });
+
+      // Ensure navigator is properly mocked
+      Object.defineProperty(global, 'navigator', {
         value: {
-          now: jest.fn(() => 100),
-          getEntriesByType: jest.fn(() => []),
-          memory: {
-            usedJSHeapSize: 50000000,
-            totalJSHeapSize: 100000000,
-            jsHeapSizeLimit: 2000000000,
-          },
+          userAgent: 'Mozilla/5.0 (Test Browser)',
+          language: 'en-US',
+          onLine: true,
+          cookieEnabled: true,
         },
         writable: true,
       });
       
-      // Mock getSystemMetrics method if it exists, or skip if not implemented
-      if (typeof healthService.getSystemMetrics === 'function') {
-        const metrics = await healthService.getSystemMetrics();
-        
-        expect(metrics).toBeDefined();
-        // If metrics is null or undefined, the service might have encountered an error
-        if (metrics && typeof metrics === 'object') {
-          expect(metrics.memory).toBeDefined();
-          expect(metrics.performance).toBeDefined();
-          expect(metrics.browser).toBeDefined();
-          expect(metrics.environment).toBeDefined();
-          expect(metrics.response_time).toBeGreaterThanOrEqual(0);
-        } else {
-          // If metrics is undefined, check if there's an error field
-          expect(metrics).toEqual(expect.objectContaining({
-            error: expect.any(String),
-            timestamp: expect.any(String)
-          }));
-        }
+      const metrics = await healthService.getSystemMetrics();
+      
+      expect(metrics).toBeDefined();
+      expect(typeof metrics).toBe('object');
+      
+      // Check if metrics has error or valid structure
+      if (metrics.error) {
+        expect(metrics.error).toBeDefined();
+        expect(metrics.timestamp).toBeDefined();
       } else {
-        // Skip this test if method is not implemented
-        console.log('getSystemMetrics method not implemented, skipping test');
-        expect(true).toBe(true);
+        expect(metrics.memory).toBeDefined();
+        expect(metrics.performance).toBeDefined();
+        expect(metrics.browser).toBeDefined();
+        expect(metrics.environment).toBeDefined();
+        expect(metrics.response_time).toBeGreaterThanOrEqual(0);
       }
     });
 
@@ -486,21 +495,32 @@ describe('HealthService', () => {
 
   describe('Error Handling', () => {
     test('should handle localStorage errors gracefully', async () => {
-      // Mock localStorage.setItem to throw an error
-      localStorageMock.setItem.mockImplementation(() => {
-        throw new Error('Storage quota exceeded');
+      // Mock localStorage to throw error and ensure proper global setup
+      const failingStorage = {
+        setItem: jest.fn(() => {
+          throw new Error('Storage quota exceeded');
+        }),
+        getItem: jest.fn(),
+        removeItem: jest.fn(),
+        clear: jest.fn(),
+        length: 0,
+        key: jest.fn()
+      };
+
+      Object.defineProperty(global, 'localStorage', {
+        value: failingStorage,
+        writable: true
       });
 
       const health = await healthService.checkSystemHealth();
       const storageService = health.services.find(s => s.service === 'storage');
       
       expect(storageService?.status).toBe('unhealthy');
-      // When setItem fails, getItem still returns 'test' due to mock setup,
-      // but since setItem failed, we know localStorage is not working properly
-      expect(storageService?.error).toContain('localStorage not available');
+      // The setItem error should be caught and preserved in the error message
+      expect(storageService?.error).toContain('Storage quota exceeded');
       
-      // Reset mock
-      localStorageMock.setItem.mockImplementation(() => {});
+      // Verify setItem was called and threw
+      expect(failingStorage.setItem).toHaveBeenCalledWith('health-check-test', 'test');
     });
 
     test('should handle missing environment variables', async () => {

@@ -671,6 +671,35 @@ export class AlertingEngine extends EventEmitter {
       uptime: process.uptime()
     };
   }
+
+  /**
+   * Create a test alert for testing purposes
+   */
+  createTestAlert(alert: PerformanceAlert): void {
+    const stateId = `test-${alert.id}`;
+    
+    const alertState: AlertState = {
+      id: alert.id,
+      ruleId: 'test-rule',
+      status: 'firing',
+      severity: alert.severity,
+      category: 'system', // Default category for test alerts
+      firstSeen: alert.timestamp,
+      lastSeen: alert.timestamp,
+      count: 1,
+      acknowledged: false,
+      escalationLevel: 0,
+      metadata: alert.data || {}
+    };
+    
+    // Store the alert state so it can be acknowledged
+    this.alertStates.set(stateId, alertState);
+    
+    // Emit the alert
+    this.emit('alert_fired', alert);
+    
+    console.log(`🧪 Test alert created: ${alert.id}`);
+  }
 }
 
 export default AlertingEngine;

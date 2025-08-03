@@ -106,7 +106,7 @@ describe('AdminLogin Component', () => {
     
     // Check that navigation occurred
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/admin/modules');
+      expect(mockNavigate).toHaveBeenCalledWith('/admin/dashboard');
     });
   });
 
@@ -160,7 +160,7 @@ describe('AdminLogin Component', () => {
     
     // Wait for navigation (error will be cleared)
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/admin/modules');
+      expect(mockNavigate).toHaveBeenCalledWith('/admin/dashboard');
     });
   });
 

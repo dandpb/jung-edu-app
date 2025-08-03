@@ -84,41 +84,99 @@ export class IntegrationValidator {
     };
 
     try {
-      // Handle null or undefined modules
-      if (!modules || !Array.isArray(modules)) {
-        modules = [];
-        report.criticalIssues.push('No modules provided for validation');
-      }
+      // Enhanced null/undefined module handling
+      const validationIssues = this.validateModuleInput(modules);
+      report.criticalIssues.push(...validationIssues.criticalIssues);
+      
+      // Sanitize modules array - filter out null/undefined values
+      const sanitizedModules = this.sanitizeModules(modules || []);
+      
+      // Check for structural integrity issues
+      const structuralIssues = this.validateModuleStructure(sanitizedModules);
+      report.criticalIssues.push(...structuralIssues);
 
       // Run module integration tests
-      report.categories.moduleIntegration = await this.testModuleIntegration(modules);
+      report.categories.moduleIntegration = await this.testModuleIntegration(sanitizedModules);
       
       // Run service integration tests
-      report.categories.serviceIntegration = await this.testServiceIntegration(modules);
+      report.categories.serviceIntegration = await this.testServiceIntegration(sanitizedModules);
       
       // Run data integration tests
-      report.categories.dataIntegration = await this.testDataIntegration(modules);
+      report.categories.dataIntegration = await this.testDataIntegration(sanitizedModules);
       
       // Run API integration tests
-      report.categories.apiIntegration = await this.testApiIntegration(modules);
+      report.categories.apiIntegration = await this.testApiIntegration(sanitizedModules);
       
       // Run performance integration tests
-      report.categories.performanceIntegration = await this.testPerformanceIntegration(modules);
+      report.categories.performanceIntegration = await this.testPerformanceIntegration(sanitizedModules);
 
       // Calculate overall results
-      this.calculateOverallResults(report);
+      const totalTests = Object.values(report.categories).flat().length;
+      const passedTests = Object.values(report.categories).flat().filter(test => test.passed).length;
+      const failedTests = totalTests - passedTests;
+      const score = totalTests > 0 ? Math.round((passedTests / totalTests) * 100) : 0;
+
+      // Ensure overall.passed is always a boolean, never null
+      const overallPassed = passedTests === totalTests && report.criticalIssues.length === 0;
+
+      report.overall = {
+        passed: Boolean(overallPassed), // Explicitly convert to boolean
+        score,
+        totalTests,
+        passedTests,
+        failedTests,
+        duration: performance.now() - startTime
+      };
 
       report.overall.duration = performance.now() - startTime;
 
       // Generate recommendations
       report.recommendations = this.generateRecommendations(report);
-      report.criticalIssues = this.identifyCriticalIssues(report);
+      
+      // Enhanced critical issues identification
+      const additionalCriticalIssues = this.identifyCriticalIssues(report);
+      report.criticalIssues.push(...additionalCriticalIssues);
 
       console.log(`✅ Integration validation completed. Score: ${report.overall.score}/100`);
 
     } catch (error) {
       console.error('❌ Integration validation failed:', error);
       report.criticalIssues.push(`Integration validation failed: ${error}`);
+      
+      // Ensure we always have test results even if validation fails
+      if (report.categories.moduleIntegration.length === 0) {
+        report.categories.moduleIntegration = this.createFailureTestResults('moduleIntegration', error);
+      }
+      if (report.categories.serviceIntegration.length === 0) {
+        report.categories.serviceIntegration = this.createFailureTestResults('serviceIntegration', error);
+      }
+      if (report.categories.dataIntegration.length === 0) {
+        report.categories.dataIntegration = this.createFailureTestResults('dataIntegration', error);
+      }
+      if (report.categories.apiIntegration.length === 0) {
+        report.categories.apiIntegration = this.createFailureTestResults('apiIntegration', error);
+      }
+      if (report.categories.performanceIntegration.length === 0) {
+        report.categories.performanceIntegration = this.createFailureTestResults('performanceIntegration', error);
+      }
+      
+      // Recalculate results after adding failure tests
+      const totalTests = Object.values(report.categories).flat().length;
+      const passedTests = Object.values(report.categories).flat().filter(test => test.passed).length;
+      const failedTests = totalTests - passedTests;
+      const score = totalTests > 0 ? Math.round((passedTests / totalTests) * 100) : 0;
+
+      // Ensure overall.passed is always a boolean, never null
+      const overallPassed = passedTests === totalTests && report.criticalIssues.length === 0;
+
+      report.overall = {
+        passed: Boolean(overallPassed), // Explicitly convert to boolean
+        score,
+        totalTests,
+        passedTests,
+        failedTests,
+        duration: performance.now() - startTime
+      };
     }
 
     return report;
@@ -269,7 +327,7 @@ export class IntegrationValidator {
           // Check if all prerequisites exist
           const missingPrereqs = module.prerequisites.filter((prereqId: any) => !moduleMap.has(prereqId));
           if (missingPrereqs.length > 0) {
-            test.errors.push(`Module ${module.id} references missing prerequisites: ${missingPrereqs.join(', ')}`);
+            test.errors.push(`Module ${module.id} has missing prerequisites: ${missingPrereqs.join(', ')}`);
             test.passed = false;
           } else {
             validChains++;
@@ -302,24 +360,35 @@ export class IntegrationValidator {
     moduleId: string, 
     prerequisites: string[], 
     moduleMap: Map<string, EducationalModule>, 
-    visited: Set<string> = new Set()
+    visited: Set<string> = new Set(),
+    recursionStack: Set<string> = new Set()
   ): boolean {
-    if (visited.has(moduleId)) {
+    // If we're already processing this module in current path, it's circular
+    if (recursionStack.has(moduleId)) {
       return true;
     }
 
-    visited.add(moduleId);
+    // If we've already fully processed this module, no need to recheck
+    if (visited.has(moduleId)) {
+      return false;
+    }
 
+    // Mark as being processed
+    recursionStack.add(moduleId);
+
+    // Check each prerequisite
     for (const prereqId of prerequisites) {
       const prereqModule = moduleMap.get(prereqId);
-      if (prereqModule && prereqModule.prerequisites) {
-        if (this.hasCircularDependency(prereqId, prereqModule.prerequisites, moduleMap, visited)) {
+      if (prereqModule && prereqModule.prerequisites && prereqModule.prerequisites.length > 0) {
+        if (this.hasCircularDependency(prereqId, prereqModule.prerequisites, moduleMap, visited, recursionStack)) {
           return true;
         }
       }
     }
 
-    visited.delete(moduleId);
+    // Remove from processing stack and mark as fully processed
+    recursionStack.delete(moduleId);
+    visited.add(moduleId);
     return false;
   }
 
@@ -578,6 +647,7 @@ export class IntegrationValidator {
           if (deleted) successfulOperations++;
 
         } catch (error) {
+          console.error(`Module service operation failed for ${module.id}:`, error);
           test.errors.push(`Module service operation failed for ${module.id}: ${error}`);
         }
       }
@@ -633,6 +703,7 @@ export class IntegrationValidator {
                 validVideos++; // Count as valid for non-YouTube videos
               }
             } catch (error) {
+              console.error(`Video validation failed for ${video.url}:`, error);
               test.errors.push(`Video validation failed for ${video.url}: ${error}`);
             }
           }
@@ -713,18 +784,26 @@ export class IntegrationValidator {
     };
 
     try {
-      // Test LLM service availability and basic functionality
-      const testPrompt = 'Generate a brief introduction to Jungian psychology.';
+      // Test LLM service availability and basic functionality with timeout
+      const timeoutMs = 5000; // 5 second timeout
       
       try {
         const orchestrator = new ModuleGenerationOrchestrator();
-        const response = await orchestrator.generateModule({
+        
+        // Create a promise with timeout
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout')), timeoutMs)
+        );
+        
+        const generatePromise = orchestrator.generateModule({
           topic: 'Jungian Psychology',
           objectives: ['Understand basic concepts'],
           targetAudience: 'General learners',
           duration: 30,
           difficulty: 'beginner'
         });
+
+        const response = await Promise.race([generatePromise, timeoutPromise]);
 
         if (response && response.module && response.module.title) {
           test.details = 'LLM service is responsive and generating content';
@@ -733,11 +812,17 @@ export class IntegrationValidator {
           test.passed = false;
         }
       } catch (error) {
-        test.errors.push(`LLM service error: ${error}`);
+        console.error('LLM service integration error:', error);
+        if (error instanceof Error && error.message.includes('Timeout')) {
+          test.errors.push(`LLM service timeout after ${timeoutMs}ms: ${error}`);
+        } else {
+          test.errors.push(`LLM service error: ${error}`);
+        }
         test.passed = false;
       }
 
     } catch (error) {
+      console.error('LLM service integration test failed:', error);
       test.passed = false;
       test.errors.push(`LLM service integration test failed: ${error}`);
     }
@@ -1119,9 +1204,16 @@ export class IntegrationValidator {
 
     try {
       let successfulSerializations = 0;
+      const testModules = modules.slice(0, 5); // Test first 5 modules
       
-      for (const module of modules.slice(0, 5)) { // Test first 5 modules
+      for (const module of testModules) {
         try {
+          // Check for circular references before serialization
+          if (this.hasCircularReferences(module)) {
+            test.errors.push(`Module ${module.id} contains circular references that prevent serialization`);
+            continue;
+          }
+
           // Test JSON serialization
           const serialized = JSON.stringify(module);
           const deserialized = JSON.parse(serialized);
@@ -1133,13 +1225,18 @@ export class IntegrationValidator {
             test.errors.push(`Serialization/deserialization failed for module ${module.id}`);
           }
         } catch (error) {
-          test.errors.push(`Serialization error for module ${module.id}: ${error}`);
+          // Check if it's a circular reference error
+          if (error instanceof TypeError && (error.message.includes('circular') || error.message.includes('Converting circular structure'))) {
+            test.errors.push(`Circular reference detected in module ${module.id}: ${error.message}`);
+          } else {
+            test.errors.push(`Serialization error for module ${module.id}: ${error}`);
+          }
         }
       }
 
-      test.details = `Tested serialization for 5 modules. ${successfulSerializations} successful.`;
+      test.details = `Tested serialization for ${testModules.length} modules. ${successfulSerializations} successful.`;
       
-      if (successfulSerializations < 5) {
+      if (successfulSerializations < testModules.length && testModules.length > 0) {
         test.passed = false;
       }
 
@@ -1467,13 +1564,22 @@ export class IntegrationValidator {
   // Helper methods for integration testing
 
   private extractModuleContent(module: EducationalModule): string {
-    let content = module.title + ' ' + module.description + ' ' + module.content.introduction;
+    if (!module) return '';
     
-    if (module.content.sections) {
-      content += ' ' + (module.content?.sections?.map((s: any) => s.content).join(' ') || '');
+    let content = (module.title || '') + ' ' + (module.description || '');
+    
+    if (module.content && typeof module.content === 'object') {
+      content += ' ' + (module.content.introduction || '');
+      
+      if (module.content.sections && Array.isArray(module.content.sections)) {
+        content += ' ' + module.content.sections
+          .map((s: any) => s?.content || '')
+          .filter(Boolean)
+          .join(' ');
+      }
     }
     
-    return content;
+    return content.trim();
   }
 
   private extractTerminology(content: string): string[] {
@@ -1649,6 +1755,110 @@ export class IntegrationValidator {
     return totalSize < 10000000; // 10MB total limit
   }
 
+  // Additional helper methods for enhanced validation
+
+  private validateModuleInput(modules: EducationalModule[]): { criticalIssues: string[] } {
+    const issues: string[] = [];
+    
+    if (!modules) {
+      issues.push('Modules array is null or undefined');
+      return { criticalIssues: issues };
+    }
+
+    if (modules.length === 0) {
+      issues.push('No modules provided for validation');
+    }
+
+    // Check for null/undefined modules
+    const nullModuleCount = modules.filter(m => m === null || m === undefined).length;
+    if (nullModuleCount > 0) {
+      issues.push(`Found ${nullModuleCount} null or undefined modules`);
+    }
+
+    // Check for modules with missing critical fields
+    const invalidModules = modules.filter(m => m && (!m.id || !m.title)).length;
+    if (invalidModules > 0) {
+      issues.push(`Found ${invalidModules} modules with missing required fields (id, title)`);
+    }
+
+    return { criticalIssues: issues };
+  }
+
+  private sanitizeModules(modules: EducationalModule[]): EducationalModule[] {
+    if (!modules) return [];
+    
+    return modules.filter(module => {
+      if (!module || typeof module !== 'object') return false;
+      if (!module.id || !module.title) return false;
+      return true;
+    });
+  }
+
+  private validateModuleStructure(modules: EducationalModule[]): string[] {
+    const issues: string[] = [];
+    
+    for (const module of modules) {
+      if (!module.content) {
+        issues.push(`Module ${module.id} has no content`);
+        continue;
+      }
+
+      if (!module.content.introduction) {
+        issues.push(`Module ${module.id} missing introduction`);
+      }
+
+      if (module.content.sections && Array.isArray(module.content.sections)) {
+        const orders = module.content.sections.map((s: any) => s.order);
+        const hasInvalidOrders = orders.some(order => typeof order !== 'number' || order < 0);
+        if (hasInvalidOrders) {
+          issues.push(`Module ${module.id} has invalid section ordering`);
+        }
+      }
+    }
+    
+    return issues;
+  }
+
+  private createFailureTestResults(category: string, error: any): IntegrationTestResult[] {
+    const testName = `${category.charAt(0).toUpperCase() + category.slice(1)} Tests`;
+    return [{
+      testName,
+      passed: false,
+      duration: 0,
+      details: `Category failed due to validation error: ${error}`,
+      errors: [`${category} validation failed: ${error}`],
+      warnings: []
+    }];
+  }
+
+  private hasCircularReferences(obj: any, seen = new WeakSet()): boolean {
+    if (obj === null || typeof obj !== 'object') {
+      return false;
+    }
+
+    if (seen.has(obj)) {
+      return true;
+    }
+
+    seen.add(obj);
+
+    try {
+      for (const key in obj) {
+        if (obj.hasOwnProperty && obj.hasOwnProperty(key)) {
+          if (this.hasCircularReferences(obj[key], seen)) {
+            return true;
+          }
+        }
+      }
+    } catch (error) {
+      // If we can't iterate through the object, assume it might have circular refs
+      return true;
+    }
+
+    seen.delete(obj);
+    return false;
+  }
+
   // Overall calculation methods
 
   private calculateOverallResults(report: IntegrationValidationReport): void {
@@ -1663,8 +1873,9 @@ export class IntegrationValidator {
     report.overall.totalTests = allTests.length;
     report.overall.passedTests = allTests.filter(test => test.passed).length;
     report.overall.failedTests = report.overall.totalTests - report.overall.passedTests;
-    report.overall.passed = report.overall.failedTests === 0;
-    report.overall.score = Math.round((report.overall.passedTests / report.overall.totalTests) * 100);
+    // Ensure overall.passed is always a boolean, never null
+    report.overall.passed = Boolean(report.overall.failedTests === 0 && report.criticalIssues.length === 0);
+    report.overall.score = report.overall.totalTests > 0 ? Math.round((report.overall.passedTests / report.overall.totalTests) * 100) : 0;
   }
 
   private generateRecommendations(report: IntegrationValidationReport): string[] {
@@ -1672,6 +1883,10 @@ export class IntegrationValidator {
 
     if (report.overall.score < 80) {
       recommendations.push('Address failing integration tests to improve system reliability');
+    }
+
+    if (report.overall.score < 60) {
+      recommendations.push('Critical integration issues detected - immediate attention required');
     }
 
     // Category-specific recommendations
@@ -1698,6 +1913,13 @@ export class IntegrationValidator {
     const failedPerformanceTests = report.categories.performanceIntegration.filter(t => !t.passed);
     if (failedPerformanceTests.length > 0) {
       recommendations.push('Optimize system performance and resource management');
+    }
+
+    // Ensure we always have integration-related recommendations
+    if (recommendations.length === 0) {
+      recommendations.push('Continue monitoring integration health and performance');
+    } else {
+      recommendations.push('Review all integration points for potential improvements');
     }
 
     return recommendations;
@@ -1730,6 +1952,34 @@ export class IntegrationValidator {
 
     if (report.overall.failedTests > report.overall.totalTests * 0.5) {
       criticalIssues.push('More than 50% of integration tests are failing');
+    }
+
+    // Add specific critical patterns
+    const moduleIntegrationFailures = report.categories.moduleIntegration.filter(t => !t.passed);
+    if (moduleIntegrationFailures.length > 0) {
+      const hasCircularDeps = moduleIntegrationFailures.some(t => 
+        t.errors.some(e => e.toLowerCase().includes('circular'))
+      );
+      if (hasCircularDeps) {
+        criticalIssues.push('Circular dependencies detected in module prerequisites');
+      }
+    }
+
+    // Check for serialization issues
+    const dataIntegrationFailures = report.categories.dataIntegration.filter(t => !t.passed);
+    if (dataIntegrationFailures.length > 0) {
+      const hasSerializationIssues = dataIntegrationFailures.some(t => 
+        t.testName.includes('Serialization') && t.errors.length > 0
+      );
+      if (hasSerializationIssues) {
+        criticalIssues.push('Data serialization issues may cause system instability');
+      }
+    }
+
+    // Check for service integration failures
+    const serviceFailures = report.categories.serviceIntegration.filter(t => !t.passed);
+    if (serviceFailures.length >= 3) {
+      criticalIssues.push('Multiple service integration failures detected');
     }
 
     return criticalIssues;

@@ -8,7 +8,7 @@ export const createMockLLMProvider = (overrides?: Partial<jest.Mocked<ILLMProvid
   const mockProvider: jest.Mocked<ILLMProvider> = {
     generateCompletion: jest.fn().mockResolvedValue({ content: 'Mock completion response', usage: undefined }),
     generateStructuredOutput: jest.fn().mockResolvedValue({}),
-    getTokenCount: jest.fn().mockImplementation((text: string) => Math.ceil(text.length / 4)), // Realistic token counting
+    getTokenCount: jest.fn().mockReturnValue(100), // Simple default for testing
     isAvailable: jest.fn().mockResolvedValue(true),
     streamCompletion: jest.fn().mockImplementation(async (prompt: string, onChunk: (chunk: string) => void) => {
       // Default streaming implementation
@@ -135,8 +135,8 @@ export const mockLLMResponses = {
 export const createMockLLMProviderWithPatterns = (pattern: 'success' | 'failure' | 'partial' | 'slow'): jest.Mocked<ILLMProvider> => {
   const baseProvider = createMockLLMProvider();
   
-  // Ensure getTokenCount uses realistic implementation
-  baseProvider.getTokenCount.mockImplementation((text: string) => Math.ceil(text.length / 4));
+  // Ensure getTokenCount uses consistent default value for testing
+  baseProvider.getTokenCount.mockReturnValue(100);
   
   switch (pattern) {
     case 'success':

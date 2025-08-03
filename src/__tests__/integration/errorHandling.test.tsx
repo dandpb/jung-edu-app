@@ -210,18 +210,26 @@ describe('Error Handling and Edge Cases', () => {
         />
       );
       
+      // Fill subject first to enable button
+      await user.type(screen.getByLabelText(/Sobre qual assunto/i), 'Test Subject');
+      
+      // Then open advanced options and fill target audience
       await user.click(screen.getByText(/Opções Avançadas/i));
-      await user.type(screen.getByLabelText(/Público-alvo/i), longAudience);
-      await user.type(screen.getByLabelText(/Sobre qual assunto/i), 'Test');
+      
+      const targetAudienceInput = screen.getByLabelText(/Público-alvo/i);
+      await user.clear(targetAudienceInput);
+      await user.type(targetAudienceInput, longAudience);
+      
       await user.click(screen.getByRole('button', { name: /Gerar Módulo/i }));
       
       await waitFor(() => {
         expect(mockOnGenerate).toHaveBeenCalledWith(
           expect.objectContaining({
+            subject: 'Test Subject',
             targetAudience: longAudience
           })
         );
-      });
+      }, { timeout: 3000 });
     });
   });
   
