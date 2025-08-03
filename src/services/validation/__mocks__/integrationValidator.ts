@@ -16,15 +16,19 @@ export class IntegrationValidator {
     // Check for null/undefined modules in array
     const hasNullModules = hasModules && modules.some((m: any) => m === null || m === undefined || (typeof m === 'object' && Object.keys(m).length === 0));
     
-    const moduleValid = hasModules && modules[0] && modules[0].quiz !== undefined && modules[0].mindMap !== undefined;
-    const incompleteModule = hasModules && modules[0] && (modules[0].quiz === undefined || modules[0].mindMap === undefined);
+    // Ensure we get boolean values, not null/undefined
+    const moduleValid = Boolean(hasModules && modules[0] && modules[0].quiz !== undefined && modules[0].mindMap !== undefined);
+    const incompleteModule = Boolean(hasModules && modules[0] && (modules[0].quiz === undefined || modules[0].mindMap === undefined));
     
     // Check for empty questions array
-    const hasEmptyQuestions = hasModules && modules[0] && modules[0].quiz && 
-                            modules[0].quiz.questions && modules[0].quiz.questions.length === 0;
+    const hasEmptyQuestions = Boolean(hasModules && modules[0] && modules[0].quiz && 
+                            modules[0].quiz.questions && modules[0].quiz.questions.length === 0);
     
     // Check for circular dependencies
-    const hasCircularDependency = this.hasCircularDependencies(modules);
+    const hasCircularDependency = Boolean(this.hasCircularDependencies(modules));
+    
+    // Check for missing prerequisites
+    const hasMissingPrerequisites = Boolean(this.hasMissingPrerequisites(modules));
     
     // Check for broken relationships
     let hasBrokenRelationship = false;
@@ -45,7 +49,7 @@ export class IntegrationValidator {
       warnings: []
     });
 
-    const overallPassed = hasModules && moduleValid && !hasBrokenRelationship && !hasEmptyQuestions && !hasNullModules && !hasCircularDependency;
+    const overallPassed = Boolean(hasModules && moduleValid && !hasBrokenRelationship && !hasEmptyQuestions && !hasNullModules && !hasCircularDependency && !hasMissingPrerequisites);
     
     const report: IntegrationValidationReport = {
       overall: {
@@ -62,7 +66,9 @@ export class IntegrationValidator {
           createTestResult('Navigation Flow', hasModules && !hasNullModules),
           createTestResult('Module Relationship Test', !hasBrokenRelationship),
           createTestResult('Component relationships', moduleValid),
-          createTestResult('Module Prerequisite Chain Validation', !hasCircularDependency, hasCircularDependency ? ['Circular dependency detected'] : [])
+          createTestResult('Module Prerequisite Chain Validation', !hasCircularDependency && !hasMissingPrerequisites, 
+            hasCircularDependency ? ['Circular dependency detected'] : 
+            hasMissingPrerequisites ? ['Missing prerequisites detected'] : [])
         ],
         serviceIntegration: [
           createTestResult('Module Service Integration', hasModules),
@@ -82,13 +88,20 @@ export class IntegrationValidator {
           createTestResult('Memory Usage', true)
         ]
       },
-      recommendations: hasModules ? (hasEmptyQuestions ? ['Add quiz questions'] : hasNullModules ? ['Remove null/undefined modules'] : []) : ['Add modules for validation'],
-      criticalIssues: hasModules ? (
-        hasNullModules ? ['Null or undefined modules detected'] :
-        incompleteModule ? ['Module missing required components'] : 
-        hasEmptyQuestions ? ['Quiz has no questions'] : 
-        hasCircularDependency ? ['Circular module dependencies detected'] : []
-      ) : ['No modules provided']
+      recommendations: hasModules ? (
+        hasEmptyQuestions ? ['Add quiz questions'] : 
+        hasNullModules ? ['Remove null/undefined modules'] : 
+        hasMissingPrerequisites ? ['Fix missing prerequisite modules'] : []
+      ) : ['Add modules for validation'],
+      criticalIssues: hasModules ? (() => {
+        const issues: string[] = [];
+        if (hasNullModules) issues.push('Null or undefined modules detected');
+        if (incompleteModule) issues.push('Module missing required components');
+        if (hasEmptyQuestions) issues.push('Quiz has no questions');
+        if (hasCircularDependency) issues.push('Circular module dependencies detected');
+        if (hasMissingPrerequisites) issues.push('Missing prerequisite modules');
+        return issues;
+      })() : ['No modules provided']
     };
 
     return report;
@@ -144,6 +157,24 @@ export class IntegrationValidator {
     for (const moduleId of moduleIds) {
       if (hasCycle(moduleId)) {
         return true;
+      }
+    }
+    
+    return false;
+  }
+
+  private hasMissingPrerequisites(modules: any[]): boolean {
+    if (!modules || !Array.isArray(modules)) return false;
+    
+    const moduleIds = new Set(modules.map(m => m?.id).filter(Boolean));
+    
+    for (const module of modules) {
+      if (module?.prerequisites && Array.isArray(module.prerequisites)) {
+        for (const prereqId of module.prerequisites) {
+          if (!moduleIds.has(prereqId)) {
+            return true; // Found a missing prerequisite
+          }
+        }
       }
     }
     

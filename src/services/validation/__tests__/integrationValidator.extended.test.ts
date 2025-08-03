@@ -1,17 +1,37 @@
-// Mock the integrationValidator module
-jest.mock('../integrationValidator');
-
 import { IntegrationValidator, IntegrationValidationReport } from '../integrationValidator';
 import { EducationalModule } from '../../../schemas/module.schema';
 
-// Mock dependencies
-jest.mock('../../modules/moduleService');
-jest.mock('../../video/youtubeService');
-jest.mock('../../quiz/quizValidator');
-jest.mock('../../llm/orchestrator');
+// Mock dependencies with specific implementations to prevent hangs
+jest.mock('../../modules/moduleService', () => ({
+  ModuleService: jest.fn().mockImplementation(() => ({
+    create: jest.fn().mockResolvedValue(true),
+    read: jest.fn().mockResolvedValue({}),
+    update: jest.fn().mockResolvedValue(true),
+    delete: jest.fn().mockResolvedValue(true),
+  }))
+}));
 
-// Get the mocked class
-const MockedIntegrationValidator = IntegrationValidator as jest.MockedClass<typeof IntegrationValidator>;
+jest.mock('../../video/youtubeService', () => ({
+  YouTubeService: jest.fn().mockImplementation(() => ({
+    getVideoDetails: jest.fn().mockResolvedValue(null)
+  }))
+}));
+
+jest.mock('../../quiz/quizValidator', () => ({
+  QuizValidator: jest.fn().mockImplementation(() => ({
+    validateQuiz: jest.fn().mockReturnValue({ isValid: true, errors: [] })
+  }))
+}));
+
+jest.mock('../../llm/orchestrator', () => ({
+  ModuleGenerationOrchestrator: jest.fn().mockImplementation(() => ({
+    generateModule: jest.fn().mockImplementation(() => 
+      Promise.resolve({
+        module: { title: 'Test Module', content: 'Test content' }
+      })
+    )
+  }))
+}));
 
 describe('IntegrationValidator - Extended Edge Case Tests', () => {
   let validator: IntegrationValidator;
@@ -21,7 +41,7 @@ describe('IntegrationValidator - Extended Edge Case Tests', () => {
   beforeEach(() => {
     // Clear all mocks and create a new instance
     jest.clearAllMocks();
-    validator = new MockedIntegrationValidator();
+    validator = new IntegrationValidator();
     consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
   });
