@@ -14,7 +14,7 @@ export class IntegrationValidator {
     const hasModules = modules.length > 0;
     
     // Check for null/undefined modules in array
-    const hasNullModules = hasModules && modules.some(m => m === null || m === undefined || (typeof m === 'object' && Object.keys(m).length === 0));
+    const hasNullModules = hasModules && modules.some((m: any) => m === null || m === undefined || (typeof m === 'object' && Object.keys(m).length === 0));
     
     const moduleValid = hasModules && modules[0] && modules[0].quiz !== undefined && modules[0].mindMap !== undefined;
     const incompleteModule = hasModules && modules[0] && (modules[0].quiz === undefined || modules[0].mindMap === undefined);

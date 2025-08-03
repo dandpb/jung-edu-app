@@ -65,7 +65,7 @@ export class IntegrationValidator {
 
     const report: IntegrationValidationReport = {
       overall: {
-        passed: false,
+        passed: false, // Initialize as false, will be properly calculated later
         score: 0,
         totalTests: 0,
         passedTests: 0,
@@ -805,7 +805,7 @@ export class IntegrationValidator {
 
         const response = await Promise.race([generatePromise, timeoutPromise]);
 
-        if (response && response.module && response.module.title) {
+        if (response && (response as any).module && (response as any).module.title) {
           test.details = 'LLM service is responsive and generating content';
         } else {
           test.warnings.push('LLM service response is invalid or empty');

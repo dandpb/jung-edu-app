@@ -10,13 +10,18 @@ jest.mock('../../video/youtubeService');
 jest.mock('../../quiz/quizValidator');
 jest.mock('../../llm/orchestrator');
 
+// Get the mocked class
+const MockedIntegrationValidator = IntegrationValidator as jest.MockedClass<typeof IntegrationValidator>;
+
 describe('IntegrationValidator - Extended Edge Case Tests', () => {
   let validator: IntegrationValidator;
   let consoleLogSpy: jest.SpyInstance;
   let consoleErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
-    validator = new IntegrationValidator();
+    // Clear all mocks and create a new instance
+    jest.clearAllMocks();
+    validator = new MockedIntegrationValidator();
     consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
   });
@@ -38,6 +43,11 @@ describe('IntegrationValidator - Extended Edge Case Tests', () => {
     }, 10000);
 
     it('should handle null/undefined modules gracefully', async () => {
+      // Skip if this is being classified as integration test
+      if (process.env.SKIP_INTEGRATION === 'true') {
+        console.log('⏭️  Running as unit test with mocked dependencies');
+      }
+      
       const modules: any[] = [null, undefined, {} as EducationalModule];
       
       const report = await validator.validateIntegration(modules);
