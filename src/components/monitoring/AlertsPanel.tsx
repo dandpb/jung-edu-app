@@ -91,7 +91,11 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
     if (hours === 1) return '1 hour ago';
     if (hours < 24) return `${hours}h ago`;
     
-    return timestamp.toLocaleDateString();
+    return timestamp.toLocaleDateString('en-US', {
+      month: '2-digit',
+      day: '2-digit',
+      year: 'numeric'
+    });
   };
 
   const unacknowledgedCount = alerts.filter(a => !a.acknowledged).length;

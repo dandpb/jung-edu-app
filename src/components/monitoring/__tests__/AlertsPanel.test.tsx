@@ -191,7 +191,7 @@ describe('AlertsPanel', () => {
           type: 'error' as const,
           severity: 'critical' as const,
           message: 'Unable to connect to primary database',
-          timestamp: new Date('2024-01-02T11:30:00Z'), // Old date, will show as formatted date
+          timestamp: new Date('2024-02-01T11:30:00Z'), // Old date, will show as formatted date
           acknowledged: false, // Changed to false so it shows in default filter
           moduleId: 'module-2'
         }

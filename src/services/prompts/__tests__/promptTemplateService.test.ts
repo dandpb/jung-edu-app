@@ -87,7 +87,12 @@ describe('PromptTemplateService', () => {
       // Delete it
       await promptTemplateServiceMock.deleteTemplate(created.id);
 
-      // Verify it's gone
+      // Verify it's gone by checking all templates instead of by key
+      const allTemplates = await promptTemplateServiceMock.getTemplates();
+      const deletedTemplate = allTemplates.find(t => t.id === created.id);
+      expect(deletedTemplate).toBeUndefined();
+      
+      // Also verify getTemplateByKey returns null
       exists = await promptTemplateServiceMock.getTemplateByKey(uniqueKey);
       expect(exists).toBeNull();
     });
