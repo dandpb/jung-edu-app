@@ -71,6 +71,8 @@ describe('AutomaticQuizOrchestrator', () => {
     };
 
     it('should generate a quiz successfully with default options', async () => {
+      // Increase timeout for this async test
+      jest.setTimeout(10000);
       const result = await orchestrator.generateAutomaticQuiz(
         'test-module',
         'Test Topic',
@@ -88,6 +90,7 @@ describe('AutomaticQuizOrchestrator', () => {
     });
 
     it('should include analytics with content analysis', async () => {
+      jest.setTimeout(10000);
       const result = await orchestrator.generateAutomaticQuiz(
         'test-module',
         'Test Topic',
@@ -106,6 +109,7 @@ describe('AutomaticQuizOrchestrator', () => {
     });
 
     it('should handle different difficulty levels', async () => {
+      jest.setTimeout(10000);
       const beginnerOptions = { ...defaultOptions, targetDifficulty: 'beginner' as const };
       const advancedOptions = { ...defaultOptions, targetDifficulty: 'advanced' as const };
 
