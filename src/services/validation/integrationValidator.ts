@@ -1595,15 +1595,27 @@ export class IntegrationValidator {
   }
 
   private async simulateModuleServiceOperation(operation: string, module: EducationalModule): Promise<boolean> {
-    // Simulate module service operations
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 100));
-    
-    // Simulate occasional failures
-    if (Math.random() < 0.1) {
-      throw new Error(`${operation} operation failed`);
+    try {
+      switch (operation) {
+        case 'create':
+          await this.moduleService.createModule(module);
+          break;
+        case 'read':
+          await this.moduleService.getModuleById(module.id);
+          break;
+        case 'update':
+          await this.moduleService.updateModule(module.id, module);
+          break;
+        case 'delete':
+          await this.moduleService.deleteModule(module.id);
+          break;
+        default:
+          throw new Error(`Unknown operation: ${operation}`);
+      }
+      return true;
+    } catch (error) {
+      throw new Error(`${operation} operation failed: ${error}`);
     }
-    
-    return true;
   }
 
   private async simulateLinkCheck(url: string): Promise<boolean> {
@@ -1860,7 +1872,29 @@ export class IntegrationValidator {
     report.overall.failedTests = report.overall.totalTests - report.overall.passedTests;
     // Ensure overall.passed is always a boolean, never null
     report.overall.passed = Boolean(report.overall.failedTests === 0 && report.criticalIssues.length === 0);
-    report.overall.score = report.overall.totalTests > 0 ? Math.round((report.overall.passedTests / report.overall.totalTests) * 100) : 0;
+    
+    // Calculate base score from test results
+    let baseScore = report.overall.totalTests > 0 ? Math.round((report.overall.passedTests / report.overall.totalTests) * 100) : 0;
+    
+    // Apply heavy penalties for critical issues
+    if (report.criticalIssues.length > 0) {
+      // Each critical issue reduces score by 15 points, with a minimum score of 0
+      const criticalIssuePenalty = report.criticalIssues.length * 15;
+      baseScore = Math.max(0, baseScore - criticalIssuePenalty);
+      
+      // Additional penalty for specific types of critical issues
+      const hasMajorStructuralIssues = report.criticalIssues.some(issue => 
+        issue.includes('null or undefined') || 
+        issue.includes('missing required fields') ||
+        issue.includes('circular')
+      );
+      
+      if (hasMajorStructuralIssues) {
+        baseScore = Math.max(0, baseScore - 20); // Additional 20 point penalty
+      }
+    }
+    
+    report.overall.score = baseScore;
   }
 
   private generateRecommendations(report: IntegrationValidationReport): string[] {

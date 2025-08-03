@@ -4,10 +4,26 @@ import { EducationalModule } from '../../../schemas/module.schema';
 // Mock dependencies with specific implementations to prevent hangs
 jest.mock('../../modules/moduleService', () => ({
   ModuleService: jest.fn().mockImplementation(() => ({
-    create: jest.fn().mockResolvedValue(true),
-    read: jest.fn().mockResolvedValue({}),
-    update: jest.fn().mockResolvedValue(true),
-    delete: jest.fn().mockResolvedValue(true),
+    createModule: jest.fn().mockImplementation((module) => {
+      // Reject modules with missing required fields
+      if (!module || !module.id || !module.title || !module.content) {
+        return Promise.reject(new Error('Module missing required fields'));
+      }
+      return Promise.resolve(true);
+    }),
+    getModuleById: jest.fn().mockImplementation((id) => {
+      if (!id) {
+        return Promise.reject(new Error('Module ID required'));
+      }
+      return Promise.resolve({});
+    }),
+    updateModule: jest.fn().mockImplementation((id, module) => {
+      if (!id || !module) {
+        return Promise.reject(new Error('Module ID and data required for update'));
+      }
+      return Promise.resolve(true);
+    }),
+    deleteModule: jest.fn().mockResolvedValue(true),
   }))
 }));
 
@@ -19,7 +35,27 @@ jest.mock('../../video/youtubeService', () => ({
 
 jest.mock('../../quiz/quizValidator', () => ({
   QuizValidator: jest.fn().mockImplementation(() => ({
-    validateQuiz: jest.fn().mockReturnValue({ isValid: true, errors: [] })
+    validateQuiz: jest.fn().mockImplementation((quiz) => {
+      const errors = [];
+      
+      // Validate quiz structure more strictly
+      if (!quiz || !quiz.questions || quiz.questions.length === 0) {
+        errors.push('Quiz must have at least one question');
+      }
+      
+      if (quiz && quiz.passingScore && (quiz.passingScore > 100 || quiz.passingScore < 0)) {
+        errors.push('Passing score must be between 0 and 100');
+      }
+      
+      if (quiz && quiz.timeLimit && quiz.timeLimit < 0) {
+        errors.push('Time limit cannot be negative');
+      }
+      
+      return {
+        isValid: errors.length === 0,
+        errors
+      };
+    })
   }))
 }));
 

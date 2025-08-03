@@ -230,10 +230,10 @@ class CoverageValidator {
         // Check for comprehensive test patterns
         const patterns = [
           { name: 'describe blocks', regex: /describe\(/g, min: 3 },
-          { name: 'test cases', regex: /it\\(/g, min: 5 },
-          { name: 'async tests', regex: /async \\(/g, min: 2 },
-          { name: 'user interactions', regex: /user\\./g, min: 3 },
-          { name: 'waitFor assertions', regex: /waitFor\\(/g, min: 2 }
+          { name: 'test cases', regex: /it\(/g, min: 5 },
+          { name: 'async tests', regex: /async \(/g, min: 2 },
+          { name: 'user interactions', regex: /user\./g, min: 3 },
+          { name: 'waitFor assertions', regex: /waitFor\(/g, min: 2 }
         ];
         
         patterns.forEach(pattern => {

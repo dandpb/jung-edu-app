@@ -175,11 +175,68 @@ describe('AlertsPanel', () => {
 
   describe('timestamps', () => {
     it('should format timestamps correctly', () => {
-      render(<AlertsPanel alerts={mockAlerts} />);
+      // Create alerts with old timestamps to ensure they display as dates, not relative time
+      const alertsWithOldDates = [
+        {
+          id: '1',
+          type: 'performance' as const,
+          severity: 'high' as const,
+          message: 'System memory usage is above 85%',
+          timestamp: new Date('2024-01-01T12:00:00Z'), // Old date, will show as formatted date
+          acknowledged: false,
+          moduleId: 'module-1'
+        },
+        {
+          id: '2',
+          type: 'error' as const,
+          severity: 'critical' as const,
+          message: 'Unable to connect to primary database',
+          timestamp: new Date('2024-01-02T11:30:00Z'), // Old date, will show as formatted date
+          acknowledged: false, // Changed to false so it shows in default filter
+          moduleId: 'module-2'
+        }
+      ];
       
-      // Should show formatted timestamps - there are multiple, so use getAllByText
-      const timestamps = screen.getAllByText('01/01/2024');
-      expect(timestamps.length).toBeGreaterThan(0);
+      render(<AlertsPanel alerts={alertsWithOldDates} />);
+      
+      // Click to show all alerts to see both timestamps
+      fireEvent.click(screen.getByText(/All \(2\)/));
+      
+      // Should show formatted timestamps for old dates
+      expect(screen.getByText('1/1/2024')).toBeInTheDocument();
+      expect(screen.getByText('1/2/2024')).toBeInTheDocument(); // Jan 2nd shows as 1/2/2024 format
+    });
+
+    it('should format recent timestamps as relative time', () => {
+      // Create alerts with recent timestamps
+      const now = new Date();
+      const oneHourAgo = new Date(now.getTime() - (60 * 60 * 1000));
+      const fiveMinutesAgo = new Date(now.getTime() - (5 * 60 * 1000));
+      
+      const alertsWithRecentDates = [
+        {
+          id: '1',
+          type: 'info' as const,
+          severity: 'low' as const,
+          message: 'Recent alert',
+          timestamp: oneHourAgo,
+          acknowledged: false
+        },
+        {
+          id: '2',
+          type: 'info' as const,
+          severity: 'low' as const,
+          message: 'Very recent alert',
+          timestamp: fiveMinutesAgo,
+          acknowledged: false
+        }
+      ];
+      
+      render(<AlertsPanel alerts={alertsWithRecentDates} />);
+      
+      // Should show relative time for recent timestamps - checking for actual format from component
+      expect(screen.getByText('1 hour ago')).toBeInTheDocument();
+      expect(screen.getByText('5 min ago')).toBeInTheDocument();
     });
   });
 
