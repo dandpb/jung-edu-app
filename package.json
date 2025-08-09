@@ -12,6 +12,7 @@
     "@types/node": "^16.18.68",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
+    "@types/uuid": "^10.0.0",
     "ajv": "^8.17.1",
     "ajv-formats": "^2.1.1",
     "axios": "^1.11.0",
@@ -83,7 +84,6 @@
   },
   "devDependencies": {
     "@types/socket.io-client": "^3.0.0",
-    "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.16",
     "identity-obj-proxy": "^3.0.0",
     "jest-localstorage-mock": "^2.4.26",
