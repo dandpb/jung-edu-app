@@ -394,7 +394,22 @@ For each question provide:
         question: q.question,
         options: [], // Essay questions don't have options
         correctAnswer: -1, // Not applicable for essay questions
-        rubric: q.rubric,
+        rubric: {
+          criteria: [
+            {
+              name: 'Content Understanding',
+              description: 'Demonstrates understanding of key concepts',
+              levels: [
+                { score: 25, description: 'Excellent understanding with deep insights' },
+                { score: 20, description: 'Good understanding with clear explanations' },
+                { score: 15, description: 'Basic understanding with some gaps' },
+                { score: 10, description: 'Limited understanding' },
+                { score: 0, description: 'No understanding demonstrated' }
+              ]
+            }
+          ],
+          maxScore: 25
+        },
         explanation: q.explanation,
         points: 25,
         order: index,
@@ -411,7 +426,22 @@ For each question provide:
       question: q.question,
       options: [], // Essay questions don't have options
       correctAnswer: -1, // Not applicable for essay questions
-      rubric: q.rubric,
+      rubric: {
+        criteria: [
+          {
+            name: 'Content Understanding',
+            description: 'Demonstrates understanding of key concepts',
+            levels: [
+              { score: 25, description: 'Excellent understanding with deep insights' },
+              { score: 20, description: 'Good understanding with clear explanations' },
+              { score: 15, description: 'Basic understanding with some gaps' },
+              { score: 10, description: 'Limited understanding' },
+              { score: 0, description: 'No understanding demonstrated' }
+            ]
+          }
+        ],
+        maxScore: 25
+      },
       explanation: q.explanation,
       points: 25,
       order: index,

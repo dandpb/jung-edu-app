@@ -53,6 +53,12 @@
     "validate:health": "curl -f http://localhost:3000/health || echo 'Health check failed'",
     "monitor:health": "./scripts/health-monitor.sh",
     "serve": "serve -s build",
+    "deploy:preview": "./scripts/netlify-deploy.sh preview 'Manual deployment from local'",
+    "deploy:prod": "./scripts/netlify-deploy.sh production 'Production deployment from local'",
+    "netlify:init": "netlify init",
+    "netlify:build": "netlify build",
+    "netlify:deploy": "netlify deploy --dir=build",
+    "netlify:deploy:prod": "netlify deploy --prod --dir=build",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

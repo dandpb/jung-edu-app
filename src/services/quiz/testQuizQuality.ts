@@ -123,7 +123,10 @@ export async function testQuizQuality() {
       q.options?.forEach((opt, j) => {
         console.log(`  ${String.fromCharCode(65 + j)}) ${opt}`);
       });
-      console.log(`Correct: ${String.fromCharCode(65 + (q.correctAnswer || 0))}`);
+      const correctAnswerIndex = typeof q.correctAnswer === 'number' ? 
+        q.correctAnswer : 
+        (Array.isArray(q.correctAnswer) ? q.correctAnswer[0] : 0);
+      console.log(`Correct: ${String.fromCharCode(65 + correctAnswerIndex)}`);
       console.log(`Explanation: ${q.explanation?.substring(0, 100)}...`);
     });
     

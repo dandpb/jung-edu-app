@@ -788,11 +788,41 @@ Respond in JSON format as shown above.
         explanation: 'Resposta deve incluir definições, exemplos e análise crítica.',
         rubric: {
           criteria: [
-            { name: 'Compreensão', description: 'Entendimento do conceito', points: 20 },
-            { name: 'Análise', description: 'Análise crítica', points: 20 },
-            { name: 'Exemplos', description: 'Uso de exemplos', points: 10 }
+            { 
+              name: 'Compreensão', 
+              description: 'Entendimento do conceito',
+              levels: [
+                { score: 20, description: 'Excelente compreensão' },
+                { score: 15, description: 'Boa compreensão' },
+                { score: 10, description: 'Compreensão básica' },
+                { score: 5, description: 'Compreensão limitada' },
+                { score: 0, description: 'Sem compreensão' }
+              ]
+            },
+            { 
+              name: 'Análise', 
+              description: 'Análise crítica',
+              levels: [
+                { score: 20, description: 'Análise profunda' },
+                { score: 15, description: 'Boa análise' },
+                { score: 10, description: 'Análise básica' },
+                { score: 5, description: 'Análise superficial' },
+                { score: 0, description: 'Sem análise' }
+              ]
+            },
+            { 
+              name: 'Exemplos', 
+              description: 'Uso de exemplos',
+              levels: [
+                { score: 10, description: 'Exemplos relevantes e bem explicados' },
+                { score: 7, description: 'Bons exemplos' },
+                { score: 5, description: 'Exemplos básicos' },
+                { score: 3, description: 'Poucos exemplos' },
+                { score: 0, description: 'Sem exemplos' }
+              ]
+            }
           ],
-          totalPoints: 50
+          maxScore: 50
         },
         points: 50,
         order: i,

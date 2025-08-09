@@ -15,6 +15,7 @@ import BibliographyPage from './pages/BibliographyPage';
 import SearchPage from './pages/SearchPage';
 import TestYouTubeIntegration from './pages/TestYouTubeIntegration';
 import TestYouTubeAPI from './pages/TestYouTubeAPI';
+import ProgressPage from './pages/ProgressPage';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminModules from './pages/admin/AdminModules';
@@ -183,6 +184,17 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <SearchPage modules={modules} />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/progress" 
+            element={
+              <ProtectedRoute>
+                <ProgressPage 
+                  userProgress={userProgress}
+                  updateProgress={updateProgress}
+                />
               </ProtectedRoute>
             } 
           />

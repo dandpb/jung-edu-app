@@ -107,7 +107,8 @@ export class QuizValidator {
         result.warnings.push(...distractorQuality.warnings);
       }
 
-      if (question.correctAnswer === undefined || question.correctAnswer < 0 || question.correctAnswer > 3) {
+      if (question.correctAnswer === undefined || 
+          (typeof question.correctAnswer === 'number' && (question.correctAnswer < 0 || question.correctAnswer > 3))) {
         result.errors.push('Invalid correct answer index');
         result.isValid = false;
         result.qualityScore -= 50;
@@ -145,7 +146,11 @@ export class QuizValidator {
     }
 
     const options = question.options;
-    const correctAnswer = options[question.correctAnswer];
+    // Handle different types of correctAnswer
+    const correctAnswerIndex = typeof question.correctAnswer === 'number' ? 
+      question.correctAnswer : 
+      (Array.isArray(question.correctAnswer) ? question.correctAnswer[0] : 0);
+    const correctAnswer = options[correctAnswerIndex];
 
     // Check for generic or low-quality distractors
     const genericPatterns = [
@@ -163,7 +168,7 @@ export class QuizValidator {
     ];
 
     options.forEach((option, index) => {
-      if (index === question.correctAnswer) return; // Skip correct answer
+      if (index === correctAnswerIndex) return; // Skip correct answer
 
       // Handle non-string options
       let optionText: string;
@@ -242,7 +247,7 @@ export class QuizValidator {
     
     let plausibleCount = 0;
     options.forEach((option, index) => {
-      if (index === question.correctAnswer) return;
+      if (index === correctAnswerIndex) return;
       
       // Handle non-string options
       let optionText: string;

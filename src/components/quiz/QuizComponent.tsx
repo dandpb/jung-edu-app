@@ -129,7 +129,9 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
                       <p className="text-sm text-green-600 mt-1">
                         Resposta correta: {(() => {
                           if (!question.options || question.correctAnswer === undefined) return 'N/A';
-                          const option = question.options[question.correctAnswer];
+                          const correctIndex = Array.isArray(question.correctAnswer) ? question.correctAnswer[0] : Number(question.correctAnswer);
+                          if (typeof correctIndex !== 'number' || isNaN(correctIndex)) return 'N/A';
+                          const option = question.options[correctIndex];
                           return typeof option === 'string' ? option : option?.text || 'N/A';
                         })()}
                       </p>

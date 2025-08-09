@@ -48,7 +48,10 @@ export const createMockModule = (overrides?: Partial<Module>): Module => ({
       id: 'exercise-1',
       title: 'Dream Analysis',
       description: 'Practice analyzing dreams',
-      duration: 30
+      instructions: ['Read the dream', 'Identify symbols', 'Analyze meaning'],
+      estimatedTime: 30,
+      difficulty: 'intermediate' as const,
+      type: 'analysis' as const
     }
   ],
   ...overrides
@@ -113,8 +116,8 @@ export const createMockVideo = (overrides?: Partial<Video>): Video => ({
   duration: { hours: 0, minutes: 45, seconds: 30 },
   transcript: 'This is the video transcript...',
   keyMoments: [
-    { time: 120, description: 'Jung\'s early life' },
-    { time: 600, description: 'The collective unconscious' }
+    { timestamp: 120, title: 'Early Life', description: 'Jung\'s early life', type: 'concept' as const },
+    { timestamp: 600, title: 'Collective Unconscious', description: 'The collective unconscious', type: 'concept' as const }
   ],
   ...overrides
 });

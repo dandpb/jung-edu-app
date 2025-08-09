@@ -130,11 +130,17 @@ export class QuizEnhancer {
 
     const misconceptions = getTopicMisconceptions(topic);
     const concepts = getTopicConcepts(topic);
-    const correctOption = question.options[question.correctAnswer];
+    
+    // Handle different types of correctAnswer
+    const correctAnswerIndex = typeof question.correctAnswer === 'number' ? 
+      question.correctAnswer : 
+      (Array.isArray(question.correctAnswer) ? question.correctAnswer[0] : 0);
+    
+    const correctOption = question.options[correctAnswerIndex];
     
     // Generate better distractors
     const improvedOptions = question.options.map((option, index) => {
-      if (index === question.correctAnswer) {
+      if (index === correctAnswerIndex) {
         // Keep correct answer but ensure it's an Option object
         return typeof option === 'string' ? 
           { id: `option-${index}`, text: option, isCorrect: true } : 
@@ -429,11 +435,16 @@ export class QuizEnhancer {
     
     // Add why other options are wrong (if multiple choice)
     if (question.type === 'multiple-choice' && question.options) {
+      // Handle different types of correctAnswer
+      const correctAnswerIndex = typeof question.correctAnswer === 'number' ? 
+        question.correctAnswer : 
+        (Array.isArray(question.correctAnswer) ? question.correctAnswer[0] : 0);
+      
       enhanced += '\n\nWhy other options are incorrect:';
       question.options.forEach((option, index) => {
-        if (index !== question.correctAnswer) {
+        if (index !== correctAnswerIndex) {
           const optionText = typeof option === 'string' ? option : option.text || option.toString();
-          const correctOption = question.options![question.correctAnswer!];
+          const correctOption = question.options![correctAnswerIndex];
           const correctText = typeof correctOption === 'string' ? correctOption : (correctOption.text || correctOption.toString());
           enhanced += `\n- Option ${String.fromCharCode(65 + index)}: ${this.explainWhyWrong(optionText, correctText as string)}`;
         }

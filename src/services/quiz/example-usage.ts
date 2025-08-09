@@ -274,9 +274,20 @@ export function demonstrateQuestionValidation() {
     correctAnswer: -1, // Not applicable for essay questions
     explanation: 'A good essay should discuss shadow projection, integration, and unconscious aspects.',
     rubric: {
-      required: ['projection', 'integration', 'unconscious'],
-      optional: ['gold in shadow', 'collective shadow', 'examples'],
-      depth: 150 // minimum words
+      criteria: [
+        {
+          name: 'Content Understanding',
+          description: 'Demonstrates understanding of shadow concepts',
+          levels: [
+            { score: 25, description: 'Excellent: Covers projection, integration, unconscious, and advanced concepts' },
+            { score: 20, description: 'Good: Covers main concepts with clear explanations' },
+            { score: 15, description: 'Satisfactory: Covers basic concepts' },
+            { score: 10, description: 'Needs Improvement: Limited understanding' },
+            { score: 0, description: 'Inadequate: No understanding shown' }
+          ]
+        }
+      ],
+      maxScore: 25
     },
     points: 25,
     order: 3
@@ -284,11 +295,13 @@ export function demonstrateQuestionValidation() {
 
   const essayAnswer = `The shadow plays a crucial role in personal development...`; // abbreviated
   const wordCount = essayAnswer.split(/\s+/).length;
-  const requiredFound = essayQuestion.rubric?.required.filter((r: string) => 
-    essayAnswer.toLowerCase().includes(r)
-  ).length || 0;
-  const score = (requiredFound / (essayQuestion.rubric?.required.length || 1)) * (essayQuestion.points || 0);
-  console.log('Essay score:', score, 'points');
+  
+  // Simple scoring based on word count and rubric max score
+  const minWords = 150;
+  const wordScore = Math.min(wordCount / minWords, 1); // 0 to 1 based on word count
+  const maxScore = essayQuestion.rubric?.maxScore || essayQuestion.points || 25;
+  const score = wordScore * maxScore;
+  console.log('Essay score:', score, 'points (based on word count)');
 }
 
 // Run examples when imported (for testing)

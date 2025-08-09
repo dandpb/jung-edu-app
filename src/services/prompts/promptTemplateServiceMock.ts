@@ -16,6 +16,12 @@ class PromptTemplateServiceMock {
     this.initializeDefaultTemplates();
   }
 
+  // Public method to reset templates to initial state (for testing)
+  initialize() {
+    this.templates.clear();
+    this.initializeDefaultTemplates();
+  }
+
   private initializeDefaultTemplates() {
     // Add default templates for all LLM generators
     const defaultTemplates: PromptTemplate[] = [

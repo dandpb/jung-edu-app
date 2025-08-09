@@ -3,6 +3,11 @@ import { PromptTemplate, PromptVariable } from '../promptTemplateService';
 
 describe('PromptTemplateService', () => {
   describe('Mock Service Implementation', () => {
+    beforeEach(() => {
+      // Reset the mock service to initial state
+      promptTemplateServiceMock.initialize();
+    });
+
     it('should return default templates', async () => {
       const templates = await promptTemplateServiceMock.getTemplates();
       expect(templates).toBeDefined();

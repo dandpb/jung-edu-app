@@ -12,7 +12,11 @@ import {
   Brain,
   User,
   LogIn,
-  Activity
+  Activity,
+  BarChart3,
+  MessageSquare,
+  Trophy,
+  Play
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { UserRole } from '../types/auth';
@@ -26,6 +30,7 @@ const Navigation: React.FC = () => {
     { path: '/dashboard', label: 'Painel', icon: Home },
     { path: '/mindmap', label: 'Mapa Mental', icon: Network },
     { path: '/enhanced-mindmap', label: 'Mapa Mental IA', icon: Brain },
+    { path: '/progress', label: 'Progresso', icon: BarChart3 },
     { path: '/notes', label: 'Anotações', icon: FileText },
     { path: '/bibliography', label: 'Recursos', icon: Library },
     { path: '/search', label: 'Buscar', icon: Search },

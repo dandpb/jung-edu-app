@@ -1458,7 +1458,10 @@ export class SystemValidator {
           order: index,
           metadata: {},
           expectedKeywords: [],
-          rubric: {}
+          rubric: {
+            criteria: [],
+            maxScore: 0
+          }
         };
       } else {
         // For other question types, create a basic compatible structure
@@ -1476,7 +1479,10 @@ export class SystemValidator {
           order: index,
           metadata: {},
           expectedKeywords: [],
-          rubric: {}
+          rubric: {
+            criteria: [],
+            maxScore: 0
+          }
         };
       }
     });
