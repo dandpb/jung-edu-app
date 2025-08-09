@@ -119,7 +119,7 @@ out/
 
 # Gatsby files
 .cache/
-public/
+# public/ - Commented out for React app (public folder needs to be committed)
 
 # Vuepress
 .vuepress/dist
