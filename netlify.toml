@@ -2,8 +2,8 @@
 # https://docs.netlify.com/configure-builds/file-based-configuration/
 
 [build]
-  # Build command - CI=false to allow warnings during build
-  command = "CI=false npm ci --legacy-peer-deps && npm run build"
+  # Build command
+  command = "npm ci --legacy-peer-deps && npm run build"
   
   # Directory containing the deploy-ready files
   publish = "build"
@@ -12,6 +12,7 @@
   # Build-time environment variables
   NODE_VERSION = "18.17.0"
   NPM_FLAGS = "--legacy-peer-deps"
+  CI = "false"
 
 # Production context
 [context.production]
