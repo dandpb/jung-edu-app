@@ -3,7 +3,7 @@
 
 [build]
   # Directory to change to before starting build
-  base = ""
+  base = "jung-edu-app"
   
   # Build command
   command = "npm run build"
