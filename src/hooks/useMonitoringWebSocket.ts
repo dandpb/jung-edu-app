@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { PipelineMetrics, PipelineStatus, PerformanceAlert } from '../services/resourcePipeline/monitoring';
 
@@ -32,7 +32,7 @@ export const useMonitoringWebSocket = ({
   const reconnectCountRef = useRef(0);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const connect = () => {
+  const connect = useCallback(() => {
     try {
       // Clean up existing connection
       if (socketRef.current) {
@@ -131,7 +131,7 @@ export const useMonitoringWebSocket = ({
       console.error('Failed to create WebSocket connection:', err);
       setError(`Failed to initialize connection: ${err}`);
     }
-  };
+  }, [url, onMetricsUpdate, onStatusUpdate, onAlertsUpdate]);
 
   const attemptReconnect = () => {
     if (reconnectTimeoutRef.current) {
@@ -172,7 +172,7 @@ export const useMonitoringWebSocket = ({
         socketRef.current.disconnect();
       }
     };
-  }, [url]); // Reconnect if URL changes
+  }, [url, connect]); // Reconnect if URL changes
 
   // Simulate periodic data updates when WebSocket is not available
   useEffect(() => {

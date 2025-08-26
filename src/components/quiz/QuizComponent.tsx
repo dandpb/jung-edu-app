@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Quiz, Question } from '../../types';
+import { Quiz } from '../../types';
 import { CheckCircle, XCircle, ArrowRight } from 'lucide-react';
 
 interface QuizComponentProps {

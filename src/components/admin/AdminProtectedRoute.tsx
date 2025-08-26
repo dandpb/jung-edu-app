@@ -6,7 +6,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAdmin } from '../../contexts/AdminContext';
-import { Loader2 } from 'lucide-react';
 
 interface AdminProtectedRouteProps {
   children: React.ReactNode;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, AlertTriangle, CheckCircle, Clock, Database, TrendingUp, Users, Zap } from 'lucide-react';
+import { Activity, AlertTriangle, CheckCircle, Clock, Database, TrendingUp, Users } from 'lucide-react';
 import { MetricCard } from '../components/monitoring/MetricCard';
 import { TimeSeriesChart } from '../components/monitoring/TimeSeriesChart';
 import { SystemHealthIndicator } from '../components/monitoring/SystemHealthIndicator';

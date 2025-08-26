@@ -70,6 +70,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [error, setError] = useState<AuthError | null>(null);
   const navigate = useNavigate();
   
+  // Forward declare logout for refreshSession dependency
+  const logout = useCallback(async () => {
+    try {
+      await authService.logout();
+      setUser(null);
+      navigate('/login');
+    } catch (err) {
+      console.error('Logout failed:', err);
+    }
+  }, [navigate]);
+  
+  // Define refreshSession with useCallback
+  const refreshSession = useCallback(async () => {
+    try {
+      const response = await authService.refreshAccessToken();
+      if (response) {
+        setUser(response.user as User);
+      } else {
+        // Session expired, logout
+        logout();
+      }
+    } catch (err) {
+      console.error('Session refresh failed:', err);
+      logout();
+    }
+  }, [logout]);
+  
   // Check for existing session on mount
   useEffect(() => {
     checkAuth();
@@ -87,7 +114,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, 60000); // Check every minute
     
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user, refreshSession]);
   
   const checkAuth = async () => {
     try {
@@ -148,15 +175,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
   
-  const logout = async () => {
-    try {
-      await authService.logout();
-      setUser(null);
-      navigate('/login');
-    } catch (err) {
-      console.error('Logout failed:', err);
-    }
-  };
   
   const register = async (data: RegistrationData) => {
     try {
@@ -237,20 +255,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     console.log('Resend verification email');
   };
   
-  const refreshSession = async () => {
-    try {
-      const response = await authService.refreshAccessToken();
-      if (response) {
-        setUser(response.user as User);
-      } else {
-        // Session expired, logout
-        await logout();
-      }
-    } catch (err) {
-      console.error('Session refresh failed:', err);
-      await logout();
-    }
-  };
   
   const hasPermission = useCallback((resource: ResourceType, action: Action): boolean => {
     if (!user) return false;

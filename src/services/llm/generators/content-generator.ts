@@ -1,4 +1,4 @@
-import { ILLMProvider, LLMGenerationOptions } from '../types';
+import { ILLMProvider } from '../types';
 import { ModuleContent } from '../../../types';
 
 interface ModuleContentOptions {

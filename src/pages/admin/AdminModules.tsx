@@ -39,7 +39,6 @@ const AdminModules: React.FC = () => {
     generatedModule,
     generationSteps,
     currentStep,
-    error,
     generateModule,
     regenerateSection,
     updateGeneratedModule,

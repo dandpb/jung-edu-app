@@ -3,7 +3,7 @@
  * Helper functions for quiz generation and manipulation
  */
 
-import { Question, Option } from '../types';
+import { Question } from '../types';
 
 /**
  * Randomize the order of options in a question and update the correct answer index

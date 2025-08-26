@@ -9,7 +9,6 @@ interface VideoPlayerProps {
 
 const VideoPlayer: React.FC<VideoPlayerProps> = ({ video }) => {
   const [hasError, setHasError] = React.useState(false);
-  const [isReady, setIsReady] = React.useState(false);
   
   // Check if video ID exists
   if (!video?.youtubeId) {
@@ -33,8 +32,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ video }) => {
     },
   };
 
-  const onReady = (event: any) => {
-    setIsReady(true);
+  const onReady = () => {
+    // Video is ready
   };
 
   const onError = (event: any) => {

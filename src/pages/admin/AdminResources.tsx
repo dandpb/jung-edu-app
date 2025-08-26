@@ -7,7 +7,6 @@ import {
   Plus, 
   Edit2, 
   Trash2, 
-  Save, 
   X, 
   Book, 
   Film as FilmIcon,
@@ -22,7 +21,7 @@ const AdminResources: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'bibliography' | 'films'>('bibliography');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterModule, setFilterModule] = useState<string>('all');
-  const [editingItem, setEditingItem] = useState<{ type: 'bibliography' | 'films', moduleId: string, itemId: string } | null>(null);
+  // EditingItem state removed as unused
   const [showAddForm, setShowAddForm] = useState(false);
 
   const [newBibliography, setNewBibliography] = useState<Bibliography>({
@@ -156,49 +155,9 @@ const AdminResources: React.FC = () => {
     setShowAddForm(false);
   };
 
-  const handleUpdateBibliography = (moduleId: string, itemId: string, updates: Partial<Bibliography>) => {
-    updateModules(modules.map(module =>
-      module.id === moduleId
-        ? {
-            ...module,
-            content: {
-              introduction: module.content?.introduction || '',
-              sections: module.content?.sections || [],
-              videos: module.content?.videos,
-              quiz: module.content?.quiz,
-              bibliography: (module.content?.bibliography || []).map(book =>
-                book.id === itemId ? { ...book, ...updates } : book
-              ),
-              films: module.content?.films,
-              summary: module.content?.summary,
-              keyTakeaways: module.content?.keyTakeaways
-            }
-          }
-        : module
-    ));
-  };
+  // handleUpdateBibliography removed as unused
 
-  const handleUpdateFilm = (moduleId: string, itemId: string, updates: Partial<Film>) => {
-    updateModules(modules.map(module =>
-      module.id === moduleId
-        ? {
-            ...module,
-            content: {
-              introduction: module.content?.introduction || '',
-              sections: module.content?.sections || [],
-              videos: module.content?.videos,
-              quiz: module.content?.quiz,
-              bibliography: module.content?.bibliography,
-              films: (module.content?.films || []).map(film =>
-                film.id === itemId ? { ...film, ...updates } : film
-              ),
-              summary: module.content?.summary,
-              keyTakeaways: module.content?.keyTakeaways
-            }
-          }
-        : module
-    ));
-  };
+  // handleUpdateFilm removed as unused
 
   const handleDeleteBibliography = (moduleId: string, itemId: string) => {
     if (window.confirm('Tem certeza que deseja excluir esta entrada de bibliografia?')) {
@@ -354,7 +313,7 @@ const AdminResources: React.FC = () => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
-                    onClick={() => setEditingItem({ type: 'bibliography', moduleId: book.moduleId, itemId: book.id })}
+                    onClick={() => {/* Edit functionality removed */}}
                     className="p-2 text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg"
                   >
                     <Edit2 className="w-4 h-4" />
@@ -395,7 +354,7 @@ const AdminResources: React.FC = () => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
-                    onClick={() => setEditingItem({ type: 'films', moduleId: film.moduleId, itemId: film.id })}
+                    onClick={() => {/* Edit functionality removed */}}
                     className="p-2 text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg"
                   >
                     <Edit2 className="w-4 h-4" />

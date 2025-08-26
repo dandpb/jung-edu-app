@@ -96,26 +96,47 @@ if (typeof window !== 'undefined' && window.ResizeObserver) {
   (window as any).ResizeObserver = DebouncedResizeObserver;
 }
 
-// 6. Adicionar um fallback para React ErrorBoundary
+// 6. Enhanced React Error Boundary handling
 if (typeof window !== 'undefined') {
-  // Interceptar React's error handling
-  const originalError = console.error.bind(console);
-  const reactErrorPattern = /^Error: ResizeObserver/;
+  // Global error handler for uncaught errors
+  const handleGlobalError = (event: ErrorEvent) => {
+    const error = event.error;
+    const message = event.message || (error && error.message) || '';
+    
+    if (message.includes('ResizeObserver loop completed') ||
+        message.includes('ResizeObserver loop limit exceeded') ||
+        message.includes('undelivered notifications')) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      return true;
+    }
+    return false;
+  };
+
+  // Add the global error handler
+  window.addEventListener('error', handleGlobalError, { capture: true, passive: false });
   
-  // Override específico para React
-  Object.defineProperty(console, 'error', {
-    value: (...args: any[]) => {
-      const firstArg = args[0];
-      if (typeof firstArg === 'string' && 
-          (firstArg.includes('ResizeObserver') || 
-           reactErrorPattern.test(firstArg))) {
-        return;
-      }
-      originalError(...args);
-    },
-    writable: false,
-    configurable: true
-  });
+  // Enhanced console.error override that handles React's error reporting
+  const originalError = console.error;
+  console.error = (...args: any[]) => {
+    const errorString = args.join(' ');
+    const firstArg = args[0];
+    
+    // Check for ResizeObserver errors in various formats
+    if ((typeof firstArg === 'string' && 
+         (firstArg.includes('ResizeObserver loop completed') ||
+          firstArg.includes('ResizeObserver loop limit exceeded') ||
+          firstArg.includes('undelivered notifications'))) ||
+        (errorString.includes('ResizeObserver loop completed') ||
+         errorString.includes('ResizeObserver loop limit exceeded') ||
+         errorString.includes('undelivered notifications'))) {
+      return;
+    }
+    
+    // Call original console.error for all other errors
+    originalError.apply(console, args);
+  };
 }
 
 const root = ReactDOM.createRoot(

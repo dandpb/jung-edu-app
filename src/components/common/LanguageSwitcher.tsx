@@ -14,7 +14,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
   className = '',
   'aria-label': ariaLabel = 'Select language'
 }) => {
-  const { language, changeLanguage, supportedLanguages, t } = useI18n();
+  const { language, changeLanguage, supportedLanguages } = useI18n();
 
   const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newLanguage = event.target.value;

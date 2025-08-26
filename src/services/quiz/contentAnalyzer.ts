@@ -427,8 +427,6 @@ Responda em JSON:
     cognitivelevels: string[];
     objectives: string[];
   } {
-    const isPortuguese = language === 'pt-BR';
-    
     return {
       concepts: [`Conceitos fundamentais de ${topic}`, 'Aplicações práticas', 'Teoria base', 'Exemplos', 'Definições'],
       cognitivelevels: ['compreensão', 'aplicação', 'análise'],

@@ -21,7 +21,6 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
   const { moduleId } = useParams<{ moduleId: string }>();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('content');
-  const [startTime] = useState(Date.now());
   const [showNoteEditor, setShowNoteEditor] = useState(false);
 
   const module = modules.find(m => m.id === moduleId);

@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { 
-  ChevronRight, 
-  ChevronDown, 
   RefreshCw, 
   Edit3, 
   Sparkles,

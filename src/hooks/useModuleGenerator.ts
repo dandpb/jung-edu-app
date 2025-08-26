@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Module, Section, Question, Quiz } from '../types';
+import { Module } from '../types';
 import { GenerationConfig } from '../components/admin/AIModuleGenerator';
 import { GenerationStep } from '../components/admin/GenerationProgress';
 import { ModuleGenerationOrchestrator, GenerationOptions, GenerationProgress } from '../services/llm/orchestrator';

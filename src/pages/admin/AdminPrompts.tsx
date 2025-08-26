@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   promptTemplateService, 
@@ -40,11 +40,7 @@ const AdminPrompts: React.FC = () => {
     variables: []
   });
 
-  useEffect(() => {
-    loadData();
-  }, [selectedCategory]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -63,7 +59,11 @@ const AdminPrompts: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const handleSelectTemplate = (template: PromptTemplate) => {
     setSelectedTemplate(template);
@@ -148,7 +148,7 @@ const AdminPrompts: React.FC = () => {
   const handlePreview = () => {
     if (!selectedTemplate) return;
 
-    const compiled = promptTemplateService.compilePrompt(
+    promptTemplateService.compilePrompt(
       formData.template,
       previewVariables
     );

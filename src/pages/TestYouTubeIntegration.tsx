@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Search, Video, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { YouTubeService } from '../services/video/youtubeService';
 import { VideoGenerator } from '../services/llm/generators/video-generator';
-import { VideoEnricher } from '../services/video/videoEnricher';
 import { LLMProviderFactory } from '../services/llm/provider';
 import VideoPlayer from '../components/modules/VideoPlayer';
 
@@ -18,7 +17,6 @@ const TestYouTubeIntegration: React.FC = () => {
   const youtubeService = new YouTubeService();
   const provider = LLMProviderFactory.getProvider();
   const videoGenerator = new VideoGenerator(provider);
-  const videoEnricher = new VideoEnricher(provider);
 
   const handleDirectSearch = async () => {
     setIsSearching(true);

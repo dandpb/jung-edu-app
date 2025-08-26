@@ -95,6 +95,8 @@ export function processModuleContent(content: string): string {
   ];
 
   // Process terms in reverse order to avoid index shifting issues
+  const checkCompoundTerm = (text: string) => psychologyTerms.some(t => text.toLowerCase().startsWith(t.toLowerCase()));
+  
   psychologyTerms.forEach(term => {
     const regex = new RegExp(`\\b(${term})\\b`, 'gi');
     const matches = [];
@@ -122,7 +124,7 @@ export function processModuleContent(content: string): string {
       
       // Special handling for compound terms like anima/animus
       const isCompoundTerm = afterText.startsWith('/') && 
-        psychologyTerms.some(t => processedContent.substring(m.end + 1).toLowerCase().startsWith(t.toLowerCase()));
+        checkCompoundTerm(processedContent.substring(m.end + 1));
       
       if (isCompoundTerm) {
         const secondTermMatch = processedContent.substring(m.end + 1).match(/^(\w+)/);

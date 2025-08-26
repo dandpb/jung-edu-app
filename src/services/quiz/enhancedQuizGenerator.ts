@@ -20,9 +20,6 @@ export interface EnhancedQuizOptions {
 }
 
 export class EnhancedQuizGenerator extends QuizGenerator {
-  constructor(provider: ILLMProvider) {
-    super(provider);
-  }
 
   /**
    * Generate an enhanced quiz with templates and improvements

@@ -1,22 +1,16 @@
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { 
   BookOpen, 
-  Network, 
   FileText, 
   Library, 
   Search,
   Home,
   Settings,
   LogOut,
-  Brain,
   User,
   LogIn,
-  Activity,
-  BarChart3,
-  MessageSquare,
-  Trophy,
-  Play
+  Activity
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { UserRole } from '../types/auth';
