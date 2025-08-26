@@ -155,7 +155,6 @@ describe('UnifiedModuleGenerator', () => {
       difficulty: 'intermediate',
       includeVideos: true,
       includeQuiz: true,
-      includeMindMap: true,
       includeBibliography: true
     };
 
@@ -172,7 +171,6 @@ describe('UnifiedModuleGenerator', () => {
 
       expect(result).toBeDefined();
       expect(result.module).toEqual(mockModuleStructure);
-      expect(result.mindMap).toEqual(mockMindMap);
       expect(result.quiz).toBeDefined();
       expect(result.bibliography).toEqual(mockBibliography);
       expect(result.metadata.componentsIncluded).toContain('module');
@@ -198,7 +196,6 @@ describe('UnifiedModuleGenerator', () => {
       const result = await generator.generateCompleteModule(basicConfig);
 
       expect(result.module).toEqual(mockModuleStructure);
-      expect(result.mindMap).toBeUndefined();
       expect(result.quiz).toBeUndefined();
       expect(result.metadata.componentsIncluded).toContain('module');
       expect(result.metadata.componentsIncluded).not.toContain('mindMap');
@@ -264,7 +261,6 @@ describe('UnifiedModuleGenerator', () => {
       });
 
       expect(result.module).toEqual(mockModuleStructure);
-      expect(result.mindMap).toEqual(mockMindMap);
       expect(result.quiz).toBeUndefined();
       expect(result.videos).toEqual([]);
       expect(result.bibliography).toBeUndefined();
@@ -450,12 +446,10 @@ describe('UnifiedModuleGenerator', () => {
         topic: 'Partial Success Topic',
         includeVideos: true,
         includeQuiz: true,
-        includeMindMap: true,
         includeBibliography: true
       });
 
       expect(result.module).toBeDefined();
-      expect(result.mindMap).toBeDefined();
       expect(result.quiz).toBeDefined();
       expect(result.bibliography).toBeUndefined();
       expect(result.metadata.componentsIncluded).toContain('module');
@@ -481,14 +475,12 @@ describe('UnifiedModuleGenerator', () => {
         topic: 'Concurrent Test',
         includeVideos: true,
         includeQuiz: true,
-        includeMindMap: true,
         includeBibliography: true
       });
       const endTime = Date.now();
 
       expect(result).toBeDefined();
       expect(result.module).toBeDefined();
-      expect(result.mindMap).toBeDefined();
       expect(result.quiz).toBeDefined();
       
       // Should complete faster than sequential execution would

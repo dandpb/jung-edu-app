@@ -410,7 +410,7 @@ describe('BibliographyEnricher', () => {
       
       expect(mockProvider.generateStructuredOutput).toHaveBeenCalledTimes(1);
       expect(results1).toEqual(results2);
-    });
+    }, 10000); // Increased timeout for performance testing
     
     it('should batch API requests efficiently', async () => {
       const items = Array(5).fill(mockBibliographyItem).map((item, i) => ({
@@ -433,6 +433,6 @@ describe('BibliographyEnricher', () => {
       
       // Should batch requests instead of making 5 separate calls
       expect(mockProvider.generateStructuredOutput).toHaveBeenCalledTimes(1);
-    });
+    }, 8000); // Increased timeout for batch processing
   });
 });

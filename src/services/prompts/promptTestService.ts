@@ -112,7 +112,7 @@ Neste módulo, você irá:
 Esta é uma prévia de demonstração. Configure sua API key do OpenAI para obter respostas reais e personalizadas.`;
     }
     
-    if (lowerPrompt.includes('quiz') || lowerPrompt.includes('questão')) {
+    if (lowerPrompt.includes('quiz') || lowerPrompt.includes('questão') || lowerPrompt.includes('questões') || lowerPrompt.includes('questions') || lowerPrompt.includes('question')) {
       return `[
   {
     "question": "Qual conceito junguiano representa padrões universais de comportamento?",
@@ -139,7 +139,7 @@ Esta é uma prévia de demonstração. Configure sua API key do OpenAI para obte
 ]`;
     }
     
-    if (lowerPrompt.includes('mapa mental') || lowerPrompt.includes('mind map')) {
+    if (lowerPrompt.includes('mapa mental') || lowerPrompt.includes('mind map') || lowerPrompt.includes('mapa') || lowerPrompt.includes('map') || lowerPrompt.includes('estrutura') || lowerPrompt.includes('structure') || lowerPrompt.includes('mindmap')) {
       return `# Mapa Mental - Estrutura Hierárquica
 
 ## Conceito Central
@@ -167,18 +167,20 @@ Esta é uma prévia de demonstração. Configure sua API key do OpenAI para obte
 - Desenvolvimentos futuros`;
     }
     
-    if (lowerPrompt.includes('vídeo') || lowerPrompt.includes('youtube')) {
-      return `1. "Introdução à Psicologia Junguiana - Aula Completa"
-2. "Carl Jung e o Inconsciente Coletivo - Documentário Legendado"
-3. "Arquétipos de Jung Explicados - Animação Didática"
-4. "O Processo de Individuação - Palestra em Português"
-5. "Jung e a Interpretação dos Sonhos - Tutorial Prático"
-6. "A Sombra na Psicologia Analítica - Explicação Detalhada"
-7. "Tipos Psicológicos de Jung - MBTI Explicado"
-8. "Jung e a Espiritualidade - Conferência Brasileira"`;
+    if (lowerPrompt.includes('vídeo') || lowerPrompt.includes('video') || lowerPrompt.includes('youtube') || lowerPrompt.includes('videos')) {
+      return `# Lista de Vídeos Recomendados
+
+1. "Introdução à Psicologia Junguiana - Aula Completa" (YouTube)
+2. "Carl Jung e o Inconsciente Coletivo - Documentário Legendado" (Vídeo educacional)
+3. "Arquétipos de Jung Explicados - Animação Didática" (Video tutorial)
+4. "O Processo de Individuação - Palestra em Português" (YouTube)
+5. "Jung e a Interpretação dos Sonhos - Tutorial Prático" (Vídeo instrutivo)
+6. "A Sombra na Psicologia Analítica - Explicação Detalhada" (Video)
+7. "Tipos Psicológicos de Jung - MBTI Explicado" (YouTube)
+8. "Jung e a Espiritualidade - Conferência Brasileira" (Video conferência)`;
     }
     
-    if (lowerPrompt.includes('bibliografia') || lowerPrompt.includes('recursos')) {
+    if (lowerPrompt.includes('bibliografia') || lowerPrompt.includes('recursos') || lowerPrompt.includes('bibliográficos') || lowerPrompt.includes('livro') || lowerPrompt.includes('book') || lowerPrompt.includes('bibliography')) {
       return `**O Homem e Seus Símbolos**
 - Tipo: Livro
 - Autor(es): Carl Gustav Jung
@@ -204,8 +206,8 @@ Esta é uma prévia de demonstração. Configure sua API key do OpenAI para obte
 - Relevância: Abordagem didática e atualizada dos conceitos principais`;
     }
     
-    // Default response for any other type of prompt
-    return `# Resposta de Demonstração
+    // Default response for any other type of prompt - make it variable length based on prompt
+    const baseResponse = `# Resposta de Demonstração
 
 Este é um exemplo de resposta gerada pelo sistema de teste de prompts. 
 
@@ -226,7 +228,25 @@ Para obter respostas reais do modelo de IA:
 
 ## Observações
 
-Esta resposta de demonstração foi gerada com base no tipo de prompt detectado. Com uma API key válida, você receberá respostas personalizadas e de alta qualidade do modelo GPT-4.
+Esta resposta de demonstração foi gerada com base no tipo de prompt detectado. Com uma API key válida, você receberá respostas personalizadas e de alta qualidade do modelo GPT-4.`;
+    
+    // Add extra content for longer prompts to ensure different token counts
+    const extraContent = prompt.length > 50 ? `
+
+## Conteúdo Adicional
+
+Devido ao tamanho do prompt fornecido (${prompt.length} caracteres), esta resposta de demonstração foi expandida com informações adicionais para simular uma resposta mais completa e detalhada que seria fornecida pelo modelo de IA em um ambiente de produção real.
+
+### Detalhes Técnicos
+- Comprimento do prompt: ${prompt.length} caracteres
+- Tipo de resposta: Demonstração expandida
+- Timestamp: ${new Date().toISOString()}
+- Modo: Mock Provider Response
+
+### Recursos Relacionados
+Em uma implementação real, aqui você encontraria links para recursos adicionais, referências bibliográficas e materiais complementares relacionados ao seu prompt específico.` : '';
+    
+    return baseResponse + extraContent + `
 
 ---
 *Resposta gerada em modo de demonstração*`;

@@ -18,7 +18,6 @@ export interface EnhancedGenerationConfig extends ModuleGenerationConfig {
     enableAutoQuiz: boolean;
     enableAutoVideos: boolean;
     enableAutoBibliography: boolean;
-    enableAutoMindMap: boolean;
     enableValidation: boolean;
     enableTesting: boolean;
     autoLinking: boolean;
@@ -71,7 +70,6 @@ export class EnhancedModuleGeneratorWithPipeline {
       enableAutoQuiz: true,
       enableAutoVideos: true,
       enableAutoBibliography: true,
-      enableAutoMindMap: true,
       enableValidation: true,
       enableTesting: true,
       autoLinking: true,
@@ -222,7 +220,6 @@ export class EnhancedModuleGeneratorWithPipeline {
         enableAutoQuiz: resourceTypes.includes('quiz'),
         enableAutoVideos: resourceTypes.includes('video'),
         enableAutoBibliography: resourceTypes.includes('bibliography'),
-        enableAutoMindMap: resourceTypes.includes('mindmap'),
         enableValidation: true,
         enableTesting: resourceTypes.includes('test'),
         autoLinking: true,
@@ -338,11 +335,6 @@ export class EnhancedModuleGeneratorWithPipeline {
           }
           break;
           
-        case 'mindmap':
-          if (!enhanced.mindMap && resource.content) {
-            enhanced.mindMap = resource.content;
-          }
-          break;
       }
     }
 
@@ -430,7 +422,6 @@ export class EnhancedModuleGeneratorWithPipeline {
       topic,
       includeVideos: true,
       includeQuiz: true,
-      includeMindMap: true,
       includeBibliography: false,
       quizQuestions: 5,
       maxVideos: 3,
@@ -441,7 +432,6 @@ export class EnhancedModuleGeneratorWithPipeline {
         enableAutoQuiz: true,
         enableAutoVideos: true,
         enableAutoBibliography: false,
-        enableAutoMindMap: true,
         enableValidation: true,
         enableTesting: true,
         autoLinking: true
@@ -456,7 +446,6 @@ export class EnhancedModuleGeneratorWithPipeline {
       topic,
       includeVideos: true,
       includeQuiz: true,
-      includeMindMap: true,
       includeBibliography: true,
       quizQuestions: 15,
       maxVideos: 10,
@@ -467,7 +456,6 @@ export class EnhancedModuleGeneratorWithPipeline {
         enableAutoQuiz: true,
         enableAutoVideos: true,
         enableAutoBibliography: true,
-        enableAutoMindMap: true,
         enableValidation: true,
         enableTesting: true,
         autoLinking: true
@@ -483,7 +471,6 @@ export class EnhancedModuleGeneratorWithPipeline {
       difficulty: 'advanced',
       includeVideos: false,
       includeQuiz: false,
-      includeMindMap: true,
       includeBibliography: true,
       enableResourcePipeline: true,
       enableMonitoring: true,
@@ -492,7 +479,6 @@ export class EnhancedModuleGeneratorWithPipeline {
         enableAutoQuiz: false,
         enableAutoVideos: false,
         enableAutoBibliography: true,
-        enableAutoMindMap: true,
         enableValidation: true,
         enableTesting: true,
         autoLinking: true

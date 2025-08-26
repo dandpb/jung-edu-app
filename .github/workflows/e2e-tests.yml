@@ -1,0 +1,432 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [ main, master, develop ]
+    paths:
+      - 'src/**'
+      - 'tests/e2e/**'
+      - 'playwright.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    branches: [ main, master, develop ]
+    paths:
+      - 'src/**'
+      - 'tests/e2e/**'
+      - 'playwright.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+    inputs:
+      browser:
+        description: 'Browser to run tests on'
+        required: false
+        default: 'chromium'
+        type: choice
+        options:
+          - chromium
+          - firefox
+          - webkit
+          - all
+      environment:
+        description: 'Test environment'
+        required: false
+        default: 'test'
+        type: choice
+        options:
+          - test
+          - staging
+          - production
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '18'
+  PLAYWRIGHT_VERSION: '1.40.0'
+
+jobs:
+  setup:
+    name: E2E Setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      browsers: ${{ steps.browsers.outputs.matrix }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Determine browser matrix
+        id: browsers
+        run: |
+          if [[ "${{ github.event.inputs.browser }}" == "all" || "${{ github.event.inputs.browser }}" == "" ]]; then
+            echo 'matrix=["chromium", "firefox", "webkit"]' >> $GITHUB_OUTPUT
+          else
+            echo 'matrix=["${{ github.event.inputs.browser }}"]' >> $GITHUB_OUTPUT
+          fi
+
+  e2e-tests:
+    name: E2E Tests (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    needs: setup
+    timeout-minutes: 45
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: ${{ fromJson(needs.setup.outputs.browsers) }}
+        
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Install Playwright browsers
+        run: |
+          npx playwright install ${{ matrix.browser }} --with-deps
+          
+      - name: Create test directories
+        run: |
+          mkdir -p tests/e2e/auth
+          mkdir -p tests/e2e/fixtures
+          mkdir -p tests/e2e/reports
+          mkdir -p tests/e2e/screenshots
+          mkdir -p tests/e2e/videos
+          mkdir -p tests/e2e/test-results
+          
+      - name: Build application
+        run: npm run build
+        env:
+          CI: true
+          NODE_ENV: test
+          REACT_APP_ENVIRONMENT: e2e-test
+          SKIP_PREFLIGHT_CHECK: true
+          
+      - name: Start application server
+        run: |
+          npm run serve &
+          npx wait-on http://localhost:3000 --timeout 120000
+        env:
+          NODE_ENV: test
+          REACT_APP_ENVIRONMENT: e2e-test
+          
+      - name: Run E2E tests
+        run: npx playwright test --project=${{ matrix.browser }}
+        env:
+          NODE_ENV: test
+          REACT_APP_ENVIRONMENT: e2e-test
+          E2E_BASE_URL: http://localhost:3000
+          PLAYWRIGHT_HTML_REPORT: ./tests/e2e/reports/html
+          
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-results-${{ matrix.browser }}
+          path: |
+            tests/e2e/reports/
+            tests/e2e/test-results/
+          retention-days: 30
+          
+      - name: Upload screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots-${{ matrix.browser }}
+          path: tests/e2e/screenshots/
+          retention-days: 7
+          
+      - name: Upload videos
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-videos-${{ matrix.browser }}
+          path: tests/e2e/videos/
+          retention-days: 7
+          
+      - name: Generate test summary
+        if: always()
+        run: |
+          echo "## E2E Test Results (${{ matrix.browser }})" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ -f "tests/e2e/reports/test-results.json" ]]; then
+            # Parse test results and create summary
+            node -e "
+              const fs = require('fs');
+              try {
+                const results = JSON.parse(fs.readFileSync('tests/e2e/reports/test-results.json', 'utf8'));
+                const stats = results.stats || { expected: 0, unexpected: 0, skipped: 0 };
+                console.log(\`| Metric | Count |\`);
+                console.log(\`| ------ | ----- |\`);
+                console.log(\`| Passed | \${stats.expected} ✅ |\`);
+                console.log(\`| Failed | \${stats.unexpected} ❌ |\`);
+                console.log(\`| Skipped | \${stats.skipped} ⏭️ |\`);
+                console.log(\`| Total | \${stats.expected + stats.unexpected + stats.skipped} |\`);
+              } catch (error) {
+                console.log('Test results not available');
+              }
+            " >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Test results file not found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  mobile-tests:
+    name: Mobile E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    
+    strategy:
+      matrix:
+        device: ['Mobile Chrome', 'Mobile Safari']
+        
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Install Playwright browsers
+        run: npx playwright install chromium webkit --with-deps
+        
+      - name: Create test directories
+        run: |
+          mkdir -p tests/e2e/auth
+          mkdir -p tests/e2e/fixtures
+          mkdir -p tests/e2e/reports
+          mkdir -p tests/e2e/screenshots
+          mkdir -p tests/e2e/videos
+          mkdir -p tests/e2e/test-results
+          
+      - name: Build application
+        run: npm run build
+        env:
+          CI: true
+          NODE_ENV: test
+          REACT_APP_ENVIRONMENT: e2e-test
+          
+      - name: Start application server
+        run: |
+          npm run serve &
+          npx wait-on http://localhost:3000 --timeout 120000
+        env:
+          NODE_ENV: test
+          REACT_APP_ENVIRONMENT: e2e-test
+          
+      - name: Run mobile E2E tests
+        run: npx playwright test --project="${{ matrix.device }}"
+        env:
+          NODE_ENV: test
+          REACT_APP_ENVIRONMENT: e2e-test
+          E2E_BASE_URL: http://localhost:3000
+          
+      - name: Upload mobile test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-e2e-results-${{ matrix.device }}
+          path: |
+            tests/e2e/reports/
+            tests/e2e/test-results/
+          retention-days: 15
+
+  auth-tests:
+    name: Authentication E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+        
+      - name: Create test directories
+        run: |
+          mkdir -p tests/e2e/auth
+          mkdir -p tests/e2e/fixtures
+          mkdir -p tests/e2e/reports
+          mkdir -p tests/e2e/screenshots
+          mkdir -p tests/e2e/videos
+          mkdir -p tests/e2e/test-results
+          
+      - name: Build application
+        run: npm run build
+        env:
+          CI: true
+          NODE_ENV: test
+          REACT_APP_ENVIRONMENT: e2e-test
+          
+      - name: Start application server
+        run: |
+          npm run serve &
+          npx wait-on http://localhost:3000 --timeout 120000
+        env:
+          NODE_ENV: test
+          REACT_APP_ENVIRONMENT: e2e-test
+          
+      - name: Run authentication tests
+        run: npx playwright test --project=authenticated-user,authenticated-admin
+        env:
+          NODE_ENV: test
+          REACT_APP_ENVIRONMENT: e2e-test
+          E2E_BASE_URL: http://localhost:3000
+          
+      - name: Upload auth test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: auth-e2e-results
+          path: |
+            tests/e2e/reports/
+            tests/e2e/test-results/
+          retention-days: 15
+
+  performance-tests:
+    name: Performance E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+        
+      - name: Create test directories
+        run: |
+          mkdir -p tests/e2e/auth
+          mkdir -p tests/e2e/fixtures
+          mkdir -p tests/e2e/reports
+          mkdir -p tests/e2e/screenshots
+          mkdir -p tests/e2e/videos
+          mkdir -p tests/e2e/test-results
+          
+      - name: Build application
+        run: npm run build
+        env:
+          CI: true
+          NODE_ENV: test
+          REACT_APP_ENVIRONMENT: e2e-test
+          
+      - name: Start application server
+        run: |
+          npm run serve &
+          npx wait-on http://localhost:3000 --timeout 120000
+        env:
+          NODE_ENV: test
+          REACT_APP_ENVIRONMENT: e2e-test
+          
+      - name: Run performance tests
+        run: npx playwright test --grep="@performance"
+        env:
+          NODE_ENV: test
+          REACT_APP_ENVIRONMENT: e2e-test
+          E2E_BASE_URL: http://localhost:3000
+          
+      - name: Upload performance results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-e2e-results
+          path: |
+            tests/e2e/reports/
+            tests/e2e/test-results/
+          retention-days: 30
+
+  summary:
+    name: E2E Test Summary
+    runs-on: ubuntu-latest
+    needs: [e2e-tests, auth-tests]
+    if: always()
+    
+    steps:
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*e2e-results*'
+          merge-multiple: true
+          
+      - name: Generate comprehensive summary
+        run: |
+          echo "## 🧪 E2E Test Suite Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Job status summary
+          echo "### Job Status" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "| --- | ------ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Desktop Tests | ${{ needs.e2e-tests.result == 'success' && '✅ Success' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Auth Tests | ${{ needs.auth-tests.result == 'success' && '✅ Success' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ needs.mobile-tests.result }}" != "" ]]; then
+            echo "| Mobile Tests | ${{ needs.mobile-tests.result == 'success' && '✅ Success' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.performance-tests.result }}" != "" ]]; then
+            echo "| Performance Tests | ${{ needs.performance-tests.result == 'success' && '✅ Success' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Overall status
+          if [[ "${{ needs.e2e-tests.result }}" == "success" && "${{ needs.auth-tests.result }}" == "success" ]]; then
+            echo "### 🎉 Overall Status: SUCCESS" >> $GITHUB_STEP_SUMMARY
+            echo "All E2E tests passed successfully!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Overall Status: FAILURE" >> $GITHUB_STEP_SUMMARY
+            echo "Some E2E tests failed. Please check the individual job results for details." >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Artifacts Available" >> $GITHUB_STEP_SUMMARY
+          echo "- Test reports and results" >> $GITHUB_STEP_SUMMARY
+          echo "- Screenshots (on failure)" >> $GITHUB_STEP_SUMMARY
+          echo "- Video recordings (on failure)" >> $GITHUB_STEP_SUMMARY
+          echo "- Trace files (on failure)" >> $GITHUB_STEP_SUMMARY
+          
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "🚨 E2E tests failed!" >> $GITHUB_STEP_SUMMARY
+          echo "Please review the test results and fix any issues." >> $GITHUB_STEP_SUMMARY

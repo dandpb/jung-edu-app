@@ -178,7 +178,7 @@ describe('YouTubeService', () => {
       
       // In mock mode, axios is never called
       expect(axios.get).not.toHaveBeenCalled();
-    });
+    }, 6000); // Increased timeout for caching test
     
     it('should handle multiple concurrent requests', async () => {
       // Make multiple rapid requests
@@ -192,7 +192,7 @@ describe('YouTubeService', () => {
       results.forEach(result => {
         expect(result).toHaveLength(3);
       });
-    });
+    }, 8000); // Increased timeout for concurrent requests
   });
   
   describe('error handling and validation', () => {

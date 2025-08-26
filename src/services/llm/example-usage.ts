@@ -26,7 +26,6 @@ async function generateJungianModule() {
     difficulty: 'intermediate',
     includeVideos: true,
     includeBibliography: true,
-    includeMindMap: true,
     quizQuestions: 15,
     videoCount: 5,
     bibliographyCount: 12,
@@ -73,13 +72,6 @@ async function generateJungianModule() {
         return acc;
       }, {} as Record<string, number>);
       console.log('By type:', byType);
-    }
-
-    if (result.mindMap) {
-      console.log('\n=== Mind Map ===');
-      console.log('Total nodes:', Object.keys(result.mindMap.nodes).length);
-      console.log('Connections:', result.mindMap.connections.length);
-      console.log('Layout:', result.mindMap.layout);
     }
 
     // Save to file (example)

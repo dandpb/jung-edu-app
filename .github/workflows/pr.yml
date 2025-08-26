@@ -1,0 +1,452 @@
+name: Pull Request Automation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [ main, master, develop ]
+  pull_request_review:
+    types: [submitted]
+  issue_comment:
+    types: [created]
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number || github.event.issue.number }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  pr-validation:
+    name: PR Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    if: github.event.pull_request.draft == false
+    
+    steps:
+      - name: Checkout PR code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Validate PR requirements
+        run: |
+          echo "## 🔍 PR Validation Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check PR title format
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          if [[ "$PR_TITLE" =~ ^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .+ ]]; then
+            echo "✅ PR title follows conventional format" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ PR title should follow conventional format: type(scope): description" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for breaking changes
+          if git log --oneline ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | grep -i "BREAKING"; then
+            echo "🚨 Breaking changes detected" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check file changes
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | wc -l)
+          echo "📁 Files changed: $CHANGED_FILES" >> $GITHUB_STEP_SUMMARY
+          
+          if [ $CHANGED_FILES -gt 50 ]; then
+            echo "⚠️ Large PR detected. Consider breaking into smaller PRs." >> $GITHUB_STEP_SUMMARY
+          fi
+          
+      - name: Run tests on changed code
+        run: |
+          # Get changed files
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | grep -E '\.(ts|tsx|js|jsx)$' | head -20)
+          
+          if [ -n "$CHANGED_FILES" ]; then
+            echo "Testing changed files: $CHANGED_FILES"
+            npm run test:all
+          else
+            echo "No testable files changed"
+          fi
+        env:
+          CI: true
+          SKIP_INTEGRATION: true
+          
+      - name: Build with changes
+        run: npm run build
+        env:
+          CI: true
+          GENERATE_SOURCEMAP: false
+          
+      - name: Code quality check
+        run: |
+          # ESLint on changed files
+          CHANGED_JS_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | grep -E '\.(ts|tsx|js|jsx)$' || true)
+          
+          if [ -n "$CHANGED_JS_FILES" ]; then
+            echo "Linting changed files..."
+            npx eslint $CHANGED_JS_FILES
+          fi
+          
+          # Prettier check
+          npx prettier --check "src/**/*.{ts,tsx,js,jsx,json,css,md}"
+          
+          # TypeScript check
+          npx tsc --noEmit
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.event.pull_request.draft == false
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          
+      - name: Run security audit
+        run: |
+          npm audit --audit-level=high --production
+          
+      - name: Dependency vulnerability scan
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC
+          
+      - name: CodeQL Analysis
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+          
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  size-impact:
+    name: Bundle Size Impact
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.event.pull_request.draft == false
+    
+    steps:
+      - name: Checkout base branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies (base)
+        run: npm ci
+        
+      - name: Build base branch
+        run: npm run build
+        env:
+          CI: true
+          GENERATE_SOURCEMAP: false
+          
+      - name: Store base build size
+        run: |
+          du -sk build > base-size.txt
+          ls -la build/static/js/*.js | awk '{print $5}' | sort -n | tail -1 > base-js-size.txt
+          
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          
+      - name: Install dependencies (PR)
+        run: npm ci
+        
+      - name: Build PR branch
+        run: npm run build
+        env:
+          CI: true
+          GENERATE_SOURCEMAP: false
+          
+      - name: Compare bundle sizes
+        run: |
+          BASE_SIZE=$(cat base-size.txt | cut -f1)
+          BASE_JS_SIZE=$(cat base-js-size.txt)
+          
+          PR_SIZE=$(du -sk build | cut -f1)
+          PR_JS_SIZE=$(ls -la build/static/js/*.js | awk '{print $5}' | sort -n | tail -1)
+          
+          SIZE_DIFF=$((PR_SIZE - BASE_SIZE))
+          JS_SIZE_DIFF=$((PR_JS_SIZE - BASE_JS_SIZE))
+          
+          echo "## 📦 Bundle Size Impact" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Base | PR | Diff |" >> $GITHUB_STEP_SUMMARY
+          echo "| ------ | ---- | -- | ---- |" >> $GITHUB_STEP_SUMMARY
+          echo "| Total Build | ${BASE_SIZE}KB | ${PR_SIZE}KB | ${SIZE_DIFF}KB |" >> $GITHUB_STEP_SUMMARY
+          echo "| Main JS Bundle | $((BASE_JS_SIZE / 1024))KB | $((PR_JS_SIZE / 1024))KB | $((JS_SIZE_DIFF / 1024))KB |" >> $GITHUB_STEP_SUMMARY
+          
+          if [ $SIZE_DIFF -gt 1024 ]; then  # More than 1MB increase
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ **Warning:** Bundle size increased significantly. Consider code splitting or optimization." >> $GITHUB_STEP_SUMMARY
+          elif [ $SIZE_DIFF -lt -1024 ]; then  # More than 1MB decrease
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "🎉 **Great:** Bundle size decreased! Nice optimization work." >> $GITHUB_STEP_SUMMARY
+          fi
+
+  auto-review:
+    name: Automated Code Review
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.event.pull_request.draft == false
+    needs: [pr-validation]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Analyze code changes
+        run: |
+          # Get changed files
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
+          
+          echo "## 🤖 Automated Code Review" > review-comments.md
+          echo "" >> review-comments.md
+          
+          # Check for common issues
+          for file in $CHANGED_FILES; do
+            if [[ "$file" =~ \.(ts|tsx|js|jsx)$ ]]; then
+              # Check for console.log statements
+              if grep -n "console\." "$file" 2>/dev/null; then
+                echo "⚠️ **$file**: Contains console statements that should be removed for production" >> review-comments.md
+              fi
+              
+              # Check for TODO comments
+              if grep -n "TODO\|FIXME\|HACK" "$file" 2>/dev/null; then
+                echo "📝 **$file**: Contains TODO/FIXME comments that may need attention" >> review-comments.md
+              fi
+              
+              # Check for large functions (>100 lines)
+              LARGE_FUNCTIONS=$(awk '/^[[:space:]]*function|^[[:space:]]*const.*=.*=>|^[[:space:]]*.*function/ {start=NR} /^[[:space:]]*}/ {if (NR-start>100) print "Line " start ": Function longer than 100 lines"}' "$file" 2>/dev/null || true)
+              if [ -n "$LARGE_FUNCTIONS" ]; then
+                echo "🔍 **$file**: $LARGE_FUNCTIONS - Consider breaking into smaller functions" >> review-comments.md
+              fi
+            fi
+          done
+          
+          # Check for test coverage of new code
+          NEW_TEST_FILES=$(echo "$CHANGED_FILES" | grep "\.test\." || true)
+          NEW_SRC_FILES=$(echo "$CHANGED_FILES" | grep -E "(src/.*\.(ts|tsx|js|jsx))" | grep -v "\.test\." || true)
+          
+          if [ -n "$NEW_SRC_FILES" ] && [ -z "$NEW_TEST_FILES" ]; then
+            echo "⚠️ **Testing**: New source files added but no test files found. Consider adding tests." >> review-comments.md
+          fi
+          
+      - name: Post review comments
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'review-comments.md';
+            
+            if (fs.existsSync(path)) {
+              const reviewComments = fs.readFileSync(path, 'utf8');
+              
+              if (reviewComments.trim().length > 50) {  // More than just the header
+                await github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: reviewComments
+                });
+              }
+            }
+
+  auto-assign-reviewers:
+    name: Auto-assign Reviewers
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: github.event.action == 'opened' && github.event.pull_request.draft == false
+    
+    steps:
+      - name: Auto-assign reviewers
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const reviewers = ['danielbarreto'];  // Add your team members here
+            const author = context.payload.pull_request.user.login;
+            
+            // Don't assign the author as a reviewer
+            const availableReviewers = reviewers.filter(reviewer => reviewer !== author);
+            
+            if (availableReviewers.length > 0) {
+              await github.rest.pulls.requestReviewers({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                reviewers: availableReviewers.slice(0, 2)  // Assign up to 2 reviewers
+              });
+            }
+
+  pr-commands:
+    name: PR Commands
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.event_name == 'issue_comment' && github.event.issue.pull_request && startsWith(github.event.comment.body, '/')
+    
+    steps:
+      - name: Process PR commands
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = context.payload.comment.body.toLowerCase().trim();
+            const author = context.payload.comment.user.login;
+            
+            // Only allow commands from collaborators
+            const { data: collaborator } = await github.rest.repos.getCollaboratorPermissionLevel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              username: author
+            });
+            
+            if (!['admin', 'write'].includes(collaborator.permission)) {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: '❌ You do not have permission to use PR commands.'
+              });
+              return;
+            }
+            
+            // Handle different commands
+            if (comment === '/rerun-tests') {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: '🔄 Re-running tests... This will trigger the CI workflow.'
+              });
+              
+              // Trigger workflow by updating a label
+              await github.rest.issues.addLabels({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: ['rerun-tests']
+              });
+              
+              // Remove the label immediately
+              await github.rest.issues.removeLabel({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: 'rerun-tests'
+              });
+            } else if (comment === '/ready-to-merge') {
+              await github.rest.issues.addLabels({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: ['ready-to-merge']
+              });
+              
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: '✅ PR marked as ready to merge!'
+              });
+            } else if (comment === '/request-changes') {
+              await github.rest.issues.addLabels({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: ['changes-requested']
+              });
+            }
+
+  merge-ready-check:
+    name: Merge Readiness Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: contains(github.event.pull_request.labels.*.name, 'ready-to-merge')
+    needs: [pr-validation, security-scan]
+    
+    steps:
+      - name: Check merge requirements
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            
+            const approvedReviews = reviews.filter(review => review.state === 'APPROVED');
+            const requestedChanges = reviews.filter(review => review.state === 'CHANGES_REQUESTED');
+            
+            let canMerge = true;
+            let reasons = [];
+            
+            // Check for approvals
+            if (approvedReviews.length === 0) {
+              canMerge = false;
+              reasons.push('❌ No approving reviews');
+            }
+            
+            // Check for requested changes
+            if (requestedChanges.length > 0) {
+              canMerge = false;
+              reasons.push('❌ Has requested changes');
+            }
+            
+            // Check if PR is behind base branch
+            if (pr.behind_by > 0) {
+              reasons.push('⚠️ Branch is behind base branch');
+            }
+            
+            if (canMerge) {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: '🎉 This PR is ready to merge! All checks have passed.'
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `⚠️ This PR is not ready to merge:\n\n${reasons.join('\n')}`
+              });
+            }

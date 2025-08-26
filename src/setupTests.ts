@@ -48,14 +48,30 @@ if (process.env.SKIP_INTEGRATION !== 'true') {
       beforeAll(() => {
         console.log(`🧪 Running integration test: ${testPath}`);
         // Ensure localStorage is cleared before each integration test suite
-        localStorage.clear();
-        sessionStorage.clear();
+        try {
+          if (typeof localStorage !== 'undefined' && localStorage !== null && typeof localStorage.clear === 'function') {
+            localStorage.clear();
+          }
+          if (typeof sessionStorage !== 'undefined' && sessionStorage !== null && typeof sessionStorage.clear === 'function') {
+            sessionStorage.clear();
+          }
+        } catch (e) {
+          // Storage might be disabled or mocked
+        }
       });
       
       afterEach(() => {
         // Clean up after each integration test
-        localStorage.clear();
-        sessionStorage.clear();
+        try {
+          if (typeof localStorage !== 'undefined' && localStorage !== null && typeof localStorage.clear === 'function') {
+            localStorage.clear();
+          }
+          if (typeof sessionStorage !== 'undefined' && sessionStorage !== null && typeof sessionStorage.clear === 'function') {
+            sessionStorage.clear();
+          }
+        } catch (e) {
+          // Storage might be disabled or mocked
+        }
         jest.clearAllMocks();
       });
     }
@@ -81,15 +97,57 @@ console.log = jest.fn((...args) => {
 // The localStorage and sessionStorage are already mocked by jest-localstorage-mock
 // Just ensure we have the clear method available
 beforeEach(() => {
-  // Use the methods from jest-localstorage-mock
-  if (typeof localStorage !== 'undefined' && localStorage.clear) {
-    localStorage.clear();
+  // Use the methods from jest-localstorage-mock - safely check for methods
+  try {
+    if (typeof localStorage !== 'undefined' && localStorage !== null && typeof localStorage.clear === 'function') {
+      localStorage.clear();
+    }
+  } catch (e) {
+    // localStorage might be disabled or mocked without clear method
   }
-  if (typeof sessionStorage !== 'undefined' && sessionStorage.clear) {
-    sessionStorage.clear();
+  
+  try {
+    if (typeof sessionStorage !== 'undefined' && sessionStorage !== null && typeof sessionStorage.clear === 'function') {
+      sessionStorage.clear();
+    }
+  } catch (e) {
+    // sessionStorage might be disabled or mocked without clear method
   }
   jest.clearAllMocks();
+  
+  // Ensure all fetch mocks are reset
+  if (global.fetch && typeof global.fetch === 'function' && global.fetch.mockClear) {
+    global.fetch.mockClear();
+  }
 });
+
+afterEach(() => {
+  // Clear all mocks after each test to prevent state leakage
+  jest.clearAllMocks();
+  
+  // Clear storage if available - safely check for methods
+  try {
+    if (typeof localStorage !== 'undefined' && localStorage !== null && typeof localStorage.clear === 'function') {
+      localStorage.clear();
+    }
+  } catch (e) {
+    // localStorage might be disabled or mocked without clear method
+  }
+  
+  try {
+    if (typeof sessionStorage !== 'undefined' && sessionStorage !== null && typeof sessionStorage.clear === 'function') {
+      sessionStorage.clear();
+    }
+  } catch (e) {
+    // sessionStorage might be disabled or mocked without clear method
+  }
+  
+  // Reset fetch mocks
+  if (global.fetch && typeof global.fetch === 'function' && global.fetch.mockClear) {
+    global.fetch.mockClear();
+  }
+});
+
 
 // Ensure timer functions are properly available in the test environment
 // Use Node.js timer functions directly from the timers module
@@ -184,6 +242,36 @@ if (typeof global.crypto === 'undefined') {
       const bytes = crypto.randomBytes(array.length);
       array.set(bytes);
       return array;
+    },
+    subtle: {
+      async importKey(format: string, keyData: ArrayBuffer, algorithm: any, extractable: boolean, keyUsages: string[]) {
+        // Mock implementation for PBKDF2
+        return { algorithm: 'PBKDF2', extractable, type: 'secret', usages: keyUsages };
+      },
+      async deriveBits(algorithm: any, baseKey: any, length: number) {
+        // Mock PBKDF2 key derivation - return deterministic bytes for testing
+        const iterations = algorithm.iterations || 100000;
+        const salt = new Uint8Array(algorithm.salt);
+        const keyLength = length / 8;
+        
+        // Use Node.js crypto for actual PBKDF2 in test environment
+        const derived = crypto.pbkdf2Sync('test-password', salt, iterations, keyLength, algorithm.hash.toLowerCase().replace('-', ''));
+        return derived.buffer.slice(0, keyLength);
+      },
+      async digest(algorithm: string, data: ArrayBuffer) {
+        const hashName = algorithm.toLowerCase().replace('-', '');
+        const buffer = Buffer.from(data);
+        const hash = crypto.createHash(hashName).update(buffer).digest();
+        return hash.buffer;
+      },
+      async encrypt(algorithm: any, key: any, data: ArrayBuffer) {
+        // Mock encryption for testing
+        return new ArrayBuffer(data.byteLength + 16); // Mock encrypted data with IV
+      },
+      async decrypt(algorithm: any, key: any, data: ArrayBuffer) {
+        // Mock decryption for testing
+        return new ArrayBuffer(Math.max(0, data.byteLength - 16)); // Mock decrypted data
+      }
     }
   } as any;
 }
@@ -232,6 +320,29 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-  console.error = originalError;
-  console.warn = originalWarn;
+  // Restore console functions safely
+  if (originalError && typeof originalError === 'function') {
+    try {
+      console.error = originalError;
+    } catch (e) {
+      // If console.error is read-only, try using Object.defineProperty
+      Object.defineProperty(console, 'error', {
+        value: originalError,
+        writable: true,
+        configurable: true
+      });
+    }
+  }
+  if (originalWarn && typeof originalWarn === 'function') {
+    try {
+      console.warn = originalWarn;
+    } catch (e) {
+      // If console.warn is read-only, try using Object.defineProperty
+      Object.defineProperty(console, 'warn', {
+        value: originalWarn,
+        writable: true,
+        configurable: true
+      });
+    }
+  }
 });

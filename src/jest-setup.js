@@ -28,7 +28,7 @@ if (typeof window !== 'undefined') {
   window.clearInterval = global.clearInterval;
 }
 
-// Increase timeout for async operations
+// Increase timeout for async operations - consistent with jest.config.js
 jest.setTimeout(30000);
 
 // Global test environment setup

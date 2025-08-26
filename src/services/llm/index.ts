@@ -8,7 +8,6 @@ export * from './generators/content-generator';
 export * from './generators/quiz-generator';
 export * from './generators/video-generator';
 export * from './generators/bibliography-generator';
-export * from './generators/mindmap-generator';
 
 // Re-export commonly used items for convenience
 export { ModuleGenerationOrchestrator } from './orchestrator';

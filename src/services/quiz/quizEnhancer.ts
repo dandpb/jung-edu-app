@@ -4,7 +4,7 @@
  */
 
 import { Question } from '../../types';
-import { getTopicMisconceptions, getTopicConcepts, questionStemVariations } from './quizTemplates';
+import { quizPromptService } from './quizPromptService';
 
 export interface EnhancementOptions {
   addExplanations: boolean;
@@ -15,6 +15,8 @@ export interface EnhancementOptions {
 }
 
 export class QuizEnhancer {
+  private usedDistractors: Set<string> = new Set();
+  
   /**
    * Enhance a set of quiz questions with better educational features
    */
@@ -33,6 +35,9 @@ export class QuizEnhancer {
     if (!questions || !Array.isArray(questions)) {
       return [];
     }
+
+    // Reset used distractors for each batch of questions
+    this.usedDistractors.clear();
 
     // Filter out null/undefined questions and process valid ones
     const validQuestions = questions.filter(q => q && typeof q === 'object');
@@ -99,6 +104,35 @@ export class QuizEnhancer {
    */
   private varyQuestionStem(question: Question): Question {
     const questionType = this.identifyQuestionType(question.question);
+    
+    // Question stem variations in Portuguese
+    const questionStemVariations = {
+      identification: [
+        'Qual das seguintes opções melhor descreve...',
+        'O que caracteriza o conceito de Jung sobre...',
+        'Como Jung definiria...',
+        'Na psicologia junguiana, o que é...'
+      ],
+      application: [
+        'Neste cenário, qual conceito é ilustrado...',
+        'Como um analista junguiano interpretaria...',
+        'Qual princípio junguiano explica...',
+        'Que processo é demonstrado quando...'
+      ],
+      analysis: [
+        'Qual é a diferença principal entre...',
+        'Como a visão de Jung sobre X difere de...',
+        'Por que X é importante para entender...',
+        'Que relação existe entre...'
+      ],
+      synthesis: [
+        'Como X e Y funcionam juntos em...',
+        'O que acontece quando X encontra Y no contexto de...',
+        'Explique a integração de...',
+        'Descreva como múltiplos conceitos combinam em...'
+      ]
+    };
+    
     const stems = questionStemVariations[questionType as keyof typeof questionStemVariations];
     
     if (!stems || stems.length === 0) return question;
@@ -123,13 +157,25 @@ export class QuizEnhancer {
   }
 
   /**
+   * Embaralha as opções usando algoritmo Fisher-Yates
+   */
+  private shuffleOptions(options: any[]): any[] {
+    const shuffled = [...options];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }
+
+  /**
    * Improve distractors for multiple choice questions
    */
   private improveDistractors(question: Question, topic: string): Question {
     if (!question.options || question.correctAnswer === undefined) return question;
 
-    const misconceptions = getTopicMisconceptions(topic);
-    const concepts = getTopicConcepts(topic);
+    const misconceptions = quizPromptService.getTopicMisconceptions(topic);
+    const concepts = quizPromptService.getTopicConcepts(topic);
     
     // Handle different types of correctAnswer
     const correctAnswerIndex = typeof question.correctAnswer === 'number' ? 
@@ -159,9 +205,17 @@ export class QuizEnhancer {
         { ...option, text: improvedText };
     });
 
+    // Embaralhar as opções para variar a posição da resposta correta
+    const shuffledOptions = this.shuffleOptions(improvedOptions);
+    const newCorrectAnswerIndex = shuffledOptions.findIndex((opt: any) => 
+      (typeof opt === 'string' ? false : opt.isCorrect) || 
+      shuffledOptions.indexOf(improvedOptions[correctAnswerIndex]) === shuffledOptions.indexOf(opt)
+    );
+
     return {
       ...question,
-      options: improvedOptions
+      options: shuffledOptions,
+      correctAnswer: newCorrectAnswerIndex
     };
   }
 
@@ -169,7 +223,11 @@ export class QuizEnhancer {
    * Enhance explanations with more educational content
    */
   private enhanceExplanation(question: Question, topic: string): Question {
-    if (!question.explanation) return question;
+    // Se não há explicação, criar uma básica
+    if (!question.explanation || question.explanation.trim() === '') {
+      const basicExplanation = this.createBasicExplanation(question, topic);
+      question = { ...question, explanation: basicExplanation };
+    }
 
     const enhanced = {
       ...question,
@@ -231,6 +289,13 @@ export class QuizEnhancer {
   private identifyQuestionType(question: string): string {
     const lowerQ = question.toLowerCase();
     
+    // Check for Portuguese keywords
+    if (lowerQ.includes('qual') || lowerQ.includes('o que é') || lowerQ.includes('quais')) return 'identification';
+    if (lowerQ.includes('como') || lowerQ.includes('explique')) return 'application';
+    if (lowerQ.includes('diferença') || lowerQ.includes('compare')) return 'analysis';
+    if (lowerQ.includes('integre') || lowerQ.includes('combine')) return 'synthesis';
+    
+    // Fallback to English keywords
     if (lowerQ.includes('which') || lowerQ.includes('what is')) return 'identification';
     if (lowerQ.includes('how') || lowerQ.includes('explain')) return 'application';
     if (lowerQ.includes('difference') || lowerQ.includes('compare')) return 'analysis';
@@ -307,36 +372,90 @@ export class QuizEnhancer {
   }
 
   private createPlausibleDistractor(correct: string, concepts: string[], misconceptions: string[]): string {
+    // Helper function to check if distractor was already used
+    const tryDistractor = (distractor: string): string | null => {
+      // Normalizar para comparação (remover espaços extras, lowercase)
+      const normalized = distractor.toLowerCase().trim().replace(/\s+/g, ' ');
+      if (!this.usedDistractors.has(normalized)) {
+        this.usedDistractors.add(normalized);
+        return distractor;
+      }
+      return null;
+    };
+
     // Use a misconception if available
     if (misconceptions.length > 0) {
-      const misconception = misconceptions[Math.floor(Math.random() * misconceptions.length)];
+      // Shuffle misconceptions to vary the selection
+      const shuffledMisconceptions = [...misconceptions].sort(() => Math.random() - 0.5);
       
-      // Create varied distractor types based on misconception
+      // Criar tipos MUITO mais variados de distratores
       const templates = [
-        `A belief that ${misconception}`,
-        `The idea that ${misconception}`,
-        `A theory suggesting ${misconception}`,
-        `The concept where ${misconception}`
+        (m: string) => `${m}`,
+        (m: string) => `O conceito de que ${m}`,
+        (m: string) => `A perspectiva onde ${m}`,
+        (m: string) => `A teoria de que ${m}`,
+        (m: string) => `A hipótese que ${m}`,
+        (m: string) => `A proposição de que ${m}`,
+        (m: string) => `O princípio onde ${m}`,
+        (m: string) => `A concepção de que ${m}`,
+        (m: string) => `O entendimento que ${m}`,
+        (m: string) => `A premissa de que ${m}`,
+        (m: string) => `A abordagem onde ${m}`,
+        (m: string) => `A interpretação que sugere ${m}`,
+        (m: string) => `A análise indicando que ${m}`,
+        (m: string) => `A compreensão de que ${m}`,
+        (m: string) => `O ponto de vista que ${m}`,
+        (m: string) => `A explicação onde ${m}`
       ];
       
-      return templates[Math.floor(Math.random() * templates.length)];
+      // Try different combinations until we find an unused one
+      for (const misconception of shuffledMisconceptions) {
+        // Randomizar templates para cada misconception
+        const shuffledTemplates = [...templates].sort(() => Math.random() - 0.5);
+        for (const template of shuffledTemplates) {
+          const distractor = template(misconception);
+          const result = tryDistractor(distractor);
+          if (result) return result;
+        }
+      }
     }
     
     // If we have concepts available, use them intelligently
     if (concepts.length > 0) {
-      const relatedConcept = concepts[Math.floor(Math.random() * concepts.length)];
+      const shuffledConcepts = [...concepts].sort(() => Math.random() - 0.5);
       
-      // Create plausible but incorrect interpretations
+      // Criar interpretações plausíveis mas incorretas - EXPANDIDO
       const distractorTemplates = [
-        `${relatedConcept} applied to personal experience only`,
-        `${relatedConcept} as a conscious process`,
-        `${relatedConcept} without unconscious elements`,
-        `${relatedConcept} in behavioral psychology context`,
-        `A simplified version of ${relatedConcept}`,
-        `${relatedConcept} from a Freudian perspective`
+        (c: string) => `${c} aplicado apenas à experiência pessoal`,
+        (c: string) => `${c} como um processo puramente consciente`,
+        (c: string) => `${c} sem elementos do inconsciente`,
+        (c: string) => `${c} na perspectiva comportamental`,
+        (c: string) => `Uma interpretação superficial de ${c}`,
+        (c: string) => `${c} segundo a psicanálise freudiana`,
+        (c: string) => `${c} entendido de forma literal`,
+        (c: string) => `${c} como construção social apenas`,
+        (c: string) => `${c} limitado a fatores biológicos`,
+        (c: string) => `${c} desprovido de simbolismo`,
+        (c: string) => `${c} restrito ao ego consciente`,
+        (c: string) => `${c} como mecanismo de defesa`,
+        (c: string) => `${c} determinado geneticamente`,
+        (c: string) => `${c} resultado de condicionamento`,
+        (c: string) => `${c} manifestação do superego`,
+        (c: string) => `${c} produto da cultura moderna`,
+        (c: string) => `${c} fenômeno neuroquímico`,
+        (c: string) => `${c} expressão do id primitivo`,
+        (c: string) => `${c} conceito obsoleto na psicologia`,
+        (c: string) => `${c} limitado à primeira infância`
       ];
       
-      return distractorTemplates[Math.floor(Math.random() * distractorTemplates.length)];
+      // Try different combinations
+      for (const concept of shuffledConcepts) {
+        for (const template of distractorTemplates) {
+          const distractor = template(concept);
+          const result = tryDistractor(distractor);
+          if (result) return result;
+        }
+      }
     }
     
     // Fallback: generate context-aware distractors based on the correct answer
@@ -351,84 +470,196 @@ export class QuizEnhancer {
     if (foundTerms.length > 0) {
       const term = foundTerms[0];
       
-      // Create related but incorrect concepts
+      // Criar conceitos relacionados mas incorretos
       const relatedDistracters: Record<string, string[]> = {
         'archetype': [
-          'Personal memories passed through genetics',
-          'Learned cultural behaviors',
-          'Individual personality traits',
-          'Conscious symbolic thinking'
+          'Memórias pessoais transmitidas geneticamente',
+          'Comportamentos culturais aprendidos',
+          'Traços individuais de personalidade',
+          'Pensamento simbólico consciente',
+          'Padrões sociais adquiridos',
+          'Instintos biológicos básicos',
+          'Representações mentais individuais',
+          'Construções sociais compartilhadas',
+          'Experiências traumáticas herdadas',
+          'Símbolos religiosos universais'
         ],
         'shadow': [
-          'The conscious mind\'s dark thoughts',
-          'Evil aspects that must be eliminated',
-          'Only negative personality traits',
-          'Freud\'s concept of the id'
+          'Os pensamentos sombrios da mente consciente',
+          'Aspectos malignos que devem ser eliminados',
+          'Apenas traços negativos da personalidade',
+          'O conceito de id de Freud',
+          'Medos conscientes e fobias',
+          'Comportamentos antissociais',
+          'Impulsos destrutivos primários',
+          'Defeitos morais inaceitáveis',
+          'Energias psíquicas negativas',
+          'Projeções do superego'
         ],
         'collective': [
-          'Group consciousness from social learning',
-          'Shared memories from ancestors',
-          'Cultural traditions and customs',
-          'Social conditioning and norms'
+          'Consciência grupal através do aprendizado social',
+          'Memórias compartilhadas de ancestrais',
+          'Tradições e costumes culturais',
+          'Condicionamento social e normas',
+          'Conhecimento transmitido culturalmente',
+          'Experiências grupais sincronizadas',
+          'Memória racial biologicamente herdada',
+          'Consenso social sobre valores',
+          'Padrões comportamentais aprendidos',
+          'Identidade cultural coletiva'
         ],
         'unconscious': [
-          'Forgotten memories that can be recalled',
-          'The sleeping mind\'s activity',
-          'Suppressed thoughts and desires',
-          'Automatic behavioral responses'
+          'Memórias esquecidas que podem ser lembradas',
+          'A atividade da mente durante o sono',
+          'Pensamentos e desejos suprimidos',
+          'Respostas comportamentais automáticas',
+          'Processos cognitivos não conscientes',
+          'Reflexos condicionados aprendidos',
+          'Estados alterados de consciência',
+          'Memórias reprimidas traumáticas',
+          'Impulsos biológicos primitivos',
+          'Processos mentais subliminares'
         ],
         'individuation': [
-          'Becoming independent from society',
-          'Developing a unique personality',
-          'Self-improvement and success',
-          'Reaching psychological maturity'
+          'Tornar-se independente da sociedade',
+          'Desenvolver uma personalidade única',
+          'Autoaperfeiçoamento e sucesso',
+          'Alcançar maturidade psicológica',
+          'Isolamento social voluntário',
+          'Rejeição de valores coletivos',
+          'Busca por originalidade extrema',
+          'Eliminação de conflitos internos',
+          'Perfeição do caráter pessoal',
+          'Transcendência do ego individual'
         ],
         'pokemon': [
-          'Simple game characters without deeper meaning',
-          'Random creature designs with no psychological basis',
-          'Entertainment figures unrelated to psychology',
-          'Modern inventions with no archetypal connections'
+          'Simples personagens de jogo sem significado profundo',
+          'Designs aleatórios de criaturas sem base psicológica',
+          'Figuras de entretenimento sem relação com psicologia',
+          'Invenções modernas sem conexões arquetípicas'
         ],
         'gengar': [
-          'A representation of pure evil in psychology',
-          'A symbol of childhood fears only',
-          'An example of the personal unconscious',
-          'A manifestation of the ego\'s dark side'
+          'Uma representação do mal puro na psicologia',
+          'Um símbolo apenas de medos infantis',
+          'Um exemplo do inconsciente pessoal',
+          'Uma manifestação do lado sombrio do ego'
         ],
         'evolution': [
-          'Simple physical growth without psychological change',
-          'Random transformations with no deeper meaning',
-          'A process unrelated to individuation',
-          'Purely biological changes in organisms'
+          'Crescimento físico simples sem mudança psicológica',
+          'Transformações aleatórias sem significado profundo',
+          'Um processo não relacionado à individuação',
+          'Mudanças puramente biológicas em organismos'
         ]
       };
       
       const options = relatedDistracters[term] || [
-        'A different psychological concept',
-        'An alternative theoretical approach',
-        'A related but distinct process',
-        'A common misinterpretation'
+        'Um conceito psicológico diferente',
+        'Uma abordagem teórica alternativa',
+        'Um processo relacionado mas distinto',
+        'Uma interpretação equivocada comum',
+        'Uma perspectiva não-junguiana',
+        'Uma simplificação do conceito',
+        'Uma distorção teórica comum',
+        'Um mal-entendido frequente'
       ];
       
-      return options[Math.floor(Math.random() * options.length)];
+      // Try each option until we find an unused one
+      const shuffledOptions = [...options].sort(() => Math.random() - 0.5);
+      for (const option of shuffledOptions) {
+        const result = tryDistractor(option);
+        if (result) return result;
+      }
     }
     
-    // Final fallback: Generate general psychological distractors
+    // Fallback final: Gerar distratores psicológicos gerais - MUITO EXPANDIDO
     const generalDistracters = [
-      'A cognitive behavioral concept',
-      'A psychoanalytic interpretation',
-      'A humanistic psychology principle',
-      'A developmental psychology theory',
-      'A social psychology phenomenon',
-      'A neuropsychological process'
+      'Um conceito cognitivo-comportamental',
+      'Uma interpretação psicanalítica clássica',
+      'Um princípio da psicologia humanista',
+      'Uma teoria do desenvolvimento infantil',
+      'Um fenômeno da psicologia social',
+      'Um processo neuropsicológico',
+      'Uma abordagem behaviorista radical',
+      'Um conceito da psicologia positiva',
+      'Uma teoria da Gestalt',
+      'Um princípio existencialista',
+      'Uma perspectiva transpessoal',
+      'Um conceito sistêmico-familiar',
+      'Uma teoria psicossomática',
+      'Um modelo cognitivo-social',
+      'Uma abordagem psicodinâmica',
+      'Um paradigma construtivista',
+      'Uma teoria do apego',
+      'Um conceito da neurociência',
+      'Uma perspectiva evolucionista',
+      'Um princípio da psicofarmacologia',
+      'Uma teoria da personalidade',
+      'Um modelo de processamento de informação',
+      'Uma abordagem fenomenológica',
+      'Um conceito da psicologia cultural',
+      'Uma teoria da motivação humana',
+      'Um princípio da psicologia educacional',
+      'Uma perspectiva psicobiológica',
+      'Um modelo de inteligência emocional',
+      'Uma teoria da aprendizagem social',
+      'Um conceito da psicologia organizacional'
     ];
     
-    return generalDistracters[Math.floor(Math.random() * generalDistracters.length)];
+    // Try to find an unused general distractor
+    const shuffledGeneral = [...generalDistracters].sort(() => Math.random() - 0.5);
+    for (const distractor of shuffledGeneral) {
+      const result = tryDistractor(distractor);
+      if (result) return result;
+    }
+    
+    // Se todas as opções foram esgotadas, gerar distratores contextuais únicos
+    const contextualDistracters = [
+      `Uma interpretação alternativa baseada em ${this.getRandomTheory()}`,
+      `O processo de ${this.getRandomProcess()} na psique`,
+      `A manifestação de ${this.getRandomConcept()} no comportamento`,
+      `Uma dinâmica entre ${this.getRandomDuality()}`,
+      `O desenvolvimento de ${this.getRandomDevelopment()}`,
+      `A expressão de ${this.getRandomExpression()}`,
+      `Uma forma de ${this.getRandomForm()}`,
+      `O mecanismo de ${this.getRandomMechanism()}`
+    ];
+    
+    // Tentar distratores contextuais
+    const shuffledContextual = [...contextualDistracters].sort(() => Math.random() - 0.5);
+    for (const distractor of shuffledContextual) {
+      const result = tryDistractor(distractor);
+      if (result) return result;
+    }
+    
+    // Último recurso: gerar com timestamp para garantir unicidade
+    const timestamp = Date.now();
+    const uniqueDistractor = `Conceito psicológico alternativo (${timestamp % 1000})`;
+    this.usedDistractors.add(uniqueDistractor.toLowerCase().trim().replace(/\s+/g, ' '));
+    return uniqueDistractor;
+  }
+
+  /**
+   * Create a basic explanation when none exists
+   */
+  private createBasicExplanation(question: Question, topic: string): string {
+    const correctAnswerIndex = typeof question.correctAnswer === 'number' ? 
+      question.correctAnswer : 
+      (Array.isArray(question.correctAnswer) ? question.correctAnswer[0] : 0);
+    
+    const correctOption = question.options?.[correctAnswerIndex];
+    const correctText = typeof correctOption === 'string' ? 
+      correctOption : 
+      (correctOption?.text || 'a resposta correta');
+    
+    return `A resposta correta é "${correctText}". ` +
+           `Esta questão avalia sua compreensão sobre ${topic} na psicologia junguiana. ` +
+           `É fundamental entender como este conceito se relaciona com os princípios da psicologia analítica de Jung ` +
+           `e sua aplicação no processo de desenvolvimento psicológico e individuação.`;
   }
 
   private buildEnhancedExplanation(question: Question, topic: string): string {
     const base = question.explanation || '';
-    const concepts = getTopicConcepts(topic);
+    const concepts = quizPromptService.getTopicConcepts(topic);
     
     // Structure: Why correct + Why others wrong + Key insight + Application
     let enhanced = base;
@@ -440,61 +671,132 @@ export class QuizEnhancer {
         question.correctAnswer : 
         (Array.isArray(question.correctAnswer) ? question.correctAnswer[0] : 0);
       
-      enhanced += '\n\nWhy other options are incorrect:';
+      enhanced += '\n\nPor que as outras opções estão incorretas:';
       question.options.forEach((option, index) => {
         if (index !== correctAnswerIndex) {
           const optionText = typeof option === 'string' ? option : option.text || option.toString();
           const correctOption = question.options![correctAnswerIndex];
           const correctText = typeof correctOption === 'string' ? correctOption : (correctOption.text || correctOption.toString());
-          enhanced += `\n- Option ${String.fromCharCode(65 + index)}: ${this.explainWhyWrong(optionText, correctText as string)}`;
+          enhanced += `\n- Opção ${String.fromCharCode(65 + index)}: ${this.explainWhyWrong(optionText, correctText as string, question.question)}`;
         }
       });
     }
     
     // Add key insight
-    enhanced += '\n\nKey Insight: ' + this.generateKeyInsight(question.question, topic);
+    enhanced += '\n\nInsight Principal: ' + this.generateKeyInsight(question.question, topic);
     
     // Add practical application
-    enhanced += '\n\nPractical Application: ' + this.generatePracticalApplication(topic);
+    enhanced += '\n\nAplicação Prática: ' + this.generatePracticalApplication(topic);
     
     return enhanced;
   }
 
-  private explainWhyWrong(wrong: string, correct: string): string {
+  private extractKeyDifference(wrong: string, correct: string): string {
+    // Extrair a diferença principal entre as opções
+    const differences = [
+      'a natureza universal versus pessoal do conceito',
+      'o aspecto consciente versus inconsciente',
+      'a dimensão individual versus coletiva',
+      'o processo ativo versus passivo',
+      'a origem interna versus externa'
+    ];
+    return differences[Math.floor(Math.random() * differences.length)];
+  }
+
+  private extractJungianEmphasis(correct: string): string {
+    // Extrair o que Jung enfatizava
+    const correctLower = correct.toLowerCase();
+    
+    if (correctLower.includes('coletivo')) {
+      return 'a natureza coletiva e herdada dos padrões psíquicos';
+    }
+    if (correctLower.includes('individuação')) {
+      return 'o processo de integração e realização do Self';
+    }
+    if (correctLower.includes('sombra')) {
+      return 'a importância de integrar aspectos rejeitados da personalidade';
+    }
+    if (correctLower.includes('arquétipo')) {
+      return 'os padrões universais que estruturam a experiência humana';
+    }
+    if (correctLower.includes('sonho')) {
+      return 'a função compensatória e prospectiva dos sonhos';
+    }
+    
+    return 'a totalidade da psique e a busca pelo equilíbrio psicológico';
+  }
+
+  private explainWhyWrong(wrong: string, correct: string, question: string): string {
+    const wrongLower = wrong.toLowerCase();
+    const correctLower = correct.toLowerCase();
+    
+    // Analisar o tipo de erro baseado no conteúdo
+    if (wrongLower.includes('freud') && !correctLower.includes('freud')) {
+      return 'Esta opção confunde conceitos junguianos com teoria freudiana. Jung desenvolveu suas próprias teorias que divergem significativamente das de Freud.';
+    }
+    
+    if (wrongLower.includes('consciente') && correctLower.includes('inconsciente')) {
+      return 'Esta opção inverte os conceitos de consciente e inconsciente. Lembre-se que Jung enfatizava a importância do inconsciente.';
+    }
+    
+    if (wrongLower.includes('pessoal') && correctLower.includes('coletivo')) {
+      return 'Esta opção confunde o inconsciente pessoal com o coletivo. O inconsciente coletivo é herdado e universal, não pessoal.';
+    }
+    
+    if (wrongLower.includes('apenas') || wrongLower.includes('somente')) {
+      return 'Esta opção é muito restritiva. Os conceitos junguianos são mais abrangentes e complexos do que esta simplificação sugere.';
+    }
+    
+    if (wrongLower.includes('todos') || wrongLower.includes('sempre')) {
+      return 'Esta opção generaliza demais. Jung reconhecia a individualidade e variação nas experiências psicológicas.';
+    }
+    
+    // Explicações genéricas mais completas
+    const keyDiff = this.extractKeyDifference(wrong, correct);
+    const jungEmphasis = this.extractJungianEmphasis(correct);
+    
     const explanations = [
-      'This confuses the concept with',
-      'This is a common misconception that',
-      'While partially true, this misses',
-      'This describes a different aspect that'
+      'Esta opção representa um mal-entendido comum sobre o conceito. ' + correct + ' é a resposta correta porque aborda o aspecto fundamental da teoria.',
+      'Embora pareça plausível, esta opção não captura a essência do conceito junguiano. A resposta correta enfatiza ' + keyDiff,
+      'Esta interpretação é parcialmente correta mas omite elementos cruciais. Jung especificamente enfatizava ' + jungEmphasis,
+      'Esta opção descreve um aspecto diferente da psicologia analítica que não se aplica diretamente à questão apresentada.'
     ];
     
-    return explanations[Math.floor(Math.random() * explanations.length)] + ' ...';
+    return explanations[Math.floor(Math.random() * explanations.length)];
   }
 
   private generateKeyInsight(question: string, topic: string): string {
     const insights = {
-      'Collective Unconscious': 'Remember that the collective unconscious is inherited, not learned, and contains universal patterns.',
-      'Psychological Types': 'Types are preferences, not limitations. Everyone uses all functions but in different orders.',
-      'Individuation': 'Individuation is about becoming whole, not perfect. It\'s a lifelong process.',
-      'Shadow': 'The shadow contains both negative and positive qualities we\'ve rejected.',
-      'Anima/Animus': 'These represent our relationship with the unconscious, not just gender roles.',
-      'Dreams': 'Dreams compensate for conscious attitudes and can show future psychological developments.'
+      'Collective Unconscious': 'Lembre-se que o inconsciente coletivo é herdado, não aprendido, e contém padrões universais da humanidade.',
+      'Psychological Types': 'Os tipos são preferências, não limitações. Todos usam todas as funções, mas em ordens diferentes.',
+      'Individuation': 'A individuação é sobre tornar-se completo, não perfeito. É um processo que dura toda a vida.',
+      'Shadow': 'A sombra contém tanto qualidades negativas quanto positivas que rejeitamos em nós mesmos.',
+      'Anima/Animus': 'Estes representam nossa relação com o inconsciente, não apenas papéis de gênero.',
+      'Dreams': 'Os sonhos compensam atitudes conscientes e podem mostrar desenvolvimentos psicológicos futuros.',
+      'Arquétipos': 'Os arquétipos são padrões universais que se manifestam de forma única em cada indivíduo.',
+      'Self': 'O Self representa a totalidade da psique, incluindo aspectos conscientes e inconscientes.',
+      'Persona': 'A persona é a máscara social que usamos, mas não deve ser confundida com nossa verdadeira identidade.',
+      'Complexos': 'Os complexos são grupos de ideias e emoções que influenciam nosso comportamento de forma inconsciente.'
     };
     
-    return insights[topic as keyof typeof insights] || 'Understanding this concept helps integrate conscious and unconscious aspects of the psyche.';
+    return insights[topic as keyof typeof insights] || 'Compreender este conceito ajuda a integrar aspectos conscientes e inconscientes da psique, promovendo o desenvolvimento pessoal.';
   }
 
   private generatePracticalApplication(topic: string): string {
     const applications = {
-      'Collective Unconscious': 'Notice universal themes in stories, myths, and your own dreams.',
-      'Psychological Types': 'Observe your natural preferences in daily decisions and interactions.',
-      'Individuation': 'Reflect on moments when you\'ve integrated opposing aspects of yourself.',
-      'Shadow': 'Pay attention to strong emotional reactions to others - they may reveal shadow content.',
-      'Anima/Animus': 'Examine your relationships for projections of inner figures.',
-      'Dreams': 'Keep a dream journal and look for compensatory messages.'
+      'Collective Unconscious': 'Observe temas universais em histórias, mitos e seus próprios sonhos. Note como certos símbolos aparecem repetidamente.',
+      'Psychological Types': 'Observe suas preferências naturais em decisões diárias e interações. Identifique sua função dominante.',
+      'Individuation': 'Reflita sobre momentos em que você integrou aspectos opostos de si mesmo. Reconheça seu progresso pessoal.',
+      'Shadow': 'Preste atenção a reações emocionais fortes a outras pessoas - elas podem revelar conteúdo da sombra.',
+      'Anima/Animus': 'Examine seus relacionamentos em busca de projeções de figuras internas. Note padrões repetitivos.',
+      'Dreams': 'Mantenha um diário de sonhos e procure mensagens compensatórias do inconsciente.',
+      'Arquétipos': 'Identifique padrões arquetípicos em sua vida e na cultura ao seu redor.',
+      'Self': 'Pratique a auto-observação para reconhecer momentos de totalidade e integração.',
+      'Persona': 'Diferencie entre seu eu autêntico e as máscaras sociais que você usa em diferentes contextos.',
+      'Complexos': 'Observe situações que desencadeiam reações desproporcionais - podem indicar complexos ativos.'
     };
     
-    return applications[topic as keyof typeof applications] || 'Apply this understanding to your personal development journey.';
+    return applications[topic as keyof typeof applications] || 'Aplique este entendimento em sua jornada de desenvolvimento pessoal, observando como os conceitos se manifestam em sua vida diária.';
   }
 
   private extractConcepts(text: string): string[] {
@@ -617,6 +919,104 @@ export class QuizEnhancer {
     if (context.includes('A person') || context.includes('someone')) return 'case-study';
     return 'example';
   }
+
+  // Métodos auxiliares para geração de distratores únicos
+  private getRandomTheory(): string {
+    const theories = [
+      'teorias cognitivas modernas',
+      'abordagens psicodinâmicas',
+      'perspectivas humanistas',
+      'modelos comportamentais',
+      'teorias sistêmicas',
+      'paradigmas construtivistas'
+    ];
+    return theories[Math.floor(Math.random() * theories.length)];
+  }
+
+  private getRandomProcess(): string {
+    const processes = [
+      'integração psíquica',
+      'adaptação emocional',
+      'regulação afetiva',
+      'processamento simbólico',
+      'elaboração mental',
+      'transformação psicológica'
+    ];
+    return processes[Math.floor(Math.random() * processes.length)];
+  }
+
+  private getRandomConcept(): string {
+    const concepts = [
+      'energia psíquica',
+      'conteúdo latente',
+      'estrutura mental',
+      'padrão comportamental',
+      'dinâmica interna',
+      'força motivacional'
+    ];
+    return concepts[Math.floor(Math.random() * concepts.length)];
+  }
+
+  private getRandomDuality(): string {
+    const dualities = [
+      'consciente e pré-consciente',
+      'impulso e controle',
+      'desejo e realidade',
+      'interno e externo',
+      'individual e social',
+      'racional e emocional'
+    ];
+    return dualities[Math.floor(Math.random() * dualities.length)];
+  }
+
+  private getRandomDevelopment(): string {
+    const developments = [
+      'capacidades adaptativas',
+      'recursos psicológicos',
+      'potenciais latentes',
+      'habilidades emocionais',
+      'competências sociais',
+      'estruturas cognitivas'
+    ];
+    return developments[Math.floor(Math.random() * developments.length)];
+  }
+
+  private getRandomExpression(): string {
+    const expressions = [
+      'tendências inconscientes',
+      'padrões relacionais',
+      'dinâmicas internas',
+      'processos adaptativos',
+      'mecanismos psicológicos',
+      'estruturas de personalidade'
+    ];
+    return expressions[Math.floor(Math.random() * expressions.length)];
+  }
+
+  private getRandomForm(): string {
+    const forms = [
+      'elaboração psíquica',
+      'processamento emocional',
+      'integração mental',
+      'organização psicológica',
+      'estruturação cognitiva',
+      'desenvolvimento pessoal'
+    ];
+    return forms[Math.floor(Math.random() * forms.length)];
+  }
+
+  private getRandomMechanism(): string {
+    const mechanisms = [
+      'autorregulação emocional',
+      'compensação psíquica',
+      'equilibração dinâmica',
+      'adaptação funcional',
+      'integração estrutural',
+      'transformação simbólica'
+    ];
+    return mechanisms[Math.floor(Math.random() * mechanisms.length)];
+  }
+
 }
 
 // Export a singleton instance

@@ -5,7 +5,6 @@
 
 // Export specific services to avoid naming conflicts
 export { BibliographyEnricher, generateBibliography, generateReadingPath } from '../bibliography';
-export { MindMapGenerator as RealMindMapGenerator } from '../mindmap';
 export { EnhancedQuizGenerator, quizEnhancer } from '../quiz';
 export { VideoEnricher } from '../video';
 export { ModuleGenerator, ModuleService } from '../modules';
@@ -14,7 +13,6 @@ export { ModuleGenerationOrchestrator } from '../llm';
 // Import services for unified interface
 import { LLMOrchestrator } from '../llm/orchestrator';
 import { ModuleGenerator } from '../modules/moduleGenerator';
-import { MindMapGenerator } from '../mindmap/mindMapGenerator';
 import { EnhancedQuizGenerator } from '../quiz/enhancedQuizGenerator';
 import { VideoEnricher } from '../video/videoEnricher';
 import { BibliographyEnricher } from '../bibliography/bibliographyEnricher';
@@ -33,7 +31,6 @@ export interface ModuleGenerationConfig {
   targetAudience?: string;
   includeVideos?: boolean;
   includeQuiz?: boolean;
-  includeMindMap?: boolean;
   includeBibliography?: boolean;
   language?: string;
   maxVideos?: number;
@@ -45,7 +42,6 @@ export interface ModuleGenerationConfig {
  */
 export interface GeneratedModule {
   module: any; // Jung module structure
-  mindMap?: any; // React Flow nodes and edges
   quiz?: any; // Enhanced quiz with explanations
   videos?: any[]; // Enriched video content
   bibliography?: any[]; // Academic references
@@ -64,7 +60,6 @@ export interface GeneratedModule {
 export class UnifiedModuleGenerator {
   private orchestrator: LLMOrchestrator;
   private moduleGenerator: ModuleGenerator;
-  private mindMapGenerator: MindMapGenerator;
   private quizGenerator: EnhancedQuizGenerator;
   private videoEnricher: VideoEnricher;
   private bibliographyEnricher: BibliographyEnricher;
@@ -79,7 +74,6 @@ export class UnifiedModuleGenerator {
     // Initialize all services
     this.orchestrator = new LLMOrchestrator(llmProvider);
     this.moduleGenerator = new ModuleGenerator();
-    this.mindMapGenerator = new MindMapGenerator();
     this.quizGenerator = new EnhancedQuizGenerator(llmProvider);
     this.videoEnricher = new VideoEnricher();
     this.bibliographyEnricher = new BibliographyEnricher();
@@ -146,17 +140,6 @@ export class UnifiedModuleGenerator {
         console.log(`📊 Detected difficulty level: ${config.difficulty}`);
       }
 
-      // Step 2: Generate mind map if requested
-      let mindMap;
-      if (config.includeMindMap !== false) {
-        console.log('🧠 Generating mind map...');
-        try {
-          mindMap = await this.mindMapGenerator.generateFromModule({ ...moduleStructure, icon: 'book' } as any);
-          componentsIncluded.push('mindMap');
-        } catch (error) {
-          console.error('Failed to generate mind map:', error);
-        }
-      }
 
       // Step 3: Generate quiz if requested
       let quiz;
@@ -223,7 +206,6 @@ export class UnifiedModuleGenerator {
       // Step 6: Compile final module
       const generatedModule: GeneratedModule = {
         module: moduleStructure,
-        mindMap,
         quiz,
         videos,
         bibliography,
@@ -251,7 +233,6 @@ export class UnifiedModuleGenerator {
     topic: string,
     components: {
       module?: boolean;
-      mindMap?: boolean;
       quiz?: boolean;
       videos?: boolean;
       bibliography?: boolean;
@@ -261,7 +242,6 @@ export class UnifiedModuleGenerator {
       topic,
       includeVideos: components.videos,
       includeQuiz: components.quiz,
-      includeMindMap: components.mindMap,
       includeBibliography: components.bibliography
     };
 
@@ -276,7 +256,6 @@ export class UnifiedModuleGenerator {
       topic,
       includeVideos: true,
       includeQuiz: true,
-      includeMindMap: true,
       includeBibliography: false, // Skip for quick generation
       quizQuestions: 5,
       maxVideos: 3
@@ -288,7 +267,6 @@ export class UnifiedModuleGenerator {
       topic,
       includeVideos: true,
       includeQuiz: true,
-      includeMindMap: true,
       includeBibliography: true,
       quizQuestions: 15,
       maxVideos: 10
@@ -301,7 +279,6 @@ export class UnifiedModuleGenerator {
       difficulty: 'advanced',
       includeVideos: false,
       includeQuiz: false,
-      includeMindMap: true,
       includeBibliography: true
     });
   }

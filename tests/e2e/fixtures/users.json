@@ -1,0 +1,72 @@
+[
+  {
+    "email": "e2e.test@jaqedu.com",
+    "password": "e2e-test-password-123",
+    "role": "user",
+    "profile": {
+      "full_name": "E2E Test User",
+      "preferences": {
+        "language": "en",
+        "theme": "light",
+        "notifications": true,
+        "dashboard_layout": "grid"
+      }
+    }
+  },
+  {
+    "email": "admin.e2e@jaqedu.com", 
+    "password": "admin-e2e-test-456",
+    "role": "admin",
+    "profile": {
+      "full_name": "E2E Test Admin",
+      "preferences": {
+        "language": "en",
+        "theme": "dark",
+        "notifications": true,
+        "admin_panel_view": "advanced"
+      }
+    }
+  },
+  {
+    "email": "instructor.e2e@jaqedu.com",
+    "password": "instructor-e2e-test-789",
+    "role": "instructor", 
+    "profile": {
+      "full_name": "E2E Test Instructor",
+      "preferences": {
+        "language": "en",
+        "theme": "light",
+        "notifications": false,
+        "content_creation_mode": "advanced"
+      }
+    }
+  },
+  {
+    "email": "student1.e2e@jaqedu.com",
+    "password": "student1-e2e-test-123",
+    "role": "user",
+    "profile": {
+      "full_name": "E2E Test Student 1",
+      "preferences": {
+        "language": "en",
+        "theme": "light",
+        "notifications": true,
+        "learning_pace": "moderate"
+      }
+    }
+  },
+  {
+    "email": "student2.e2e@jaqedu.com", 
+    "password": "student2-e2e-test-456",
+    "role": "user",
+    "profile": {
+      "full_name": "E2E Test Student 2",
+      "preferences": {
+        "language": "pt-br",
+        "theme": "dark",
+        "notifications": true,
+        "learning_pace": "fast"
+      }
+    }
+  }
+]

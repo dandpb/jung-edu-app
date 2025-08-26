@@ -192,3 +192,6 @@ hive-mind-prompt-*.txt
 
 # Local Netlify folder
 .netlify
+
+# Claude Code Router config with API keys
+ccr-config.json

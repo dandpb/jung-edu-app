@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { AdminUser, Module, MindMapNode, MindMapEdge } from '../types';
+import { AdminUser, Module } from '../types';
 import { modules as defaultModules } from '../data/modules';
-import { defaultMindMapNodes, defaultMindMapEdges } from '../data/mindmap';
 import { hashPassword, createSessionToken, validateSessionToken } from '../utils/auth';
 import { ADMIN_CONFIG } from '../config/admin';
 
@@ -12,12 +11,9 @@ interface AdminContextType {
   logout: () => void;
   modules: Module[];
   updateModules: (modules: Module[]) => void;
-  mindMapNodes: MindMapNode[];
-  mindMapEdges: MindMapEdge[];
-  updateMindMap: (nodes: MindMapNode[], edges: MindMapEdge[]) => void;
 }
 
-const AdminContext = createContext<AdminContextType | undefined>(undefined);
+export const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export const useAdmin = () => {
   const context = useContext(AdminContext);
@@ -41,24 +37,6 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     } catch (e) {
       console.error('Failed to parse modules from localStorage:', e);
       return defaultModules;
-    }
-  });
-  const [mindMapNodes, setMindMapNodes] = useState<MindMapNode[]>(() => {
-    try {
-      const saved = localStorage.getItem('jungAppMindMapNodes');
-      return saved ? JSON.parse(saved) : defaultMindMapNodes;
-    } catch (e) {
-      console.error('Failed to parse mindmap nodes from localStorage:', e);
-      return defaultMindMapNodes;
-    }
-  });
-  const [mindMapEdges, setMindMapEdges] = useState<MindMapEdge[]>(() => {
-    try {
-      const saved = localStorage.getItem('jungAppMindMapEdges');
-      return saved ? JSON.parse(saved) : defaultMindMapEdges;
-    } catch (e) {
-      console.error('Failed to parse mindmap edges from localStorage:', e);
-      return defaultMindMapEdges;
     }
   });
 
@@ -88,14 +66,6 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('jungAppModules', JSON.stringify(modules));
   }, [modules]);
-
-  useEffect(() => {
-    localStorage.setItem('jungAppMindMapNodes', JSON.stringify(mindMapNodes));
-  }, [mindMapNodes]);
-
-  useEffect(() => {
-    localStorage.setItem('jungAppMindMapEdges', JSON.stringify(mindMapEdges));
-  }, [mindMapEdges]);
 
   const login = (username: string, password: string): boolean => {
     // Verify credentials using secure hashing
@@ -137,11 +107,6 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     setModules(newModules);
   };
 
-  const updateMindMap = (nodes: MindMapNode[], edges: MindMapEdge[]) => {
-    setMindMapNodes(nodes);
-    setMindMapEdges(edges);
-  };
-
   return (
     <AdminContext.Provider
       value={{
@@ -150,10 +115,7 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
         login,
         logout,
         modules,
-        updateModules,
-        mindMapNodes,
-        mindMapEdges,
-        updateMindMap
+        updateModules
       }}
     >
       {children}

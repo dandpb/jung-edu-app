@@ -7,14 +7,8 @@ import { ILLMProvider } from '../llm/types';
 import { Quiz, Question } from '../../types';
 import { QuizGenerator } from '../llm/generators/quiz-generator';
 import { quizEnhancer, EnhancementOptions } from './quizEnhancer';
-import { 
-  getQuestionTemplate, 
-  getTopicConcepts, 
-  topicTemplates,
-  difficultyProgressions,
-  jungQuestionTypes,
-  QuestionTemplate
-} from './quizTemplates';
+import { quizPromptService, QuizPromptConfig } from './quizPromptService';
+import { ensureVariedCorrectAnswerPositions } from '../../utils/quizUtils';
 
 export interface EnhancedQuizOptions {
   useTemplates: boolean;
@@ -114,6 +108,9 @@ export class EnhancedQuizGenerator extends QuizGenerator {
       questions = await quizEnhancer.enhanceQuestions(questions, topic, enhancementOptions);
     }
 
+    // Randomize option positions to ensure variety
+    questions = ensureVariedCorrectAnswerPositions(questions);
+
     // Add metadata and create quiz
     return {
       id: `quiz-${moduleId}`,
@@ -144,24 +141,23 @@ export class EnhancedQuizGenerator extends QuizGenerator {
     count: number,
     options: EnhancedQuizOptions
   ): Promise<Question[]> {
-    const topicTemplate = topicTemplates.find(t => t.topic === topic);
-    const progression = difficultyProgressions[options.userLevel];
+    // Get difficulty distribution based on user level
+    const distribution = this.getDistributionForLevel(options.userLevel);
     
     // Calculate question distribution
-    const distribution = this.calculateQuestionDistribution(count, progression.questionDistribution);
+    const questionDistribution = this.calculateQuestionDistribution(count, distribution);
     
     // Generate questions for each difficulty level
     const allQuestions: Question[] = [];
     
-    for (const [difficulty, questionCount] of Object.entries(distribution)) {
+    for (const [difficulty, questionCount] of Object.entries(questionDistribution)) {
       if (questionCount > 0) {
         const questions = await this.generateQuestionsByDifficulty(
           topic,
           content,
           objectives,
           difficulty,
-          questionCount,
-          topicTemplate
+          questionCount
         );
         allQuestions.push(...questions);
       }
@@ -191,21 +187,22 @@ export class EnhancedQuizGenerator extends QuizGenerator {
     content: string,
     objectives: string[],
     difficulty: string,
-    count: number,
-    topicTemplate: any
+    count: number
   ): Promise<Question[]> {
-    const template = getQuestionTemplate(topic, difficulty);
-    const concepts = getTopicConcepts(topic);
+    // Use centralized prompt service
+    const concepts = quizPromptService.getTopicConcepts(topic);
+    const userLevel = this.mapDifficultyToLevel(difficulty);
     
-    const prompt = this.buildTemplatedPrompt(
+    const promptConfig: QuizPromptConfig = {
       topic,
-      content,
+      difficulty: difficulty as 'easy' | 'medium' | 'hard',
+      concepts,
       objectives,
-      difficulty,
       count,
-      template,
-      concepts
-    );
+      userLevel
+    };
+    
+    const prompt = await quizPromptService.getQuizGenerationPrompt(promptConfig);
 
     const rawQuestions = await this.provider.generateStructuredOutput<Array<{
       question: string;
@@ -218,78 +215,76 @@ export class EnhancedQuizGenerator extends QuizGenerator {
     }>>(prompt, [], { temperature: 0.6, maxTokens: 2000 });
 
     // Ensure rawQuestions is an array
-    if (!Array.isArray(rawQuestions)) {
-      console.error('Enhanced quiz raw questions is not an array:', rawQuestions);
-      // Create fallback questions that include the topic
-      const fallbackQuestions = Array.from({ length: count }, (_, i) => ({
-        question: `What is a key aspect of ${topic} in Jungian psychology?`,
-        type: 'multiple-choice',
-        options: [
-          `A fundamental concept in ${topic}`,
-          'A behavioral psychology principle',
-          'A cognitive therapy technique',
-          'A social psychology phenomenon'
-        ],
-        correctAnswer: 0,
-        explanation: `This relates to core principles of ${topic} in Jung's analytical psychology.`,
-        difficulty: difficulty
-      }));
-      return fallbackQuestions.map((q, index) => this.formatTemplatedQuestion(q, index, difficulty));
+    let questionsArray = rawQuestions;
+    
+    // Verificar se retornou um objeto com propriedade 'questions'
+    if (rawQuestions && typeof rawQuestions === 'object' && 'questions' in (rawQuestions as any)) {
+      console.log('Extraindo array de questões do objeto retornado');
+      questionsArray = (rawQuestions as any).questions;
+    }
+    
+    if (!Array.isArray(questionsArray)) {
+      // Se retornou um objeto único, converter para array
+      if (questionsArray && typeof questionsArray === 'object' && 'question' in questionsArray) {
+        console.log('Convertendo objeto único para array de questões');
+        questionsArray = [questionsArray as any];
+      } else {
+        console.error('Questões do quiz não estão em formato de array:', questionsArray);
+        // Criar questões de fallback em português
+        const fallbackQuestions = Array.from({ length: count }, (_, i) => {
+          // Randomizar a posição da resposta correta
+          const correctPosition = i % 4; // Varia entre 0, 1, 2, 3
+          const options = [
+            'Um princípio da psicologia comportamental',
+            'Uma técnica de terapia cognitiva',
+            'Um fenômeno da psicologia social',
+            'Uma abordagem da psicologia humanista'
+          ];
+          
+          // Inserir a resposta correta na posição aleatória
+          options.splice(correctPosition, 0, `Um conceito fundamental em ${topic} segundo Jung`);
+          options.pop(); // Remove o último para manter 4 opções
+          
+          return {
+            question: `Qual é um aspecto fundamental de ${topic} na psicologia junguiana?`,
+            type: 'multiple-choice',
+            options,
+            correctAnswer: correctPosition,
+            explanation: `Isso se relaciona aos princípios fundamentais de ${topic} na psicologia analítica de Jung.`,
+            difficulty: difficulty
+          };
+        });
+        return fallbackQuestions.map((q, index) => this.formatTemplatedQuestion(q, index, difficulty));
+      }
     }
 
-    return rawQuestions.map((q, index) => this.formatTemplatedQuestion(q, index, difficulty));
+    return questionsArray.map((q: any, index: number) => this.formatTemplatedQuestion(q, index, difficulty));
   }
 
   /**
-   * Build a prompt using templates
+   * Map difficulty to user level
    */
-  private buildTemplatedPrompt(
-    topic: string,
-    content: string,
-    objectives: string[],
-    difficulty: string,
-    count: number,
-    template: QuestionTemplate,
-    concepts: string[]
-  ): string {
-    return `
-Generate ${count} ${difficulty} questions about "${topic}" in Jungian psychology.
+  private mapDifficultyToLevel(difficulty: string): 'beginner' | 'intermediate' | 'advanced' {
+    switch (difficulty) {
+      case 'easy':
+        return 'beginner';
+      case 'hard':
+        return 'advanced';
+      default:
+        return 'intermediate';
+    }
+  }
 
-Use this question structure template:
-"${template.structure}"
-
-Question type: ${template.type}
-
-Key concepts to assess:
-${concepts.slice(0, 5).join(', ')}
-
-Learning objectives:
-${objectives.slice(0, 3).map((obj, i) => `${i + 1}. ${obj}`).join('\n')}
-
-Context from content:
-${content.substring(0, 800)}...
-
-${template.type === 'multiple-choice' ? `
-Distractor patterns to use:
-${template.optionPatterns?.join('\n')}
-` : ''}
-
-${template.type === 'essay' || template.type === 'short-answer' ? `
-Expected answer should cover these aspects:
-- Key Jungian concepts
-- Personal understanding/application
-- References to Jung's work (if applicable)
-` : ''}
-
-For each question provide:
-{
-  "question": "The question text following the template",
-  "type": "${template.type}",
-  ${template.type === 'multiple-choice' ? '"options": ["A", "B", "C", "D"], "correctAnswer": 0,' : ''}
-  ${template.type === 'short-answer' || template.type === 'essay' ? '"expectedKeywords": ["keyword1", "keyword2"], "rubric": {},' : ''}
-  "explanation": "Detailed explanation following template: ${template.explanationTemplate}"
-}
-`;
+  /**
+   * Get difficulty distribution for user level
+   */
+  private getDistributionForLevel(level: 'beginner' | 'intermediate' | 'advanced') {
+    const distributions = {
+      beginner: { easy: 0.5, medium: 0.4, hard: 0.1 },
+      intermediate: { easy: 0.2, medium: 0.6, hard: 0.2 },
+      advanced: { easy: 0.1, medium: 0.4, hard: 0.5 }
+    };
+    return distributions[level];
   }
 
   /**
@@ -300,13 +295,19 @@ For each question provide:
     index: number,
     difficulty: string
   ): Question {
+    // Garantir que sempre haja uma explicação
+    const explanation = rawQuestion.explanation || 
+      `Esta questão avalia sua compreensão sobre ${rawQuestion.question?.substring(0, 50)}... ` +
+      `A resposta correta demonstra conhecimento dos princípios fundamentais da psicologia junguiana. ` +
+      `É importante compreender como este conceito se relaciona com outros aspectos da teoria de Jung.`;
+    
     const baseQuestion: Question = {
       id: `q-${difficulty}-${index + 1}`,
       type: rawQuestion.type || 'multiple-choice',
       question: rawQuestion.question,
       options: [], // Default empty array, will be overridden below
       correctAnswer: 0, // Default value, will be overridden below
-      explanation: rawQuestion.explanation,
+      explanation,
       points: difficulty === 'hard' ? 15 : difficulty === 'medium' ? 10 : 5,
       order: index,
       metadata: {
@@ -316,11 +317,24 @@ For each question provide:
     };
 
     // Add type-specific properties
-    if (rawQuestion.type === 'multiple-choice') {
+    if (rawQuestion.type === 'multiple-choice' || !rawQuestion.type) {
+      // Normalizar opções - remover prefixos como "A)", "B)", etc.
+      let normalizedOptions = rawQuestion.options;
+      
+      if (Array.isArray(rawQuestion.options)) {
+        normalizedOptions = rawQuestion.options.map((opt: any) => {
+          if (typeof opt === 'string') {
+            // Remover prefixos como "A)", "B)", "1.", etc.
+            return opt.replace(/^[A-D]\)\s*|^[1-4]\.\s*|^\d+\)\s*/i, '').trim();
+          }
+          return opt;
+        });
+      }
+      
       return {
         ...baseQuestion,
-        options: rawQuestion.options,
-        correctAnswer: rawQuestion.correctAnswer
+        options: normalizedOptions || [],
+        correctAnswer: rawQuestion.correctAnswer || 0
       };
     } else if (rawQuestion.type === 'short-answer' || rawQuestion.type === 'essay') {
       return {
@@ -341,29 +355,29 @@ For each question provide:
     objectives: string[],
     count: number
   ): Promise<Question[]> {
-    const essayTemplate = jungQuestionTypes.individuationProcess;
-    
     const prompt = `
-Generate ${count} essay questions about "${topic}" in Jungian psychology.
+Gere ${count} questões dissertativas sobre "${topic}" em psicologia junguiana.
 
-Focus on:
-- Integration and synthesis of concepts
-- Personal reflection and application
-- Critical analysis
+🆑 IMPORTANTE: TODAS as questões devem estar em PORTUGUÊS BRASILEIRO.
 
-Learning objectives:
+Foco em:
+- Integração e síntese de conceitos
+- Reflexão pessoal e aplicação
+- Análise crítica
+
+Objetivos de aprendizagem:
 ${objectives.map((obj, i) => `${i + 1}. ${obj}`).join('\n')}
 
-For each question provide:
+Para cada questão forneça:
 {
-  "question": "Essay prompt that encourages deep reflection",
+  "question": "Pergunta dissertativa que encoraja reflexão profunda",
   "type": "essay",
   "rubric": {
-    "required": ["concept1", "concept2"],
-    "optional": ["additional1", "additional2"],
+    "required": ["conceito1", "conceito2"],
+    "optional": ["adicional1", "adicional2"],
     "depth": 200
   },
-  "explanation": "Guidance on what a good answer should include"
+  "explanation": "Orientação sobre o que uma boa resposta deve incluir"
 }
 `;
 
@@ -379,14 +393,14 @@ For each question provide:
       console.error('Essay raw questions is not an array or empty:', rawQuestions);
       // Create fallback essay questions
       const fallbackQuestions = Array.from({ length: count }, (_, i) => ({
-        question: `Discuss the significance of ${topic} in Jungian psychology. Focus on how this concept contributes to personal psychological development.`,
+        question: `Discuta a importância de ${topic} na psicologia junguiana. Foque em como este conceito contribui para o desenvolvimento psicológico pessoal.`,
         type: 'essay',
         rubric: {
-          required: ['key concepts', 'understanding', topic.toLowerCase()],
-          optional: ['examples', 'analysis', 'personal reflection'],
+          required: ['conceitos-chave', 'compreensão', topic.toLowerCase()],
+          optional: ['exemplos', 'análise', 'reflexão pessoal'],
           depth: 200
         },
-        explanation: `A comprehensive discussion should address the core principles of ${topic}, its role in Jungian theory, and practical applications for psychological development.`
+        explanation: `Uma discussão abrangente deve abordar os princípios fundamentais de ${topic}, seu papel na teoria junguiana e aplicações práticas para o desenvolvimento psicológico.`
       }));
       return fallbackQuestions.map((q, index) => ({
         id: `essay-${index + 1}`,
@@ -397,14 +411,14 @@ For each question provide:
         rubric: {
           criteria: [
             {
-              name: 'Content Understanding',
-              description: 'Demonstrates understanding of key concepts',
+              name: 'Compreensão do Conteúdo',
+              description: 'Demonstra compreensão dos conceitos-chave',
               levels: [
-                { score: 25, description: 'Excellent understanding with deep insights' },
-                { score: 20, description: 'Good understanding with clear explanations' },
-                { score: 15, description: 'Basic understanding with some gaps' },
-                { score: 10, description: 'Limited understanding' },
-                { score: 0, description: 'No understanding demonstrated' }
+                { score: 25, description: 'Excelente compreensão com insights profundos' },
+                { score: 20, description: 'Boa compreensão com explicações claras' },
+                { score: 15, description: 'Compreensão básica com algumas lacunas' },
+                { score: 10, description: 'Compreensão limitada' },
+                { score: 0, description: 'Nenhuma compreensão demonstrada' }
               ]
             }
           ],

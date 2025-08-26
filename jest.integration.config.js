@@ -23,5 +23,7 @@ module.exports = {
   // Override globals to ensure SKIP_INTEGRATION is not set
   globals: {
     'process.env.SKIP_INTEGRATION': undefined
-  }
+  },
+  // Remove invalid setupFilesAfterEnvTimeout option
+  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts']
 };

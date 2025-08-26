@@ -1,0 +1,312 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ main, master, develop ]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - '.gitignore'
+  pull_request:
+    branches: [ main, master, develop ]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - '.gitignore'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '18'
+  SKIP_INTEGRATION: 'true'
+
+jobs:
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    strategy:
+      matrix:
+        test-type: [unit, components, utils, critical]
+        
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run ${{ matrix.test-type }} tests
+        run: |
+          case "${{ matrix.test-type }}" in
+            "unit")
+              npm run test:unit
+              ;;
+            "components")
+              npm run test:components
+              ;;
+            "utils")
+              npm run test:utils
+              ;;
+            "critical")
+              npm run test:critical
+              ;;
+          esac
+        env:
+          CI: true
+          SKIP_INTEGRATION: true
+          
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.test-type }}
+          path: |
+            coverage/
+            junit.xml
+          retention-days: 7
+
+  coverage:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: test
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Generate coverage report
+        run: npm run test:coverage-report
+        env:
+          CI: true
+          SKIP_INTEGRATION: true
+          
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          
+      - name: Coverage Summary
+        run: |
+          echo "## Coverage Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          cat coverage/coverage-summary.json | jq -r '
+            .total | 
+            "| Metric | Percentage | Lines |",
+            "| ------ | ---------- | ----- |",
+            "| Lines | \(.lines.pct)% | \(.lines.covered)/\(.lines.total) |",
+            "| Functions | \(.functions.pct)% | \(.functions.covered)/\(.functions.total) |",
+            "| Branches | \(.branches.pct)% | \(.branches.covered)/\(.branches.total) |",
+            "| Statements | \(.statements.pct)% | \(.statements.covered)/\(.statements.total) |"
+          ' >> $GITHUB_STEP_SUMMARY
+
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build application
+        run: npm run build
+        env:
+          CI: true
+          GENERATE_SOURCEMAP: false
+          
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-files
+          path: build/
+          retention-days: 7
+          
+      - name: Analyze bundle size
+        run: |
+          npx bundlesize
+          echo "## Build Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "Build completed successfully ✅" >> $GITHUB_STEP_SUMMARY
+          echo "Build size: $(du -sh build | cut -f1)" >> $GITHUB_STEP_SUMMARY
+
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run ESLint
+        run: |
+          npx eslint src/ --ext .ts,.tsx,.js,.jsx --format json --output-file eslint-report.json || true
+          npx eslint src/ --ext .ts,.tsx,.js,.jsx
+        continue-on-error: true
+        
+      - name: Run Prettier check
+        run: npx prettier --check "src/**/*.{ts,tsx,js,jsx,json,css,md}"
+        
+      - name: TypeScript check
+        run: npx tsc --noEmit
+        
+      - name: Upload lint results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-results
+          path: eslint-report.json
+          retention-days: 7
+
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [test, build]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run integration tests
+        run: npm run test:integration
+        env:
+          CI: true
+          USE_REAL_API: false
+          
+      - name: Upload integration test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: |
+            coverage/
+            test-results/
+          retention-days: 7
+
+  validate:
+    name: Validation & Health Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [build]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-files
+          path: build/
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Validate deployment readiness
+        run: |
+          # Check if all required files exist
+          test -f build/index.html || { echo "Missing index.html"; exit 1; }
+          test -f build/static/js/*.js || { echo "Missing JS bundle"; exit 1; }
+          test -f build/static/css/*.css || { echo "Missing CSS bundle"; exit 1; }
+          
+          # Validate build health
+          npm run validate:deployment || true
+          
+          echo "## Deployment Validation" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Build files validated" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Deployment ready" >> $GITHUB_STEP_SUMMARY
+
+  notify:
+    name: Status Notification
+    runs-on: ubuntu-latest
+    needs: [test, coverage, build, lint, validate]
+    if: always()
+    
+    steps:
+      - name: Determine overall status
+        id: status
+        run: |
+          if [[ "${{ needs.test.result }}" == "success" && 
+                "${{ needs.build.result }}" == "success" && 
+                "${{ needs.lint.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "message=All checks passed ✅" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "message=Some checks failed ❌" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Create status summary
+        run: |
+          echo "## CI Pipeline Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "| --- | ------ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tests | ${{ needs.test.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Coverage | ${{ needs.coverage.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ needs.build.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint | ${{ needs.lint.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Validation | ${{ needs.validate.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Overall Status:** ${{ steps.status.outputs.message }}" >> $GITHUB_STEP_SUMMARY

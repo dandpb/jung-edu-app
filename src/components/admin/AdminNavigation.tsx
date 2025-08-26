@@ -23,7 +23,7 @@ const AdminNavigation: React.FC = () => {
   const navItems = [
     {
       path: '/admin/dashboard',
-      label: 'Dashboard',
+      label: 'Painel',
       icon: Home
     },
     {
@@ -38,7 +38,7 @@ const AdminNavigation: React.FC = () => {
     },
     {
       path: '/admin/prompts',
-      label: 'Prompts IA',
+      label: 'Modelos IA',
       icon: Settings
     }
   ];

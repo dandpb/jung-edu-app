@@ -204,9 +204,10 @@ export class AdaptiveLearningEngine {
    */
   analyzeLearningPatterns(userProgress: UserProgress): LearningInsight[] {
     const insights: LearningInsight[] = [];
-    const adaptiveData = userProgress.adaptiveLearningData;
     
-    if (!adaptiveData) return insights;
+    if (!userProgress || !userProgress.adaptiveLearningData) return insights;
+    
+    const adaptiveData = userProgress.adaptiveLearningData;
 
     // Analyze response patterns
     const responsePatterns = this.analyzeResponsePatterns(adaptiveData.responsePatterns);
@@ -447,8 +448,9 @@ export class AdaptiveLearningEngine {
     
     if (module.content?.sections) {
       module.content.sections.forEach(section => {
-        if (section.concepts) {
-          topics.push(...section.concepts);
+        // Extract topics from section keyTerms instead of concepts
+        if (section.keyTerms) {
+          topics.push(...section.keyTerms.map(term => term.term));
         }
       });
     }

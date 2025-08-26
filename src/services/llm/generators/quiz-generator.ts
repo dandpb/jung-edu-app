@@ -2,6 +2,7 @@ import { ILLMProvider } from '../types';
 import { Quiz, Question } from '../../../types';
 import { quizEnhancer } from '../../../services/quiz/quizEnhancer';
 import { quizValidator } from '../../../services/quiz/quizValidator';
+import { randomizeAllQuestionOptions, ensureVariedCorrectAnswerPositions } from '../../../utils/quizUtils';
 
 export class QuizGenerator {
   constructor(protected provider: ILLMProvider) {}
@@ -279,13 +280,16 @@ Respond with exactly ${count} questions following the good example format:`;
       contextualizeQuestions: true
     });
 
-    // Validate enhanced questions
+    // Randomize option positions to avoid pattern where correct answer is always first
+    const randomizedQuestions = ensureVariedCorrectAnswerPositions(enhancedQuestions);
+
+    // Validate randomized questions
     const testQuiz: Quiz = {
       id: 'temp-validation',
       moduleId: '',
       title: '',
       description: '',
-      questions: enhancedQuestions,
+      questions: randomizedQuestions,
       passingScore: 70,
       timeLimit: 30,
       createdAt: new Date(),
@@ -301,11 +305,11 @@ Respond with exactly ${count} questions following the good example format:`;
       console.warn('Validation warnings:', validationResult.warnings);
       
       // Try to fix validation issues
-      const fixedQuestions = await this.fixValidationIssues(enhancedQuestions, validationResult, topic, content, objectives, language);
+      const fixedQuestions = await this.fixValidationIssues(randomizedQuestions, validationResult, topic, content, objectives, language);
       return fixedQuestions;
     }
 
-    return enhancedQuestions;
+    return randomizedQuestions;
   }
 
   /**

@@ -6,16 +6,12 @@ import { AdminProvider, useAdmin } from './contexts/AdminContext';
 import Navigation from './components/Navigation';
 import Dashboard from './pages/Dashboard';
 import ModulePage from './pages/ModulePage';
-import MindMapPage from './pages/MindMapPage';
-import MiniMapDemo from './pages/MiniMapDemo';
-import EnhancedMindMapPage from './pages/EnhancedMindMapPage';
 import AIDemo from './pages/AIDemo';
 import NotesPage from './pages/NotesPage';
 import BibliographyPage from './pages/BibliographyPage';
 import SearchPage from './pages/SearchPage';
 import TestYouTubeIntegration from './pages/TestYouTubeIntegration';
 import TestYouTubeAPI from './pages/TestYouTubeAPI';
-import ProgressPage from './pages/ProgressPage';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminModules from './pages/admin/AdminModules';
@@ -128,30 +124,6 @@ function AppContent() {
             } 
           />
           <Route 
-            path="/mindmap" 
-            element={
-              <ProtectedRoute>
-                <MindMapPage modules={modules} />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/minimap-demo" 
-            element={
-              <ProtectedRoute>
-                <MiniMapDemo />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/enhanced-mindmap" 
-            element={
-              <ProtectedRoute>
-                <EnhancedMindMapPage modules={modules} />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
             path="/ai-demo" 
             element={
               <ProtectedRoute requiredRole={UserRole.ADMIN}>
@@ -184,17 +156,6 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <SearchPage modules={modules} />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/progress" 
-            element={
-              <ProtectedRoute>
-                <ProgressPage 
-                  userProgress={userProgress}
-                  updateProgress={updateProgress}
-                />
               </ProtectedRoute>
             } 
           />

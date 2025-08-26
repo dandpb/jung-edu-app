@@ -1,0 +1,609 @@
+name: Release Automation
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version increment type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      prerelease:
+        description: 'Create as pre-release'
+        required: false
+        default: false
+        type: boolean
+      draft:
+        description: 'Create as draft release'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  prepare-release:
+    name: Prepare Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.event_name == 'workflow_dispatch'
+    outputs:
+      new_version: ${{ steps.version.outputs.new_version }}
+      release_notes: ${{ steps.notes.outputs.release_notes }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run comprehensive tests
+        run: |
+          npm run test:all
+          npm run test:critical
+        env:
+          CI: true
+          SKIP_INTEGRATION: true
+          
+      - name: Generate new version
+        id: version
+        run: |
+          # Get current version
+          CURRENT_VERSION=$(cat package.json | jq -r '.version')
+          echo "Current version: $CURRENT_VERSION"
+          
+          # Calculate new version
+          IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_VERSION"
+          MAJOR=${VERSION_PARTS[0]}
+          MINOR=${VERSION_PARTS[1]}
+          PATCH=${VERSION_PARTS[2]}
+          
+          case "${{ github.event.inputs.version_type }}" in
+            "major")
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            "minor")
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            "patch")
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+          
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "New version: $NEW_VERSION"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          
+          # Update package.json
+          jq --arg version "$NEW_VERSION" '.version = $version' package.json > package.json.tmp
+          mv package.json.tmp package.json
+          
+      - name: Generate release notes
+        id: notes
+        run: |
+          # Get the last tag
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          
+          if [ -n "$LAST_TAG" ]; then
+            # Generate changelog since last tag
+            echo "## Changes since $LAST_TAG" > release_notes.md
+            echo "" >> release_notes.md
+            
+            # Get commits since last tag
+            git log --oneline --pretty=format:"- %s (%h)" "$LAST_TAG"..HEAD >> release_notes.md || true
+          else
+            echo "## Initial Release" > release_notes.md
+            echo "" >> release_notes.md
+            echo "This is the first release of the Jung Educational Platform." >> release_notes.md
+          fi
+          
+          # Add deployment info
+          echo "" >> release_notes.md
+          echo "## Deployment Information" >> release_notes.md
+          echo "- **Environment**: Production" >> release_notes.md
+          echo "- **Build Date**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> release_notes.md
+          echo "- **Node Version**: $NODE_VERSION" >> release_notes.md
+          
+          # Store release notes
+          RELEASE_NOTES=$(cat release_notes.md)
+          echo "release_notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+      - name: Commit version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add package.json
+          git commit -m "chore: bump version to ${{ steps.version.outputs.new_version }}"
+          
+          # Create and push tag
+          git tag "v${{ steps.version.outputs.new_version }}"
+          git push origin main
+          git push origin "v${{ steps.version.outputs.new_version }}"
+
+  build-release:
+    name: Build Release Assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [prepare-release]
+    if: always() && !failure()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare-release.outputs.new_version && format('v{0}', needs.prepare-release.outputs.new_version) || github.ref }}
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build production assets
+        run: npm run build
+        env:
+          CI: true
+          GENERATE_SOURCEMAP: true
+          PUBLIC_URL: /
+          
+      - name: Create deployment package
+        run: |
+          # Create release directory
+          mkdir -p release-assets
+          
+          # Copy build files
+          cp -r build/ release-assets/app/
+          
+          # Copy important files
+          cp package.json release-assets/
+          cp README.md release-assets/ 2>/dev/null || echo "No README found"
+          cp netlify.toml release-assets/ 2>/dev/null || echo "No netlify.toml found"
+          
+          # Create deployment scripts
+          cat > release-assets/deploy.sh << 'EOF'
+          #!/bin/bash
+          set -e
+          
+          echo "Deploying Jung Educational Platform..."
+          
+          # Copy files to web server
+          if [ -d "app" ]; then
+            echo "Copying application files..."
+            # Add your deployment commands here
+            echo "Deployment completed successfully!"
+          else
+            echo "Error: Application files not found!"
+            exit 1
+          fi
+          EOF
+          
+          chmod +x release-assets/deploy.sh
+          
+          # Create version info
+          cat > release-assets/VERSION << EOF
+          VERSION=$(cat package.json | jq -r '.version')
+          BUILD_DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          COMMIT_SHA=$GITHUB_SHA
+          WORKFLOW_RUN=$GITHUB_RUN_NUMBER
+          EOF
+          
+          # Create archive
+          tar -czf jung-edu-platform-$(cat package.json | jq -r '.version').tar.gz -C release-assets .
+          
+      - name: Generate build manifest
+        run: |
+          # Create build manifest
+          cat > build-manifest.json << EOF
+          {
+            "version": "$(cat package.json | jq -r '.version')",
+            "build_date": "$(date -u --iso-8601=seconds)",
+            "commit_sha": "$GITHUB_SHA",
+            "build_number": "$GITHUB_RUN_NUMBER",
+            "node_version": "$NODE_VERSION",
+            "files": {
+              "total_size": "$(du -sb build | cut -f1)",
+              "file_count": "$(find build -type f | wc -l)",
+              "main_bundle": "$(ls build/static/js/main.*.js 2>/dev/null | head -1 | xargs basename)",
+              "css_bundle": "$(ls build/static/css/main.*.css 2>/dev/null | head -1 | xargs basename)"
+            },
+            "features": {
+              "pwa": $([ -f build/manifest.json ] && echo "true" || echo "false"),
+              "service_worker": $([ -f build/service-worker.js ] && echo "true" || echo "false"),
+              "source_maps": $([ -f build/static/js/*.map ] && echo "true" || echo "false")
+            }
+          }
+          EOF
+          
+      - name: Upload release assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-assets
+          path: |
+            jung-edu-platform-*.tar.gz
+            build-manifest.json
+          retention-days: 90
+
+  security-check:
+    name: Pre-release Security Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Security audit
+        run: |
+          # Run security audit
+          npm audit --audit-level=high --production
+          
+          # Check for critical vulnerabilities
+          CRITICAL_VULNS=$(npm audit --audit-level=critical --production --json | jq '.metadata.vulnerabilities.critical // 0')
+          
+          if [ $CRITICAL_VULNS -gt 0 ]; then
+            echo "❌ Critical vulnerabilities found - blocking release"
+            exit 1
+          else
+            echo "✅ No critical vulnerabilities found"
+          fi
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [build-release, security-check]
+    if: success()
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Download release assets
+        uses: actions/download-artifact@v4
+        with:
+          name: release-assets
+          
+      - name: Extract build assets
+        run: |
+          # Extract the release archive
+          ARCHIVE_NAME=$(ls jung-edu-platform-*.tar.gz)
+          tar -xzf "$ARCHIVE_NAME"
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli
+        
+      - name: Deploy to Netlify
+        id: deploy
+        run: |
+          # Deploy to production
+          DEPLOY_URL=$(netlify deploy --prod --dir=app --message "Release $(cat package.json | jq -r '.version'): ${{ github.sha }}" --json | jq -r '.url')
+          
+          echo "🚀 Deployed to production: $DEPLOY_URL"
+          echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          
+      - name: Verify deployment
+        run: |
+          DEPLOY_URL="${{ steps.deploy.outputs.url }}"
+          echo "🔍 Verifying deployment at: $DEPLOY_URL"
+          
+          # Wait for deployment to be ready
+          sleep 30
+          
+          # Health check
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$DEPLOY_URL")
+          if [ $HTTP_STATUS -eq 200 ]; then
+            echo "✅ Deployment verification successful"
+          else
+            echo "❌ Deployment verification failed (HTTP $HTTP_STATUS)"
+            exit 1
+          fi
+          
+          # Check specific routes
+          curl -f "$DEPLOY_URL/health" > /dev/null || echo "⚠️ Health endpoint not responding"
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [build-release, deploy-production]
+    if: success()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Download release assets
+        uses: actions/download-artifact@v4
+        with:
+          name: release-assets
+          
+      - name: Get release info
+        id: release_info
+        run: |
+          # Extract version from tag or package.json
+          if [[ "$GITHUB_REF" =~ refs/tags/v(.+) ]]; then
+            VERSION="${BASH_REMATCH[1]}"
+          else
+            VERSION=$(cat package.json | jq -r '.version')
+          fi
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+          # Determine if this is a prerelease
+          if [[ "$VERSION" =~ (alpha|beta|rc) ]]; then
+            echo "prerelease=true" >> $GITHUB_OUTPUT
+          else
+            echo "prerelease=false" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Generate comprehensive release notes
+        run: |
+          VERSION="${{ steps.release_info.outputs.version }}"
+          
+          cat > release-notes.md << EOF
+          # Jung Educational Platform v$VERSION
+          
+          ## 🚀 What's New
+          
+          This release includes the following improvements and features:
+          
+          ### Features & Improvements
+          $(git log --oneline --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")..HEAD | grep -i "feat\|add\|new" || echo "- No new features in this release")
+          
+          ### Bug Fixes
+          $(git log --oneline --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")..HEAD | grep -i "fix\|bug" || echo "- No bug fixes in this release")
+          
+          ### Technical Changes
+          $(git log --oneline --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")..HEAD | grep -i "chore\|refactor\|deps" || echo "- No technical changes in this release")
+          
+          ## 📊 Release Statistics
+          
+          - **Build Date**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          - **Commit**: $GITHUB_SHA
+          - **Build Size**: $(du -sh jung-edu-platform-*.tar.gz | cut -f1)
+          - **Node Version**: $NODE_VERSION
+          
+          ## 🔧 Deployment
+          
+          This release has been automatically deployed to production:
+          - **Production URL**: ${{ needs.deploy-production.outputs.url || 'https://your-app.netlify.app' }}
+          - **Health Check**: ✅ Passed
+          - **Deployment Status**: ✅ Successful
+          
+          ## 📚 Documentation
+          
+          - [User Guide](./docs/USER_GUIDE.md)
+          - [Technical Documentation](./docs/TECHNICAL_DOCUMENTATION.md)
+          - [API Reference](./docs/API_REFERENCE.md)
+          
+          ## 🛠️ For Developers
+          
+          ### Installation
+          \`\`\`bash
+          # Download and extract
+          wget https://github.com/${{ github.repository }}/releases/download/v$VERSION/jung-edu-platform-$VERSION.tar.gz
+          tar -xzf jung-edu-platform-$VERSION.tar.gz
+          
+          # Deploy
+          ./deploy.sh
+          \`\`\`
+          
+          ### Build Information
+          See [build-manifest.json](build-manifest.json) for detailed build information.
+          
+          ---
+          
+          **Full Changelog**: https://github.com/${{ github.repository }}/compare/$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "v0.0.0")...v$VERSION
+          EOF
+          
+      - name: Create GitHub Release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            const version = '${{ steps.release_info.outputs.version }}';
+            const isPrerelease = '${{ steps.release_info.outputs.prerelease }}' === 'true';
+            const isDraft = '${{ github.event.inputs.draft }}' === 'true';
+            
+            // Read release notes
+            const releaseNotes = fs.readFileSync('release-notes.md', 'utf8');
+            
+            // Create the release
+            const release = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: `v${version}`,
+              name: `Jung Educational Platform v${version}`,
+              body: releaseNotes,
+              draft: isDraft,
+              prerelease: isPrerelease,
+              generate_release_notes: false
+            });
+            
+            console.log(`Created release: ${release.data.html_url}`);
+            
+            // Upload release assets
+            const assets = [
+              `jung-edu-platform-${version}.tar.gz`,
+              'build-manifest.json'
+            ];
+            
+            for (const asset of assets) {
+              if (fs.existsSync(asset)) {
+                const assetData = fs.readFileSync(asset);
+                
+                await github.rest.repos.uploadReleaseAsset({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  release_id: release.data.id,
+                  name: path.basename(asset),
+                  data: assetData
+                });
+                
+                console.log(`Uploaded asset: ${asset}`);
+              }
+            }
+
+  post-release:
+    name: Post-release Tasks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [create-release, deploy-production]
+    if: success()
+    
+    steps:
+      - name: Notify deployment success
+        run: |
+          echo "## 🎉 Release Completed Successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version**: v${{ steps.release_info.outputs.version || github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Production URL**: ${{ needs.deploy-production.outputs.url || 'https://your-app.netlify.app' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Release Notes**: [View Release](https://github.com/${{ github.repository }}/releases/latest)" >> $GITHUB_STEP_SUMMARY
+          
+      - name: Update documentation
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Create an issue to remind about documentation updates
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '📚 Post-Release: Update Documentation',
+              body: `## Post-Release Documentation Tasks
+              
+              A new release has been deployed. Please review and update documentation as needed:
+              
+              ### Tasks:
+              - [ ] Update README.md with new features
+              - [ ] Review and update user guides
+              - [ ] Update API documentation if applicable
+              - [ ] Check deployment guides are current
+              - [ ] Update changelog
+              
+              ### Release Information:
+              - **Version**: ${{ github.ref_name || 'latest' }}
+              - **Deployment**: ${{ needs.deploy-production.outputs.url || 'Production' }}
+              - **Release Date**: ${new Date().toISOString().split('T')[0]}
+              
+              ---
+              *This issue was automatically created by the release workflow.*`,
+              labels: ['documentation', 'post-release', 'maintenance']
+            });
+
+  rollback:
+    name: Rollback on Failure
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [deploy-production, create-release]
+    if: failure() && needs.deploy-production.result == 'success'
+    
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli
+        
+      - name: Rollback deployment
+        run: |
+          echo "⚠️ Rolling back deployment due to release failure"
+          
+          # Get the previous deployment
+          PREVIOUS_DEPLOY=$(netlify api listSiteDeploys --data='{"site_id":"${{ secrets.NETLIFY_SITE_ID }}"}' | jq -r '.[1].id')
+          
+          if [ "$PREVIOUS_DEPLOY" != "null" ]; then
+            netlify api restoreSiteDeploy --data='{"site_id":"${{ secrets.NETLIFY_SITE_ID }}","deploy_id":"'$PREVIOUS_DEPLOY'"}'
+            echo "✅ Rollback completed to deployment: $PREVIOUS_DEPLOY"
+          else
+            echo "⚠️ No previous deployment found for rollback"
+          fi
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          
+      - name: Notify rollback
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Release Rollback Performed',
+              body: `## Release Rollback Notice
+              
+              A rollback was performed due to release process failure.
+              
+              ### Details:
+              - **Attempted Version**: ${{ github.ref_name || 'unknown' }}
+              - **Rollback Time**: ${new Date().toISOString()}
+              - **Reason**: Release workflow failure
+              - **Action**: Restored previous deployment
+              
+              ### Next Steps:
+              1. Investigate the cause of the release failure
+              2. Fix any issues identified
+              3. Re-run the release process
+              4. Monitor the application for stability
+              
+              ### Failed Jobs:
+              ${{ needs.deploy-production.result != 'success' && '- Deployment failed' || '' }}
+              ${{ needs.create-release.result != 'success' && '- Release creation failed' || '' }}
+              
+              ---
+              *This issue was automatically created by the release rollback process.*`,
+              labels: ['incident', 'rollback', 'release', 'high-priority']
+            });

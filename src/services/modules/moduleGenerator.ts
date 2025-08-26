@@ -21,7 +21,6 @@ export enum GenerationStage {
   GENERATING_CONTENT = 'generating_content',
   GENERATING_QUIZ = 'generating_quiz',
   SOURCING_VIDEOS = 'sourcing_videos',
-  CREATING_MINDMAP = 'creating_mindmap',
   ADDING_BIBLIOGRAPHY = 'adding_bibliography',
   FINALIZING = 'finalizing',
   COMPLETED = 'completed',
@@ -36,7 +35,6 @@ export interface GenerationOptions {
   tags?: string[];
   language?: string;
   includeVideos?: boolean;
-  includeMindMap?: boolean;
   includeQuiz?: boolean;
   includeBibliography?: boolean;
   llmProvider?: ILLMProvider;
@@ -107,12 +105,6 @@ export class ModuleGenerator {
         await ModuleService.saveDraft(baseModule);
       }
 
-      // Create mind map if requested
-      if (options.includeMindMap !== false) {
-        await this.reportProgress(GenerationStage.CREATING_MINDMAP, 70, 'Creating mind map...');
-        baseModule.mindMaps = await this.generateMindMaps(options, baseModule.content!);
-        await ModuleService.saveDraft(baseModule);
-      }
 
       // Add bibliography if requested
       if (options.includeBibliography !== false) {
@@ -171,10 +163,6 @@ export class ModuleGenerator {
 
     if (!draft.videos && options.includeVideos !== false) {
       draft.videos = await this.sourceVideos(options);
-    }
-
-    if (!draft.mindMaps && options.includeMindMap !== false) {
-      draft.mindMaps = await this.generateMindMaps(options, draft.content);
     }
 
     if (!draft.bibliography && options.includeBibliography !== false) {

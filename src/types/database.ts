@@ -565,6 +565,180 @@ export interface Database {
           }
         ]
       }
+      workflow_executions: {
+        Row: {
+          id: string
+          workflow_id: string
+          user_id: string
+          status: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'
+          current_state: string | null
+          variables: Json | null
+          input_data: Json | null
+          output_data: Json | null
+          error_message: string | null
+          retry_count: number
+          parent_execution_id: string | null
+          correlation_id: string | null
+          started_at: string | null
+          completed_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          workflow_id: string
+          user_id: string
+          status?: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'
+          current_state?: string | null
+          variables?: Json | null
+          input_data?: Json | null
+          output_data?: Json | null
+          error_message?: string | null
+          retry_count?: number
+          parent_execution_id?: string | null
+          correlation_id?: string | null
+          started_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          workflow_id?: string
+          user_id?: string
+          status?: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'
+          current_state?: string | null
+          variables?: Json | null
+          input_data?: Json | null
+          output_data?: Json | null
+          error_message?: string | null
+          retry_count?: number
+          parent_execution_id?: string | null
+          correlation_id?: string | null
+          started_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_executions_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      execution_events: {
+        Row: {
+          id: string
+          execution_id: string
+          event_type: string
+          state_id: string | null
+          action_id: string | null
+          event_data: Json | null
+          correlation_id: string | null
+          causation_id: string | null
+          duration_ms: number | null
+          timestamp: string
+        }
+        Insert: {
+          id?: string
+          execution_id: string
+          event_type: string
+          state_id?: string | null
+          action_id?: string | null
+          event_data?: Json | null
+          correlation_id?: string | null
+          causation_id?: string | null
+          duration_ms?: number | null
+          timestamp?: string
+        }
+        Update: {
+          id?: string
+          execution_id?: string
+          event_type?: string
+          state_id?: string | null
+          action_id?: string | null
+          event_data?: Json | null
+          correlation_id?: string | null
+          causation_id?: string | null
+          duration_ms?: number | null
+          timestamp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "execution_events_execution_id_fkey"
+            columns: ["execution_id"]
+            referencedRelation: "workflow_executions"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      student_progress: {
+        Row: {
+          id: string
+          user_id: string
+          module_id: string
+          workflow_execution_id: string | null
+          progress_percentage: number
+          time_spent_minutes: number
+          completed_sections: string[] | null
+          current_section: string | null
+          achievements: Json | null
+          performance_metrics: Json | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          module_id: string
+          workflow_execution_id?: string | null
+          progress_percentage?: number
+          time_spent_minutes?: number
+          completed_sections?: string[] | null
+          current_section?: string | null
+          achievements?: Json | null
+          performance_metrics?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          module_id?: string
+          workflow_execution_id?: string | null
+          progress_percentage?: number
+          time_spent_minutes?: number
+          completed_sections?: string[] | null
+          current_section?: string | null
+          achievements?: Json | null
+          performance_metrics?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_progress_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_progress_module_id_fkey"
+            columns: ["module_id"]
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_progress_workflow_execution_id_fkey"
+            columns: ["workflow_execution_id"]
+            referencedRelation: "workflow_executions"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -637,6 +811,9 @@ export type MindMap = Tables<'mindmaps'>
 export type Bibliography = Tables<'bibliography'>
 export type Video = Tables<'videos'>
 export type PasswordResetToken = Tables<'password_reset_tokens'>
+export type WorkflowExecution = Tables<'workflow_executions'>
+export type ExecutionEvent = Tables<'execution_events'>
+export type StudentProgress = Tables<'student_progress'>
 
 // Insert types
 export type UserInsert = Inserts<'users'>
@@ -650,6 +827,9 @@ export type MindMapInsert = Inserts<'mindmaps'>
 export type BibliographyInsert = Inserts<'bibliography'>
 export type VideoInsert = Inserts<'videos'>
 export type PasswordResetTokenInsert = Inserts<'password_reset_tokens'>
+export type WorkflowExecutionInsert = Inserts<'workflow_executions'>
+export type ExecutionEventInsert = Inserts<'execution_events'>
+export type StudentProgressInsert = Inserts<'student_progress'>
 
 // Update types
 export type UserUpdate = Updates<'users'>
@@ -663,6 +843,9 @@ export type MindMapUpdate = Updates<'mindmaps'>
 export type BibliographyUpdate = Updates<'bibliography'>
 export type VideoUpdate = Updates<'videos'>
 export type PasswordResetTokenUpdate = Updates<'password_reset_tokens'>
+export type WorkflowExecutionUpdate = Updates<'workflow_executions'>
+export type ExecutionEventUpdate = Updates<'execution_events'>
+export type StudentProgressUpdate = Updates<'student_progress'>
 
 // Enum types
 export type UserRole = Enums<'user_role'>

@@ -178,7 +178,6 @@ const createMockConfig = (overrides: Partial<ResourceGenerationConfig> = {}): Re
   enableAutoQuiz: true,
   enableAutoVideos: true,
   enableAutoBibliography: true,
-  enableAutoMindMap: true,
   enableValidation: true,
   enableTesting: true,
   autoLinking: true,

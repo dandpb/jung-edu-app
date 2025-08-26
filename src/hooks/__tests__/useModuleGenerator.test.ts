@@ -100,7 +100,6 @@ describe('useModuleGenerator', () => {
       includeVideos: true,
       includeQuiz: true,
       includeBibliography: true,
-      includeMindMap: false
     };
 
     it('should generate a module successfully', async () => {
@@ -425,7 +424,6 @@ describe('useModuleGenerator', () => {
           includeVideos: true,
           includeQuiz: true,
           includeBibliography: true,
-          includeMindMap: false
         });
       });
 
@@ -463,7 +461,6 @@ describe('useModuleGenerator', () => {
           includeVideos: false,
           includeQuiz: false,
           includeBibliography: false,
-          includeMindMap: false
         });
       });
 
@@ -499,7 +496,6 @@ describe('useModuleGenerator', () => {
           includeVideos: true,
           includeQuiz: false,
           includeBibliography: false,
-          includeMindMap: false
         });
       });
 
@@ -542,7 +538,6 @@ describe('useModuleGenerator', () => {
           includeVideos: false,
           includeQuiz: false,
           includeBibliography: false,
-          includeMindMap: false
         });
       });
 

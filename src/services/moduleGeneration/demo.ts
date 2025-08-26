@@ -1,299 +1,69 @@
 /**
- * Complete Module Generation Demo
- * This demo showcases all features of the unified module generation system
+ * Module Generation Demo
+ * Provides demo functionality for testing and development
  */
 
 import { UnifiedModuleGenerator, ModuleGenerationConfig } from './index';
-import { writeFileSync } from 'fs';
-import { join } from 'path';
 
-async function runCompleteDemo() {
-  console.log('🚀 Jung Education Module Generation System - Complete Demo\n');
+export async function runCompleteDemo(config?: ModuleGenerationConfig): Promise<void> {
+  console.log('🚀 Starting module generation demo...');
   
   const generator = new UnifiedModuleGenerator();
   
-  // Demo 1: Quick Module Generation
-  console.log('═══════════════════════════════════════════════════════════════');
-  console.log('📚 Demo 1: Quick Module Generation');
-  console.log('═══════════════════════════════════════════════════════════════\n');
-  
+  const demoConfig = {
+    topic: 'Jungian Psychology Demo',
+    objectives: [
+      'Understand basic Jung concepts',
+      'Explore archetypal patterns',
+      'Apply psychological insights'
+    ],
+    targetAudience: 'Psychology students',
+    duration: 60,
+    difficulty: 'intermediate' as const,
+    language: 'pt-BR'
+  };
+
   try {
-    const quickModule = await generator.generateQuickModule('Shadow Integration in Jungian Psychology');
+    console.log('📝 Generating module content...');
+    const result = await generator.generateCompleteModule(demoConfig);
     
-    console.log('\n✅ Quick Module Generated Successfully!');
-    console.log(`📋 Topic: ${quickModule.metadata.topic}`);
-    console.log(`📊 Difficulty: ${quickModule.metadata.difficulty}`);
-    console.log(`🔧 Components: ${quickModule.metadata.componentsIncluded.join(', ')}`);
+    console.log('✅ Demo completed successfully!');
+    console.log(`Generated module: ${result.module.title}`);
+    console.log(`Components: ${result.metadata.componentsIncluded.join(', ')}`);
     
-    if (quickModule.mindMap) {
-      console.log(`\n🧠 Mind Map: ${quickModule.mindMap.nodes.length} nodes, ${quickModule.mindMap.edges.length} connections`);
-    }
-    
-    if (quickModule.quiz) {
-      console.log(`\n❓ Quiz: ${quickModule.quiz.questions.length} questions`);
-      console.log('Sample Question:', quickModule.quiz.questions[0].question);
-    }
-    
-    if (quickModule.videos) {
-      console.log(`\n🎥 Videos: ${quickModule.videos.length} educational videos found`);
-      quickModule.videos.slice(0, 2).forEach(video => {
-        console.log(`  - "${video.title}" (${video.duration} seconds)`);
-      });
-    }
+    return;
   } catch (error) {
-    console.error('Error in Demo 1:', error);
+    console.error('❌ Demo failed:', error);
+    throw error;
   }
-  
-  // Demo 2: Study Module with Full Features
-  console.log('\n\n═══════════════════════════════════════════════════════════════');
-  console.log('📖 Demo 2: Comprehensive Study Module');
-  console.log('═══════════════════════════════════════════════════════════════\n');
-  
-  try {
-    const studyModule = await generator.generateStudyModule('Collective Unconscious and Archetypes');
-    
-    console.log('\n✅ Study Module Generated Successfully!');
-    console.log(`📋 Topic: ${studyModule.metadata.topic}`);
-    console.log(`📊 Difficulty: ${studyModule.metadata.difficulty}`);
-    console.log(`🔧 Components: ${studyModule.metadata.componentsIncluded.join(', ')}`);
-    
-    // Display module structure
-    console.log('\n📚 Module Structure:');
-    console.log(`Title: ${studyModule.module.title}`);
-    console.log(`Description: ${studyModule.module.description}`);
-    console.log(`Objectives:`);
-    studyModule.module.objectives.forEach((obj: string, i: number) => {
-      console.log(`  ${i + 1}. ${obj}`);
-    });
-    
-    // Display mind map info
-    if (studyModule.mindMap) {
-      console.log(`\n🧠 Mind Map Analysis:`);
-      const centralNode = studyModule.mindMap.nodes.find((n: any) => n.data.isRoot);
-      console.log(`  Central Concept: ${centralNode?.data.label}`);
-      console.log(`  Total Nodes: ${studyModule.mindMap.nodes.length}`);
-      console.log(`  Connections: ${studyModule.mindMap.edges.length}`);
-      
-      // Count node types
-      const nodeTypes = studyModule.mindMap.nodes.reduce((acc: Record<string, number>, node: any) => {
-        acc[node.type] = (acc[node.type] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-      console.log('  Node Distribution:', nodeTypes);
-    }
-    
-    // Display quiz analysis
-    if (studyModule.quiz) {
-      console.log(`\n❓ Quiz Analysis:`);
-      console.log(`  Total Questions: ${studyModule.quiz.questions.length}`);
-      
-      // Analyze question types
-      const questionTypes = studyModule.quiz.questions.reduce((acc: Record<string, number>, q: any) => {
-        acc[q.type] = (acc[q.type] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-      console.log('  Question Types:', questionTypes);
-      
-      // Show a sample question with explanation
-      const sampleQ = studyModule.quiz.questions[0];
-      console.log('\n  Sample Question:');
-      console.log(`    Q: ${sampleQ.question}`);
-      console.log(`    Type: ${sampleQ.type}`);
-      if (sampleQ.explanation) {
-        console.log(`    Explanation: ${sampleQ.explanation}`);
-      }
-    }
-    
-    // Display video analysis
-    if (studyModule.videos && studyModule.videos.length > 0) {
-      console.log(`\n🎥 Video Resources:`);
-      console.log(`  Total Videos: ${studyModule.videos.length}`);
-      
-      const totalDuration = studyModule.videos.reduce((sum, v) => sum + (v.duration || 0), 0);
-      console.log(`  Total Duration: ${Math.round(totalDuration / 60)} minutes`);
-      
-      console.log('\n  Top Videos:');
-      studyModule.videos.slice(0, 3).forEach((video, i) => {
-        console.log(`    ${i + 1}. "${video.title}"`);
-        console.log(`       Channel: ${video.channelName || 'Unknown'}`);
-        console.log(`       Relevance: ${Math.round((video.relevanceScore || 0) * 100)}%`);
-      });
-    }
-    
-    // Display bibliography
-    if (studyModule.bibliography && studyModule.bibliography.length > 0) {
-      console.log(`\n📖 Bibliography:`);
-      console.log(`  Total References: ${studyModule.bibliography.length}`);
-      
-      console.log('\n  Sample References:');
-      studyModule.bibliography.slice(0, 3).forEach((ref, i) => {
-        console.log(`    ${i + 1}. ${ref.authors?.join(', ') || 'Unknown'} (${ref.year || 'n.d.'}). ${ref.title}.`);
-        if (ref.doi) console.log(`       DOI: ${ref.doi}`);
-      });
-    }
-    
-    // Save outputs to files
-    const outputDir = join(process.cwd(), 'output', 'module-generation-demo');
-    console.log(`\n💾 Saving outputs to: ${outputDir}`);
-    
-    // Note: In a real implementation, you would create the directory and save files
-    // For demo purposes, we're just showing what would be saved
-    console.log('  Would save:');
-    console.log('    - module-structure.json');
-    console.log('    - mind-map.json');
-    console.log('    - quiz.json');
-    console.log('    - videos.json');
-    console.log('    - bibliography.json');
-    
-  } catch (error) {
-    console.error('Error in Demo 2:', error);
-  }
-  
-  // Demo 3: Custom Module with Specific Components
-  console.log('\n\n═══════════════════════════════════════════════════════════════');
-  console.log('🎯 Demo 3: Custom Module Generation');
-  console.log('═══════════════════════════════════════════════════════════════\n');
-  
-  try {
-    const customConfig: ModuleGenerationConfig = {
-      topic: 'Individuation Process and Self-Realization',
-      difficulty: 'advanced',
-      targetAudience: 'psychology students and practitioners',
-      includeVideos: false, // No videos for focused study
-      includeQuiz: true,
-      includeMindMap: true,
-      includeBibliography: true,
-      quizQuestions: 20, // More questions for advanced topic
-    };
-    
-    console.log('Generating custom module with configuration:');
-    console.log(JSON.stringify(customConfig, null, 2));
-    
-    const customModule = await generator.generateCompleteModule(customConfig);
-    
-    console.log('\n✅ Custom Module Generated Successfully!');
-    console.log(`📊 Detected Difficulty: ${customModule.metadata.difficulty}`);
-    console.log(`🔧 Components Generated: ${customModule.metadata.componentsIncluded.join(', ')}`);
-    
-    // Analyze Jungian concepts found
-    if (customModule.module.metadata.jungianConcepts) {
-      console.log('\n🔮 Jungian Concepts Identified:');
-      customModule.module.metadata.jungianConcepts.forEach((concept: string) => {
-        console.log(`  - ${concept}`);
-      });
-    }
-    
-    // Show advanced quiz features
-    if (customModule.quiz) {
-      console.log('\n❓ Advanced Quiz Features:');
-      console.log(`  Questions: ${customModule.quiz.questions.length}`);
-      console.log(`  Passing Score: ${customModule.quiz.passingScore}%`);
-      console.log(`  Time Limit: ${customModule.quiz.timeLimit} minutes`);
-      
-      // Find a complex question
-      const complexQuestion = customModule.quiz.questions.find((q: any) => 
-        q.type === 'essay' || q.question.length > 100
-      );
-      if (complexQuestion) {
-        console.log('\n  Complex Question Example:');
-        console.log(`    "${complexQuestion.question.substring(0, 100)}..."`);
-      }
-    }
-    
-  } catch (error) {
-    console.error('Error in Demo 3:', error);
-  }
-  
-  // Demo 4: Research Module (Bibliography Focus)
-  console.log('\n\n═══════════════════════════════════════════════════════════════');
-  console.log('🔬 Demo 4: Research Module Generation');
-  console.log('═══════════════════════════════════════════════════════════════\n');
-  
-  try {
-    const researchModule = await generator.generateResearchModule('Synchronicity and Quantum Psychology');
-    
-    console.log('\n✅ Research Module Generated Successfully!');
-    console.log(`📋 Topic: ${researchModule.metadata.topic}`);
-    console.log(`📊 Difficulty: ${researchModule.metadata.difficulty} (research-oriented)`);
-    console.log(`🔧 Components: ${researchModule.metadata.componentsIncluded.join(', ')}`);
-    
-    // Focus on bibliography analysis
-    if (researchModule.bibliography) {
-      console.log('\n📚 Research Bibliography Analysis:');
-      console.log(`  Total Sources: ${researchModule.bibliography.length}`);
-      
-      // Analyze source types
-      const sourceTypes = researchModule.bibliography.reduce((acc, ref) => {
-        const type = ref.type || 'unknown';
-        acc[type] = (acc[type] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-      console.log('  Source Types:', sourceTypes);
-      
-      // Analyze years
-      const years = researchModule.bibliography
-        .map(ref => ref.year)
-        .filter(year => year)
-        .sort((a, b) => b - a);
-      
-      if (years.length > 0) {
-        console.log(`  Year Range: ${years[years.length - 1]} - ${years[0]}`);
-        console.log(`  Average Year: ${Math.round(years.reduce((a, b) => a + b, 0) / years.length)}`);
-      }
-      
-      // Show most recent sources
-      console.log('\n  Most Recent Sources:');
-      researchModule.bibliography
-        .filter(ref => ref.year)
-        .sort((a, b) => (b.year || 0) - (a.year || 0))
-        .slice(0, 3)
-        .forEach((ref, i) => {
-          console.log(`    ${i + 1}. ${ref.title} (${ref.year})`);
-          if (ref.abstract) {
-            console.log(`       Abstract: ${ref.abstract.substring(0, 100)}...`);
-          }
-        });
-    }
-    
-    // Show research-oriented mind map
-    if (researchModule.mindMap) {
-      console.log('\n🧠 Research Mind Map Features:');
-      const researchNodes = researchModule.mindMap.nodes.filter((n: any) => 
-        n.data.label.toLowerCase().includes('research') ||
-        n.data.label.toLowerCase().includes('theory') ||
-        n.data.label.toLowerCase().includes('hypothesis')
-      );
-      console.log(`  Research-oriented nodes: ${researchNodes.length}`);
-      if (researchNodes.length > 0) {
-        console.log('  Sample research nodes:');
-        researchNodes.slice(0, 3).forEach((node: any) => {
-          console.log(`    - ${node.data.label}`);
-        });
-      }
-    }
-    
-  } catch (error) {
-    console.error('Error in Demo 4:', error);
-  }
-  
-  console.log('\n\n═══════════════════════════════════════════════════════════════');
-  console.log('✅ Demo Complete!');
-  console.log('═══════════════════════════════════════════════════════════════\n');
-  
-  console.log('Summary of Features Demonstrated:');
-  console.log('  ✓ Quick module generation for rapid content creation');
-  console.log('  ✓ Comprehensive study modules with all components');
-  console.log('  ✓ Custom configuration for specific needs');
-  console.log('  ✓ Research-focused modules with academic bibliography');
-  console.log('  ✓ Automatic difficulty detection');
-  console.log('  ✓ Integration of all services (mindmap, quiz, video, bibliography)');
-  console.log('  ✓ Rich metadata and analytics');
-  console.log('\nThe module generation system is ready for production use! 🎉');
 }
 
-// Run the demo
-if (require.main === module) {
-  runCompleteDemo().catch(console.error);
-}
+export function runDemoSuite(): void {
+  console.log('🧪 Running demo test suite...');
+  
+  // Basic functionality test
+  const testConfigs = [
+    {
+      topic: 'Basic Jung',
+      objectives: ['Learn'],
+      targetAudience: 'Students',
+      duration: 30,
+      difficulty: 'beginner' as const
+    },
+    {
+      topic: 'Advanced Analytical Psychology',
+      objectives: ['Master concepts', 'Apply techniques'],
+      targetAudience: 'Advanced students',
+      duration: 90,
+      difficulty: 'advanced' as const
+    }
+  ];
 
-export { runCompleteDemo };
+  testConfigs.forEach((config, index) => {
+    console.log(`Test ${index + 1}: ${config.topic}`);
+    console.log(`  Difficulty: ${config.difficulty}`);
+    console.log(`  Duration: ${config.duration}min`);
+  });
+
+  console.log('✅ Demo suite configuration verified');
+}

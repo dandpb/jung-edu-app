@@ -107,17 +107,17 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
             </div>
             
             <h2 className="text-xl font-semibold text-gray-900 text-center mb-2">
-              Oops! Something went wrong
+              Ops! Algo deu errado
             </h2>
             
             <p className="text-gray-600 text-center mb-4">
-              We're sorry for the inconvenience. Please try refreshing the page.
+              Lamentamos o inconveniente. Por favor, tente atualizar a página.
             </p>
 
             {process.env.NODE_ENV === 'development' && (
               <details className="mb-4">
                 <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700">
-                  Error details (development only)
+                  Detalhes do erro (apenas desenvolvimento)
                 </summary>
                 <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-auto">
                   {error.toString()}
@@ -131,7 +131,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
               className="w-full bg-primary-600 text-white rounded-md px-4 py-2 hover:bg-primary-700 transition-colors"
               data-testid="reset-error-boundary"
             >
-              Try Again
+              Tentar Novamente
             </button>
           </div>
         </div>

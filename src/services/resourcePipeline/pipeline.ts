@@ -22,7 +22,6 @@ export interface ResourceGenerationConfig {
   enableAutoQuiz: boolean;
   enableAutoVideos: boolean;
   enableAutoBibliography: boolean;
-  enableAutoMindMap: boolean;
   enableValidation: boolean;
   enableTesting: boolean;
   autoLinking: boolean;
@@ -73,7 +72,6 @@ export class AIResourcePipeline extends EventEmitter {
       enableAutoQuiz: true,
       enableAutoVideos: true,
       enableAutoBibliography: true,
-      enableAutoMindMap: true,
       enableValidation: true,
       enableTesting: true,
       autoLinking: true,
@@ -114,13 +112,6 @@ export class AIResourcePipeline extends EventEmitter {
         dependencies: ['module'],
         priority: 'medium',
         autoGenerate: this.config.enableAutoBibliography
-      },
-      {
-        resourceType: 'mindmap',
-        requiredFor: ['visualization', 'overview'],
-        dependencies: ['module'],
-        priority: 'high',
-        autoGenerate: this.config.enableAutoMindMap
       },
       {
         resourceType: 'test',
@@ -223,11 +214,6 @@ export class AIResourcePipeline extends EventEmitter {
           shouldGenerate = content ? this.isAcademicContent(content) && this.config.enableAutoBibliography : false;
           break;
           
-        case 'mindmap':
-          // Generate mindmap for structured content
-          shouldGenerate = content ? this.hasStructuredContent(content) && this.config.enableAutoMindMap : false;
-          break;
-          
         case 'test':
           // Always generate tests for quality assurance
           shouldGenerate = this.config.enableTesting;
@@ -310,10 +296,6 @@ export class AIResourcePipeline extends EventEmitter {
           resource.content = await this.generateBibliographyResource(module);
           break;
           
-        case 'mindmap':
-          resource.content = await this.generateMindMapResource(module);
-          break;
-          
         case 'test':
           resource.content = await this.generateTestResource(module);
           break;
@@ -389,22 +371,6 @@ export class AIResourcePipeline extends EventEmitter {
     return result.bibliography || [];
   }
 
-  /**
-   * Generate mind map resource
-   */
-  private async generateMindMapResource(module: Module): Promise<any> {
-    const result = await this.orchestrator.generateModule({
-      topic: module.title,
-      objectives: ['Visualize concepts for ' + module.title],
-      targetAudience: 'visual learners',
-      duration: 60,
-      difficulty: module.difficulty,
-      includeMindMap: true,
-      useRealServices: true
-    });
-
-    return result.mindMap;
-  }
 
   /**
    * Generate test resource
@@ -476,7 +442,6 @@ export class AIResourcePipeline extends EventEmitter {
           quiz: !!module.content?.quiz,
           videos: !!module.content?.videos,
           bibliography: !!module.content?.bibliography,
-          mindmap: true
         },
         metadata: {
           version: '1.0.0',
@@ -524,8 +489,6 @@ export class AIResourcePipeline extends EventEmitter {
         return this.validateVideos(resource.content);
       case 'bibliography':
         return this.validateBibliography(resource.content);
-      case 'mindmap':
-        return this.validateMindMap(resource.content);
       case 'test':
         return this.validateTest(resource.content);
       case 'config':
@@ -563,10 +526,6 @@ export class AIResourcePipeline extends EventEmitter {
           break;
         case 'bibliography':
           updatedContent.bibliography = resource.content;
-          break;
-        case 'mindmap':
-          // Store mindmap in module metadata or a separate field
-          // (updatedContent as any).mindmap = resource.content;
           break;
       }
       
@@ -675,9 +634,6 @@ export class AIResourcePipeline extends EventEmitter {
            bibliography.every(b => b.title);
   }
 
-  private validateMindMap(mindmap: any): boolean {
-    return !!(mindmap && (mindmap.nodes || mindmap.elements));
-  }
 
   private validateTest(test: any): boolean {
     return !!(test && test.tests && Array.isArray(test.tests));

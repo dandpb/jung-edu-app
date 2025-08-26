@@ -1,0 +1,81 @@
+[
+  {
+    "title": "E2E Test Module: Introduction to Psychology",
+    "description": "A comprehensive introduction to psychological principles and theories designed for E2E testing.",
+    "content": "# Introduction to Psychology\n\n## Learning Objectives\n- Understand the basic principles of psychology\n- Learn about different psychological theories\n- Apply psychological concepts to real-world scenarios\n\n## Chapter 1: What is Psychology?\n\nPsychology is the scientific study of mind and behavior. This field encompasses a wide range of topics including:\n\n### Core Areas\n1. **Cognitive Psychology** - How we think, learn, and remember\n2. **Behavioral Psychology** - How we act and respond to stimuli\n3. **Social Psychology** - How we interact with others\n4. **Developmental Psychology** - How we change over time\n\n## Chapter 2: Research Methods\n\n### Scientific Method in Psychology\n- Observation\n- Hypothesis formation\n- Experimentation\n- Data analysis\n- Conclusion\n\n### Types of Research\n- Experimental studies\n- Correlational studies\n- Case studies\n- Surveys\n\n## Activities\n- Interactive exercises on cognitive biases\n- Case study analysis of famous psychological experiments\n- Self-reflection questions on personal behavior patterns\n\n## Assessment\nThis module includes quizzes on:\n- Basic psychological principles\n- Research methods\n- Application of concepts",
+    "difficulty": "beginner",
+    "category": "Psychology",
+    "tags": ["psychology", "introduction", "theory", "e2e-test", "beginner"],
+    "is_published": true,
+    "estimated_duration": 120,
+    "objectives": [
+      "Define psychology and its major subfields",
+      "Understand the scientific method in psychology",
+      "Identify key research methods used in psychology",
+      "Apply psychological concepts to everyday situations"
+    ]
+  },
+  {
+    "title": "E2E Test Module: Advanced Learning Theories",
+    "description": "Deep dive into advanced learning theories and their practical applications in educational settings.",
+    "content": "# Advanced Learning Theories\n\n## Overview\nThis module explores advanced concepts in learning theory, providing educators and instructional designers with comprehensive frameworks for understanding how people learn.\n\n## Chapter 1: Constructivism\n\n### Key Principles\n- Learners actively construct knowledge\n- Prior experience influences new learning\n- Social interaction enhances understanding\n- Learning is contextual and situated\n\n### Major Theorists\n- Jean Piaget - Cognitive development\n- Lev Vygotsky - Social constructivism\n- Jerome Bruner - Discovery learning\n\n## Chapter 2: Social Learning Theory\n\n### Albert Bandura's Contributions\n- Observational learning\n- Modeling behavior\n- Self-efficacy beliefs\n- Reciprocal determinism\n\n### Applications\n- Peer learning strategies\n- Mentorship programs\n- Collaborative projects\n- Social media learning\n\n## Chapter 3: Cognitive Load Theory\n\n### John Sweller's Framework\n- Intrinsic cognitive load\n- Extraneous cognitive load\n- Germane cognitive load\n\n### Instructional Implications\n- Information sequencing\n- Multimedia principles\n- Worked examples\n- Progressive disclosure\n\n## Practical Applications\n\n### Educational Design\n- Curriculum development\n- Assessment strategies\n- Technology integration\n- Differentiated instruction\n\n### Training Programs\n- Corporate learning\n- Skill development\n- Performance improvement\n- Knowledge transfer\n\n## Research and Evaluation\n- Learning analytics\n- Effectiveness measurement\n- Continuous improvement\n- Evidence-based practice",
+    "difficulty": "advanced",
+    "category": "Education",
+    "tags": ["learning", "theory", "advanced", "education", "instructional-design", "e2e-test"],
+    "is_published": true,
+    "estimated_duration": 180,
+    "objectives": [
+      "Analyze major learning theories and their applications",
+      "Compare and contrast different theoretical approaches",
+      "Design learning experiences based on theoretical principles",
+      "Evaluate the effectiveness of theory-based interventions"
+    ]
+  },
+  {
+    "title": "E2E Test Module: Research Methods in Psychology",
+    "description": "Comprehensive guide to research methods used in psychological studies.",
+    "content": "# Research Methods in Psychology\n\n## Introduction\nUnderstanding research methods is crucial for anyone studying or working in psychology. This module covers the fundamental approaches to psychological research.\n\n## Chapter 1: Experimental Design\n\n### Components of Experiments\n- Independent variables\n- Dependent variables\n- Control groups\n- Random assignment\n\n### Types of Experimental Designs\n- Between-subjects design\n- Within-subjects design\n- Mixed designs\n- Factorial designs\n\n## Chapter 2: Non-Experimental Methods\n\n### Correlational Studies\n- Correlation coefficients\n- Causation vs correlation\n- Third variables\n- Longitudinal studies\n\n### Descriptive Methods\n- Case studies\n- Naturalistic observation\n- Surveys and questionnaires\n- Cross-sectional studies\n\n## Chapter 3: Data Analysis\n\n### Descriptive Statistics\n- Measures of central tendency\n- Measures of variability\n- Distribution shapes\n- Data visualization\n\n### Inferential Statistics\n- Hypothesis testing\n- t-tests\n- ANOVA\n- Chi-square tests\n\n## Chapter 4: Ethics in Research\n\n### Ethical Guidelines\n- Informed consent\n- Confidentiality\n- Deception and debriefing\n- Risk-benefit analysis\n\n### Special Populations\n- Research with children\n- Vulnerable populations\n- Cross-cultural considerations\n- Animal research ethics\n\n## Practical Applications\n- Designing your own study\n- Critiquing research papers\n- Understanding statistical reports\n- Applying findings to practice",
+    "difficulty": "intermediate",
+    "category": "Psychology",
+    "tags": ["research", "methods", "statistics", "ethics", "psychology", "e2e-test"],
+    "is_published": true,
+    "estimated_duration": 150,
+    "objectives": [
+      "Design appropriate research studies for psychological questions",
+      "Analyze and interpret research data",
+      "Apply ethical principles to research design",
+      "Critically evaluate published research"
+    ]
+  },
+  {
+    "title": "E2E Test Module: Draft Module for Testing",
+    "description": "This is a draft module used specifically for testing unpublished content functionality.",
+    "content": "# Draft Module for E2E Testing\n\nThis module is intentionally kept in draft status to test:\n- Draft content visibility\n- Publishing workflows\n- Access control for unpublished content\n- Content editing capabilities\n\n## Test Content\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\n### Test Section\n- Test point 1\n- Test point 2\n- Test point 3\n\n## Draft Features\n- This content should only be visible to authorized users\n- It should not appear in public module listings\n- Editing should be available for instructors and admins\n\n*Note: This is test content and should not be published.*",
+    "difficulty": "intermediate",
+    "category": "Testing",
+    "tags": ["draft", "testing", "e2e-test", "unpublished"],
+    "is_published": false,
+    "estimated_duration": 30,
+    "objectives": [
+      "Test draft functionality",
+      "Validate access controls",
+      "Verify publishing workflow"
+    ]
+  },
+  {
+    "title": "E2E Test Module: Interactive Features Demo",
+    "description": "Demonstration module showcasing interactive features and multimedia content.",
+    "content": "# Interactive Features Demo\n\n## Overview\nThis module demonstrates various interactive features available in the jaqEdu platform.\n\n## Chapter 1: Interactive Elements\n\n### Videos and Media\n- Embedded video content\n- Audio narration\n- Image galleries\n- Interactive diagrams\n\n### Assessments\n- Multiple choice questions\n- True/false questions\n- Fill-in-the-blank\n- Drag-and-drop activities\n\n## Chapter 2: Collaboration Features\n\n### Discussion Forums\n- Topic-based discussions\n- Peer interactions\n- Instructor feedback\n- Community building\n\n### Group Projects\n- Team formation\n- Shared workspaces\n- Collaborative editing\n- Peer review\n\n## Chapter 3: Progress Tracking\n\n### Analytics Dashboard\n- Learning progress\n- Time spent\n- Performance metrics\n- Achievement badges\n\n### Personalization\n- Adaptive pathways\n- Recommended content\n- Custom pace\n- Learning preferences\n\n## Interactive Activities\n1. Complete the knowledge check quiz\n2. Participate in the discussion forum\n3. Submit a reflection assignment\n4. Review peer submissions\n\n## Assessment Criteria\n- Engagement with interactive elements\n- Quality of forum participation\n- Completion of all activities\n- Demonstration of learning outcomes",
+    "difficulty": "beginner",
+    "category": "Demo",
+    "tags": ["interactive", "multimedia", "demo", "features", "e2e-test"],
+    "is_published": true,
+    "estimated_duration": 90,
+    "objectives": [
+      "Experience all interactive features",
+      "Understand engagement analytics",
+      "Practice collaborative learning",
+      "Explore personalization options"
+    ]
+  }
+]

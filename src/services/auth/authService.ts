@@ -65,11 +65,16 @@ class UserStorage {
   }
   
   private saveToLocalStorage(): void {
-    const users: Record<string, User> = {};
-    this.users.forEach((user, id) => {
-      users[id] = user;
-    });
-    localStorage.setItem('jungApp_users', JSON.stringify(users));
+    try {
+      const users: Record<string, User> = {};
+      this.users.forEach((user, id) => {
+        users[id] = user;
+      });
+      localStorage.setItem('jungApp_users', JSON.stringify(users));
+    } catch (error) {
+      console.warn('Failed to save users to localStorage:', error);
+      // Continue operation - don't throw as this is just persistence
+    }
   }
   
   async createUser(user: User): Promise<void> {
@@ -93,6 +98,18 @@ class UserStorage {
     this.saveToLocalStorage();
   }
   
+  async updateUser(user: User): Promise<void> {
+    if (!this.users.has(user.id)) {
+      throw new AuthError(
+        AuthErrorType.INVALID_CREDENTIALS,
+        'User not found'
+      );
+    }
+    
+    this.users.set(user.id, user);
+    this.saveToLocalStorage();
+  }
+  
   async getUserById(id: string): Promise<User | null> {
     return this.users.get(id) || null;
   }
@@ -107,10 +124,6 @@ class UserStorage {
     return userId ? this.users.get(userId) || null : null;
   }
   
-  async updateUser(user: User): Promise<void> {
-    this.users.set(user.id, user);
-    this.saveToLocalStorage();
-  }
   
   async setResetToken(userId: string, token: string, expires: Date): Promise<void> {
     this.resetTokens.set(token, { userId, expires });
@@ -612,6 +625,45 @@ export class AuthService {
   }
   
   /**
+   * Check if user is currently authenticated
+   */
+  async isAuthenticated(): Promise<boolean> {
+    const user = await this.getCurrentUser();
+    return user !== null;
+  }
+
+  /**
+   * Validate current session
+   */
+  async validateSession(): Promise<boolean> {
+    return this.isAuthenticated();
+  }
+
+  /**
+   * Refresh token wrapper for compatibility
+   */
+  async refreshToken(): Promise<LoginResponse | null> {
+    return this.refreshAccessToken();
+  }
+
+  /**
+   * Update user profile
+   */
+  async updateProfile(userId: string, updates: Partial<User>): Promise<User> {
+    const user = await this.userStorage.getUserById(userId);
+    if (!user) {
+      throw new AuthError(
+        AuthErrorType.INVALID_CREDENTIALS,
+        'User not found'
+      );
+    }
+
+    const updatedUser = { ...user, ...updates, updatedAt: new Date() };
+    await this.userStorage.updateUser(updatedUser);
+    return updatedUser;
+  }
+
+  /**
    * Check if user has permission
    */
   async hasPermission(
@@ -655,3 +707,15 @@ export class AuthService {
 
 // Export singleton instance
 export const authService = new AuthService();
+
+// Export individual functions for convenience and compatibility with existing tests
+export const login = (email: string, password: string) => 
+  authService.login({ username: email, password });
+export const logout = () => authService.logout();
+export const register = (data: RegistrationData) => authService.register(data);
+export const getCurrentUser = () => authService.getCurrentUser();
+export const isAuthenticated = () => authService.isAuthenticated();
+export const resetPassword = (data: PasswordResetConfirm) => authService.resetPassword(data);
+export const updateProfile = (userId: string, updates: Partial<User>) => authService.updateProfile(userId, updates);
+export const validateSession = () => authService.validateSession();
+export const refreshToken = () => authService.refreshToken();

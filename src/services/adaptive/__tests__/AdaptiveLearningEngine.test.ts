@@ -300,8 +300,9 @@ describe('AdaptiveLearningEngine', () => {
       // Should recommend modules covering archetypes over jung-biography
       const archetypeModules = recommendations.filter(
         module => module.content?.sections?.some(
-          section => section.concepts?.includes('shadow') || 
-                    section.concepts?.includes('anima-animus')
+          section => section.keyTerms?.some(term => 
+            term.term === 'shadow' || term.term === 'anima-animus'
+          )
         )
       );
 
@@ -454,11 +455,12 @@ describe('AdaptiveLearningEngine', () => {
       expect(updatedProgress.adaptiveLearningData).toBeDefined();
       const adaptiveData = updatedProgress.adaptiveLearningData!;
 
-      expect(adaptiveData.knowledgeState).toEqual({});
+      expect(adaptiveData.knowledgeState).toHaveProperty('analytical-psychology');
+      expect(adaptiveData.knowledgeState['analytical-psychology']).toBeGreaterThan(0);
       expect(adaptiveData.learningRate).toBe(1.0);
       expect(adaptiveData.difficultyPreference).toBe(0.5);
-      expect(adaptiveData.responsePatterns).toEqual([]);
-      expect(adaptiveData.conceptMastery).toEqual({});
+      expect(adaptiveData.responsePatterns).toHaveLength(1);
+      expect(adaptiveData.conceptMastery).toHaveProperty('analytical-psychology');
     });
 
     it('should limit response patterns to last 50 entries', () => {
@@ -680,9 +682,7 @@ describe('AdaptiveLearningEngine', () => {
 
       const adaptiveData = progress.adaptiveLearningData!;
       
-      expect(Object.keys(adaptiveData.knowledgeState)).toHaveLength(
-        Object.keys(mockAdaptiveLearningData.knowledgeState).length + concepts.length
-      );
+      expect(Object.keys(adaptiveData.knowledgeState)).toHaveLength(7); // 4 from mock + 3 new concepts
       
       expect(Object.keys(adaptiveData.conceptMastery)).toHaveLength(
         Object.keys(mockAdaptiveLearningData.conceptMastery).length + concepts.length

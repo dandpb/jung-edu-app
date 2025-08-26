@@ -166,6 +166,164 @@ async function runExamples() {
 // Uncomment to run examples
 // runExamples();
 
+// New functions expected by the test file
+export async function generateVideoContent(
+  topic: string, 
+  concepts: string[]
+): Promise<{ videos: any[], metadata: any }> {
+  if (!topic || topic.trim() === '') {
+    throw new Error('Topic cannot be empty');
+  }
+  
+  const youtubeService = new YouTubeService();
+  const videoEnricher = new VideoEnricher();
+  
+  // Generate search query from topic and concepts
+  const searchQuery = `${topic} ${concepts.join(' ')}`;
+  
+  // Search for videos
+  const videos = await youtubeService.searchVideos(searchQuery, {
+    maxResults: concepts.length > 0 ? Math.min(concepts.length * 2, 10) : 5,
+    order: 'relevance',
+    videoDuration: 'medium',
+    safeSearch: 'strict',
+  });
+  
+  // Enrich videos with metadata
+  try {
+    const enrichedVideos = await videoEnricher.enrichMultipleVideos(videos, {
+      assessDifficulty: true,
+      generateTimestamps: true,
+      courseContext: {
+        topic,
+        concepts,
+      },
+    });
+    
+    // Ensure we have a valid array
+    if (!Array.isArray(enrichedVideos)) {
+      console.warn('enrichMultipleVideos returned non-array:', enrichedVideos);
+      return {
+        videos: [],
+        metadata: { topic, concepts, totalVideos: 0, avgEducationalValue: 0, avgRelevanceScore: 0 }
+      };
+    }
+    
+    return {
+      videos: enrichedVideos,
+      metadata: {
+        topic,
+        concepts,
+        totalVideos: enrichedVideos.length,
+        avgEducationalValue: enrichedVideos.length > 0 ? enrichedVideos.reduce((sum, v) => sum + (v.metadata?.educationalValue || 0), 0) / enrichedVideos.length : 0,
+        avgRelevanceScore: enrichedVideos.length > 0 ? enrichedVideos.reduce((sum, v) => sum + (v.metadata?.relevanceScore || 0), 0) / enrichedVideos.length : 0,
+      }
+    };
+  } catch (error) {
+    console.error('Error in generateVideoContent:', error);
+    return {
+      videos: [],
+      metadata: { topic, concepts, totalVideos: 0, avgEducationalValue: 0, avgRelevanceScore: 0 }
+    };
+  }
+}
+
+export async function enrichVideoMetadata(videos: any[]): Promise<any[]> {
+  if (videos.length === 0) {
+    return [];
+  }
+  
+  const videoEnricher = new VideoEnricher();
+  
+  // Convert video objects to YouTubeVideo format if needed
+  const youtubeVideos = videos.map(video => ({
+    videoId: video.id || video.videoId || `mock-${Date.now()}-${Math.random()}`,
+    title: video.title || 'Untitled',
+    description: video.description || '',
+    channelId: video.channelId || 'mock-channel',
+    channelTitle: video.channelTitle || 'Mock Channel',
+    publishedAt: video.publishedAt || new Date().toISOString(),
+    duration: video.duration || 'PT10M0S',
+    viewCount: video.viewCount?.toString() || '100',
+    likeCount: video.likeCount?.toString() || '10',
+    thumbnails: video.thumbnails || {
+      default: { url: 'https://example.com/thumb.jpg', width: 120, height: 90 },
+      medium: { url: 'https://example.com/thumb-medium.jpg', width: 320, height: 180 },
+      high: { url: 'https://example.com/thumb-high.jpg', width: 480, height: 360 },
+    },
+    tags: video.tags || ['test'],
+    categoryId: video.categoryId || '27',
+  }));
+  
+  // Enrich each video
+  try {
+    const enrichedVideos = await videoEnricher.enrichMultipleVideos(youtubeVideos, {
+      assessDifficulty: true,
+      generateTimestamps: false,
+      extractLearningOutcomes: true,
+    });
+    
+    // Ensure we return a valid array
+    return Array.isArray(enrichedVideos) ? enrichedVideos : [];
+  } catch (error) {
+    console.error('Error in enrichVideoMetadata:', error);
+    return [];
+  }
+}
+
+export function createVideoPlaylist(videos: any[]): Record<string, any[]> {
+  const playlist: Record<string, any[]> = {
+    beginner: [],
+    intermediate: [],
+    advanced: [],
+    general: [],
+  };
+  
+  videos.forEach(video => {
+    const difficulty = video.difficulty || video.metadata?.difficulty;
+    
+    if (difficulty && playlist[difficulty]) {
+      playlist[difficulty].push(video);
+    } else {
+      playlist.general.push(video);
+    }
+  });
+  
+  // Sort each category by duration (shorter first for beginners, longer for advanced)
+  Object.keys(playlist).forEach(key => {
+    playlist[key].sort((a, b) => {
+      const getDuration = (video: any) => {
+        if (video.duration && typeof video.duration === 'number') {
+          return video.duration;
+        }
+        if (video.duration && video.duration.minutes) {
+          return video.duration.hours * 60 + video.duration.minutes;
+        }
+        return 600; // default 10 minutes
+      };
+      
+      const aDuration = getDuration(a);
+      const bDuration = getDuration(b);
+      
+      // For beginner content, prefer shorter videos
+      if (key === 'beginner') {
+        return aDuration - bDuration;
+      }
+      // For advanced content, longer videos first
+      if (key === 'advanced') {
+        return bDuration - aDuration;
+      }
+      // For intermediate and general, sort by relevance if available
+      const aRelevance = a.metadata?.relevanceScore || 0.5;
+      const bRelevance = b.metadata?.relevanceScore || 0.5;
+      return bRelevance - aRelevance;
+    });
+  });
+  
+  return playlist;
+}
+
+// Export existing example functions for backward compatibility
 export {
   exampleBasicSearch,
   exampleVideoEnrichment,

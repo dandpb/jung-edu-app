@@ -48,7 +48,6 @@ const generateAIModule = async (
     difficulty: config.difficulty,
     includeVideos: config.includeVideos,
     includeBibliography: config.includeBibliography,
-    includeMindMap: false, // Mapas mentais são tratados separadamente
     quizQuestions: config.includeQuiz ? 5 : 0,
     videoCount: config.includeVideos ? 3 : 0,
     bibliographyCount: config.includeBibliography ? 8 : 0,

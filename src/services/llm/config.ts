@@ -129,12 +129,72 @@ export class ConfigManager {
 
   static getInstance(): ConfigManager {
     if (!ConfigManager.instance) {
-      ConfigManager.instance = new ConfigManager();
+      try {
+        ConfigManager.instance = new ConfigManager();
+      } catch (error) {
+        console.error('Failed to create ConfigManager instance:', error);
+        // Create a minimal fallback instance
+        const fallbackManager = Object.create(ConfigManager.prototype);
+        fallbackManager.config = {
+          provider: 'mock' as const,
+          model: 'gpt-4o-mini',
+          rateLimit: {
+            maxRequestsPerMinute: 60,
+            maxTokensPerMinute: 90000,
+            maxConcurrentRequests: 5,
+          },
+          retry: {
+            maxRetries: 3,
+            initialDelay: 1000,
+            maxDelay: 10000,
+            backoffMultiplier: 2,
+          },
+          defaults: {
+            temperature: 0.7,
+            maxTokens: 2000,
+            systemPrompts: {
+              content: 'You are an expert educator in Jungian psychology.',
+              quiz: 'You are a quiz generator specializing in Jungian psychology.',
+              mindmap: 'You are a concept mapper for Jungian psychology.',
+              bibliography: 'You are a academic reference specialist in Jungian psychology.',
+            },
+          },
+        };
+        ConfigManager.instance = fallbackManager;
+      }
     }
     return ConfigManager.instance;
   }
 
   getConfig(): LLMConfig {
+    if (!this.config) {
+      console.warn('Config is null/undefined, returning fallback configuration');
+      return {
+        provider: 'mock' as const,
+        model: 'gpt-4o-mini',
+        rateLimit: {
+          maxRequestsPerMinute: 60,
+          maxTokensPerMinute: 90000,
+          maxConcurrentRequests: 5,
+        },
+        retry: {
+          maxRetries: 3,
+          initialDelay: 1000,
+          maxDelay: 10000,
+          backoffMultiplier: 2,
+        },
+        defaults: {
+          temperature: 0.7,
+          maxTokens: 2000,
+          systemPrompts: {
+            content: 'You are an expert educator in Jungian psychology.',
+            quiz: 'You are a quiz generator specializing in Jungian psychology.',
+            mindmap: 'You are a concept mapper for Jungian psychology.',
+            bibliography: 'You are a academic reference specialist in Jungian psychology.',
+          },
+        },
+      };
+    }
     return this.config;
   }
 

@@ -40,7 +40,6 @@ const config: ModuleGenerationConfig = {
   targetAudience: 'psychology students',
   includeVideos: true,
   includeQuiz: true,
-  includeMindMap: true,
   includeBibliography: true,
   quizQuestions: 10,
   maxVideos: 5
@@ -107,7 +106,6 @@ const bibliography = await orchestrator.generateBibliography({
 | `targetAudience` | string | Who the module is for | 'general learners' |
 | `includeVideos` | boolean | Generate video resources | true |
 | `includeQuiz` | boolean | Generate interactive quiz | true |
-| `includeMindMap` | boolean | Generate concept mind map | true |
 | `includeBibliography` | boolean | Generate academic references | true |
 | `language` | string | Content language | 'en' |
 | `maxVideos` | number | Maximum videos to include | 5 |

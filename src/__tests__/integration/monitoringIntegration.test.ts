@@ -139,7 +139,6 @@ function createMockPipelineForTests() {
       enableAutoQuiz: true,
       enableAutoVideos: true,
       enableAutoBibliography: true,
-      enableAutoMindMap: true,
       enableValidation: true,
       enableTesting: true,
       autoLinking: true,

@@ -221,14 +221,14 @@ export const modules: Module[] = [
         },
         {
           id: 'functions',
-          title: 'The Four Functions',
-          content: 'Jung described four psychological functions: thinking, feeling, sensation, and intuition. Each person has a dominant function that shapes their perception and judgment.',
+          title: 'As Quatro Funções',
+          content: 'Jung descreveu quatro funções psicológicas: pensamento, sentimento, sensação e intuição. Cada pessoa tem uma função dominante que molda sua percepção e julgamento.',
           order: 1,
           keyTerms: [
-            { term: 'Thinking', definition: 'A rational function that judges based on logic and objective criteria.' },
-            { term: 'Feeling', definition: 'A rational function that judges based on values and subjective criteria.' },
-            { term: 'Sensation', definition: 'An irrational function that perceives through the five senses.' },
-            { term: 'Intuition', definition: 'An irrational function that perceives through unconscious processes.' }
+            { term: 'Pensamento', definition: 'Uma função racional que julga com base na lógica e critérios objetivos.' },
+            { term: 'Sentimento', definition: 'Uma função racional que julga com base em valores e critérios subjetivos.' },
+            { term: 'Sensação', definition: 'Uma função irracional que percebe através dos cinco sentidos.' },
+            { term: 'Intuição', definition: 'Uma função irracional que percebe através de processos inconscientes.' }
           ]
         }
       ]
@@ -236,24 +236,24 @@ export const modules: Module[] = [
   },
   {
     id: 'dreams-symbols',
-    title: 'Dreams and Symbolism',
-    description: 'Explore Jung\'s approach to dream interpretation and the language of symbols.',
+    title: 'Sonhos e Simbolismo',
+    description: 'Explore a abordagem de Jung para interpretação de sonhos e a linguagem dos símbolos.',
     icon: '🌙',
     estimatedTime: 55,
     difficulty: 'advanced',
     prerequisites: ['collective-unconscious', 'archetypes'],
-    category: 'Dream Analysis',
+    category: 'Análise de Sonhos',
     content: {
-      introduction: 'For Jung, dreams are the psyche\'s way of communicating important messages from the unconscious. Unlike Freud, Jung saw dreams as compensatory, helping to balance conscious attitudes.',
+      introduction: 'Para Jung, os sonhos são a maneira da psique comunicar mensagens importantes do inconsciente. Diferentemente de Freud, Jung via os sonhos como compensatórios, ajudando a equilibrar atitudes conscientes.',
       sections: [
         {
           id: 'dream-interpretation',
-          title: 'Jungian Dream Analysis',
-          content: 'Jung\'s approach to dreams focuses on their prospective function and symbolic content rather than wish fulfillment. Dreams often contain guidance for individuation.',
+          title: 'Análise Junguiana de Sonhos',
+          content: 'A abordagem de Jung para sonhos foca em sua função prospectiva e conteúdo simbólico ao invés de realização de desejos. Sonhos frequentemente contêm orientação para a individuação.',
           order: 0,
           keyTerms: [
-            { term: 'Amplification', definition: 'A method of dream interpretation that explores cultural and mythological parallels.' },
-            { term: 'Compensation', definition: 'The psyche\'s tendency to balance conscious one-sidedness through dreams.' }
+            { term: 'Amplificação', definition: 'Um método de interpretação de sonhos que explora paralelos culturais e mitológicos.' },
+            { term: 'Compensação', definition: 'A tendência da psique de equilibrar unilateralidade consciente através dos sonhos.' }
           ]
         }
       ]

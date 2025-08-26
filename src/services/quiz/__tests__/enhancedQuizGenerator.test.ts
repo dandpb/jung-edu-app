@@ -7,6 +7,7 @@ import { EnhancedQuizGenerator, EnhancedQuizOptions } from '../enhancedQuizGener
 import { ILLMProvider } from '../../llm/types';
 import { Quiz, Question } from '../../../types';
 import { quizEnhancer } from '../quizEnhancer';
+import { quizPromptService } from '../quizPromptService';
 import {
   getQuestionTemplate,
   getTopicConcepts,
@@ -23,6 +24,7 @@ jest.mock('../quizTemplates', () => ({
   difficultyProgressions: {},
   jungQuestionTypes: {}
 }));
+jest.mock('../quizPromptService');
 
 describe('EnhancedQuizGenerator', () => {
   let generator: EnhancedQuizGenerator;
@@ -133,6 +135,10 @@ describe('EnhancedQuizGenerator', () => {
     (getQuestionTemplate as jest.Mock).mockReturnValue(mockQuestionTemplate);
     (getTopicConcepts as jest.Mock).mockReturnValue(mockTopicConcepts);
     
+    // Setup prompt service mocks
+    (quizPromptService.getTopicConcepts as jest.Mock) = jest.fn().mockReturnValue(mockTopicConcepts);
+    (quizPromptService.getQuizGenerationPrompt as jest.Mock) = jest.fn().mockResolvedValue('Test quiz prompt');
+    
     // Mock module values directly through the mock
     const mockModule = require('../quizTemplates');
     mockModule.topicTemplates = [
@@ -200,8 +206,8 @@ describe('EnhancedQuizGenerator', () => {
         { ...testOptions, useTemplates: true }
       );
 
-      expect(getQuestionTemplate).toHaveBeenCalledWith('Archetypes', expect.any(String));
-      expect(getTopicConcepts).toHaveBeenCalledWith('Archetypes');
+      expect(quizPromptService.getTopicConcepts).toHaveBeenCalledWith('Archetypes');
+      expect(quizPromptService.getQuizGenerationPrompt).toHaveBeenCalled();
     });
 
     it('should skip templates when disabled', async () => {
@@ -224,7 +230,7 @@ describe('EnhancedQuizGenerator', () => {
       );
 
       expect(generateQuestionsSpy).toHaveBeenCalled();
-      expect(getQuestionTemplate).not.toHaveBeenCalled();
+      expect(quizPromptService.getTopicConcepts).not.toHaveBeenCalled();
     });
 
     it('should enhance questions when enabled', async () => {

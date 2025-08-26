@@ -57,7 +57,6 @@ const module = await generator.generateModule({
   difficulty: DifficultyLevel.INTERMEDIATE,
   duration: 90, // minutes
   includeVideos: true,
-  includeMindMap: true,
   includeQuiz: true,
   onProgress: (progress) => {
     console.log(`${progress.stage}: ${progress.progress}%`);

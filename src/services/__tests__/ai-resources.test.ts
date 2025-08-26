@@ -81,7 +81,6 @@ describe('AI Resource Generation', () => {
       includeBibliography: false, // Disable bibliography to simplify
       bibliographyCount: 0,
       includeFilms: false, // Disable films
-      includeMindMap: false, // Disable mind map
       quizQuestions: 5, // Re-enable quiz generation
       useRealServices: false // Use mock services for testing
     });

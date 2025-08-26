@@ -27,6 +27,32 @@ const DEFAULT_SESSION_CONFIG: SessionConfig = {
 };
 
 /**
+ * Supabase-compatible session interface for test compatibility
+ */
+interface SupabaseSession {
+  access_token: string;
+  refresh_token: string;
+  expires_at: number;
+  user: {
+    id: string;
+    email: string;
+    user_metadata: any;
+  };
+}
+
+/**
+ * Event listener type
+ */
+type EventListener = (session: SupabaseSession | null) => void;
+
+/**
+ * Event handlers storage
+ */
+interface EventHandlers {
+  sessionChanged: EventListener[];
+}
+
+/**
  * Session manager class
  */
 export class SessionManager {
@@ -35,9 +61,16 @@ export class SessionManager {
   private config: SessionConfig;
   private activityCheckInterval?: number;
   
+  // For Supabase-compatible session management (used by tests)
+  private currentSession: SupabaseSession | null = null;
+  private eventHandlers: EventHandlers = {
+    sessionChanged: []
+  };
+  
   constructor(config: Partial<SessionConfig> = {}) {
     this.config = { ...DEFAULT_SESSION_CONFIG, ...config };
     this.loadFromStorage();
+    this.loadSupabaseSession();
     this.startActivityCheck();
   }
   
@@ -62,6 +95,22 @@ export class SessionManager {
       }
     } catch (error) {
       console.error('Failed to load sessions:', error);
+    }
+  }
+
+  /**
+   * Load Supabase-compatible session from localStorage
+   */
+  private loadSupabaseSession(): void {
+    try {
+      if (typeof window !== 'undefined' && localStorage) {
+        const stored = localStorage.getItem('auth_session');
+        if (stored) {
+          this.currentSession = JSON.parse(stored);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load auth session:', error);
     }
   }
   
@@ -199,7 +248,7 @@ export class SessionManager {
   /**
    * Get session by ID
    */
-  public getSession(sessionId: string): Session | null {
+  public getSessionById(sessionId: string): Session | null {
     const session = this.sessions.get(sessionId);
     if (!session) return null;
     
@@ -311,6 +360,167 @@ export class SessionManager {
       uniqueUsers: this.userSessions.size,
       averageSessionDuration: this.sessions.size > 0 ? totalDuration / this.sessions.size : 0
     };
+  }
+
+  // =====================================================================
+  // SUPABASE-COMPATIBLE SESSION METHODS FOR TESTING
+  // =====================================================================
+
+  /**
+   * Set the current session (Supabase-compatible)
+   */
+  public setSession(session: SupabaseSession | null): void {
+    this.currentSession = session;
+    
+    try {
+      if (typeof window !== 'undefined' && localStorage) {
+        if (session) {
+          localStorage.setItem('auth_session', JSON.stringify(session));
+        } else {
+          localStorage.removeItem('auth_session');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to save session to localStorage:', error);
+    }
+
+    // Emit session change event
+    this.emitSessionChange(session);
+  }
+
+  /**
+   * Get the current session (Supabase-compatible)
+   */
+  public getSession(): SupabaseSession | null {
+    if (!this.currentSession) {
+      this.loadSupabaseSession();
+    }
+    return this.currentSession;
+  }
+
+  /**
+   * Clear the current session
+   */
+  public clearSession(): void {
+    this.setSession(null);
+  }
+
+  /**
+   * Check if current session is valid
+   */
+  public isValidSession(): boolean {
+    const session = this.getSession();
+    if (!session) return false;
+    if (!session.access_token || typeof session.access_token !== 'string' || session.access_token.trim() === '') return false;
+    if (!session.expires_at || typeof session.expires_at !== 'number') return false;
+
+    const now = Math.floor(Date.now() / 1000);
+    const bufferTime = 300; // 5 minutes buffer
+    
+    return session.expires_at > (now + bufferTime);
+  }
+
+  /**
+   * Get access token from current session
+   */
+  public getAccessToken(): string | null {
+    const session = this.getSession();
+    if (!session || !this.isValidSession()) return null;
+    return session.access_token;
+  }
+
+  /**
+   * Get refresh token from current session
+   */
+  public getRefreshToken(): string | null {
+    const session = this.getSession();
+    return session ? session.refresh_token : null;
+  }
+
+  /**
+   * Get user from current session
+   */
+  public getUser(): any | null {
+    const session = this.getSession();
+    if (!session || !this.isValidSession()) return null;
+    return session.user;
+  }
+
+  /**
+   * Update current session properties
+   */
+  public updateSession(updates: Partial<SupabaseSession>): void {
+    if (!this.currentSession) return;
+    
+    const updatedSession = {
+      ...this.currentSession,
+      ...updates
+    };
+    
+    this.setSession(updatedSession);
+  }
+
+  /**
+   * Check if session is expiring soon
+   */
+  public isExpiringSoon(thresholdSeconds: number = 300): boolean {
+    const session = this.getSession();
+    if (!session || !session.expires_at) return false;
+
+    const now = Math.floor(Date.now() / 1000);
+    return session.expires_at <= (now + thresholdSeconds);
+  }
+
+  // =====================================================================
+  // EVENT HANDLING METHODS
+  // =====================================================================
+
+  /**
+   * Add event listener
+   */
+  public on(event: 'sessionChanged', listener: EventListener): void {
+    if (!this.eventHandlers[event]) {
+      this.eventHandlers[event] = [];
+    }
+    this.eventHandlers[event].push(listener);
+  }
+
+  /**
+   * Remove event listener
+   */
+  public off(event: 'sessionChanged', listener: EventListener): void {
+    if (!this.eventHandlers[event]) return;
+    
+    const index = this.eventHandlers[event].indexOf(listener);
+    if (index > -1) {
+      this.eventHandlers[event].splice(index, 1);
+    }
+  }
+
+  /**
+   * Add one-time event listener
+   */
+  public once(event: 'sessionChanged', listener: EventListener): void {
+    const onceWrapper = (session: SupabaseSession | null) => {
+      listener(session);
+      this.off(event, onceWrapper);
+    };
+    this.on(event, onceWrapper);
+  }
+
+  /**
+   * Emit session change event
+   */
+  private emitSessionChange(session: SupabaseSession | null): void {
+    if (!this.eventHandlers.sessionChanged) return;
+    
+    this.eventHandlers.sessionChanged.forEach(listener => {
+      try {
+        listener(session);
+      } catch (error) {
+        console.error('Error in session change listener:', error);
+      }
+    });
   }
 }
 

@@ -10,8 +10,6 @@ import {
   Section, 
   Video, 
   UserProgress,
-  MindMapNode,
-  MindMapEdge,
   Bibliography,
   Film
 } from '../types';
@@ -67,7 +65,6 @@ export const createMockSection = (overrides?: Partial<Section>): Section => ({
     { term: 'Archetype', definition: 'Universal pattern or image' },
     { term: 'Shadow', definition: 'Repressed aspects of personality' }
   ],
-  concepts: ['archetype', 'shadow', 'anima'],
   estimatedTime: 15,
   ...overrides
 });
@@ -163,28 +160,6 @@ export const createMockUserProgress = (overrides?: Partial<UserProgress>): UserP
   ...overrides
 });
 
-// Mind Map Node factory
-export const createMockMindMapNode = (overrides?: Partial<MindMapNode>): MindMapNode => ({
-  id: 'node-1',
-  type: 'concept',
-  data: {
-    label: 'Collective Unconscious',
-    description: 'The deepest layer of the psyche',
-    category: 'core-concepts',
-  },
-  position: { x: 100, y: 100 },
-  ...overrides
-});
-
-// Mind Map Edge factory
-export const createMockMindMapEdge = (overrides?: Partial<MindMapEdge>): MindMapEdge => ({
-  id: 'edge-1',
-  source: 'node-1',
-  target: 'node-2',
-  type: 'smoothstep',
-  label: 'contains',
-  ...overrides
-});
 
 // Auth User factory
 export const createMockUser = (overrides?: Partial<User>): User => ({
@@ -260,116 +235,22 @@ export const createMockModules = (count: number = 3): Module[] => {
   );
 };
 
-// Create complete mind map data
-export const createMockMindMapData = () => {
-  const nodes: MindMapNode[] = [
-    createMockMindMapNode({
-      id: 'psyche',
-      data: { label: 'Psyche', category: 'core-concepts' },
-      position: { x: 400, y: 300 }
-    }),
-    createMockMindMapNode({
-      id: 'conscious',
-      data: { label: 'Conscious', category: 'consciousness' },
-      position: { x: 200, y: 200 }
-    }),
-    createMockMindMapNode({
-      id: 'unconscious',
-      data: { label: 'Unconscious', category: 'consciousness' },
-      position: { x: 600, y: 200 }
-    }),
-    createMockMindMapNode({
-      id: 'personal-unconscious',
-      data: { label: 'Personal Unconscious', category: 'consciousness' },
-      position: { x: 500, y: 100 }
-    }),
-    createMockMindMapNode({
-      id: 'collective-unconscious',
-      data: { label: 'Collective Unconscious', category: 'consciousness' },
-      position: { x: 700, y: 100 }
-    })
-  ];
-
-  const edges: MindMapEdge[] = [
-    createMockMindMapEdge({
-      id: 'e1',
-      source: 'psyche',
-      target: 'conscious',
-      label: 'contains'
-    }),
-    createMockMindMapEdge({
-      id: 'e2',
-      source: 'psyche',
-      target: 'unconscious',
-      label: 'contains'
-    }),
-    createMockMindMapEdge({
-      id: 'e3',
-      source: 'unconscious',
-      target: 'personal-unconscious',
-      label: 'divided into'
-    }),
-    createMockMindMapEdge({
-      id: 'e4',
-      source: 'unconscious',
-      target: 'collective-unconscious',
-      label: 'divided into'
-    })
-  ];
-
-  return { nodes, edges };
-};
 
 // Mock localStorage data
 export const createMockLocalStorageData = () => ({
   jungAppProgress: JSON.stringify(createMockUserProgress()),
-  jungAppEducationalModules: JSON.stringify(createMockModules()),
-  jungAppMindMapNodes: JSON.stringify(createMockMindMapData().nodes),
-  jungAppMindMapEdges: JSON.stringify(createMockMindMapData().edges),
-  jungAdminSession: JSON.stringify({
-    token: 'mock-admin-token',
-    admin: createMockAdminUser(),
-    expiresAt: Date.now() + 86400000 // 24 hours
-  })
+  jungAppEducationalModules: JSON.stringify(createMockModules())
 });
 
 // Test data presets
 export const testDataPresets = {
-  emptyState: {
-    modules: [],
-    progress: createMockUserProgress({
-      completedModules: [],
-      quizScores: {},
-      totalTime: 0,
-      notes: []
-    }),
-    mindMapNodes: [],
-    mindMapEdges: []
-  },
-  
   partialProgress: {
-    modules: createMockModules(5),
-    progress: createMockUserProgress({
-      completedModules: ['module-1', 'module-2'],
-      quizScores: { 'module-1': 90, 'module-2': 85 },
-      totalTime: 7200
-    }),
-    mindMapData: createMockMindMapData()
+    modules: createMockModules(),
+    progress: createMockUserProgress()
   },
-  
-  fullProgress: {
-    modules: createMockModules(5),
-    progress: createMockUserProgress({
-      completedModules: ['module-1', 'module-2', 'module-3', 'module-4', 'module-5'],
-      quizScores: {
-        'module-1': 95,
-        'module-2': 88,
-        'module-3': 92,
-        'module-4': 87,
-        'module-5': 90
-      },
-      totalTime: 18000
-    }),
-    mindMapData: createMockMindMapData()
+  completeData: {
+    modules: createMockModules(),
+    progress: createMockUserProgress(),
+    quiz: createMockQuiz()
   }
 };

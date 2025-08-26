@@ -489,8 +489,7 @@ export class SystemValidator {
     result.hasAllComponents = !!(
       module.content &&
       module.quiz &&
-      module.bibliography &&
-      module.mindMaps
+      module.bibliography
     );
     if (!result.hasAllComponents) {
       result.score -= 10;
@@ -529,18 +528,6 @@ export class SystemValidator {
       result.score -= 5;
     }
 
-    // Check mind map coherence
-    result.mindMapCoherence = !!(
-      module.mindMaps &&
-      module.mindMaps.length > 0 &&
-      module.mindMaps[0].nodes &&
-      module.mindMaps[0].nodes.length >= 3 &&
-      module.mindMaps[0].edges &&
-      module.mindMaps[0].edges.length >= 2
-    );
-    if (!result.mindMapCoherence) {
-      result.score -= 5;
-    }
 
     return result;
   }

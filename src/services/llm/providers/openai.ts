@@ -188,8 +188,9 @@ export class OpenAIProvider implements ILLMProvider {
 
   getTokenCount(text: string): number {
     // Simple approximation: 1 token ≈ 4 characters
-    // For more accurate counting, use tiktoken library
-    return Math.ceil(text.length / 4);
+    // Normalize whitespace for consistent counting
+    const normalizedText = text.replace(/\s+/g, ' ').trim();
+    return Math.ceil(normalizedText.length / 4);
   }
 
   async isAvailable(): Promise<boolean> {

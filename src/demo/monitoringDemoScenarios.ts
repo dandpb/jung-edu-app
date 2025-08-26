@@ -377,7 +377,6 @@ function createMockPipeline() {
       enableAutoQuiz: true,
       enableAutoVideos: true,
       enableAutoBibliography: true,
-      enableAutoMindMap: true,
       enableValidation: true,
       enableTesting: true,
       autoLinking: true,
@@ -393,7 +392,6 @@ function createMockPipeline() {
     generateQuizzes: jest.fn(),
     searchVideos: jest.fn(),
     generateBibliography: jest.fn(),
-    generateMindMap: jest.fn(),
     linkResources: jest.fn(),
     getResourceDependencies: jest.fn(),
     testResourceIntegration: jest.fn(),
@@ -487,7 +485,6 @@ async function trackQualityScores() {
   return {
     averageQuality: 0.87,
     qualityByType: {
-      mindmap: 0.91,
       quiz: 0.84,
       video: 0.89,
       bibliography: 0.83

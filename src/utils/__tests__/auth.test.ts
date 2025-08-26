@@ -139,15 +139,14 @@ describe('Auth Utilities', () => {
       expect(typeof token).toBe('string');
     });
 
-    test('creates different tokens for same user', () => {
+    test('creates different tokens for same user', async () => {
       const userId = 'user123';
       const token1 = createSessionToken(userId);
       
       // Wait a bit to ensure different timestamp
-      setTimeout(() => {
-        const token2 = createSessionToken(userId);
-        expect(token1).not.toBe(token2);
-      }, 10);
+      await new Promise(resolve => setTimeout(resolve, 10));
+      const token2 = createSessionToken(userId);
+      expect(token1).not.toBe(token2);
     });
 
     test('creates token with custom expiry', () => {

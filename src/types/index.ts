@@ -146,7 +146,6 @@ export interface Section {
   order: number;
   keyTerms?: KeyTerm[];
   images?: Image[];
-  concepts?: string[];
   interactiveElements?: InteractiveElement[];
   estimatedTime?: number;
   prerequisites?: string[];
@@ -519,53 +518,11 @@ export interface ConceptMastery {
   forgettingCurve: number;
 }
 
-export interface MindMapNode {
-  id: string;
-  data: {
-    label: string;
-    description?: string;
-    moduleId?: string;
-    level?: number;
-    category?: string;
-    expandable?: boolean;
-    onClick?: () => void;
-    onHover?: () => void;
-    interactive?: boolean;
-    moduleCategory?: string;
-    categoryColor?: string;
-    difficulty?: string;
-    moduleInfo?: string;
-    examples?: string[];
-    multimedia?: MultimediaContent[];
-    relatedConcepts?: string[];
-    visualizationType?: VisualizationType;
-    learningObjectives?: string[];
-    interactiveElements?: InteractiveElement[];
-  };
-  position: { x: number; y: number };
-  type?: string;
-  style?: React.CSSProperties;
-  animations?: NodeAnimation[];
-}
-
 export interface NodeAnimation {
   type: 'pulse' | 'glow' | 'rotate' | 'scale';
   duration: number;
   trigger: 'load' | 'hover' | 'click' | 'focus';
   parameters?: Record<string, any>;
-}
-
-export interface MindMapEdge {
-  id: string;
-  source: string;
-  target: string;
-  label?: string;
-  type?: string;
-  animated?: boolean;
-  style?: React.CSSProperties;
-  relationship?: ConceptRelationship;
-  strength?: number;
-  bidirectional?: boolean;
   interactive?: boolean;
 }
 
@@ -585,8 +542,6 @@ export interface AdminUser {
 
 export interface AppSettings {
   modules: Module[];
-  mindMapNodes: MindMapNode[];
-  mindMapEdges: MindMapEdge[];
   adminUsers: AdminUser[];
   achievements: Achievement[];
   forumCategories: ForumCategory[];

@@ -1,0 +1,266 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main, master ]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - '.github/**'
+      - '!.github/workflows/**'
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+      force_deploy:
+        description: 'Force deployment even if tests fail'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '18'
+  NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+  NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+
+jobs:
+  pre-deploy:
+    name: Pre-deployment Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      should-deploy: ${{ steps.check.outputs.should-deploy }}
+      deployment-env: ${{ steps.env.outputs.environment }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Determine environment
+        id: env
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/heads/master" ]]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+          else
+            echo "environment=staging" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run critical tests
+        if: ${{ !github.event.inputs.force_deploy }}
+        run: npm run test:critical
+        env:
+          CI: true
+          SKIP_INTEGRATION: true
+          
+      - name: Build application
+        run: npm run build
+        env:
+          CI: true
+          GENERATE_SOURCEMAP: false
+          
+      - name: Health check validation
+        run: |
+          # Validate essential files
+          test -f build/index.html || { echo "❌ Missing index.html"; exit 1; }
+          test -d build/static || { echo "❌ Missing static assets"; exit 1; }
+          
+          # Size validation
+          BUILD_SIZE=$(du -sk build | cut -f1)
+          if [ $BUILD_SIZE -gt 102400 ]; then  # 100MB limit
+            echo "⚠️ Warning: Build size is ${BUILD_SIZE}KB, consider optimization"
+          fi
+          
+          echo "✅ Pre-deployment checks passed"
+          
+      - name: Should deploy check
+        id: check
+        run: |
+          if [[ "${{ github.event.inputs.force_deploy }}" == "true" ]]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "🚀 Force deployment enabled"
+          else
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "🚀 Ready for deployment"
+          fi
+          
+      - name: Upload build for deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-build
+          path: build/
+          retention-days: 1
+
+  deploy-netlify:
+    name: Deploy to Netlify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: pre-deploy
+    if: needs.pre-deploy.outputs.should-deploy == 'true'
+    environment: 
+      name: ${{ needs.pre-deploy.outputs.deployment-env }}
+      url: ${{ steps.deploy.outputs.url }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: production-build
+          path: build/
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli
+        
+      - name: Deploy to Netlify
+        id: deploy
+        run: |
+          if [[ "${{ needs.pre-deploy.outputs.deployment-env }}" == "production" ]]; then
+            # Production deployment
+            DEPLOY_URL=$(netlify deploy --prod --dir=build --message "Production deployment: ${{ github.sha }}" --json | jq -r '.url')
+            echo "🚀 Deployed to production: $DEPLOY_URL"
+            echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+          else
+            # Preview deployment
+            DEPLOY_URL=$(netlify deploy --dir=build --message "Preview deployment: ${{ github.sha }}" --json | jq -r '.deploy_url')
+            echo "🚀 Deployed preview: $DEPLOY_URL"
+            echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+          fi
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          
+      - name: Run deployment health check
+        run: |
+          DEPLOY_URL="${{ steps.deploy.outputs.url }}"
+          echo "🔍 Testing deployment at: $DEPLOY_URL"
+          
+          # Wait for deployment to be ready
+          sleep 30
+          
+          # Health check
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$DEPLOY_URL")
+          if [ $HTTP_STATUS -eq 200 ]; then
+            echo "✅ Deployment health check passed"
+          else
+            echo "❌ Deployment health check failed (HTTP $HTTP_STATUS)"
+            exit 1
+          fi
+          
+      - name: Update deployment status
+        run: |
+          echo "## 🚀 Deployment Successful" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ needs.pre-deploy.outputs.deployment-env }}" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** ${{ steps.deploy.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployed at:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+
+  post-deploy:
+    name: Post-deployment Tasks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [pre-deploy, deploy-netlify]
+    if: success()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Run post-deployment tests
+        run: |
+          # Add any post-deployment validation here
+          echo "✅ Running post-deployment validation"
+          
+          # Example: API health checks, smoke tests, etc.
+          DEPLOY_URL="${{ needs.deploy-netlify.outputs.url || 'https://your-app.netlify.app' }}"
+          
+          # Test critical paths
+          curl -f "$DEPLOY_URL" > /dev/null || { echo "❌ Homepage failed"; exit 1; }
+          
+          echo "✅ Post-deployment validation passed"
+          
+      - name: Notify deployment success
+        run: |
+          echo "## 🎉 Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The application has been successfully deployed and validated!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Monitor application performance" >> $GITHUB_STEP_SUMMARY
+          echo "- Check user feedback" >> $GITHUB_STEP_SUMMARY
+          echo "- Review deployment metrics" >> $GITHUB_STEP_SUMMARY
+
+  rollback:
+    name: Rollback on Failure
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [pre-deploy, deploy-netlify, post-deploy]
+    if: failure() && needs.deploy-netlify.result == 'success'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli
+        
+      - name: Rollback deployment
+        run: |
+          echo "⚠️ Rolling back deployment due to post-deployment failure"
+          
+          # Get the previous deployment
+          PREVIOUS_DEPLOY=$(netlify api listSiteDeploys --data='{"site_id":"${{ secrets.NETLIFY_SITE_ID }}"}' | jq -r '.[1].id')
+          
+          if [ "$PREVIOUS_DEPLOY" != "null" ]; then
+            netlify api restoreSiteDeploy --data='{"site_id":"${{ secrets.NETLIFY_SITE_ID }}","deploy_id":"'$PREVIOUS_DEPLOY'"}'
+            echo "✅ Rollback completed to deployment: $PREVIOUS_DEPLOY"
+          else
+            echo "⚠️ No previous deployment found for rollback"
+          fi
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          
+      - name: Notify rollback
+        run: |
+          echo "## ⚠️ Deployment Rolled Back" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The deployment was rolled back due to post-deployment failures." >> $GITHUB_STEP_SUMMARY
+          echo "Please check the logs and fix the issues before redeploying." >> $GITHUB_STEP_SUMMARY

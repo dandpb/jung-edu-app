@@ -5,17 +5,40 @@ import { LLMGenerationOptions } from '../../types';
 global.fetch = jest.fn();
 
 // Mock TextEncoder and TextDecoder for Node.js environment
-global.TextEncoder = class TextEncoder {
+global.TextEncoder = class MockTextEncoder {
+  readonly encoding = 'utf-8';
+  
   encode(text: string): Uint8Array {
     return new Uint8Array(Buffer.from(text, 'utf8'));
   }
-};
-
-global.TextDecoder = class TextDecoder {
-  decode(bytes: Uint8Array): string {
-    return Buffer.from(bytes).toString('utf8');
+  
+  encodeInto(source: string, destination: Uint8Array): TextEncoderEncodeIntoResult {
+    const encoded = this.encode(source);
+    const written = Math.min(encoded.length, destination.length);
+    destination.set(encoded.subarray(0, written));
+    return { read: source.length, written };
   }
-};
+} as any;
+
+global.TextDecoder = class MockTextDecoder {
+  readonly encoding: string;
+  readonly fatal: boolean;
+  readonly ignoreBOM: boolean;
+  
+  constructor(encoding = 'utf-8', options: TextDecoderOptions = {}) {
+    this.encoding = encoding;
+    this.fatal = options.fatal || false;
+    this.ignoreBOM = options.ignoreBOM || false;
+  }
+  
+  decode(input?: BufferSource): string {
+    if (!input) return '';
+    if (input instanceof Uint8Array) {
+      return Buffer.from(input).toString('utf8');
+    }
+    return Buffer.from(input as ArrayBuffer).toString('utf8');
+  }
+} as any;
 
 describe('OpenAIProvider', () => {
   let provider: OpenAIProvider;

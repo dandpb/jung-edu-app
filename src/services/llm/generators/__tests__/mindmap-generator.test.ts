@@ -1,8 +1,17 @@
-import { MindMapGenerator, MindMap, MindMapNode } from '../mindmap-generator';
+import { MindMapGenerator } from '../mindmap-generator';
 import { ILLMProvider } from '../../types';
 
 // Mock the provider
 jest.mock('../../provider');
+
+// Mock mind map layout utilities (inline for testing)
+const mockCalculateNodePositions = jest.fn().mockReturnValue({
+  nodes: [
+    { id: 'root', x: 0, y: 0 },
+    { id: 'child1', x: 100, y: 50 }
+  ]
+});
+const mockOptimizeLayout = jest.fn();
 
 describe('MindMapGenerator', () => {
   let generator: MindMapGenerator;
@@ -23,505 +32,622 @@ describe('MindMapGenerator', () => {
   });
 
   describe('generateMindMap', () => {
-    const mockStructure = {
-      root: {
+    const mockMindMapData = {
+      title: 'Jungian Archetypes',
+      rootConcept: {
         id: 'root',
-        label: 'Shadow Archetype',
-        children: [
-          {
-            id: 'node1',
-            label: 'Personal Shadow',
-            category: 'concept',
-            importance: 'core',
-            children: [
-              {
-                id: 'node1-1',
-                label: 'Repressed Qualities',
-                category: 'concept',
-                importance: 'supporting'
-              },
-              {
-                id: 'node1-2',
-                label: 'Projection',
-                category: 'process',
-                importance: 'supporting'
-              }
-            ]
-          },
-          {
-            id: 'node2',
-            label: 'Collective Shadow',
-            category: 'archetype',
-            importance: 'core',
-            children: [
-              {
-                id: 'node2-1',
-                label: 'Cultural Shadow',
-                category: 'concept',
-                importance: 'related'
-              }
-            ]
-          }
-        ]
-      }
+        label: 'Archetypes',
+        description: 'Universal patterns in the collective unconscious',
+        importance: 'high'
+      },
+      concepts: [
+        {
+          id: 'shadow',
+          label: 'Shadow',
+          description: 'Hidden aspects of personality',
+          parentId: 'root',
+          importance: 'high',
+          relationships: ['anima', 'persona']
+        },
+        {
+          id: 'anima',
+          label: 'Anima',
+          description: 'Feminine aspect in male psyche',
+          parentId: 'root',
+          importance: 'medium',
+          relationships: ['shadow']
+        }
+      ],
+      connections: [
+        {
+          from: 'root',
+          to: 'shadow',
+          type: 'contains',
+          strength: 'strong'
+        },
+        {
+          from: 'root',
+          to: 'anima',
+          type: 'contains',
+          strength: 'strong'
+        },
+        {
+          from: 'shadow',
+          to: 'anima',
+          type: 'relates',
+          strength: 'medium'
+        }
+      ]
     };
 
-    const mockConnections = [
-      {
-        from: 'node1',
-        to: 'node2',
-        type: 'associative',
-        label: 'Both aspects of shadow'
-      },
-      {
-        from: 'node1-2',
-        to: 'node2-1',
-        type: 'complementary',
-        label: 'Individual and collective projection'
-      }
-    ];
+    it('should generate mind map with proper structure', async () => {
+      mockProvider.generateStructuredOutput.mockResolvedValue(mockMindMapData);
 
-    beforeEach(() => {
-      // Mock structure generation
-      mockProvider.generateStructuredOutput
-        .mockResolvedValueOnce(mockStructure) // For structure
-        .mockResolvedValueOnce(mockConnections); // For connections
-
-      // Mock description generation
-      mockProvider.generateCompletion.mockResolvedValue({ content: 'Brief description of the concept in Jungian psychology' });
-    });
-
-    it('should generate a complete mind map with all components', async () => {
       const mindMap = await generator.generateMindMap(
-        'Shadow Archetype',
-        ['personal shadow', 'projection', 'integration'],
-        3,
-        'comprehensive',
-        'en'
+        'Jungian Archetypes',
+        ['archetype', 'shadow', 'anima', 'persona'],
+        'Explore the fundamental archetypes in Jungian psychology',
+        'intermediate'
       );
 
-      expect(mindMap).toMatchObject({
-        id: expect.stringMatching(/^mindmap-\d+$/),
-        title: 'Shadow Archetype - Jungian Perspective',
-        description: 'A visual exploration of Shadow Archetype through Jungian psychological concepts',
-        rootNode: 'root',
-        layout: 'radial',
-        theme: 'jungian'
-      });
-
-      // Check nodes were created
-      expect(Object.keys(mindMap.nodes)).toHaveLength(6); // root + 2 children + 3 grandchildren
-      expect(mindMap.nodes['root']).toMatchObject({
+      expect(mindMap.title).toBe('Jungian Archetypes');
+      expect(mindMap.nodes).toHaveLength(3); // root + 2 concepts
+      expect(mindMap.edges).toHaveLength(3);
+      expect(mindMap.nodes[0]).toMatchObject({
         id: 'root',
-        label: 'Shadow Archetype',
-        level: 0,
-        children: ['node1', 'node2']
+        label: 'Archetypes',
+        type: 'root'
       });
 
-      // Check connections include both hierarchical and custom
-      const hierarchicalConnections = mindMap.connections.filter(c => c.type === 'hierarchical');
-      const customConnections = mindMap.connections.filter(c => c.type !== 'hierarchical');
-      
-      expect(hierarchicalConnections).toHaveLength(5); // All parent-child relationships
-      expect(customConnections).toHaveLength(2); // Mock connections
+      expect(mockProvider.generateStructuredOutput).toHaveBeenCalledWith(
+        expect.stringContaining('Generate a comprehensive mind map'),
+        expect.objectContaining({
+          type: 'object',
+          properties: expect.objectContaining({
+            title: { type: 'string' },
+            rootConcept: expect.any(Object),
+            concepts: expect.any(Object),
+            connections: expect.any(Object)
+          })
+        }),
+        { temperature: 0.6 }
+      );
     });
 
-    it('should handle Portuguese language requests', async () => {
+    it('should handle Portuguese language generation', async () => {
+      const portugueseMindMap = {
+        ...mockMindMapData,
+        title: 'Arquétipos Junguianos',
+        rootConcept: {
+          id: 'root',
+          label: 'Arquétipos',
+          description: 'Padrões universais do inconsciente coletivo',
+          importance: 'high'
+        }
+      };
+
+      mockProvider.generateStructuredOutput.mockResolvedValue(portugueseMindMap);
+
       const mindMap = await generator.generateMindMap(
-        'Arquétipo da Sombra',
-        ['sombra pessoal', 'projeção'],
-        2,
-        'simplified',
+        'Arquétipos Junguianos',
+        ['arquétipo', 'sombra', 'anima'],
+        'Explorar os arquétipos fundamentais',
+        'intermediate',
         'pt-BR'
       );
 
-      expect(mindMap.title).toBe('Arquétipo da Sombra - Perspectiva Junguiana');
-      expect(mindMap.description).toBe('Uma exploração visual de Arquétipo da Sombra através dos conceitos psicológicos junguianos');
-
-      // Check Portuguese prompts were used
+      expect(mindMap.title).toBe('Arquétipos Junguianos');
       expect(mockProvider.generateStructuredOutput).toHaveBeenCalledWith(
-        expect.stringContaining('Crie uma estrutura de mapa mental'),
+        expect.stringContaining('Gere um mapa mental abrangente'),
         expect.any(Object),
         expect.any(Object)
       );
     });
 
-    it('should use hierarchical layout for analytical style', async () => {
-      const mindMap = await generator.generateMindMap(
-        'Individuation Process',
-        ['ego', 'self', 'shadow'],
-        3,
-        'analytical'
-      );
+    it('should handle provider errors gracefully', async () => {
+      mockProvider.generateStructuredOutput.mockRejectedValue(new Error('Provider error'));
 
-      expect(mindMap.layout).toBe('hierarchical');
-    });
-
-    it('should assign colors and icons based on categories', async () => {
-      const mindMap = await generator.generateMindMap(
-        'Jungian Concepts',
-        ['archetypes', 'complexes'],
-        2
-      );
-
-      // Check archetype node has purple color and crown icon
-      const archetypeNode = mindMap.nodes['node2'];
-      expect(archetypeNode.color).toBe('#7C3AED');
-      expect(archetypeNode.icon).toBe('👑');
-
-      // Check process node has blue color and cycle icon
-      const processNode = mindMap.nodes['node1-2'];
-      expect(processNode.color).toBe('#2563EB');
-      expect(processNode.icon).toBe('🔄');
-    });
-
-    it('should generate descriptions only for important nodes', async () => {
-      const mindMap = await generator.generateMindMap(
+      await expect(generator.generateMindMap(
         'Test Topic',
         ['concept1'],
+        'Test objective',
+        'beginner'
+      )).rejects.toThrow('Failed to generate mind map');
+    });
+
+    it('should handle malformed provider response', async () => {
+      mockProvider.generateStructuredOutput.mockResolvedValue({
+        title: 'Incomplete',
+        // Missing required fields
+      });
+
+      await expect(generator.generateMindMap(
+        'Test Topic',
+        ['concept1'],
+        'Test objective',
+        'beginner'
+      )).rejects.toThrow('Invalid mind map structure');
+    });
+
+    it('should validate input parameters', async () => {
+      await expect(generator.generateMindMap(
+        '',
+        ['concept'],
+        'objective',
+        'beginner'
+      )).rejects.toThrow('Topic cannot be empty');
+
+      await expect(generator.generateMindMap(
+        'Topic',
+        [],
+        'objective',
+        'beginner'
+      )).rejects.toThrow('At least one concept is required');
+
+      await expect(generator.generateMindMap(
+        'Topic',
+        ['concept'],
+        '',
+        'beginner'
+      )).rejects.toThrow('Learning objective cannot be empty');
+    });
+
+    it('should handle large concept arrays', async () => {
+      const largeConcepts = Array(50).fill(null).map((_, i) => `concept${i}`);
+      
+      mockProvider.generateStructuredOutput.mockResolvedValue({
+        ...mockMindMapData,
+        concepts: largeConcepts.slice(0, 20).map((concept, i) => ({
+          id: concept,
+          label: concept,
+          description: `Description for ${concept}`,
+          parentId: i < 5 ? 'root' : `concept${Math.floor(i / 5) - 1}`,
+          importance: 'medium',
+          relationships: []
+        }))
+      });
+
+      const mindMap = await generator.generateMindMap(
+        'Large Topic',
+        largeConcepts,
+        'Handle many concepts',
+        'advanced'
+      );
+
+      expect(mindMap.nodes.length).toBeGreaterThan(10);
+      expect(mindMap.nodes.length).toBeLessThanOrEqual(21); // Root + max 20 concepts
+    });
+  });
+
+  describe('generateConceptMap', () => {
+    const mockContent = `
+      Jung's theory of archetypes describes universal patterns found in the collective unconscious.
+      The shadow represents repressed or hidden aspects of personality.
+      The anima is the feminine aspect within the male psyche.
+      The persona is the mask we wear in social situations.
+    `;
+
+    it('should extract concepts from content and create map', async () => {
+      const conceptMapData = {
+        title: 'Content Concept Map',
+        extractedConcepts: [
+          { term: 'archetypes', importance: 0.9, category: 'core' },
+          { term: 'collective unconscious', importance: 0.8, category: 'foundation' },
+          { term: 'shadow', importance: 0.7, category: 'archetype' },
+          { term: 'anima', importance: 0.6, category: 'archetype' }
+        ],
+        relationships: [
+          { from: 'archetypes', to: 'collective unconscious', type: 'found_in' },
+          { from: 'shadow', to: 'archetypes', type: 'is_a' },
+          { from: 'anima', to: 'archetypes', type: 'is_a' }
+        ]
+      };
+
+      mockProvider.generateStructuredOutput.mockResolvedValue(conceptMapData);
+
+      const conceptMap = await generator.generateConceptMap(mockContent, 'Jungian Theory');
+
+      expect(conceptMap.title).toBe('Content Concept Map');
+      expect(conceptMap.nodes).toHaveLength(4);
+      expect(conceptMap.edges).toHaveLength(3);
+      expect(conceptMap.nodes[0].importance).toBeDefined();
+    });
+
+    it('should handle content without clear concepts', async () => {
+      const vagueMockData = {
+        title: 'General Concepts',
+        extractedConcepts: [
+          { term: 'general concept', importance: 0.3, category: 'general' }
+        ],
+        relationships: []
+      };
+
+      mockProvider.generateStructuredOutput.mockResolvedValue(vagueMockData);
+
+      const conceptMap = await generator.generateConceptMap(
+        'This is very general content without specific concepts.',
+        'General Topic'
+      );
+
+      expect(conceptMap.nodes).toHaveLength(1);
+      expect(conceptMap.edges).toHaveLength(0);
+    });
+
+    it('should limit extraction to reasonable number of concepts', async () => {
+      const manyConcepts = Array(100).fill(null).map((_, i) => ({
+        term: `concept${i}`,
+        importance: Math.random(),
+        category: 'auto'
+      }));
+
+      mockProvider.generateStructuredOutput.mockResolvedValue({
+        title: 'Many Concepts',
+        extractedConcepts: manyConcepts,
+        relationships: []
+      });
+
+      const conceptMap = await generator.generateConceptMap(
+        'Content with many concepts',
+        'Complex Topic'
+      );
+
+      expect(conceptMap.nodes.length).toBeLessThanOrEqual(30); // Should limit concepts
+    });
+  });
+
+  describe('generateHierarchicalMap', () => {
+    const mockHierarchy = {
+      rootTopic: 'Jungian Psychology',
+      levels: [
+        {
+          level: 0,
+          concepts: [
+            { id: 'jung-psych', label: 'Jungian Psychology', children: ['theories', 'concepts'] }
+          ]
+        },
+        {
+          level: 1,
+          concepts: [
+            { id: 'theories', label: 'Core Theories', children: ['collective-unconscious', 'individuation'] },
+            { id: 'concepts', label: 'Key Concepts', children: ['archetypes', 'complexes'] }
+          ]
+        },
+        {
+          level: 2,
+          concepts: [
+            { id: 'collective-unconscious', label: 'Collective Unconscious', children: [] },
+            { id: 'individuation', label: 'Individuation', children: [] },
+            { id: 'archetypes', label: 'Archetypes', children: [] },
+            { id: 'complexes', label: 'Complexes', children: [] }
+          ]
+        }
+      ]
+    };
+
+    it('should generate hierarchical mind map structure', async () => {
+      mockProvider.generateStructuredOutput.mockResolvedValue(mockHierarchy);
+
+      const hierarchicalMap = await generator.generateHierarchicalMap(
+        'Jungian Psychology',
+        ['psychology', 'archetypes', 'unconscious'],
         3
       );
 
-      // Core and supporting nodes should have descriptions
-      expect(mindMap.nodes['node1'].description).toBeDefined();
-      expect(mindMap.nodes['node1-1'].description).toBeDefined();
-
-      // Related or deep nodes should not have descriptions
-      expect(mindMap.nodes['node2-1'].description).toBeUndefined();
-    });
-
-    it('should handle errors in structure generation', async () => {
-      // Reset all mocks to clear any previous setup
-      mockProvider.generateStructuredOutput.mockReset();
-      mockProvider.generateCompletion.mockReset();
+      expect(hierarchicalMap.title).toBe('Jungian Psychology');
+      expect(hierarchicalMap.levels).toHaveLength(3);
+      expect(hierarchicalMap.nodes).toHaveLength(7); // 1 + 2 + 4 concepts across levels
       
-      // Set up rejection for the first call
-      mockProvider.generateStructuredOutput.mockRejectedValueOnce(new Error('Generation failed'));
-
-      await expect(generator.generateMindMap(
-        'Failed Topic',
-        ['concept'],
-        2
-      )).rejects.toThrow('Generation failed');
-    });
-  });
-
-  describe('generateStudyPath', () => {
-    const mockMindMap: MindMap = {
-      id: 'mindmap-123',
-      title: 'Shadow Work - Jungian Perspective',
-      description: 'Visual exploration of shadow work',
-      rootNode: 'root',
-      nodes: {
-        'root': {
-          id: 'root',
-          label: 'Shadow Work',
-          level: 0,
-          children: ['node1', 'node2'],
-          metadata: { importance: 'core', jungianCategory: 'process' }
-        },
-        'node1': {
-          id: 'node1',
-          label: 'Recognition',
-          level: 1,
-          parent: 'root',
-          children: [],
-          metadata: { importance: 'core', jungianCategory: 'process' }
-        },
-        'node2': {
-          id: 'node2',
-          label: 'Integration',
-          level: 1,
-          parent: 'root',
-          children: [],
-          metadata: { importance: 'supporting', jungianCategory: 'process' }
-        }
-      },
-      connections: [],
-      layout: 'radial',
-      theme: 'jungian'
-    };
-
-    it('should generate a study path for the mind map', async () => {
-      mockProvider.generateStructuredOutput.mockResolvedValue(['root', 'node1', 'node2']);
-
-      const studyPath = await generator.generateStudyPath(mockMindMap, 'en');
-
-      expect(studyPath).toEqual(['root', 'node1', 'node2']);
-      expect(mockProvider.generateStructuredOutput).toHaveBeenCalledWith(
-        expect.stringContaining('create an optimal study path'),
-        [],
-        { temperature: 0.4 }
-      );
+      // Check hierarchical structure
+      const rootNode = hierarchicalMap.nodes.find(n => n.level === 0);
+      expect(rootNode).toBeDefined();
+      expect(rootNode?.children).toHaveLength(2);
     });
 
-    it('should include node importance in prompt', async () => {
-      await generator.generateStudyPath(mockMindMap, 'pt-BR');
-
-      expect(mockProvider.generateStructuredOutput).toHaveBeenCalledWith(
-        expect.stringContaining('Central: Shadow Work, Recognition'),
-        expect.any(Array),
-        expect.any(Object)
-      );
-      expect(mockProvider.generateStructuredOutput).toHaveBeenCalledWith(
-        expect.stringContaining('Apoio: Integration'),
-        expect.any(Array),
-        expect.any(Object)
-      );
-    });
-  });
-
-  describe('exportToD3Format', () => {
-    const mockMindMap: MindMap = {
-      id: 'mindmap-123',
-      title: 'Test Mind Map',
-      description: 'Test description',
-      rootNode: 'root',
-      nodes: {
-        'root': {
-          id: 'root',
-          label: 'Main Topic',
-          level: 0,
-          children: ['node1'],
-          metadata: { importance: 'core', jungianCategory: 'archetype' }
-        },
-        'node1': {
-          id: 'node1',
-          label: 'Sub Topic',
-          level: 1,
-          parent: 'root',
-          children: [],
-          metadata: { importance: 'supporting', jungianCategory: 'concept' }
-        }
-      },
-      connections: [
-        { from: 'root', to: 'node1', type: 'hierarchical' },
-        { from: 'root', to: 'node1', type: 'associative', label: 'Related' }
-      ],
-      layout: 'radial',
-      theme: 'jungian'
-    };
-
-    it('should export mind map to D3.js format', async () => {
-      const d3Data = await generator.exportToD3Format(mockMindMap);
-
-      expect(d3Data.nodes).toHaveLength(2);
-      expect(d3Data.nodes[0]).toEqual({
-        id: 'root',
-        label: 'Main Topic',
-        group: 'archetype',
-        level: 0,
-        value: 3 // core importance
-      });
-      expect(d3Data.nodes[1]).toEqual({
-        id: 'node1',
-        label: 'Sub Topic',
-        group: 'concept',
-        level: 1,
-        value: 2 // supporting importance
-      });
-
-      expect(d3Data.links).toHaveLength(2);
-      expect(d3Data.links[0]).toEqual({
-        source: 'root',
-        target: 'node1',
-        value: 2, // hierarchical
-        type: 'hierarchical'
-      });
-      expect(d3Data.links[1]).toEqual({
-        source: 'root',
-        target: 'node1',
-        value: 1, // non-hierarchical
-        type: 'associative'
-      });
-    });
-
-    it('should handle nodes without metadata', async () => {
-      const mindMapWithoutMetadata = {
-        ...mockMindMap,
-        nodes: {
-          'node1': {
-            id: 'node1',
-            label: 'No Metadata Node',
+    it('should handle single-level hierarchy', async () => {
+      const simpleMockHierarchy = {
+        rootTopic: 'Simple Topic',
+        levels: [
+          {
             level: 0,
-            children: []
+            concepts: [
+              { id: 'root', label: 'Simple Topic', children: [] }
+            ]
           }
-        }
+        ]
       };
 
-      const d3Data = await generator.exportToD3Format(mindMapWithoutMetadata);
+      mockProvider.generateStructuredOutput.mockResolvedValue(simpleMockHierarchy);
 
-      expect(d3Data.nodes[0]).toEqual({
-        id: 'node1',
-        label: 'No Metadata Node',
-        group: 'concept', // default
-        level: 0,
-        value: 1 // default for no importance
+      const hierarchicalMap = await generator.generateHierarchicalMap(
+        'Simple Topic',
+        ['concept'],
+        1
+      );
+
+      expect(hierarchicalMap.levels).toHaveLength(1);
+      expect(hierarchicalMap.nodes).toHaveLength(1);
+    });
+
+    it('should validate hierarchy depth limits', async () => {
+      await expect(generator.generateHierarchicalMap(
+        'Topic',
+        ['concept'],
+        0
+      )).rejects.toThrow('Depth must be at least 1');
+
+      await expect(generator.generateHierarchicalMap(
+        'Topic',
+        ['concept'],
+        11
+      )).rejects.toThrow('Depth cannot exceed 10');
+    });
+  });
+
+  describe('optimizeLayout', () => {
+    const mockMindMap = {
+      id: 'test-map',
+      title: 'Test Map',
+      nodes: [
+        { id: 'root', label: 'Root', type: 'root', x: 0, y: 0 },
+        { id: 'child1', label: 'Child 1', type: 'concept', x: 100, y: 50 },
+        { id: 'child2', label: 'Child 2', type: 'concept', x: -100, y: 50 }
+      ],
+      edges: [
+        { id: 'edge1', from: 'root', to: 'child1', type: 'hierarchy' },
+        { id: 'edge2', from: 'root', to: 'child2', type: 'hierarchy' }
+      ]
+    };
+
+    it('should optimize node positions for better layout', async () => {
+      const optimizedMap = await generator.optimizeLayout(mockMindMap);
+
+      expect(optimizedMap.nodes).toHaveLength(mockMindMap.nodes.length);
+      expect(optimizedMap.edges).toHaveLength(mockMindMap.edges.length);
+      
+      // Positions should be optimized (mocked function would change them)
+      optimizedMap.nodes.forEach(node => {
+        expect(node.x).toBeDefined();
+        expect(node.y).toBeDefined();
+      });
+    });
+
+    it('should handle maps with no nodes', async () => {
+      const emptyMap = {
+        ...mockMindMap,
+        nodes: [],
+        edges: []
+      };
+
+      const optimizedMap = await generator.optimizeLayout(emptyMap);
+
+      expect(optimizedMap.nodes).toHaveLength(0);
+      expect(optimizedMap.edges).toHaveLength(0);
+    });
+
+    it('should preserve node and edge properties during optimization', async () => {
+      const optimizedMap = await generator.optimizeLayout(mockMindMap);
+
+      optimizedMap.nodes.forEach((node, index) => {
+        expect(node.id).toBe(mockMindMap.nodes[index].id);
+        expect(node.label).toBe(mockMindMap.nodes[index].label);
+        expect(node.type).toBe(mockMindMap.nodes[index].type);
+      });
+
+      optimizedMap.edges.forEach((edge, index) => {
+        expect(edge.id).toBe(mockMindMap.edges[index].id);
+        expect(edge.from).toBe(mockMindMap.edges[index].from);
+        expect(edge.to).toBe(mockMindMap.edges[index].to);
       });
     });
   });
 
-  describe('helper methods', () => {
-    describe('getColorForCategory', () => {
-      it('should return correct colors for categories', () => {
-        const colorMap = {
-          'archetype': '#7C3AED',
-          'complex': '#DC2626',
-          'process': '#2563EB',
-          'concept': '#059669'
-        };
+  describe('analyzeComplexity', () => {
+    it('should analyze mind map complexity metrics', async () => {
+      const complexMap = {
+        nodes: Array(20).fill(null).map((_, i) => ({ 
+          id: `node${i}`, 
+          label: `Node ${i}`, 
+          type: i === 0 ? 'root' : 'concept' 
+        })),
+        edges: Array(25).fill(null).map((_, i) => ({
+          id: `edge${i}`,
+          from: `node${Math.floor(i / 5)}`,
+          to: `node${i % 19 + 1}`,
+          type: 'hierarchy'
+        }))
+      };
 
-        Object.entries(colorMap).forEach(([category, expectedColor]) => {
-          const color = (generator as any).getColorForCategory(category);
-          expect(color).toBe(expectedColor);
-        });
+      const complexity = await generator.analyzeComplexity(complexMap as any);
 
-        // Test default color
-        expect((generator as any).getColorForCategory(undefined)).toBe('#6B7280');
-        expect((generator as any).getColorForCategory('unknown')).toBe('#6B7280');
-      });
+      expect(complexity.nodeCount).toBe(20);
+      expect(complexity.edgeCount).toBe(25);
+      expect(complexity.depth).toBeGreaterThan(0);
+      expect(complexity.branchingFactor).toBeGreaterThan(0);
+      expect(complexity.complexity).toMatch(/^(low|medium|high)$/);
     });
 
-    describe('getIconForCategory', () => {
-      it('should return correct icons for categories', () => {
-        const iconMap = {
-          'archetype': '👑',
-          'complex': '💎',
-          'process': '🔄',
-          'concept': '💡'
-        };
+    it('should handle simple maps', async () => {
+      const simpleMap = {
+        nodes: [
+          { id: 'root', label: 'Root', type: 'root' },
+          { id: 'child', label: 'Child', type: 'concept' }
+        ],
+        edges: [
+          { id: 'edge', from: 'root', to: 'child', type: 'hierarchy' }
+        ]
+      };
 
-        Object.entries(iconMap).forEach(([category, expectedIcon]) => {
-          const icon = (generator as any).getIconForCategory(category);
-          expect(icon).toBe(expectedIcon);
-        });
+      const complexity = await generator.analyzeComplexity(simpleMap as any);
 
-        // Test default icon
-        expect((generator as any).getIconForCategory(undefined)).toBe('📍');
-        expect((generator as any).getIconForCategory('unknown')).toBe('📍');
-      });
+      expect(complexity.nodeCount).toBe(2);
+      expect(complexity.edgeCount).toBe(1);
+      expect(complexity.complexity).toBe('low');
     });
 
-    describe('generateNodeDescription', () => {
-      it('should generate description with context', async () => {
-        mockProvider.generateCompletion.mockResolvedValue({ content: 'This concept represents the hidden aspects of personality' });
+    it('should handle empty maps', async () => {
+      const emptyMap = { nodes: [], edges: [] };
 
-        const description = await (generator as any).generateNodeDescription(
-          'Shadow',
-          'Jungian Psychology',
-          'Unconscious',
-          'en'
-        );
+      const complexity = await generator.analyzeComplexity(emptyMap as any);
 
-        expect(description).toBe('This concept represents the hidden aspects of personality');
-        expect(mockProvider.generateCompletion).toHaveBeenCalledWith(
-          expect.stringContaining('Write a brief (50-75 words) description'),
-          { temperature: 0.6, maxTokens: 150 }
-        );
-        expect(mockProvider.generateCompletion).toHaveBeenCalledWith(
-          expect.stringContaining('This is a sub-concept of "Unconscious"'),
-          expect.any(Object)
-        );
-      });
-
-      it('should handle Portuguese descriptions', async () => {
-        mockProvider.generateCompletion.mockResolvedValue({ 
-          content: 'A sombra representa os aspectos ocultos da personalidade' 
-        });
-        
-        await (generator as any).generateNodeDescription(
-          'Sombra',
-          'Psicologia Junguiana',
-          undefined,
-          'pt-BR'
-        );
-
-        expect(mockProvider.generateCompletion).toHaveBeenCalledWith(
-          expect.stringContaining('Escreva uma breve descrição'),
-          expect.any(Object)
-        );
-        expect(mockProvider.generateCompletion).toHaveBeenCalledWith(
-          expect.stringContaining('Escreva em português brasileiro'),
-          expect.any(Object)
-        );
-      });
+      expect(complexity.nodeCount).toBe(0);
+      expect(complexity.edgeCount).toBe(0);
+      expect(complexity.depth).toBe(0);
+      expect(complexity.complexity).toBe('low');
     });
+  });
 
-    describe('generateConnections', () => {
-      it('should generate non-hierarchical connections', async () => {
-        const nodes = {
-          'node1': {
-            id: 'node1',
-            label: 'Conscious',
-            level: 1,
-            parent: 'root',
-            children: [],
-            metadata: { importance: 'core', jungianCategory: 'concept' }
-          },
-          'node2': {
-            id: 'node2',
-            label: 'Unconscious',
-            level: 1,
-            parent: 'root',
-            children: [],
-            metadata: { importance: 'core', jungianCategory: 'concept' }
-          },
-          'root': {
-            id: 'root',
-            label: 'Psyche',
-            level: 0,
-            children: ['node1', 'node2'],
-            metadata: { importance: 'core', jungianCategory: 'concept' }
-          }
-        };
-
-        const mockCustomConnections = [
+  describe('generateProgressiveMindMap', () => {
+    it('should generate mind map that builds concepts progressively', async () => {
+      const progressiveData = {
+        stages: [
           {
-            from: 'node1',
-            to: 'node2',
-            type: 'opposing' as const,
-            label: 'Complementary opposites'
+            stage: 1,
+            title: 'Basic Concepts',
+            concepts: ['archetype', 'unconscious'],
+            connections: [{ from: 'archetype', to: 'unconscious' }]
+          },
+          {
+            stage: 2,
+            title: 'Specific Archetypes',
+            concepts: ['shadow', 'anima'],
+            connections: [
+              { from: 'shadow', to: 'archetype' },
+              { from: 'anima', to: 'archetype' }
+            ]
           }
-        ];
+        ]
+      };
 
-        mockProvider.generateStructuredOutput.mockResolvedValue(mockCustomConnections);
+      mockProvider.generateStructuredOutput.mockResolvedValue(progressiveData);
 
-        const connections = await (generator as any).generateConnections(
-          nodes,
-          'Psyche Structure',
-          'en'
-        );
+      const progressiveMap = await generator.generateProgressiveMindMap(
+        'Jungian Archetypes',
+        ['archetype', 'shadow', 'anima', 'unconscious'],
+        ['Understand basic concepts', 'Learn specific archetypes'],
+        2
+      );
 
-        // Should include hierarchical connections
-        expect(connections).toContainEqual({
-          from: 'root',
-          to: 'node1',
-          type: 'hierarchical'
-        });
-        expect(connections).toContainEqual({
-          from: 'root',
-          to: 'node2',
-          type: 'hierarchical'
-        });
+      expect(progressiveMap.stages).toHaveLength(2);
+      expect(progressiveMap.totalNodes).toBe(4);
+      expect(progressiveMap.stages[0].concepts).toHaveLength(2);
+      expect(progressiveMap.stages[1].concepts).toHaveLength(2);
+    });
 
-        // Should include custom connections
-        expect(connections).toContainEqual(mockCustomConnections[0]);
+    it('should validate stage parameters', async () => {
+      await expect(generator.generateProgressiveMindMap(
+        'Topic',
+        ['concept'],
+        ['objective'],
+        0
+      )).rejects.toThrow('Number of stages must be at least 1');
+
+      await expect(generator.generateProgressiveMindMap(
+        'Topic',
+        ['concept'],
+        ['objective'],
+        11
+      )).rejects.toThrow('Number of stages cannot exceed 10');
+    });
+  });
+
+  describe('error handling and edge cases', () => {
+    it('should handle provider timeout', async () => {
+      mockProvider.generateStructuredOutput.mockImplementation(
+        () => new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout')), 100)
+        )
+      );
+
+      await expect(generator.generateMindMap(
+        'Topic',
+        ['concept'],
+        'objective',
+        'beginner'
+      )).rejects.toThrow('Failed to generate mind map');
+    });
+
+    it('should handle very large concept lists', async () => {
+      const hugeConcepts = Array(1000).fill(null).map((_, i) => `concept${i}`);
+      
+      mockProvider.generateStructuredOutput.mockResolvedValue({
+        ...mockMindMapData,
+        concepts: hugeConcepts.slice(0, 50).map(concept => ({
+          id: concept,
+          label: concept,
+          description: `Description for ${concept}`,
+          parentId: 'root',
+          importance: 'medium',
+          relationships: []
+        }))
       });
 
-      it('should limit connections to meaningful ones', async () => {
-        const nodes = {
-          'node1': { id: 'node1', label: 'Test1', level: 0, children: [], metadata: {} },
-          'node2': { id: 'node2', label: 'Test2', level: 0, children: [], metadata: {} }
-        };
+      const mindMap = await generator.generateMindMap(
+        'Huge Topic',
+        hugeConcepts,
+        'Handle huge concept list',
+        'advanced'
+      );
 
-        await (generator as any).generateConnections(nodes, 'Test Topic', 'pt-BR');
+      // Should limit the number of concepts in the result
+      expect(mindMap.nodes.length).toBeLessThanOrEqual(51); // Root + max 50 concepts
+    });
 
-        expect(mockProvider.generateStructuredOutput).toHaveBeenCalledWith(
-          expect.stringContaining('Limite às 5-8 conexões mais significativas'),
-          expect.any(Array),
-          expect.any(Object)
-        );
+    it('should handle special characters in concept names', async () => {
+      const specialConcepts = [
+        'concept-with-dashes',
+        'concept_with_underscores',
+        'concept with spaces',
+        'concept@with#symbols',
+        'conceito-em-português',
+        'концепция-кириллица'
+      ];
+
+      mockProvider.generateStructuredOutput.mockResolvedValue({
+        ...mockMindMapData,
+        concepts: specialConcepts.map((concept, i) => ({
+          id: concept.replace(/[^a-zA-Z0-9]/g, '_'),
+          label: concept,
+          description: `Description for ${concept}`,
+          parentId: 'root',
+          importance: 'medium',
+          relationships: []
+        }))
       });
+
+      const mindMap = await generator.generateMindMap(
+        'Special Characters',
+        specialConcepts,
+        'Handle special characters',
+        'intermediate'
+      );
+
+      expect(mindMap.nodes.length).toBe(specialConcepts.length + 1); // +1 for root
+      specialConcepts.forEach(concept => {
+        const node = mindMap.nodes.find(n => n.label === concept);
+        expect(node).toBeDefined();
+      });
+    });
+
+    it('should validate mind map structure completeness', async () => {
+      const incompleteMockData = {
+        title: 'Incomplete Map',
+        rootConcept: {
+          id: 'root',
+          label: 'Root'
+          // Missing required fields
+        },
+        concepts: [],
+        connections: []
+      };
+
+      mockProvider.generateStructuredOutput.mockResolvedValue(incompleteMockData);
+
+      await expect(generator.generateMindMap(
+        'Incomplete Test',
+        ['concept'],
+        'objective',
+        'beginner'
+      )).rejects.toThrow('Invalid mind map structure');
     });
   });
 });

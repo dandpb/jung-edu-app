@@ -105,80 +105,73 @@ export const jungQuestionTypes = {
 export const jungQuestionTemplates: Record<string, QuestionTemplate> = {
   conceptIdentification: {
     type: 'multiple-choice',
-    structure: 'Which of the following best describes Jung\'s concept of {concept}?',
+    structure: 'Qual das seguintes opções melhor descreve o conceito de {concept} segundo Jung?',
     optionPatterns: [
-      'Correct definition with key characteristics',
-      'Similar concept from different theory',
-      'Partial definition missing key element',
-      'Common misconception'
+      'Definição correta com características principais',
+      'Conceito similar de teoria diferente',
+      'Definição parcial faltando elemento chave',
+      'Equívoco comum'
     ],
-    explanationTemplate: 'Jung defined {concept} as {definition}. This differs from {misconception} because {distinction}.',
-    difficultyFactors: ['conceptual complexity', 'abstract thinking required', 'differentiation from similar concepts']
+    explanationTemplate: 'Jung definiu {concept} como {definition}. Isso difere de {misconception} porque {distinction}.',
+    difficultyFactors: ['complexidade conceitual', 'pensamento abstrato necessário', 'diferenciação de conceitos similares']
   },
   
   archetypeAnalysis: {
     type: 'multiple-choice',
-    structure: 'In the following scenario, which archetype is most prominently displayed: {scenario}?',
+    structure: 'No seguinte cenário, qual arquétipo está mais proeminentemente manifestado: {scenario}?',
     optionPatterns: [
-      'Correct archetype with justification',
-      'Related but distinct archetype',
-      'Surface-level interpretation',
-      'Misapplied archetype'
+      'Arquétipo correto com justificativa',
+      'Arquétipo relacionado mas distinto',
+      'Interpretação superficial',
+      'Arquétipo mal aplicado'
     ],
-    explanationTemplate: 'This scenario illustrates the {archetype} because {key_features}. Key indicators include {evidence}.',
-    difficultyFactors: ['scenario complexity', 'subtle manifestations', 'multiple archetypes present']
+    explanationTemplate: 'Este cenário ilustra o {archetype} porque {key_features}. Indicadores principais incluem {evidence}.',
+    difficultyFactors: ['complexidade do cenário', 'manifestações sutis', 'múltiplos arquétipos presentes']
   },
 
   psychologicalTypeIdentification: {
     type: 'multiple-choice',
-    structure: 'Based on the following behavior pattern, which psychological type is most likely: {behavior}?',
+    structure: 'Baseado no seguinte padrão de comportamento, qual tipo psicológico é mais provável: {behavior}?',
     optionPatterns: [
-      'Correct type with function stack',
-      'Opposite type',
-      'Similar but different dominant function',
-      'Stereotypical misidentification'
+      'Tipo correto com pilha de funções',
+      'Tipo oposto',
+      'Similar mas com função dominante diferente',
+      'Identificação estereotipada incorreta'
     ],
-    explanationTemplate: 'This pattern suggests {type} with dominant {function}. The key indicators are {behaviors} which demonstrate {cognitive_process}.',
-    difficultyFactors: ['behavior subtlety', 'function differentiation', 'auxiliary function visibility']
+    explanationTemplate: 'Este padrão sugere {type} com função dominante {function}. Os indicadores principais são {behaviors} que demonstram {cognitive_process}.',
+    difficultyFactors: ['sutileza do comportamento', 'diferenciação de funções', 'visibilidade da função auxiliar']
   },
 
   dreamSymbolInterpretation: {
     type: 'short-answer',
-    structure: 'What might the symbol of {symbol} represent in a dream, according to Jungian analysis?',
-    explanationTemplate: 'In Jungian dream analysis, {symbol} often represents {meaning}. Consider personal associations, cultural context, and compensatory function.',
-    difficultyFactors: ['symbol ambiguity', 'personal vs collective meaning', 'context dependency']
+    structure: 'O que o símbolo de {symbol} pode representar em um sonho, segundo a análise junguiana?',
+    explanationTemplate: 'Na análise de sonhos junguiana, {symbol} frequentemente representa {meaning}. Considere associações pessoais, contexto cultural e função compensatória.',
+    difficultyFactors: ['ambiguidade do símbolo', 'significado pessoal vs coletivo', 'dependência do contexto']
   },
 
   individuationProcess: {
     type: 'essay',
-    structure: 'Describe how {situation} relates to the individuation process.',
-    explanationTemplate: 'Key aspects to consider: {aspects}. The individuation process involves {stages} and this situation reflects {specific_stage}.',
-    difficultyFactors: ['process understanding', 'stage identification', 'personal application']
+    structure: 'Descreva como {situation} se relaciona com o processo de individuação.',
+    explanationTemplate: 'Aspectos principais a considerar: {aspects}. O processo de individuação envolve {stages} e esta situação reflete {specific_stage}.',
+    difficultyFactors: ['compreensão do processo', 'identificação de estágios', 'aplicação pessoal']
   },
 
   shadowWork: {
     type: 'multiple-choice',
-    structure: 'Which of the following represents an example of shadow projection in {context}?',
+    structure: 'Qual das seguintes opções representa um exemplo de projeção da sombra em {context}?',
     optionPatterns: [
-      'Clear projection with unconscious content',
-      'Conscious criticism without projection',
-      'Partial projection with some awareness',
-      'Misunderstood as shadow (actually conscious)'
+      'Projeção clara com conteúdo inconsciente',
+      'Crítica consciente sem projeção',
+      'Projeção parcial com alguma consciência',
+      'Mal-entendido como sombra (na verdade consciente)'
     ],
-    explanationTemplate: 'Shadow projection occurs when {unconscious_content} is attributed to others. Here, {specific_example} shows this because {evidence}.',
-    difficultyFactors: ['projection subtlety', 'conscious vs unconscious distinction', 'context complexity']
+    explanationTemplate: 'A projeção da sombra ocorre quando {unconscious_content} é atribuído a outros. Aqui, {specific_example} mostra isso porque {evidence}.',
+    difficultyFactors: ['sutileza da projeção', 'distinção consciente vs inconsciente', 'complexidade do contexto']
   }
 };
 
 // Topic-specific templates with Portuguese concepts
 export const topicTemplates: TopicTemplate[] = [
-  {
-    topic: 'Collective Unconscious',
-    concepts: ['inconsciente coletivo', 'arquétipos', 'padrões universais', 'imagens primordiais', 'herança psíquica'],
-    questionTypes: [jungQuestionTemplates.conceptIdentification, jungQuestionTemplates.archetypeAnalysis],
-    assessmentFocus: ['differentiation from personal unconscious', 'archetype identification', 'cultural manifestations'],
-    commonMisconceptions: ['same as personal unconscious', 'purely cultural', 'genetic inheritance']
-  },
   {
     topic: 'Inconsciente Coletivo',
     concepts: ['inconsciente coletivo', 'arquétipos', 'padrões universais', 'imagens primordiais', 'herança psíquica'],
@@ -188,36 +181,21 @@ export const topicTemplates: TopicTemplate[] = [
   },
   
   {
-    topic: 'Pokemon and Jungian Psychology',
-    concepts: ['Pokemon as archetypes', 'evolution as individuation', 'type dynamics', 'trainer-Pokemon relationship as Self-ego axis'],
-    questionTypes: [jungQuestionTemplates.archetypeAnalysis, jungQuestionTemplates.conceptIdentification],
-    assessmentFocus: ['archetype manifestation in Pokemon', 'psychological growth through Pokemon journey', 'type relationships as psychological functions'],
-    commonMisconceptions: ['Pokemon are just entertainment', 'evolution is only physical change', 'types are arbitrary categories']
-  },
-  
-  {
-    topic: 'Psychological Types',
+    topic: 'Tipos Psicológicos',
     concepts: ['introversão/extroversão', 'pensamento/sentimento', 'sensação/intuição', 'função dominante', 'função inferior'],
     questionTypes: [jungQuestionTemplates.psychologicalTypeIdentification, jungQuestionTemplates.conceptIdentification],
-    assessmentFocus: ['function identification', 'type dynamics', 'development patterns'],
-    commonMisconceptions: ['types as boxes', 'no change possible', 'behavior equals type']
+    assessmentFocus: ['identificação de funções', 'dinâmica dos tipos', 'padrões de desenvolvimento'],
+    commonMisconceptions: ['tipos como caixas', 'mudança impossível', 'comportamento igual a tipo']
   },
 
   {
-    topic: 'Individuation',
+    topic: 'Individuação',
     concepts: ['individuação', 'Self', 'eixo ego-Self', 'integração', 'totalidade', 'transição da meia-idade'],
     questionTypes: [jungQuestionTemplates.individuationProcess, jungQuestionTemplates.conceptIdentification],
-    assessmentFocus: ['process understanding', 'stage recognition', 'integration challenges'],
-    commonMisconceptions: ['linear process', 'completion possible', 'same as self-improvement']
+    assessmentFocus: ['compreensão do processo', 'reconhecimento de estágios', 'desafios de integração'],
+    commonMisconceptions: ['processo linear', 'conclusão possível', 'mesmo que auto-aperfeiçoamento']
   },
 
-  {
-    topic: 'Shadow',
-    concepts: ['sombra', 'sombra pessoal', 'sombra coletiva', 'projeção', 'integração', 'ouro na sombra'],
-    questionTypes: [jungQuestionTemplates.shadowWork, jungQuestionTemplates.archetypeAnalysis],
-    assessmentFocus: ['projection recognition', 'integration methods', 'positive shadow'],
-    commonMisconceptions: ['only negative', 'should be eliminated', 'same as evil']
-  },
   {
     topic: 'Sombra',
     concepts: ['sombra', 'sombra pessoal', 'sombra coletiva', 'projeção', 'integração', 'ouro na sombra'],
@@ -230,8 +208,8 @@ export const topicTemplates: TopicTemplate[] = [
     topic: 'Anima/Animus',
     concepts: ['anima', 'animus', 'contrassexual', 'imagem da alma', 'projeção', 'estágios de desenvolvimento', 'integração'],
     questionTypes: [jungQuestionTemplates.archetypeAnalysis, jungQuestionTemplates.conceptIdentification],
-    assessmentFocus: ['stage identification', 'projection patterns', 'integration signs'],
-    commonMisconceptions: ['gender stereotypes', 'fixed images', 'only romantic']
+    assessmentFocus: ['identificação de estágios', 'padrões de projeção', 'sinais de integração'],
+    commonMisconceptions: ['estereótipos de gênero', 'imagens fixas', 'apenas romântico']
   },
   {
     topic: 'Anima',
@@ -242,11 +220,11 @@ export const topicTemplates: TopicTemplate[] = [
   },
 
   {
-    topic: 'Dreams',
+    topic: 'Sonhos',
     concepts: ['função compensatória', 'função prospectiva', 'símbolos', 'amplificação', 'imaginação ativa'],
     questionTypes: [jungQuestionTemplates.dreamSymbolInterpretation, jungQuestionTemplates.conceptIdentification],
-    assessmentFocus: ['symbol interpretation', 'function understanding', 'personal vs collective'],
-    commonMisconceptions: ['wish fulfillment only', 'universal meanings', 'literal interpretation']
+    assessmentFocus: ['interpretação de símbolos', 'compreensão da função', 'pessoal vs coletivo'],
+    commonMisconceptions: ['apenas realização de desejos', 'significados universais', 'interpretação literal']
   },
   {
     topic: 'Archetypes',

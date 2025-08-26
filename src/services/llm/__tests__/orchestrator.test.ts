@@ -169,7 +169,6 @@ describe('ModuleGenerationOrchestrator', () => {
       includeVideos: true,
       includeBibliography: true,
       includeFilms: true,
-      includeMindMap: true,
       quizQuestions: 10,
       videoCount: 5,
       bibliographyCount: 10,
@@ -280,7 +279,6 @@ describe('ModuleGenerationOrchestrator', () => {
       expect(result.videos).toEqual(mockVideos);
       expect(result.bibliography).toEqual(mockBibliography);
       expect(result.films).toEqual(mockFilms);
-      expect(result.mindMap).toEqual(mockMindMap);
 
       // Verify progress events
       expect(progressEvents).toContainEqual(
@@ -309,7 +307,6 @@ describe('ModuleGenerationOrchestrator', () => {
         includeVideos: false,
         includeBibliography: false,
         includeFilms: false,
-        includeMindMap: false,
         quizQuestions: 0,
         useRealServices: false
       };
@@ -321,7 +318,6 @@ describe('ModuleGenerationOrchestrator', () => {
       expect(result.videos).toBeUndefined();
       expect(result.bibliography).toBeUndefined();
       expect(result.films).toBeUndefined();
-      expect(result.mindMap).toBeUndefined();
     });
 
     it('should emit error progress on failure', async () => {
@@ -431,7 +427,6 @@ describe('ModuleGenerationOrchestrator', () => {
         quizQuestions: 10,
         includeVideos: true,
         includeBibliography: true,
-        includeMindMap: true
       };
 
       const estimate = await orchestrator.estimateTokenUsage(options);

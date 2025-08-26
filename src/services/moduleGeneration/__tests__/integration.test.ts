@@ -123,7 +123,6 @@ describe('UnifiedModuleGenerator Integration Tests', () => {
         targetAudience: 'psychology students',
         includeVideos: true,
         includeQuiz: true,
-        includeMindMap: true,
         includeBibliography: true,
         quizQuestions: 5,
         maxVideos: 3,
@@ -143,12 +142,6 @@ describe('UnifiedModuleGenerator Integration Tests', () => {
       expect(result.metadata.componentsIncluded).toContain('module');
 
       // Verify optional components based on config
-      if (config.includeMindMap) {
-        expect(result.mindMap).toBeDefined();
-        expect(result.mindMap.nodes).toBeInstanceOf(Array);
-        expect(result.mindMap.edges).toBeInstanceOf(Array);
-        expect(result.metadata.componentsIncluded).toContain('mindMap');
-      }
 
       if (config.includeQuiz) {
         expect(result.quiz).toBeDefined();
@@ -178,7 +171,6 @@ describe('UnifiedModuleGenerator Integration Tests', () => {
         targetAudience: 'general audience',
         includeVideos: false,
         includeQuiz: true,
-        includeMindMap: false,
         includeBibliography: false,
       };
 
@@ -187,7 +179,6 @@ describe('UnifiedModuleGenerator Integration Tests', () => {
       expect(result.module).toBeDefined();
       expect(result.quiz).toBeDefined();
       expect(result.videos).toBeDefined(); // Mock always returns videos
-      expect(result.mindMap).toBeDefined(); // Mock always returns mindMap
       expect(result.bibliography).toBeDefined(); // Mock always returns bibliography
     });
 
@@ -216,7 +207,6 @@ describe('UnifiedModuleGenerator Integration Tests', () => {
       const result = await generator.generateStudyModule('Individuation Process');
 
       expect(result.module).toBeDefined();
-      expect(result.mindMap).toBeDefined();
       expect(result.quiz).toBeDefined();
       expect(result.metadata.componentsIncluded).toEqual(['module', 'mindMap', 'quiz']);
     });
@@ -317,9 +307,6 @@ describe('Integration with Individual Services', () => {
       { mindMap: true }
     );
 
-    expect(result.mindMap).toBeDefined();
-    expect(result.mindMap.nodes).toBeDefined();
-    expect(result.mindMap.edges).toBeDefined();
   });
 
   it('should properly integrate quiz generation with enhancements', async () => {
