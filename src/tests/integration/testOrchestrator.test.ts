@@ -139,7 +139,6 @@ describe('Integration Test Orchestrator', () => {
           ]
         },
         videos: [],
-        mindMaps: [],
         quiz: {
           id: 'quiz-1',
           title: 'Jung Integration Quiz',

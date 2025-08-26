@@ -26,7 +26,6 @@ export interface DefaultConfig {
   systemPrompts: {
     content: string;
     quiz: string;
-    mindmap: string;
     bibliography: string;
   };
 }
@@ -51,7 +50,6 @@ export const defaultConfig: LLMConfig = {
     systemPrompts: {
       content: 'You are an expert educator in Jungian psychology. Generate clear, engaging, and academically accurate content suitable for university-level students.',
       quiz: 'You are a quiz generator specializing in Jungian psychology. Create thought-provoking questions that test understanding of concepts, not just memorization.',
-      mindmap: 'You are a concept mapper for Jungian psychology. Create hierarchical relationships between concepts that aid visual learning.',
       bibliography: 'You are a academic reference specialist in Jungian psychology. Provide accurate, relevant citations in APA format.',
     },
   },
@@ -155,7 +153,6 @@ export class ConfigManager {
             systemPrompts: {
               content: 'You are an expert educator in Jungian psychology.',
               quiz: 'You are a quiz generator specializing in Jungian psychology.',
-              mindmap: 'You are a concept mapper for Jungian psychology.',
               bibliography: 'You are a academic reference specialist in Jungian psychology.',
             },
           },
@@ -189,7 +186,6 @@ export class ConfigManager {
           systemPrompts: {
             content: 'You are an expert educator in Jungian psychology.',
             quiz: 'You are a quiz generator specializing in Jungian psychology.',
-            mindmap: 'You are a concept mapper for Jungian psychology.',
             bibliography: 'You are a academic reference specialist in Jungian psychology.',
           },
         },

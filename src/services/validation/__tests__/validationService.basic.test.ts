@@ -97,7 +97,6 @@ describe('ValidationService - Basic Tests', () => {
           keyTakeaways: []
         },
         videos: [],
-        mindMaps: [],
         quiz: {
           id: 'q1',
           title: 'Quiz',

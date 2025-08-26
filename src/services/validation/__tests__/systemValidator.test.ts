@@ -87,22 +87,6 @@ describe('SystemValidator', () => {
         relevance: 'Essential introduction to Jungian concepts'
       }
     ],
-    mindMaps: [{
-      id: 'mindmap-1',
-      moduleId: 'test-module-1',
-      nodes: [
-        { id: 'root', label: 'Jungian Psychology', x: 0, y: 0, type: 'central' },
-        { id: 'shadow', label: 'Shadow', x: -100, y: 0, type: 'concept' },
-        { id: 'collective', label: 'Collective Unconscious', x: 100, y: 0, type: 'concept' }
-      ],
-      edges: [
-        { from: 'root', to: 'shadow', type: 'connects' },
-        { from: 'root', to: 'collective', type: 'connects' }
-      ],
-      centralConcept: 'Jungian Psychology',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }],
     createdAt: new Date(),
     updatedAt: new Date(),
     videos: [],

@@ -28,7 +28,6 @@ async function testPromptsAvailability() {
       { key: 'content.introduction', name: 'Introdução de Módulo', category: 'content' },
       { key: 'content.section', name: 'Seção de Conteúdo', category: 'content' },
       { key: 'quiz.questions', name: 'Questões de Quiz', category: 'quiz' },
-      { key: 'mindmap.structure', name: 'Estrutura de Mapa Mental', category: 'mindmap' },
       { key: 'video.search_queries', name: 'Queries de Busca de Vídeos', category: 'video' },
       { key: 'bibliography.resources', name: 'Recursos Bibliográficos', category: 'bibliography' }
     ];

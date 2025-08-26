@@ -88,7 +88,6 @@ describe('AIResourcePipeline', () => {
     }
   ];
 
-  const mockMindMap = {
     nodes: [
       { id: 'n1', data: { label: 'Archetypes' } },
       { id: 'n2', data: { label: 'Shadow' } }
@@ -146,7 +145,6 @@ describe('AIResourcePipeline', () => {
         quiz: mockQuiz,
         videos: mockVideos,
         bibliography: mockBibliography,
-        mindMap: mockMindMap
       });
 
       mockValidator.validate.mockReturnValue({ isValid: true, errors: [] });
@@ -160,7 +158,6 @@ describe('AIResourcePipeline', () => {
       
       // Check that resources were generated
       const resourceTypes = resources.map(r => r.type);
-      expect(resourceTypes).toContain('mindmap');
       expect(resourceTypes).toContain('test');
       expect(resourceTypes).toContain('config');
       
@@ -255,7 +252,6 @@ describe('AIResourcePipeline', () => {
         quiz: mockQuiz,
         videos: mockVideos,
         bibliography: mockBibliography,
-        mindMap: mockMindMap
       });
     });
 
@@ -341,13 +337,8 @@ describe('AIResourcePipeline', () => {
       });
     });
 
-    describe('mindmap resource generation', () => {
-      it('should generate mindmap for structured content', async () => {
         const resources = await pipeline.processModule(mockModule);
-        const mindmapResource = resources.find(r => r.type === 'mindmap');
 
-        expect(mindmapResource).toBeDefined();
-        expect(mindmapResource?.content).toEqual(mockMindMap);
       });
     });
 
@@ -431,7 +422,6 @@ describe('AIResourcePipeline', () => {
         quiz: { questions: null }, // Invalid structure
         videos: mockVideos,
         bibliography: mockBibliography,
-        mindMap: mockMindMap
       });
 
       const resources = await pipeline.processModule(moduleWithObjectives);
@@ -544,7 +534,6 @@ describe('AIResourcePipeline', () => {
         // Create a resource that's still generating
         const inProgressResource: GeneratedResource = {
           id: 'test-resource',
-          type: 'quiz',
           moduleId: 'in-progress-module',
           content: null,
           metadata: {
@@ -665,7 +654,6 @@ describe('AIResourcePipeline', () => {
         quiz: highQualityQuiz,
         videos: mockVideos,
         bibliography: mockBibliography,
-        mindMap: mockMindMap
       });
 
       const resources = await pipeline.processModule(moduleWithObjectives);
@@ -695,7 +683,6 @@ describe('AIResourcePipeline', () => {
         quiz: mockQuiz,
         videos: highQualityVideos,
         bibliography: mockBibliography,
-        mindMap: mockMindMap
       });
 
       const resources = await pipeline.processModule(mockModule);

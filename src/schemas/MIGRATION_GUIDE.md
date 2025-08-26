@@ -30,7 +30,6 @@ interface EducationalModule {
   description: string;
   content: ModuleContent;
   videos: Video[];        // Now required at module level
-  mindMaps: MindMap[];    // NEW: Required mind maps array
   quiz: Quiz;             // Now required (was optional)
   bibliography: Bibliography[];
   filmReferences: FilmReference[];  // Renamed from 'films'
@@ -122,20 +121,6 @@ interface MultipleChoiceQuestion extends BaseQuestion {
 
 ### 5. Mind Maps (New Feature)
 
-The new schema includes comprehensive mind map support:
-
-```typescript
-interface MindMap {
-  id: string;
-  title: string;
-  description: string;
-  nodes: MindMapNode[];
-  edges: MindMapEdge[];
-  layout: MindMapLayout;
-  style?: MindMapStyle;
-  metadata: MindMapMetadata;
-}
-```
 
 ### 6. Enhanced Bibliography
 
@@ -189,7 +174,6 @@ import {
   Quiz,
   DifficultyLevel,
   ModuleStatus,
-  MindMap,
   Bibliography,
   FilmReference 
 } from '../schemas/module.schema';
@@ -216,7 +200,6 @@ function migrateModule(oldModule: Module): EducationalModule {
     
     // Add required fields
     videos: oldModule.content.videos || [],
-    mindMaps: [],  // Will need to be populated
     quiz: oldModule.content.quiz || createDefaultQuiz(),
     bibliography: oldModule.content.bibliography || [],
     filmReferences: oldModule.content.films?.map(migrateFilm) || [],
@@ -312,7 +295,6 @@ Update to handle new fields:
 - timeEstimate (hours/minutes inputs)
 - tags (tag input component)
 - metadata (author info, status)
-- mindMaps (mind map editor)
 - Enhanced quiz editor for multiple question types
 ```
 

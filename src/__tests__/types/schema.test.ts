@@ -184,15 +184,12 @@ describe('Types - schema.ts', () => {
       expect(moduleWithBibliography.bibliography![2].type).toBe('article');
     });
 
-    it('should accept educational module with mindmap', () => {
-      const moduleWithMindmap: EducationalModule = {
         id: 'edu-module-6',
         title: 'Visual Learning',
         description: 'Module with mind map',
         content: {
           introduction: 'Visual representation of concepts'
         },
-        mindmap: {
           nodes: [
             { id: 'node-1', label: 'Psychology', x: 0, y: 0 },
             { id: 'node-2', label: 'Cognitive', x: 100, y: 0 },
@@ -207,9 +204,6 @@ describe('Types - schema.ts', () => {
         difficulty: 'beginner'
       };
 
-      expect(moduleWithMindmap.mindmap!.nodes).toHaveLength(3);
-      expect(moduleWithMindmap.mindmap!.edges).toHaveLength(2);
-      expect(moduleWithMindmap.mindmap!.edges[0].label).toBe('branch');
     });
 
     it('should accept educational module with all optional fields', () => {
@@ -250,7 +244,6 @@ describe('Types - schema.ts', () => {
           year: 2023,
           type: 'book'
         }],
-        mindmap: {
           nodes: [{ id: 'n1', label: 'Node', x: 0, y: 0 }],
           edges: []
         },
@@ -274,7 +267,6 @@ describe('Types - schema.ts', () => {
           generatedAt: new Date(),
           difficulty: 'advanced',
           topic: 'Cognitive Psychology',
-          componentsIncluded: ['videos', 'quiz', 'mindmap'],
           pipelineProcessed: true,
           pipelineResources: 5,
           qualityEnhanced: true

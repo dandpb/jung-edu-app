@@ -31,7 +31,7 @@ export interface ResourceGenerationConfig {
 
 // Resource Dependencies
 export interface ResourceDependency {
-  resourceType: 'quiz' | 'video' | 'bibliography' | 'mindmap' | 'test' | 'config';
+  resourceType: string;
   requiredFor: string[];
   dependencies: string[];
   priority: 'high' | 'medium' | 'low';
@@ -41,7 +41,6 @@ export interface ResourceDependency {
 // Generated Resource Result
 export interface GeneratedResource {
   id: string;
-  type: 'quiz' | 'video' | 'bibliography' | 'mindmap' | 'test' | 'config' | 'schema';
   moduleId: string;
   content: any;
   metadata: {
@@ -267,7 +266,6 @@ export class AIResourcePipeline extends EventEmitter {
     
     const resource: GeneratedResource = {
       id: resourceId,
-      type: dependency.resourceType,
       moduleId: module.id,
       content: null,
       metadata: {
@@ -467,10 +465,12 @@ export class AIResourcePipeline extends EventEmitter {
         resource.metadata.validated = isValid;
         
         if (!isValid) {
-          console.warn(`⚠️ Resource ${resource.type} failed validation for module: ${module.title}`);
+          const resourceType = this.getResourceTypeFromId(resource.id);
+          console.warn(`⚠️ Resource ${resourceType} failed validation for module: ${module.title}`);
         }
       } catch (error) {
-        console.error(`❌ Validation error for ${resource.type}:`, error);
+        const resourceType = this.getResourceTypeFromId(resource.id);
+        console.error(`❌ Validation error for ${resourceType}:`, error);
         resource.metadata.validated = false;
       }
     }
@@ -482,7 +482,8 @@ export class AIResourcePipeline extends EventEmitter {
    * Validate a specific resource
    */
   private async validateResource(resource: GeneratedResource): Promise<boolean> {
-    switch (resource.type) {
+    const resourceType = this.getResourceTypeFromId(resource.id);
+    switch (resourceType) {
       case 'quiz':
         return this.validateQuiz(resource.content);
       case 'video':
@@ -517,7 +518,8 @@ export class AIResourcePipeline extends EventEmitter {
     };
     
     for (const resource of resources) {
-      switch (resource.type) {
+      const resourceType = this.getResourceTypeFromId(resource.id);
+      switch (resourceType) {
         case 'quiz':
           updatedContent.quiz = resource.content;
           break;
@@ -588,12 +590,28 @@ export class AIResourcePipeline extends EventEmitter {
   }
 
   /**
+   * Determine resource type from resource ID prefix
+   */
+  private getResourceTypeFromId(resourceId: string): string {
+    if (resourceId.startsWith('quiz-')) return 'quiz';
+    if (resourceId.startsWith('video-')) return 'video';
+    if (resourceId.startsWith('bibliography-')) return 'bibliography';
+    if (resourceId.startsWith('test-')) return 'test';
+    if (resourceId.startsWith('config-')) return 'config';
+    
+    // Fallback: extract prefix before first dash
+    const match = resourceId.match(/^([^-]+)-/);
+    return match ? match[1] : 'unknown';
+  }
+
+  /**
    * Resource quality assessment
    */
   private async assessResourceQuality(resource: GeneratedResource): Promise<number> {
     let quality = 0.5; // Base quality
+    const resourceType = this.getResourceTypeFromId(resource.id);
     
-    switch (resource.type) {
+    switch (resourceType) {
       case 'quiz':
         const quiz = resource.content as Quiz;
         if (quiz.questions && quiz.questions.length >= 5) quality += 0.2;

@@ -56,10 +56,6 @@ export interface EducationalModule {
     url?: string;
     summary?: string;
   }>;
-  mindmap?: {
-    nodes: Array<{ id: string; label: string; x: number; y: number }>;
-    edges: Array<{ id: string; source: string; target: string; label?: string }>;
-  };
   videos?: Array<{
     id: string;
     title: string;

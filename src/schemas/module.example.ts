@@ -3,7 +3,7 @@
  * Demonstrates the complete schema structure
  */
 
-import { EducationalModule, DifficultyLevel, NodeType, EdgeType, ModuleStatus, PublicationType, VideoPlatform } from './module.schema';
+import { EducationalModule, DifficultyLevel, ModuleStatus, PublicationType, VideoPlatform } from './module.schema';
 
 export const exampleModule: EducationalModule = {
   id: "jung-module-001",
@@ -186,134 +186,6 @@ as we evolved.
       description: "Deep dive into understanding and integrating the shadow archetype",
       platform: VideoPlatform.CUSTOM,
       embedCode: '<iframe src="https://example.com/embed/shadow-archetype" width="560" height="315"></iframe>'
-    }
-  ],
-  mindMaps: [
-    {
-      id: "mindmap-001",
-      title: "Jungian Psyche Structure",
-      description: "Visual representation of Jung's model of the psyche and its components",
-      nodes: [
-        {
-          id: "node-psyche",
-          label: "The Psyche",
-          description: "The totality of the human mind",
-          position: { x: 400, y: 50 },
-          type: NodeType.ROOT,
-          style: {
-            backgroundColor: "#e3f2fd",
-            borderColor: "#1976d2",
-            borderWidth: 3,
-            fontSize: 18,
-            fontWeight: "bold",
-            shape: "circle"
-          }
-        },
-        {
-          id: "node-conscious",
-          label: "Conscious Mind",
-          description: "Immediate awareness and ego",
-          position: { x: 200, y: 150 },
-          type: NodeType.CONCEPT,
-          style: {
-            backgroundColor: "#fff3e0",
-            borderColor: "#f57c00"
-          }
-        },
-        {
-          id: "node-personal-unconscious",
-          label: "Personal Unconscious",
-          description: "Forgotten or repressed personal experiences",
-          position: { x: 400, y: 150 },
-          type: NodeType.CONCEPT,
-          style: {
-            backgroundColor: "#f3e5f5",
-            borderColor: "#7b1fa2"
-          }
-        },
-        {
-          id: "node-collective-unconscious",
-          label: "Collective Unconscious",
-          description: "Universal patterns shared by humanity",
-          position: { x: 600, y: 150 },
-          type: NodeType.CONCEPT,
-          style: {
-            backgroundColor: "#e8f5e9",
-            borderColor: "#388e3c"
-          },
-          moduleId: "jung-module-001"
-        },
-        {
-          id: "node-archetypes",
-          label: "Archetypes",
-          description: "Universal patterns and images",
-          position: { x: 600, y: 250 },
-          type: NodeType.DEFINITION,
-          resourceLinks: [
-            {
-              type: "module",
-              id: "jung-module-002",
-              title: "Deep Dive into Archetypes"
-            }
-          ]
-        }
-      ],
-      edges: [
-        {
-          id: "edge-1",
-          source: "node-psyche",
-          target: "node-conscious",
-          type: EdgeType.HIERARCHICAL,
-          style: {
-            strokeColor: "#666",
-            strokeWidth: 2
-          }
-        },
-        {
-          id: "edge-2",
-          source: "node-psyche",
-          target: "node-personal-unconscious",
-          type: EdgeType.HIERARCHICAL
-        },
-        {
-          id: "edge-3",
-          source: "node-psyche",
-          target: "node-collective-unconscious",
-          type: EdgeType.HIERARCHICAL
-        },
-        {
-          id: "edge-4",
-          source: "node-collective-unconscious",
-          target: "node-archetypes",
-          label: "contains",
-          type: EdgeType.ASSOCIATION,
-          animated: true
-        }
-      ],
-      layout: {
-        type: "hierarchical",
-        direction: "TB",
-        spacing: {
-          nodeSpacing: 100,
-          levelSpacing: 100
-        }
-      },
-      style: {
-        theme: "light",
-        backgroundColor: "#fafafa",
-        defaultNodeStyle: {
-          borderWidth: 2,
-          fontSize: 14,
-          shape: "rectangle"
-        }
-      },
-      metadata: {
-        created: "2024-01-15T10:00:00.000Z",
-        lastModified: "2024-01-15T14:30:00.000Z",
-        version: "1.0.0",
-        isInteractive: true,
-        allowEditing: false
-      }
     }
   ],
   quiz: {

@@ -117,7 +117,6 @@ const mockUseAdmin = () => ({
   updateModules: mockUpdateModules,
   mindMapNodes: [],
   mindMapEdges: [],
-  updateMindMap: jest.fn()
 });
 
 describe('AdminModules Component', () => {

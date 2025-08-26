@@ -174,13 +174,11 @@ describe('PromptAdapter', () => {
     });
   });
 
-  describe('getMindMapPrompts', () => {
     beforeEach(() => {
       (promptTemplateService.getTemplateByKey as jest.Mock).mockResolvedValue(null);
     });
 
     it('should get mind map structure prompt', async () => {
-      const prompts = await promptAdapter.getMindMapPrompts();
       const result = await prompts.structure(
         'Individuação',
         ['Self', 'Persona', 'Sombra'],
@@ -199,7 +197,6 @@ describe('PromptAdapter', () => {
       // Mock the template service to return a proper template that uses the style
       const mockTemplate = {
         id: '1',
-        key: 'mindmap.structure',
         template: 'Create a {{style}} mind map for {{topic}}',
         variables: []
       };
@@ -211,7 +208,6 @@ describe('PromptAdapter', () => {
         .mockReturnValueOnce('Create a analítico mind map for Topic');
       (promptTemplateService.logExecution as jest.Mock).mockResolvedValue(undefined);
       
-      const prompts = await promptAdapter.getMindMapPrompts();
       
       let result = await prompts.structure('Topic', ['Concept1'], 2, 'simplified');
       expect(result).toContain('simplificado');

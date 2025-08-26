@@ -29,7 +29,6 @@ const createValidModule = (overrides?: Partial<EducationalModule>): EducationalM
     summary: 'Module summary'
   },
   videos: [],
-  mindMaps: [],
   quiz: {
     id: 'quiz-1',
     title: 'Test Quiz',
@@ -554,7 +553,6 @@ describe('ModuleValidator - Comprehensive Test Suite', () => {
       expect(sanitized.id).toBe(originalModule.id);
       expect(sanitized.content).toEqual(originalModule.content);
       expect(sanitized.videos).toEqual(originalModule.videos);
-      expect(sanitized.mindMaps).toEqual(originalModule.mindMaps);
       expect(sanitized.quiz).toEqual(originalModule.quiz);
       expect(sanitized.bibliography).toEqual(originalModule.bibliography);
       expect(sanitized.filmReferences).toEqual(originalModule.filmReferences);

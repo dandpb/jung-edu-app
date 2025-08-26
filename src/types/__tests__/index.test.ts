@@ -6,9 +6,7 @@ import {
   Quiz,
   Question,
   UserProgress,
-  Note,
-  MindMapNode,
-  MindMapEdge
+  Note
 } from '../index';
 
 describe('Types', () => {
@@ -112,27 +110,6 @@ describe('Types', () => {
     expect(note.content).toBe('This is a note');
   });
 
-  it('should allow creating valid MindMap objects', () => {
-    const node: MindMapNode = {
-      id: 'node-1',
-      type: 'concept',
-      position: { x: 100, y: 200 },
-      data: {
-        label: 'Test Node',
-        concept: 'Test Concept'
-      }
-    };
-
-    const edge: MindMapEdge = {
-      id: 'edge-1',
-      source: 'node-1',
-      target: 'node-2',
-      type: 'relates-to'
-    };
-
-    expect(node.position.x).toBe(100);
-    expect(edge.source).toBe('node-1');
-  });
 
   it('should support optional properties', () => {
     const moduleWithOptionals: Module = {

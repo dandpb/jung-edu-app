@@ -32,7 +32,6 @@ Factory functions for creating consistent mock data.
 - `createMockModule()` - Educational module with sections, quiz, videos
 - `createMockQuiz()` - Quiz with questions
 - `createMockUserProgress()` - User progress data
-- `createMockMindMapNode()` - Mind map nodes
 - `createMockUser()` - Regular user
 - `createMockAdminUser()` - Admin user
 - `testDataPresets` - Pre-configured test scenarios

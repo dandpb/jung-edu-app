@@ -28,9 +28,6 @@ const Navigation: React.FC = () => {
 
   const navItems = [
     { path: '/dashboard', label: 'Painel', icon: Home },
-    { path: '/mindmap', label: 'Mapa Mental', icon: Network },
-    { path: '/enhanced-mindmap', label: 'Mapa Mental IA', icon: Brain },
-    { path: '/progress', label: 'Progresso', icon: BarChart3 },
     { path: '/notes', label: 'Anotações', icon: FileText },
     { path: '/bibliography', label: 'Recursos', icon: Library },
     { path: '/search', label: 'Buscar', icon: Search },

@@ -20,7 +20,6 @@ export enum ResourceType {
   MODULE = 'module',
   QUIZ = 'quiz',
   NOTES = 'notes',
-  MINDMAP = 'mindmap',
   ANALYTICS = 'analytics',
   USER = 'user',
   SYSTEM = 'system'
@@ -344,11 +343,6 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Permission[]> = {
       actions: [Action.CREATE, Action.READ, Action.UPDATE, Action.DELETE],
       conditions: [{ type: 'ownership', value: true }]
     },
-    {
-      id: 'student-mindmap',
-      resource: ResourceType.MINDMAP,
-      actions: [Action.READ]
-    }
   ],
   [UserRole.GUEST]: [
     {

@@ -12,8 +12,6 @@ import {
   Film,
   Note,
   UserProgress,
-  MindMapNode,
-  MindMapEdge,
   AdminUser,
   AppSettings,
   PublicationType,
@@ -380,74 +378,6 @@ describe('Types - index.ts', () => {
     });
   });
 
-  describe('MindMap Types', () => {
-    it('should accept valid mind map node', () => {
-      const node: MindMapNode = {
-        id: 'node-1',
-        data: {
-          label: 'Central Concept'
-        },
-        position: { x: 100, y: 100 }
-      };
-
-      expect(node).toBeDefined();
-      expect(node.position.x).toBe(100);
-    });
-
-    it('should accept mind map node with all optional fields', () => {
-      const fullNode: MindMapNode = {
-        id: 'node-2',
-        data: {
-          label: 'Complex Node',
-          description: 'A detailed description',
-          moduleId: 'module-1',
-          level: 2,
-          category: 'Theory',
-          expandable: true,
-          onClick: () => console.log('clicked'),
-          onHover: () => console.log('hovered'),
-          interactive: true,
-          moduleCategory: 'Psychology',
-          categoryColor: '#FF5733',
-          difficulty: 'intermediate',
-          moduleInfo: 'Additional info',
-          examples: ['Example 1', 'Example 2']
-        },
-        position: { x: 200, y: 200 },
-        type: 'custom',
-        style: { backgroundColor: '#f0f0f0' }
-      };
-
-      expect(fullNode.data.examples).toHaveLength(2);
-      expect(fullNode.data.expandable).toBe(true);
-    });
-
-    it('should accept valid mind map edge', () => {
-      const edge: MindMapEdge = {
-        id: 'edge-1',
-        source: 'node-1',
-        target: 'node-2'
-      };
-
-      expect(edge).toBeDefined();
-      expect(edge.source).toBe('node-1');
-    });
-
-    it('should accept mind map edge with optional fields', () => {
-      const fullEdge: MindMapEdge = {
-        id: 'edge-2',
-        source: 'node-2',
-        target: 'node-3',
-        label: 'relates to',
-        type: 'smoothstep',
-        animated: true,
-        style: { stroke: '#FF5733' }
-      };
-
-      expect(fullEdge.animated).toBe(true);
-      expect(fullEdge.label).toBe('relates to');
-    });
-  });
 
   describe('AdminUser Type', () => {
     it('should accept valid admin user', () => {

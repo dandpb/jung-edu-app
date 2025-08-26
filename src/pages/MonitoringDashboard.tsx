@@ -71,7 +71,6 @@ export const MonitoringDashboard: React.FC<MonitoringDashboardProps> = ({ theme:
         successRate: 0.94,
         errorRate: 0.06,
         resourcesByType: {
-          'mindmap': 245,
           'quiz': 312,
           'video': 178,
           'bibliography': 110
@@ -79,7 +78,6 @@ export const MonitoringDashboard: React.FC<MonitoringDashboardProps> = ({ theme:
         qualityScores: {
           average: 0.87,
           byType: {
-            'mindmap': 0.91,
             'quiz': 0.84,
             'video': 0.89,
             'bibliography': 0.83

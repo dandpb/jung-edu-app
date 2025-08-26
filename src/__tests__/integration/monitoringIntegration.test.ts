@@ -154,7 +154,6 @@ function createMockPipelineForTests() {
     generateQuizzes: jest.fn(),
     searchVideos: jest.fn(),
     generateBibliography: jest.fn(),
-    generateMindMap: jest.fn(),
     linkResources: jest.fn(),
     getResourceDependencies: jest.fn(),
     testResourceIntegration: jest.fn(),
@@ -821,7 +820,6 @@ describe('Monitoring System Integration', () => {
         timestamp: new Date(),
         data: {
           resources: [
-            { id: 'resource-1', type: 'mindmap', moduleId: 'test-module-1', metadata: { quality: 0.9 } },
             { id: 'resource-2', type: 'quiz', moduleId: 'test-module-1', metadata: { quality: 0.8 } }
           ]
         }
@@ -974,7 +972,6 @@ describe('Monitoring System Integration', () => {
       successRate: 0.94,
       errorRate: 0.06,
       resourcesByType: {
-        'mindmap': 245,
         'quiz': 312,
         'video': 178,
         'bibliography': 110
@@ -982,7 +979,6 @@ describe('Monitoring System Integration', () => {
       qualityScores: {
         average: 0.87,
         byType: {
-          'mindmap': 0.91,
           'quiz': 0.84,
           'video': 0.89,
           'bibliography': 0.83

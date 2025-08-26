@@ -118,31 +118,6 @@ Responda com exatamente {{count}} questões no formato JSON especificado.',
   {"name": "contentSummary", "type": "text", "description": "Resumo do conteúdo", "required": false}
 ]'::jsonb, 'pt-BR'),
 
--- Mind Map Generation Prompts
-('mindmap.structure', 'mindmap',
-'Crie uma estrutura de mapa mental para "{{topic}}" em psicologia junguiana com {{depth}} níveis de profundidade.
-
-Estilo: {{style}}
-Conceitos-chave a incluir: {{concepts}}
-
-Requisitos:
-- Comece com o tópico principal como raiz
-- Ramifique em conceitos e categorias junguianas principais
-- Cada nível deve ter {{minBranches}}-{{maxBranches}} ramos (exceto folhas)
-- Inclua aspectos teóricos e práticos
-- Mostre relações entre elementos conscientes e inconscientes
-- IMPORTANTE: Todos os rótulos devem estar em português brasileiro
-
-Formato de resposta JSON com estrutura hierárquica especificada.',
-'[
-  {"name": "topic", "type": "text", "description": "Tópico principal", "required": true},
-  {"name": "depth", "type": "number", "description": "Níveis de profundidade", "required": true, "defaultValue": 3},
-  {"name": "style", "type": "text", "description": "Estilo do mapa", "required": false, "defaultValue": "abrangente"},
-  {"name": "concepts", "type": "text", "description": "Conceitos-chave", "required": true},
-  {"name": "minBranches", "type": "number", "description": "Mínimo de ramos", "required": false, "defaultValue": 3},
-  {"name": "maxBranches", "type": "number", "description": "Máximo de ramos", "required": false, "defaultValue": 5}
-]'::jsonb, 'pt-BR'),
-
 -- Video Generation Prompts
 ('video.search_queries', 'video',
 'Gere exatamente {{queryCount}} queries de busca do YouTube para encontrar vídeos educacionais sobre "{{topic}}" em psicologia junguiana.
@@ -211,7 +186,6 @@ SELECT key, category,
     WHEN key = 'content.introduction' THEN 'Introdução de Módulo'
     WHEN key = 'content.section' THEN 'Conteúdo de Seção'
     WHEN key = 'quiz.questions' THEN 'Geração de Questões'
-    WHEN key = 'mindmap.structure' THEN 'Estrutura de Mapa Mental'
     WHEN key = 'video.search_queries' THEN 'Busca de Vídeos'
     WHEN key = 'bibliography.resources' THEN 'Recursos Bibliográficos'
   END as name,
@@ -219,7 +193,6 @@ SELECT key, category,
     WHEN key = 'content.introduction' THEN 'Template para gerar introduções de módulos educacionais'
     WHEN key = 'content.section' THEN 'Template para gerar conteúdo detalhado de seções'
     WHEN key = 'quiz.questions' THEN 'Template para gerar questões de múltipla escolha'
-    WHEN key = 'mindmap.structure' THEN 'Template para criar estruturas de mapas mentais'
     WHEN key = 'video.search_queries' THEN 'Template para gerar queries de busca de vídeos educacionais'
     WHEN key = 'bibliography.resources' THEN 'Template para gerar listas de recursos bibliográficos'
   END as description,

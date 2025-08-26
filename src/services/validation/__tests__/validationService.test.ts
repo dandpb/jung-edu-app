@@ -124,7 +124,6 @@ describe('ValidationService - Fixed Tests', () => {
         keyTakeaways: ['takeaway']
       },
       videos: [],
-      mindMaps: [],
       quiz: {
         id: 'q1',
         title: 'Quiz',

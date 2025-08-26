@@ -233,8 +233,8 @@ export class EnhancedModuleGeneratorWithPipeline {
       // Process the module
       const resources = await this.resourcePipeline.processModule(module);
       
-      // Filter results to only requested types
-      const filteredResources = resources.filter(r => resourceTypes.includes(r.type));
+      // Return all resources since type filtering is no longer needed
+      const filteredResources = resources;
 
       console.log(`✅ Generated ${filteredResources.length} resources for module: ${module.title}`);
       return filteredResources;
@@ -262,7 +262,6 @@ export class EnhancedModuleGeneratorWithPipeline {
         if (quiz.quiz) {
           partialResources.push({
             id: `quiz-${module.id}-fallback`,
-            type: 'quiz',
             moduleId: module.id,
             content: quiz.quiz,
             metadata: {
@@ -280,7 +279,6 @@ export class EnhancedModuleGeneratorWithPipeline {
       // Generate basic config
       partialResources.push({
         id: `config-${module.id}-fallback`,
-        type: 'config',
         moduleId: module.id,
         content: {
           module: { id: module.id, title: module.title },
@@ -314,27 +312,16 @@ export class EnhancedModuleGeneratorWithPipeline {
   ): GeneratedModule {
     const enhanced = { ...baseModule };
 
-    // Merge pipeline-generated resources
+    // Merge pipeline-generated resources by checking resource ID prefix
     for (const resource of pipelineResults) {
-      switch (resource.type) {
-        case 'quiz':
-          if (!enhanced.quiz && resource.content) {
-            enhanced.quiz = resource.content;
-          }
-          break;
-          
-        case 'video':
-          if (!enhanced.videos && resource.content) {
-            enhanced.videos = resource.content;
-          }
-          break;
-          
-        case 'bibliography':
-          if (!enhanced.bibliography && resource.content) {
-            enhanced.bibliography = resource.content;
-          }
-          break;
-          
+      if (resource.id.startsWith('quiz-') && !enhanced.quiz && resource.content) {
+        enhanced.quiz = resource.content;
+      }
+      else if (resource.id.startsWith('video-') && !enhanced.videos && resource.content) {
+        enhanced.videos = resource.content;
+      }
+      else if (resource.id.startsWith('bibliography-') && !enhanced.bibliography && resource.content) {
+        enhanced.bibliography = resource.content;
       }
     }
 

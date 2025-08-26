@@ -39,7 +39,6 @@ const createMockModule = (id: string, overrides: Partial<EducationalModule> = {}
       keyTakeaways: ['Test takeaway']
     },
     videos: [],
-    mindMaps: [],
     quiz: {
       id: 'quiz-1',
       title: 'Test Quiz',

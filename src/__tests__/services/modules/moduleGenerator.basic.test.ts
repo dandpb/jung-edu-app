@@ -58,7 +58,6 @@ describe('ModuleGenerator Basic Tests', () => {
         
       // Content should be returned by generateStructuredResponse, not generateStructuredOutput
       
-      // Mock responses for content, quiz, videos, mindmap, bibliography
       let callCount = 0;
       mockProvider.generateStructuredResponse.mockImplementation(async (prompt) => {
         callCount++;
@@ -126,10 +125,8 @@ describe('ModuleGenerator Basic Tests', () => {
           ];
         }
         
-        // Mindmap response (should return object, not array - generateMindMaps wraps it)
         if (prompt.includes('mind map') || callCount === 4) {
           return {
-            id: 'mindmap-1',
             title: 'Shadow Work Mind Map',
             description: 'Visual representation of shadow concepts',
             nodes: [
@@ -275,9 +272,7 @@ describe('ModuleGenerator Basic Tests', () => {
         
         if (prompt.includes('mind map') || callCount === 4) {
           return {
-            id: 'mindmap-1',
             title: 'Mind Map',
-            description: 'Test mindmap',
             nodes: [{ id: 'n1', label: 'Root', type: 'root', position: { x: 0, y: 0 } }],
             edges: [],
             layout: { type: 'hierarchical', direction: 'TB' },
@@ -351,7 +346,6 @@ describe('ModuleGenerator Basic Tests', () => {
           keyTakeaways: ['Draft takeaway 1']
         },
         videos: [],
-        mindMaps: [],
         quiz: {
           id: 'quiz-draft',
           title: 'Draft Quiz',
@@ -403,7 +397,6 @@ describe('ModuleGenerator Basic Tests', () => {
           timeEstimate: module.timeEstimate || { hours: 1, minutes: 0 },
           content: module.content || {},
           videos: module.videos || [],
-          mindMaps: module.mindMaps || [],
           quiz: module.quiz || {},
           bibliography: module.bibliography || [],
           filmReferences: module.filmReferences || [],

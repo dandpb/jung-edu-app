@@ -6,7 +6,6 @@ import { ContentGenerator } from '../generators/content-generator';
 import { QuizGenerator } from '../generators/quiz-generator';
 import { VideoGenerator } from '../generators/video-generator';
 import { BibliographyGenerator } from '../generators/bibliography-generator';
-import { MindMapGenerator } from '../generators/mindmap-generator';
 import { cleanupEventEmitter, flushPromises } from '../../../test-utils/asyncTestHelpers';
 
 // Mock all dependencies
@@ -29,8 +28,6 @@ jest.mock('../generators/content-generator');
 jest.mock('../generators/quiz-generator');
 jest.mock('../generators/video-generator');
 jest.mock('../generators/bibliography-generator');
-jest.mock('../generators/mindmap-generator');
-jest.mock('../../mindmap/mindMapGenerator');
 jest.mock('../../quiz/enhancedQuizGenerator', () => ({
   EnhancedQuizGenerator: jest.fn().mockImplementation(() => ({
     generateQuiz: jest.fn().mockResolvedValue({
@@ -70,7 +67,6 @@ describe('ModuleGenerationOrchestrator', () => {
   let mockQuizGenerator: jest.Mocked<QuizGenerator>;
   let mockVideoGenerator: jest.Mocked<VideoGenerator>;
   let mockBibliographyGenerator: jest.Mocked<BibliographyGenerator>;
-  let mockMindMapGenerator: jest.Mocked<MindMapGenerator>;
 
   beforeEach(() => {
     // Reset all mocks
@@ -103,13 +99,11 @@ describe('ModuleGenerationOrchestrator', () => {
     mockQuizGenerator = new QuizGenerator(mockProvider) as jest.Mocked<QuizGenerator>;
     mockVideoGenerator = new VideoGenerator(mockProvider) as jest.Mocked<VideoGenerator>;
     mockBibliographyGenerator = new BibliographyGenerator(mockProvider) as jest.Mocked<BibliographyGenerator>;
-    mockMindMapGenerator = new MindMapGenerator(mockProvider) as jest.Mocked<MindMapGenerator>;
 
     (ContentGenerator as jest.Mock).mockImplementation(() => mockContentGenerator);
     (QuizGenerator as jest.Mock).mockImplementation(() => mockQuizGenerator);
     (VideoGenerator as jest.Mock).mockImplementation(() => mockVideoGenerator);
     (BibliographyGenerator as jest.Mock).mockImplementation(() => mockBibliographyGenerator);
-    (MindMapGenerator as jest.Mock).mockImplementation(() => mockMindMapGenerator);
 
     // Create orchestrator instance
     orchestrator = new ModuleGenerationOrchestrator(false); // Use mock services for tests
@@ -155,7 +149,6 @@ describe('ModuleGenerationOrchestrator', () => {
       expect(QuizGenerator).toHaveBeenCalledWith(mockProvider);
       expect(VideoGenerator).toHaveBeenCalledWith(mockProvider);
       expect(BibliographyGenerator).toHaveBeenCalledWith(mockProvider);
-      expect(MindMapGenerator).toHaveBeenCalledWith(mockProvider);
     });
   });
 
@@ -232,8 +225,6 @@ describe('ModuleGenerationOrchestrator', () => {
       }
     ];
 
-    const mockMindMap = {
-      id: 'mindmap-1',
       nodes: [
         { id: 'root', label: 'Jungian Archetypes', type: 'root' },
         { id: 'shadow', label: 'Shadow', type: 'child' }
@@ -251,7 +242,6 @@ describe('ModuleGenerationOrchestrator', () => {
       mockVideoGenerator.generateVideos.mockResolvedValue(mockVideos);
       mockBibliographyGenerator.generateBibliography.mockResolvedValue(mockBibliography);
       mockBibliographyGenerator.generateFilmSuggestions = jest.fn().mockResolvedValue(mockFilms);
-      mockMindMapGenerator.generateMindMap.mockResolvedValue(mockMindMap);
     });
 
     it('should generate a complete module with all components', async () => {
@@ -431,7 +421,6 @@ describe('ModuleGenerationOrchestrator', () => {
 
       const estimate = await orchestrator.estimateTokenUsage(options);
       
-      // Base content (5000) + quiz (10 * 300) + videos (1500) + bibliography (2000) + mindmap (2500)
       expect(estimate).toBe(5000 + 3000 + 1500 + 2000 + 2500);
     });
 

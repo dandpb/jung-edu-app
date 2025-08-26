@@ -21,7 +21,6 @@ export {
   type ModuleContent,
   type Section,
   type Video,
-  type MindMap,
   type Quiz,
   type Question,
   type Bibliography,
@@ -30,8 +29,6 @@ export {
   type ModuleSearchCriteria,
   DifficultyLevel,
   ModuleStatus,
-  NodeType,
-  EdgeType,
   PublicationType,
   VideoPlatform
 } from '../../schemas/module.schema';

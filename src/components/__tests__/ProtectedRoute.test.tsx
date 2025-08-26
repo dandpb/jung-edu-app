@@ -27,7 +27,6 @@ describe('ProtectedRoute Component', () => {
       updateModules: jest.fn(),
       mindMapNodes: [],
       mindMapEdges: [],
-      updateMindMap: jest.fn()
     });
     
     return render(
@@ -84,7 +83,6 @@ describe('ProtectedRoute Component', () => {
       updateModules: jest.fn(),
       mindMapNodes: [],
       mindMapEdges: [],
-      updateMindMap: jest.fn()
     });
     
     const NestedComponent = () => <div>Nested Admin Content</div>;
@@ -121,7 +119,6 @@ describe('ProtectedRoute Component', () => {
       updateModules: jest.fn(),
       mindMapNodes: [],
       mindMapEdges: [],
-      updateMindMap: jest.fn()
     });
     
     render(

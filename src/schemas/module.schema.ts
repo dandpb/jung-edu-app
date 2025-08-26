@@ -12,7 +12,6 @@ export interface EducationalModule {
   description: string;
   content: ModuleContent;
   videos: Video[];
-  mindMaps: MindMap[];
   quiz: Quiz;
   bibliography: Bibliography[];
   filmReferences: FilmReference[];
@@ -157,110 +156,6 @@ export enum VideoPlatform {
   LOCAL = 'local'
 }
 
-// ==================== Mind Map Types ====================
-
-export interface MindMap {
-  id: string;
-  title: string;
-  description: string;
-  nodes: MindMapNode[];
-  edges: MindMapEdge[];
-  layout: MindMapLayout;
-  style?: MindMapStyle;
-  metadata: MindMapMetadata;
-}
-
-export interface MindMapNode {
-  id: string;
-  label: string;
-  description?: string;
-  position: Position;
-  type: NodeType;
-  data?: Record<string, any>;
-  style?: NodeStyle;
-  moduleId?: string; // Link to related module
-  resourceLinks?: ResourceLink[];
-}
-
-export interface Position {
-  x: number;
-  y: number;
-}
-
-export enum NodeType {
-  ROOT = 'root',
-  CONCEPT = 'concept',
-  EXAMPLE = 'example',
-  DEFINITION = 'definition',
-  QUESTION = 'question',
-  RESOURCE = 'resource'
-}
-
-export interface NodeStyle {
-  backgroundColor?: string;
-  textColor?: string;
-  borderColor?: string;
-  borderWidth?: number;
-  fontSize?: number;
-  fontWeight?: string;
-  shape?: 'rectangle' | 'circle' | 'diamond' | 'hexagon';
-}
-
-export interface MindMapEdge {
-  id: string;
-  source: string;
-  target: string;
-  label?: string;
-  type: EdgeType;
-  style?: EdgeStyle;
-  animated?: boolean;
-}
-
-export enum EdgeType {
-  HIERARCHICAL = 'hierarchical',
-  ASSOCIATION = 'association',
-  DEPENDENCY = 'dependency',
-  TEMPORAL = 'temporal',
-  CAUSAL = 'causal'
-}
-
-export interface EdgeStyle {
-  strokeColor?: string;
-  strokeWidth?: number;
-  strokeDasharray?: string;
-  arrowType?: 'arrow' | 'arrowclosed' | 'circle' | 'none';
-}
-
-export interface MindMapLayout {
-  type: 'hierarchical' | 'radial' | 'force' | 'grid' | 'manual';
-  direction?: 'TB' | 'BT' | 'LR' | 'RL'; // Top-Bottom, Bottom-Top, Left-Right, Right-Left
-  spacing?: {
-    nodeSpacing: number;
-    levelSpacing: number;
-  };
-}
-
-export interface MindMapStyle {
-  theme: 'light' | 'dark' | 'custom';
-  backgroundColor?: string;
-  defaultNodeStyle?: NodeStyle;
-  defaultEdgeStyle?: EdgeStyle;
-}
-
-export interface MindMapMetadata {
-  created: string;
-  lastModified: string;
-  version: string;
-  isInteractive: boolean;
-  allowEditing: boolean;
-}
-
-export interface ResourceLink {
-  type: 'module' | 'video' | 'document' | 'external';
-  id?: string;
-  url?: string;
-  title: string;
-}
 
 // ==================== Quiz Types ====================
 

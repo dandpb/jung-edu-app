@@ -92,7 +92,6 @@ const mockStudyModule = {
   metadata: {
     topic: 'Collective Unconscious and Archetypes',
     difficulty: 'advanced',
-    componentsIncluded: ['module', 'mindmap', 'quiz', 'videos', 'bibliography']
   },
   module: {
     title: 'Collective Unconscious and Archetypes',
@@ -175,7 +174,6 @@ const mockResearchModule = {
   metadata: {
     topic: 'Synchronicity and Quantum Psychology',
     difficulty: 'scholar',
-    componentsIncluded: ['module', 'bibliography', 'mindmap']
   },
   bibliography: Array(25).fill(null).map((_, i) => ({
     type: i % 4 === 0 ? 'article' : i % 4 === 1 ? 'book' : i % 4 === 2 ? 'journal' : 'conference',
@@ -301,7 +299,6 @@ describe('Module Generation Demo - Comprehensive Tests', () => {
       // Verify comprehensive structure
       expect(studyModule.metadata.topic).toBe('Collective Unconscious and Archetypes');
       expect(studyModule.metadata.difficulty).toBe('advanced');
-      expect(studyModule.metadata.componentsIncluded).toContain('mindmap');
 
       // Mind map analysis
       expect(studyModule.mindMap).toBeDefined();

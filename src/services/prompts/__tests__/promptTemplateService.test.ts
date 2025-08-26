@@ -108,7 +108,6 @@ describe('PromptTemplateService', () => {
       expect(categories.length).toBe(5);
       expect(categories[0].key).toBe('content');
       expect(categories[1].key).toBe('quiz');
-      expect(categories[2].key).toBe('mindmap');
       expect(categories[3].key).toBe('video');
       expect(categories[4].key).toBe('bibliography');
     });

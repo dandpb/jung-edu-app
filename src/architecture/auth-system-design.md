@@ -28,7 +28,6 @@ enum ResourceType {
   MODULE = 'module',
   QUIZ = 'quiz',
   NOTES = 'notes',
-  MINDMAP = 'mindmap',
   ANALYTICS = 'analytics',
   USER = 'user',
   SYSTEM = 'system'

@@ -56,7 +56,6 @@ const createDemoModule = (): EducationalModule => {
         transcript: 'Carl Jung was born in Switzerland...'
       }
     ],
-    mindMaps: [],
     quiz: {
       id: 'quiz-1',
       title: 'Jung Basics Quiz',

@@ -113,7 +113,6 @@ describe('Service Integration Tests', () => {
           ]
         },
         videos: [],
-        mindMaps: [],
         quiz: {
           id: 'quiz-1',
           title: 'Jung Basics Quiz',
@@ -268,7 +267,6 @@ describe('Service Integration Tests', () => {
           ]
         },
         videos: [],
-        mindMaps: [],
         quiz: {
           id: 'quiz-1',
           title: 'Advanced Jung Quiz',
@@ -530,7 +528,6 @@ describe('Service Integration Tests', () => {
           ]
         },
         videos: [],
-        mindMaps: [],
         quiz: {
           id: 'quiz-1',
           title: 'Jung Foundations Quiz',

@@ -282,7 +282,6 @@ describe('User Workflow Integration Tests', () => {
         tags: ['jung', 'psychology'],
         difficultyLevel: DifficultyLevel.BEGINNER,
         timeEstimate: { hours: 1, minutes: 30 },
-        mindMaps: [],
         metadata: {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
@@ -395,7 +394,6 @@ describe('User Workflow Integration Tests', () => {
           tags: ['jung'],
           difficultyLevel: DifficultyLevel.BEGINNER,
           timeEstimate: { hours: 1, minutes: 0 },
-          mindMaps: [],
           metadata: {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),

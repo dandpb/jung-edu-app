@@ -225,7 +225,6 @@ describe('Database Integration Tests', () => {
         tags: ['test', 'integration'],
         difficultyLevel: DifficultyLevel.INTERMEDIATE,
         timeEstimate: { hours: 2, minutes: 15 },
-        mindMaps: [],
         filmReferences: [],
         metadata: {
           createdAt: new Date().toISOString(),

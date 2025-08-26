@@ -43,9 +43,6 @@ jest.mock('../../moduleGeneration', () => ({
   BibliographyService: jest.fn().mockImplementation(() => ({
     generateBibliographyForModule: jest.fn().mockResolvedValue([])
   })),
-  MindMapService: jest.fn().mockImplementation(() => ({
-    generateMindMapForModule: jest.fn().mockResolvedValue({
-      id: 'mindmap-1',
       nodes: [],
       edges: []
     })
@@ -67,7 +64,6 @@ import {
   QuizService, 
   VideoService, 
   BibliographyService, 
-  MindMapService, 
   TestService 
 } from '../../moduleGeneration';
 
@@ -79,7 +75,6 @@ const mockOrchestrator = {
     content: {},
     quiz: {},
     videos: [],
-    mindMaps: [],
     bibliography: []
   }),
   on: jest.fn(),

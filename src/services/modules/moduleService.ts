@@ -44,7 +44,6 @@ export class ModuleService {
       description: moduleData.description || '',
       content: moduleData.content || { introduction: '', sections: [] },
       videos: moduleData.videos || [],
-      mindMaps: moduleData.mindMaps || [],
       quiz: moduleData.quiz || { id: '', title: '', questions: [] },
       bibliography: moduleData.bibliography || [],
       filmReferences: moduleData.filmReferences || [],

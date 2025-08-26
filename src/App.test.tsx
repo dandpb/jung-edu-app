@@ -43,14 +43,8 @@ jest.mock('./pages/Dashboard', () => {
 jest.mock('./pages/ModulePage', () => {
   return function ModulePage() { return <div data-testid="module-page">Module Page</div>; };
 });
-jest.mock('./pages/MindMapPage', () => {
-  return function MindMapPage() { return <div data-testid="mindmap-page">MindMap Page</div>; };
-});
 jest.mock('./pages/MiniMapDemo', () => {
   return function MiniMapDemo() { return <div data-testid="minimap-demo">MiniMap Demo</div>; };
-});
-jest.mock('./pages/EnhancedMindMapPage', () => {
-  return function EnhancedMindMapPage() { return <div data-testid="enhanced-mindmap">Enhanced MindMap Page</div>; };
 });
 jest.mock('./pages/AIDemo', () => {
   return function AIDemo() { return <div data-testid="ai-demo">AI Demo</div>; };
@@ -98,17 +92,12 @@ describe('App Component', () => {
     mockLocalStorage.clear();
     mockLocalStorage.__setStore({
       jungAppEducationalModules: JSON.stringify(mockModules),
-      jungAppMindMapNodes: JSON.stringify([]),
-      jungAppMindMapEdges: JSON.stringify([])
     });
 
     // Mock useAdmin hook
     (useAdmin as jest.Mock).mockReturnValue({
       modules: mockModules,
       updateModules: jest.fn(),
-      mindMapNodes: [],
-      mindMapEdges: [],
-      updateMindMap: jest.fn(),
       isAdmin: false,
       currentAdmin: null,
       adminLogin: jest.fn(),
@@ -133,8 +122,6 @@ describe('App Component', () => {
     mockLocalStorage.__setStore({
       jungAppProgress: JSON.stringify(savedProgress),
       jungAppEducationalModules: JSON.stringify(mockModules),
-      jungAppMindMapNodes: JSON.stringify([]),
-      jungAppMindMapEdges: JSON.stringify([])
     });
     
     renderWithoutProviders(<App />);
@@ -232,8 +219,6 @@ describe('App Component', () => {
       mockLocalStorage.__setStore({
         jungAppProgress: JSON.stringify(existingProgress),
         jungAppEducationalModules: JSON.stringify(mockModules),
-        jungAppMindMapNodes: JSON.stringify([]),
-        jungAppMindMapEdges: JSON.stringify([])
       });
 
       renderWithoutProviders(<App />);

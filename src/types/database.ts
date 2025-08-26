@@ -390,55 +390,6 @@ export interface Database {
           }
         ]
       }
-      mindmaps: {
-        Row: {
-          id: string
-          user_id: string
-          module_id: string | null
-          title: string
-          data: Json
-          layout: 'tree' | 'radial' | 'force' | 'hierarchical'
-          is_public: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          module_id?: string | null
-          title: string
-          data: Json
-          layout?: 'tree' | 'radial' | 'force' | 'hierarchical'
-          is_public?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          module_id?: string | null
-          title?: string
-          data?: Json
-          layout?: 'tree' | 'radial' | 'force' | 'hierarchical'
-          is_public?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "mindmaps_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "mindmaps_module_id_fkey"
-            columns: ["module_id"]
-            referencedRelation: "modules"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
       bibliography: {
         Row: {
           id: string
@@ -785,7 +736,6 @@ export interface Database {
       theme_preference: 'light' | 'dark'
       source_type: 'book' | 'article' | 'website' | 'video' | 'other'
       video_type: 'youtube' | 'vimeo' | 'uploaded' | 'external'
-      mindmap_layout: 'tree' | 'radial' | 'force' | 'hierarchical'
     }
     CompositeTypes: {
       [_ in never]: never
@@ -807,7 +757,6 @@ export type Module = Tables<'modules'>
 export type Quiz = Tables<'quizzes'>
 export type UserProgress = Tables<'user_progress'>
 export type Note = Tables<'notes'>
-export type MindMap = Tables<'mindmaps'>
 export type Bibliography = Tables<'bibliography'>
 export type Video = Tables<'videos'>
 export type PasswordResetToken = Tables<'password_reset_tokens'>
@@ -823,7 +772,6 @@ export type ModuleInsert = Inserts<'modules'>
 export type QuizInsert = Inserts<'quizzes'>
 export type UserProgressInsert = Inserts<'user_progress'>
 export type NoteInsert = Inserts<'notes'>
-export type MindMapInsert = Inserts<'mindmaps'>
 export type BibliographyInsert = Inserts<'bibliography'>
 export type VideoInsert = Inserts<'videos'>
 export type PasswordResetTokenInsert = Inserts<'password_reset_tokens'>
@@ -839,7 +787,6 @@ export type ModuleUpdate = Updates<'modules'>
 export type QuizUpdate = Updates<'quizzes'>
 export type UserProgressUpdate = Updates<'user_progress'>
 export type NoteUpdate = Updates<'notes'>
-export type MindMapUpdate = Updates<'mindmaps'>
 export type BibliographyUpdate = Updates<'bibliography'>
 export type VideoUpdate = Updates<'videos'>
 export type PasswordResetTokenUpdate = Updates<'password_reset_tokens'>
@@ -854,4 +801,3 @@ export type ProgressStatus = Enums<'progress_status'>
 export type ThemePreference = Enums<'theme_preference'>
 export type SourceType = Enums<'source_type'>
 export type VideoType = Enums<'video_type'>
-export type MindMapLayout = Enums<'mindmap_layout'>

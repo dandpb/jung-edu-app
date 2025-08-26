@@ -133,7 +133,6 @@ describe('Component Integration Tests', () => {
     tags: ['integration', 'testing'],
     difficulty: 'intermediate' as const,
     estimatedTime: 90, // 90 minutes
-    mindMaps: [],
     metadata: {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

@@ -81,13 +81,6 @@ describe('test-prompts-availability.js', () => {
         variables: [{ name: 'topic' }, { name: 'difficulty' }]
       },
       {
-        key: 'mindmap.structure',
-        name: 'Estrutura de Mapa Mental',
-        category: 'mindmap',
-        description: 'Template para mapas mentais',
-        variables: [{ name: 'concepts' }]
-      },
-      {
         key: 'video.search_queries',
         name: 'Queries de Busca de Vídeos',
         category: 'video',
@@ -106,7 +99,6 @@ describe('test-prompts-availability.js', () => {
     const mockCategories = [
       { key: 'content', name: 'Conteúdo', description: 'Templates de conteúdo', icon: '📝' },
       { key: 'quiz', name: 'Quiz', description: 'Templates de quiz', icon: '❓' },
-      { key: 'mindmap', name: 'Mapa Mental', description: 'Templates de mapas', icon: '🗺️' },
       { key: 'video', name: 'Vídeo', description: 'Templates de vídeo', icon: '🎥' },
       { key: 'bibliography', name: 'Bibliografia', description: 'Templates de bibliografia', icon: '📚' }
     ];

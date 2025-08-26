@@ -13,28 +13,6 @@ export class ModuleBuilder {
       title: 'Test Module',
       description: 'A test module for unit testing',
       content: this.createDefaultContent(),
-      mindMaps: [{
-        id: 'mindmap-1',
-        title: 'Test Mind Map',
-        description: 'Default mind map for testing',
-        nodes: [],
-        edges: [],
-        layout: {
-          type: 'hierarchical',
-          direction: 'TB',
-          spacing: {
-            nodeSpacing: 100,
-            levelSpacing: 100
-          }
-        },
-        metadata: {
-          created: new Date().toISOString(),
-          lastModified: new Date().toISOString(),
-          version: '1.0.0',
-          isInteractive: true,
-          allowEditing: false
-        }
-      }],
       videos: [],
       prerequisites: [],
       timeEstimate: {
@@ -180,31 +158,6 @@ export class ModuleBuilder {
     return this;
   }
 
-  withMindmap(mindmap: { nodes: any[], edges: any[] }): ModuleBuilder {
-    this.module.mindMaps = [{
-      id: 'mindmap-custom',
-      title: 'Custom Mind Map',
-      description: 'Custom mind map',
-      nodes: mindmap.nodes,
-      edges: mindmap.edges,
-      layout: {
-        type: 'hierarchical',
-        direction: 'TB',
-        spacing: {
-          nodeSpacing: 100,
-          levelSpacing: 100
-        }
-      },
-      metadata: {
-        created: new Date().toISOString(),
-        lastModified: new Date().toISOString(),
-        version: '1.0.0',
-        isInteractive: true,
-        allowEditing: false
-      }
-    }];
-    return this;
-  }
 
   withBibliography(...items: any[]): ModuleBuilder {
     this.module.bibliography = items;
@@ -243,7 +196,6 @@ export class ModuleBuilder {
       description: this.module.description || 'No description',
       content: this.module.content || this.createDefaultContent(),
       videos: this.module.videos || [],
-      mindMaps: this.module.mindMaps || [],
       quiz: this.module.quiz || this.createDefaultQuiz(),
       bibliography: this.module.bibliography || [],
       filmReferences: this.module.filmReferences || [],
@@ -338,15 +290,6 @@ export class ModuleBuilder {
         duration: 600,
         platform: 'youtube',
         description: 'An introduction to Carl Jung\'s life and work'
-      })
-      .withMindmap({
-        nodes: [
-          { id: 'n1', label: 'Jung', position: { x: 100, y: 100 } },
-          { id: 'n2', label: 'Collective Unconscious', position: { x: 200, y: 200 } }
-        ],
-        edges: [
-          { id: 'e1', source: 'n1', target: 'n2', label: 'developed' }
-        ]
       })
       .withBibliography({
         id: 'bib-1',

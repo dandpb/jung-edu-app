@@ -13,11 +13,11 @@ const AIDemo: React.FC = () => {
             </div>
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Mapas Mentais com IA
+            Módulos Educacionais com IA
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Experimente o futuro do conteúdo educacional com nosso gerador de mapas mentais com IA. 
-            Clique em qualquer módulo para gerar mapas conceituais detalhados e estruturados automaticamente.
+            Experimente o futuro do conteúdo educacional com nosso gerador de módulos com IA. 
+            Clique em qualquer módulo para explorar conteúdo detalhado e estruturado automaticamente.
           </p>
         </div>
 
@@ -35,9 +35,6 @@ const AIDemo: React.FC = () => {
                   <h3 className="font-semibold text-gray-900 mb-2">
                     Clique em Qualquer Módulo
                   </h3>
-                  <p className="text-gray-600">
-                    Navegue até o Mapa Mental IA e clique em qualquer módulo de psicologia de Jung
-                  </p>
                 </div>
               </div>
               
@@ -106,16 +103,12 @@ const AIDemo: React.FC = () => {
 
         <div className="text-center mt-16">
           <Link
-            to="/enhanced-mindmap"
+            to="/modules"
             className="inline-flex items-center bg-primary-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-primary-700 transition-colors shadow-lg"
           >
-            Experimente Mapas Mentais com IA
+            Explorar Módulos Educacionais
             <ArrowRight className="w-5 h-5 ml-2" data-testid="lucide-arrow-right" />
           </Link>
-          
-          <p className="text-gray-600 mt-4">
-            Ou experimente a <Link to="/minimap-demo" className="text-primary-600 hover:underline">demonstração de setores do minimapa</Link>
-          </p>
         </div>
 
         <div className="mt-16 bg-white rounded-xl shadow-lg p-8">

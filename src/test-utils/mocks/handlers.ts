@@ -152,30 +152,6 @@ export const handlers = [
     });
   }),
 
-  // Mind map endpoints
-  http.post('/api/mindmaps/generate', async ({ request }) => {
-    const body = await request.json() as any;
-    
-    return HttpResponse.json({
-      mindMap: {
-        id: 'mindmap-123',
-        title: body.title || 'Generated Mind Map',
-        centralNode: {
-          id: 'central',
-          label: body.concept || 'Central Concept',
-          type: 'central'
-        },
-        nodes: [
-          { id: 'node1', label: 'Branch 1', type: 'primary' },
-          { id: 'node2', label: 'Branch 2', type: 'primary' }
-        ],
-        edges: [
-          { source: 'central', target: 'node1' },
-          { source: 'central', target: 'node2' }
-        ]
-      }
-    }, { status: 201 });
-  }),
 
   // Authentication endpoints
   http.post('/api/auth/login', async ({ request }) => {

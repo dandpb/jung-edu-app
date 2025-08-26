@@ -67,7 +67,6 @@ describe('IntegrationValidator', () => {
       }
     ],
     mindMap: {
-      id: 'mindmap-1',
       moduleId: 'test-module-1',
       nodes: [
         { id: 'root', label: 'Jungian Psychology', x: 0, y: 0, type: 'central' }
@@ -209,7 +208,6 @@ describe('IntegrationValidator', () => {
       expect(relationshipTests.length).toBeGreaterThan(0);
     });
 
-    it('should validate mindmap-module relationship', async () => {
       const result = await integrationValidator.validateIntegration([mockModule]);
       const moduleTests = result.categories.moduleIntegration;
 

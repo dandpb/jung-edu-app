@@ -385,12 +385,18 @@ export class PipelineMonitoringService extends EventEmitter {
         totalQuality += resource.metadata.quality;
         resourceCount++;
 
-        // Update quality by type
-        if (!this.metrics.qualityScores.byType[resource.type]) {
-          this.metrics.qualityScores.byType[resource.type] = resource.metadata.quality;
+        // Update quality by type (determine type from ID prefix)
+        let resourceType = 'unknown';
+        if (resource.id.startsWith('quiz-')) resourceType = 'quiz';
+        else if (resource.id.startsWith('video-')) resourceType = 'video';
+        else if (resource.id.startsWith('bibliography-')) resourceType = 'bibliography';
+        else if (resource.id.startsWith('config-')) resourceType = 'config';
+        
+        if (!this.metrics.qualityScores.byType[resourceType]) {
+          this.metrics.qualityScores.byType[resourceType] = resource.metadata.quality;
         } else {
-          this.metrics.qualityScores.byType[resource.type] = 
-            (this.metrics.qualityScores.byType[resource.type] + resource.metadata.quality) / 2;
+          this.metrics.qualityScores.byType[resourceType] = 
+            (this.metrics.qualityScores.byType[resourceType] + resource.metadata.quality) / 2;
         }
 
         // Check for low quality alerts
@@ -497,7 +503,7 @@ export class PipelineMonitoringService extends EventEmitter {
       id: `quality-${resource.id}`,
       type: 'quality',
       severity: 'medium',
-      message: `Low quality resource: ${resource.type} (score: ${resource.metadata.quality})`,
+      message: `Low quality resource: ${resource.id} (score: ${resource.metadata.quality})`,
       timestamp: new Date(),
       moduleId: resource.moduleId,
       resourceId: resource.id,

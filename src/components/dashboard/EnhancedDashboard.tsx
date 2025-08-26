@@ -389,12 +389,11 @@ const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
               </Link>
               
               <Link
-                to="/mindmap"
+                to="/modules"
                 className="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
               >
                 <Brain className="w-5 h-5 text-purple-600 mr-3" />
                 <div>
-                  <p className="font-medium text-gray-900">Mapa Mental</p>
                   <p className="text-xs text-gray-500">Visualizar conceitos</p>
                 </div>
               </Link>

@@ -83,7 +83,6 @@ export interface StructuralIntegrityResult {
   contentStructure: boolean;
   quizValidity: boolean;
   bibliographyQuality: boolean;
-  mindMapCoherence: boolean;
 }
 
 export interface AIAccuracyResult {
@@ -436,7 +435,6 @@ export class SystemValidator {
       contentStructure: true,
       quizValidity: true,
       bibliographyQuality: true,
-      mindMapCoherence: true
     };
 
     // Check required fields
@@ -1729,7 +1727,6 @@ export class SystemValidator {
       contentStructure: true,
       quizValidity: true,
       bibliographyQuality: true,
-      mindMapCoherence: true
     };
   }
 

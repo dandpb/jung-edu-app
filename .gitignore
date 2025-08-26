@@ -165,6 +165,13 @@ cypress/screenshots
 **/public/worker-*.js.map
 
 
+
+# Local Netlify folder
+.netlify
+
+# Claude Code Router config with API keys
+ccr-config.json
+
 # Claude Flow generated files
 .claude/settings.local.json
 .mcp.json
@@ -189,9 +196,3 @@ claude-flow
 claude-flow.bat
 claude-flow.ps1
 hive-mind-prompt-*.txt
-
-# Local Netlify folder
-.netlify
-
-# Claude Code Router config with API keys
-ccr-config.json

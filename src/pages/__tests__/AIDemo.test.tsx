@@ -28,14 +28,6 @@ describe('AIDemo Component', () => {
     expect(screen.getByText('Explore o Mapa Interativo')).toBeInTheDocument();
   });
 
-  test('renders all steps with descriptions', () => {
-    renderWithRouter(<AIDemo />);
-
-    expect(screen.getByText(/Navegue até o Mapa Mental IA/)).toBeInTheDocument();
-    expect(screen.getByText(/Nossa IA extrai conceitos-chave/)).toBeInTheDocument();
-    expect(screen.getByText(/Navegue pelos conceitos, veja exemplos/)).toBeInTheDocument();
-  });
-
   test('renders features list', () => {
     renderWithRouter(<AIDemo />);
 
@@ -53,7 +45,6 @@ describe('AIDemo Component', () => {
 
     const ctaButton = screen.getByRole('link', { name: /Experimente Mapas Mentais com IA/i });
     expect(ctaButton).toBeInTheDocument();
-    expect(ctaButton).toHaveAttribute('href', '/enhanced-mindmap');
   });
 
   test('renders alternative demo link', () => {

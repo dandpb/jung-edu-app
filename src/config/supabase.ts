@@ -60,7 +60,6 @@ export const DB_CONFIG = {
     QUIZZES: 'quizzes',
     USER_PROGRESS: 'user_progress',
     NOTES: 'notes',
-    MINDMAPS: 'mindmaps',
     BIBLIOGRAPHY: 'bibliography',
     VIDEOS: 'videos',
     PASSWORD_RESET_TOKENS: 'password_reset_tokens',
@@ -122,7 +121,6 @@ export const createDatabaseQuery = {
   modules: () => supabase.from(DB_CONFIG.TABLES.MODULES),
   quizzes: () => supabase.from(DB_CONFIG.TABLES.QUIZZES),
   notes: () => supabase.from(DB_CONFIG.TABLES.NOTES),
-  mindmaps: () => supabase.from(DB_CONFIG.TABLES.MINDMAPS),
   bibliography: () => supabase.from(DB_CONFIG.TABLES.BIBLIOGRAPHY),
   videos: () => supabase.from(DB_CONFIG.TABLES.VIDEOS),
   

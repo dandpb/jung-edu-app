@@ -144,7 +144,6 @@ const mockUseAdmin = () => ({
   updateModules: mockUpdateModules,
   mindMapNodes: [],
   mindMapEdges: [],
-  updateMindMap: jest.fn()
 });
 
 // Test wrapper component

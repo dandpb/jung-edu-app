@@ -308,51 +308,6 @@ Difficulty level: ${options.difficulty}`;
     return Array.isArray(videos) ? videos : [];
   }
 
-  private async generateMindMaps(options: GenerationOptions, content: any): Promise<any[]> {
-    const sectionTitles = content?.sections ? content.sections.map((s: any) => s.title).join(', ') : 'General topics';
-    
-    const prompt = `Create a mind map structure for the educational content about ${options.topic}. The mind map should visualize the key concepts and their relationships.
-
-Main topics from content: ${sectionTitles}
-
-Generate nodes and edges that represent the conceptual structure.`;
-
-    const schema = {
-      id: 'string',
-      title: 'string',
-      description: 'string',
-      nodes: [{
-        id: 'string',
-        label: 'string',
-        type: 'string',
-        position: { x: 'number', y: 'number' }
-      }],
-      edges: [{
-        id: 'string',
-        source: 'string',
-        target: 'string',
-        type: 'string'
-      }],
-      layout: {
-        type: 'string',
-        direction: 'string'
-      },
-      metadata: {
-        created: 'string',
-        lastModified: 'string',
-        version: 'string',
-        isInteractive: 'boolean',
-        allowEditing: 'boolean'
-      }
-    };
-
-    const mindMap = await this.llmProvider.generateStructuredOutput(prompt, schema, {
-      maxTokens: 1500,
-      temperature: 0.6
-    });
-
-    return [mindMap];
-  }
 
   private async generateBibliography(options: GenerationOptions): Promise<any[]> {
     const prompt = `Generate a bibliography of 5-8 relevant sources for studying ${options.topic} in Jungian psychology. Include books, journal articles, and other academic sources.`;

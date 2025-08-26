@@ -6,7 +6,6 @@
 import { UnifiedModuleGenerator, ModuleGenerationConfig, GeneratedModule } from '../index';
 import { LLMOrchestrator } from '../../llm/orchestrator';
 import { ModuleGenerator } from '../../modules/moduleGenerator';
-import { MindMapGenerator } from '../../mindmap/mindMapGenerator';
 import { EnhancedQuizGenerator } from '../../quiz/enhancedQuizGenerator';
 import { VideoEnricher } from '../../video/videoEnricher';
 import { BibliographyEnricher } from '../../bibliography/bibliographyEnricher';
@@ -16,7 +15,6 @@ import { OpenAIProvider } from '../../llm/provider';
 // Mock all dependencies
 jest.mock('../../llm/orchestrator');
 jest.mock('../../modules/moduleGenerator');
-jest.mock('../../mindmap/mindMapGenerator');
 jest.mock('../../quiz/enhancedQuizGenerator');
 jest.mock('../../video/videoEnricher');
 jest.mock('../../bibliography/bibliographyEnricher');
@@ -30,7 +28,6 @@ describe('UnifiedModuleGenerator', () => {
   let generator: UnifiedModuleGenerator;
   let mockOrchestrator: jest.Mocked<LLMOrchestrator>;
   let mockModuleGenerator: jest.Mocked<ModuleGenerator>;
-  let mockMindMapGenerator: jest.Mocked<MindMapGenerator>;
   let mockQuizGenerator: jest.Mocked<EnhancedQuizGenerator>;
   let mockVideoEnricher: jest.Mocked<VideoEnricher>;
   let mockBibliographyEnricher: jest.Mocked<BibliographyEnricher>;
@@ -48,7 +45,6 @@ describe('UnifiedModuleGenerator', () => {
     }
   };
 
-  const mockMindMap = {
     nodes: [
       { id: '1', data: { label: 'Collective Unconscious' } },
       { id: '2', data: { label: 'Archetypes' } }
@@ -101,7 +97,6 @@ describe('UnifiedModuleGenerator', () => {
 
     mockModuleGenerator = {} as any;
 
-    mockMindMapGenerator = {
       generateFromModule: jest.fn()
     } as any;
 
@@ -116,7 +111,6 @@ describe('UnifiedModuleGenerator', () => {
     // Setup mock implementations
     (LLMOrchestrator as jest.MockedClass<typeof LLMOrchestrator>).mockImplementation(() => mockOrchestrator);
     (ModuleGenerator as jest.MockedClass<typeof ModuleGenerator>).mockImplementation(() => mockModuleGenerator);
-    (MindMapGenerator as jest.MockedClass<typeof MindMapGenerator>).mockImplementation(() => mockMindMapGenerator);
     (EnhancedQuizGenerator as jest.MockedClass<typeof EnhancedQuizGenerator>).mockImplementation(() => mockQuizGenerator);
     (VideoEnricher as jest.MockedClass<typeof VideoEnricher>).mockImplementation(() => mockVideoEnricher);
     (BibliographyEnricher as jest.MockedClass<typeof BibliographyEnricher>).mockImplementation(() => mockBibliographyEnricher);
@@ -134,7 +128,6 @@ describe('UnifiedModuleGenerator', () => {
     it('should initialize all services correctly', () => {
       expect(LLMOrchestrator).toHaveBeenCalled();
       expect(ModuleGenerator).toHaveBeenCalled();
-      expect(MindMapGenerator).toHaveBeenCalled();
       expect(EnhancedQuizGenerator).toHaveBeenCalled();
       expect(VideoEnricher).toHaveBeenCalled();
       expect(BibliographyEnricher).toHaveBeenCalled();
@@ -160,7 +153,6 @@ describe('UnifiedModuleGenerator', () => {
 
     beforeEach(() => {
       mockOrchestrator.generateModule.mockResolvedValue(mockModuleStructure);
-      mockMindMapGenerator.generateFromModule.mockResolvedValue(mockMindMap);
       mockOrchestrator.generateQuiz.mockResolvedValue(mockQuiz);
       mockOrchestrator.generateBibliography.mockResolvedValue(mockBibliography);
       mockBibliographyEnricher.searchBibliography.mockResolvedValue(mockBibliography);
@@ -190,7 +182,6 @@ describe('UnifiedModuleGenerator', () => {
     });
 
     it('should handle individual component generation failures gracefully', async () => {
-      mockMindMapGenerator.generateFromModule.mockRejectedValue(new Error('Mind map generation failed'));
       mockOrchestrator.generateQuiz.mockRejectedValue(new Error('Quiz generation failed'));
 
       const result = await generator.generateCompleteModule(basicConfig);
@@ -250,7 +241,6 @@ describe('UnifiedModuleGenerator', () => {
   describe('generateCustomModule', () => {
     it('should generate module with specific components only', async () => {
       mockOrchestrator.generateModule.mockResolvedValue(mockModuleStructure);
-      mockMindMapGenerator.generateFromModule.mockResolvedValue(mockMindMap);
 
       const result = await generator.generateCustomModule('Test Topic', {
         module: true,
@@ -270,7 +260,6 @@ describe('UnifiedModuleGenerator', () => {
   describe('preset generation methods', () => {
     beforeEach(() => {
       mockOrchestrator.generateModule.mockResolvedValue(mockModuleStructure);
-      mockMindMapGenerator.generateFromModule.mockResolvedValue(mockMindMap);
       mockOrchestrator.generateQuiz.mockResolvedValue(mockQuiz);
       mockOrchestrator.generateBibliography.mockResolvedValue(mockBibliography);
       mockBibliographyEnricher.searchBibliography.mockResolvedValue(mockBibliography);
@@ -339,7 +328,6 @@ describe('UnifiedModuleGenerator', () => {
         };
 
         mockOrchestrator.generateModule.mockResolvedValue(beginnerModule);
-        mockMindMapGenerator.generateFromModule.mockResolvedValue(mockMindMap);
 
         const result = await generator.generateCompleteModule({
           topic: 'Basic Topic'
@@ -361,7 +349,6 @@ describe('UnifiedModuleGenerator', () => {
         };
 
         mockOrchestrator.generateModule.mockResolvedValue(advancedModule);
-        mockMindMapGenerator.generateFromModule.mockResolvedValue(mockMindMap);
 
         const result = await generator.generateCompleteModule({
           topic: 'Advanced Topic'
@@ -376,7 +363,6 @@ describe('UnifiedModuleGenerator', () => {
     it('should handle null quiz response', async () => {
       mockOrchestrator.generateModule.mockResolvedValue(mockModuleStructure);
       mockOrchestrator.generateQuiz.mockResolvedValue(null as any);
-      mockMindMapGenerator.generateFromModule.mockResolvedValue(mockMindMap);
 
       const result = await generator.generateCompleteModule({
         topic: 'Test Topic',
@@ -397,7 +383,6 @@ describe('UnifiedModuleGenerator', () => {
       };
 
       mockOrchestrator.generateModule.mockResolvedValue(emptyModule);
-      mockMindMapGenerator.generateFromModule.mockResolvedValue(mockMindMap);
 
       const result = await generator.generateCompleteModule({
         topic: 'Empty Topic'
@@ -410,7 +395,6 @@ describe('UnifiedModuleGenerator', () => {
     it('should handle very long topic names', async () => {
       const longTopic = 'A'.repeat(500);
       mockOrchestrator.generateModule.mockResolvedValue(mockModuleStructure);
-      mockMindMapGenerator.generateFromModule.mockResolvedValue(mockMindMap);
 
       const result = await generator.generateCompleteModule({
         topic: longTopic
@@ -423,7 +407,6 @@ describe('UnifiedModuleGenerator', () => {
     it('should handle special characters in topic', async () => {
       const specialTopic = 'Jung & "Complex" <Theory> 特殊字符';
       mockOrchestrator.generateModule.mockResolvedValue(mockModuleStructure);
-      mockMindMapGenerator.generateFromModule.mockResolvedValue(mockMindMap);
 
       const result = await generator.generateCompleteModule({
         topic: specialTopic
@@ -437,7 +420,6 @@ describe('UnifiedModuleGenerator', () => {
   describe('integration scenarios', () => {
     it('should handle partial success scenario', async () => {
       mockOrchestrator.generateModule.mockResolvedValue(mockModuleStructure);
-      mockMindMapGenerator.generateFromModule.mockResolvedValue(mockMindMap);
       mockOrchestrator.generateQuiz.mockResolvedValue(mockQuiz);
       mockOrchestrator.generateBibliography.mockRejectedValue(new Error('Bibliography service down'));
       mockBibliographyEnricher.searchBibliography.mockRejectedValue(new Error('Enricher failed'));
@@ -463,8 +445,6 @@ describe('UnifiedModuleGenerator', () => {
       mockOrchestrator.generateModule.mockImplementation(() => 
         new Promise(resolve => setTimeout(() => resolve(mockModuleStructure), 10))
       );
-      mockMindMapGenerator.generateFromModule.mockImplementation(() =>
-        new Promise(resolve => setTimeout(() => resolve(mockMindMap), 20))
       );
       mockOrchestrator.generateQuiz.mockImplementation(() =>
         new Promise(resolve => setTimeout(() => resolve(mockQuiz), 15))
@@ -492,7 +472,6 @@ describe('UnifiedModuleGenerator', () => {
   describe('metadata generation', () => {
     it('should include all metadata fields', async () => {
       mockOrchestrator.generateModule.mockResolvedValue(mockModuleStructure);
-      mockMindMapGenerator.generateFromModule.mockResolvedValue(mockMindMap);
 
       const result = await generator.generateCompleteModule({
         topic: 'Metadata Test',

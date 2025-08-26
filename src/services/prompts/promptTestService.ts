@@ -139,34 +139,6 @@ Esta é uma prévia de demonstração. Configure sua API key do OpenAI para obte
 ]`;
     }
     
-    if (lowerPrompt.includes('mapa mental') || lowerPrompt.includes('mind map') || lowerPrompt.includes('mapa') || lowerPrompt.includes('map') || lowerPrompt.includes('estrutura') || lowerPrompt.includes('structure') || lowerPrompt.includes('mindmap')) {
-      return `# Mapa Mental - Estrutura Hierárquica
-
-## Conceito Central
-- **Tópico Principal**
-  
-### Ramo 1: Fundamentos
-- Conceito Base 1
-  - Detalhe 1.1
-  - Detalhe 1.2
-- Conceito Base 2
-  - Detalhe 2.1
-  - Detalhe 2.2
-
-### Ramo 2: Aplicações
-- Aplicação Prática 1
-  - Exemplo 1.1
-  - Exemplo 1.2
-- Aplicação Prática 2
-  - Exemplo 2.1
-  - Exemplo 2.2
-
-### Ramo 3: Conexões
-- Relação com outros conceitos
-- Implicações práticas
-- Desenvolvimentos futuros`;
-    }
-    
     if (lowerPrompt.includes('vídeo') || lowerPrompt.includes('video') || lowerPrompt.includes('youtube') || lowerPrompt.includes('videos')) {
       return `# Lista de Vídeos Recomendados
 

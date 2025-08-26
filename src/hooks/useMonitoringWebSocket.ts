@@ -188,7 +188,6 @@ export const useMonitoringWebSocket = ({
           successRate: 0.9 + Math.random() * 0.1,
           errorRate: Math.random() * 0.1,
           resourcesByType: {
-            'mindmap': Math.floor(Math.random() * 300) + 200,
             'quiz': Math.floor(Math.random() * 400) + 250,
             'video': Math.floor(Math.random() * 200) + 150,
             'bibliography': Math.floor(Math.random() * 150) + 100
@@ -196,7 +195,6 @@ export const useMonitoringWebSocket = ({
           qualityScores: {
             average: 0.8 + Math.random() * 0.2,
             byType: {
-              'mindmap': 0.85 + Math.random() * 0.15,
               'quiz': 0.8 + Math.random() * 0.2,
               'video': 0.85 + Math.random() * 0.15,
               'bibliography': 0.75 + Math.random() * 0.25

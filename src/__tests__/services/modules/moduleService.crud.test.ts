@@ -36,7 +36,6 @@ describe('ModuleService CRUD Operations', () => {
       keyTakeaways: ['Understanding the collective unconscious', 'Archetypes and their role']
     },
     videos: [],
-    mindMaps: [],
     quiz: {
       id: 'quiz-test-123',
       title: 'Test Quiz',

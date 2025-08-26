@@ -97,123 +97,12 @@ describe('AIDemo - Comprehensive Tests', () => {
     });
   });
 
-  describe('Content Sections', () => {
-    describe('How It Works Section', () => {
-      it('renders all three steps with correct titles and descriptions', () => {
-        renderWithRouter(<AIDemo />);
-
-        // Step 1
-        expect(screen.getByText('Clique em Qualquer Módulo')).toBeInTheDocument();
-        expect(screen.getByText(/Navegue até o Mapa Mental IA/)).toBeInTheDocument();
-
-        // Step 2  
-        expect(screen.getByText('IA Analisa o Conteúdo')).toBeInTheDocument();
-        expect(screen.getByText(/Nossa IA extrai conceitos-chave/)).toBeInTheDocument();
-
-        // Step 3
-        expect(screen.getByText('Explore o Mapa Interativo')).toBeInTheDocument();
-        expect(screen.getByText(/Navegue pelos conceitos, veja exemplos/)).toBeInTheDocument();
-      });
-
-      it('has proper visual structure for steps', () => {
-        renderWithRouter(<AIDemo />);
-
-        const stepContainers = screen.getAllByText(/\d/).filter(el => 
-          el.closest('.bg-primary-100')
-        );
-        
-        expect(stepContainers.length).toBe(3);
-        
-        // Each step should have the proper styling
-        stepContainers.forEach(step => {
-          expect(step).toHaveClass('text-primary-600', 'font-bold');
-        });
-      });
-    });
-
-    describe('Features Section', () => {
-      const expectedFeatures = [
-        'Extração automática de conceitos',
-        'Organização hierárquica',
-        'Mapeamento visual de relacionamentos', 
-        'Exemplos interativos',
-        'Caminhos de aprendizagem sugeridos',
-        'Geração em tempo real'
-      ];
-
-      it('renders all features with icons', () => {
-        renderWithRouter(<AIDemo />);
-
-        expectedFeatures.forEach(feature => {
-          expect(screen.getByText(feature)).toBeInTheDocument();
-        });
-
-        expect(screen.getByText('Recursos')).toBeInTheDocument();
-      });
-
-      it('features are properly structured with icons', () => {
-        renderWithRouter(<AIDemo />);
-
-        const featuresSection = screen.getByText('Recursos').closest('.bg-white');
-        expect(featuresSection).toBeInTheDocument();
-
-        // Each feature should be in a flex container with an icon
-        expectedFeatures.forEach(feature => {
-          const featureElement = screen.getByText(feature);
-          const container = featureElement.closest('.flex');
-          expect(container).toBeInTheDocument();
-        });
-      });
-    });
-
-    describe('Configuration Options Section', () => {
-      it('renders both configuration modes', () => {
-        renderWithRouter(<AIDemo />);
-
-        expect(screen.getByText('🤖 Modo IA Completo (Recomendado)')).toBeInTheDocument();
-        expect(screen.getByText('📝 Modo Demonstração')).toBeInTheDocument();
-      });
-
-      it('displays correct configuration details for AI mode', () => {
-        renderWithRouter(<AIDemo />);
-
-        expect(screen.getByText(/Obtenha a experiência completa de IA/)).toBeInTheDocument();
-        
-        const configBlock = screen.getByText(/REACT_APP_OPENAI_API_KEY=your-key/);
-        expect(configBlock).toBeInTheDocument();
-        expect(configBlock.textContent).toContain('REACT_APP_OPENAI_MODEL=gpt-4');
-      });
-
-      it('displays correct configuration details for demo mode', () => {
-        renderWithRouter(<AIDemo />);
-
-        expect(screen.getByText(/Experimente o recurso com conteúdo pré-estruturado/)).toBeInTheDocument();
-        expect(screen.getByText('Pronto para usar! Nenhuma configuração necessária.')).toBeInTheDocument();
-      });
-
-      it('configuration boxes have proper styling', () => {
-        renderWithRouter(<AIDemo />);
-
-        const configBoxes = document.querySelectorAll('.border.border-gray-200.rounded-lg');
-        expect(configBoxes.length).toBeGreaterThanOrEqual(2);
-        
-        // Check that config content is in proper containers
-        const aiModeBox = screen.getByText('🤖 Modo IA Completo (Recomendado)').closest('.border');
-        const demoModeBox = screen.getByText('📝 Modo Demonstração').closest('.border');
-        
-        expect(aiModeBox).toHaveClass('border-gray-200', 'rounded-lg');
-        expect(demoModeBox).toHaveClass('border-gray-200', 'rounded-lg');
-      });
-    });
-  });
-
   describe('Navigation Links', () => {
     it('renders main CTA button with correct attributes', () => {
       renderWithRouter(<AIDemo />);
 
       const ctaButton = screen.getByRole('link', { name: /Experimente Mapas Mentais com IA/i });
       expect(ctaButton).toBeInTheDocument();
-      expect(ctaButton).toHaveAttribute('href', '/enhanced-mindmap');
       expect(ctaButton).toHaveClass('bg-primary-600', 'text-white');
     });
 
@@ -425,7 +314,6 @@ describe('AIDemo - Comprehensive Tests', () => {
       const ctaLink = screen.getByRole('link', { name: /Experimente Mapas Mentais com IA/i });
       const altLink = screen.getByRole('link', { name: /demonstração de setores do minimapa/i });
 
-      expect(ctaLink.getAttribute('href')).toBe('/enhanced-mindmap');
       expect(altLink.getAttribute('href')).toBe('/minimap-demo');
     });
 

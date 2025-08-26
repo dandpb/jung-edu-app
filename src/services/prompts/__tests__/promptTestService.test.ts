@@ -91,19 +91,6 @@ describe('PromptTestService', () => {
       }
     });
 
-    test('should generate mind map mock response', async () => {
-      const prompt = 'Crie um mapa mental sobre terapia';
-      
-      const result = await promptTestService.testPrompt(prompt);
-      
-      expect(result.success).toBe(true);
-      if (promptTestService.isUsingMock()) {
-        expect(result.response).toContain('Mapa Mental - Estrutura Hierárquica');
-        expect(result.response).toContain('Conceito Central');
-        expect(result.response).toContain('Ramo 1: Fundamentos');
-      }
-    });
-
     test('should generate video search mock response', async () => {
       const prompt = 'Encontre vídeos sobre Jung no YouTube';
       
@@ -219,7 +206,6 @@ describe('PromptTestService', () => {
       const prompts = [
         'introdução',
         'quiz',
-        'mapa mental',
         'vídeo',
         'bibliografia',
         'unknown type'
@@ -280,22 +266,6 @@ describe('PromptTestService', () => {
         
         if (promptTestService.isUsingMock()) {
           expect(result.response).toMatch(/(questão|question|quiz)/i);
-        }
-      }
-    });
-
-    test('should detect mind map prompts correctly', async () => {
-      const mindmapPrompts = [
-        'mapa mental',
-        'mind map structure',
-        'create a mindmap'
-      ];
-
-      for (const prompt of mindmapPrompts) {
-        const result = await promptTestService.testPrompt(prompt);
-        
-        if (promptTestService.isUsingMock()) {
-          expect(result.response).toMatch(/(mapa|map|estrutura|structure)/i);
         }
       }
     });

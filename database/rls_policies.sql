@@ -9,7 +9,6 @@ ALTER TABLE modules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE quizzes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_progress ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE mindmaps ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bibliography ENABLE ROW LEVEL SECURITY;
 ALTER TABLE videos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE password_reset_tokens ENABLE ROW LEVEL SECURITY;
@@ -255,24 +254,15 @@ CREATE POLICY "Users can manage own notes" ON notes
     USING (auth.uid() = user_id)
     WITH CHECK (auth.uid() = user_id);
 
--- MINDMAPS TABLE POLICIES
--- Users can view their own mindmaps
-CREATE POLICY "Users can view own mindmaps" ON mindmaps
     FOR SELECT
     USING (auth.uid() = user_id);
 
--- Users can view public mindmaps
-CREATE POLICY "Users can view public mindmaps" ON mindmaps
     FOR SELECT
     USING (is_public = true);
 
--- Admins can view all mindmaps
-CREATE POLICY "Admins can view all mindmaps" ON mindmaps
     FOR SELECT
     USING (is_admin());
 
--- Users can manage their own mindmaps
-CREATE POLICY "Users can manage own mindmaps" ON mindmaps
     FOR ALL
     USING (auth.uid() = user_id)
     WITH CHECK (auth.uid() = user_id);

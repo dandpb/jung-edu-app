@@ -86,8 +86,6 @@ describe('Navigation Component', () => {
     
     expect(screen.getByText("Psicologia de Jung")).toBeInTheDocument();
     expect(screen.getByText('Painel')).toBeInTheDocument();
-    expect(screen.getByText('Mapa Mental')).toBeInTheDocument();
-    expect(screen.getByText('Mapa Mental IA')).toBeInTheDocument();
     expect(screen.getByText('Anotações')).toBeInTheDocument();
     expect(screen.getByText('Recursos')).toBeInTheDocument();
     expect(screen.getByText('Buscar')).toBeInTheDocument();
@@ -108,9 +106,9 @@ describe('Navigation Component', () => {
       }
     });
     
-    render(<Navigation />, { initialEntries: ['/mindmap'] });
+    render(<Navigation />, { initialEntries: ['/notes'] });
     
-    const mindMapLink = screen.getByText('Mapa Mental').closest('a');
+    const mindMapLink = screen.getByText('Anotações').closest('a');
     expect(mindMapLink).toHaveClass('bg-primary-50', 'text-primary-700');
   });
 
@@ -261,7 +259,7 @@ describe('Navigation Component', () => {
     
     render(<Navigation />);
     
-    const navLabels = screen.getAllByText(/Painel|Mapa Mental|Anotações|Recursos|Buscar/);
+    const navLabels = screen.getAllByText(/Painel|Anotações|Recursos|Buscar/);
     navLabels.forEach(label => {
       if (label.tagName === 'SPAN') {
         expect(label).toHaveClass('hidden', 'sm:inline');
@@ -373,7 +371,7 @@ describe('Navigation Component', () => {
     render(<Navigation />);
     
     const links = screen.getAllByRole('link').filter(link => 
-      link.textContent?.match(/Painel|Mapa Mental|Anotações|Recursos|Buscar/)
+      link.textContent?.match(/Painel|Anotações|Recursos|Buscar/)
     );
     
     links.forEach(link => {
@@ -381,24 +379,4 @@ describe('Navigation Component', () => {
     });
   });
 
-  test('handles navigation for enhanced mindmap', () => {
-    (useAuth as jest.Mock).mockReturnValue({
-      ...defaultAuthContextValue,
-      isAuthenticated: true,
-      user: { 
-        id: '1', 
-        name: 'Test User', 
-        role: UserRole.STUDENT,
-        profile: {
-          firstName: 'Test',
-          lastName: 'User'
-        }
-      }
-    });
-    
-    render(<Navigation />, { initialEntries: ['/enhanced-mindmap'] });
-    
-    const enhancedMindmapLink = screen.getByText('Mapa Mental IA').closest('a');
-    expect(enhancedMindmapLink).toHaveClass('bg-primary-50', 'text-primary-700');
-  });
 });

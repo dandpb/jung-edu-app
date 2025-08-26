@@ -72,7 +72,6 @@ describe('EndToEndValidator', () => {
     },
     bibliography: [],
     mindMap: {
-      id: 'mindmap-1',
       moduleId: 'test-module-1',
       nodes: [],
       edges: [],

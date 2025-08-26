@@ -19,7 +19,6 @@ const createMockUnifiedModuleGenerator = () => {
     metadata: {
       topic: 'Shadow Integration in Jungian Psychology',
       difficulty: 'intermediate',
-      componentsIncluded: ['content', 'quiz', 'videos', 'mindmap']
     },
     module: {
       title: 'Shadow Integration in Jungian Psychology',
@@ -67,7 +66,6 @@ const createMockUnifiedModuleGenerator = () => {
     metadata: {
       topic: 'Collective Unconscious and Archetypes',
       difficulty: 'advanced',
-      componentsIncluded: ['content', 'quiz', 'videos', 'mindmap', 'bibliography']
     },
     module: {
       title: 'Collective Unconscious and Archetypes',
@@ -210,7 +208,6 @@ const createMockUnifiedModuleGenerator = () => {
     metadata: {
       topic: 'Synchronicity and Quantum Psychology',
       difficulty: 'research-oriented',
-      componentsIncluded: ['content', 'bibliography', 'mindmap']
     },
     module: {
       title: 'Synchronicity and Quantum Psychology',
@@ -367,12 +364,10 @@ describe('Module Generation Demo - Comprehensive Coverage', () => {
       // Quick module metadata
       expect(mockConsoleLog).toHaveBeenCalledWith('📋 Topic: Shadow Integration in Jungian Psychology');
       expect(mockConsoleLog).toHaveBeenCalledWith('📊 Difficulty: intermediate');
-      expect(mockConsoleLog).toHaveBeenCalledWith('🔧 Components: content, quiz, videos, mindmap');
 
       // Study module metadata
       expect(mockConsoleLog).toHaveBeenCalledWith('📋 Topic: Collective Unconscious and Archetypes');
       expect(mockConsoleLog).toHaveBeenCalledWith('📊 Difficulty: advanced');
-      expect(mockConsoleLog).toHaveBeenCalledWith('🔧 Components: content, quiz, videos, mindmap, bibliography');
     });
 
     it('should analyze quiz components correctly', async () => {
@@ -505,7 +500,6 @@ describe('Module Generation Demo - Comprehensive Coverage', () => {
       expect(mockConsoleLog).toHaveBeenCalledWith('  ✓ Custom configuration for specific needs');
       expect(mockConsoleLog).toHaveBeenCalledWith('  ✓ Research-focused modules with academic bibliography');
       expect(mockConsoleLog).toHaveBeenCalledWith('  ✓ Automatic difficulty detection');
-      expect(mockConsoleLog).toHaveBeenCalledWith('  ✓ Integration of all services (mindmap, quiz, video, bibliography)');
       expect(mockConsoleLog).toHaveBeenCalledWith('  ✓ Rich metadata and analytics');
     });
   });
@@ -616,7 +610,6 @@ describe('Module Generation Demo - Comprehensive Coverage', () => {
     });
 
     it('should handle missing mind map data', async () => {
-      const moduleWithoutMindMap = {
         metadata: {
           topic: 'Test Topic',
           difficulty: 'intermediate',
@@ -626,7 +619,6 @@ describe('Module Generation Demo - Comprehensive Coverage', () => {
         mindMap: null
       };
 
-      mockGenerator.generateStudyModule.mockResolvedValue(moduleWithoutMindMap);
 
       await runCompleteDemo();
 
@@ -682,7 +674,6 @@ describe('Module Generation Demo - Comprehensive Coverage', () => {
     });
 
     it('should handle complex node type distribution in mind maps', async () => {
-      const complexMindMap = {
         nodes: [
           { id: '1', data: { label: 'Root', isRoot: true }, type: 'concept' },
           { id: '2', data: { label: 'Theory' }, type: 'theoretical' },
@@ -697,12 +688,9 @@ describe('Module Generation Demo - Comprehensive Coverage', () => {
         ]
       };
 
-      const moduleWithComplexMindMap = {
         ...createMockUnifiedModuleGenerator().generateStudyModule(),
-        mindMap: complexMindMap
       };
 
-      mockGenerator.generateStudyModule.mockResolvedValue(moduleWithComplexMindMap);
 
       await runCompleteDemo();
 

@@ -98,7 +98,6 @@ export class ModuleGenerationOrchestrator extends EventEmitter {
           systemPrompts: {
             content: 'You are an expert educator in Jungian psychology.',
             quiz: 'You are a quiz generator specializing in Jungian psychology.',
-            mindmap: 'You are a concept mapper for Jungian psychology.',
             bibliography: 'You are a academic reference specialist in Jungian psychology.',
           },
         },
@@ -687,9 +686,7 @@ export class ModuleGenerationOrchestrator extends EventEmitter {
       estimate += 2000;
     }
     
-    // Mindmap generation (when applicable) - removed to match test expectations
     // if (options.includeVideos || options.includeBibliography || (options.quizQuestions && options.quizQuestions > 5)) {
-    //   estimate += 2500; // Add mindmap component for complex modules
     // }
     
     return estimate;

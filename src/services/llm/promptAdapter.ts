@@ -160,34 +160,6 @@ export class PromptAdapter {
     };
   }
 
-  /**
-   * Get prompts for mind map generation
-   */
-  async getMindMapPrompts() {
-    return {
-      structure: async (
-        topic: string,
-        concepts: string[],
-        depth: number,
-        style: string,
-        language: string = 'pt-BR'
-      ) => {
-        const conceptsText = concepts.join(', ');
-        const styleText = style === 'comprehensive' ? 'abrangente' 
-          : style === 'simplified' ? 'simplificado' 
-          : 'analítico';
-
-        return this.getPrompt('mindmap.structure', {
-          topic,
-          depth,
-          style: styleText,
-          concepts: conceptsText,
-          minBranches: 3,
-          maxBranches: 5
-        });
-      }
-    };
-  }
 
   /**
    * Get prompts for video generation
@@ -329,14 +301,7 @@ ${variables.objectives || 'Compreensão geral do tópico'}
 
 IMPORTANTE: Escreva TODAS as questões, opções e explicações em português brasileiro (pt-BR).`,
 
-      'mindmap.structure': `
-Crie uma estrutura de mapa mental para "${variables.topic}" em psicologia junguiana com ${variables.depth || 3} níveis de profundidade.
-
-Conceitos-chave a incluir: ${variables.concepts}
-
-IMPORTANTE: Todos os rótulos devem estar em português brasileiro.`,
-
-      'video.search_queries': `
+'video.search_queries': `
 Gere exatamente ${variables.queryCount || 8} queries de busca do YouTube para encontrar vídeos educacionais sobre "${variables.topic}" em psicologia junguiana.
 
 Conceitos-chave a cobrir:

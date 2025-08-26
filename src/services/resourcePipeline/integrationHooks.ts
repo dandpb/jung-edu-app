@@ -462,9 +462,9 @@ export class PipelineIntegrationHooks extends EventEmitter {
     const baseResources = ['config'];
     
     if (complexity === 'high') {
-      return [...baseResources, 'quiz', 'video', 'bibliography', 'mindmap', 'test'];
+      return [...baseResources, 'quiz', 'test', 'videos', 'bibliography'];
     } else if (complexity === 'medium') {
-      return [...baseResources, 'quiz', 'mindmap', 'test'];
+      return [...baseResources, 'quiz', 'bibliography'];
     } else {
       return [...baseResources, 'quiz', 'test'];
     }
@@ -478,7 +478,7 @@ export class PipelineIntegrationHooks extends EventEmitter {
 
   private async validateResourceStructure(resource: GeneratedResource): Promise<boolean> {
     // Basic validation - check if resource has required fields
-    return !!(resource.id && resource.type && resource.moduleId && resource.content);
+    return !!(resource.id && resource.moduleId && resource.content);
   }
 
   private async cacheResource(moduleId: string, resource: GeneratedResource): Promise<void> {
@@ -497,21 +497,17 @@ export class PipelineIntegrationHooks extends EventEmitter {
   }
 
   private generateResourceTags(resource: GeneratedResource): string[] {
-    const tags = [resource.type];
+    const tags: string[] = [];
     
-    switch (resource.type) {
-      case 'quiz':
-        tags.push('quiz', 'quiz');
-        break;
-      case 'video':
-        tags.push('video', 'video');
-        break;
-      case 'bibliography':
-        tags.push('bibliography', 'bibliography');
-        break;
-      case 'mindmap':
-        tags.push('mindmap', 'mindmap');
-        break;
+    // Determine type from resource ID prefix
+    if (resource.id.startsWith('quiz-')) {
+      tags.push('quiz', 'assessment');
+    } else if (resource.id.startsWith('video-')) {
+      tags.push('video', 'media');
+    } else if (resource.id.startsWith('bibliography-')) {
+      tags.push('bibliography', 'reference');
+    } else if (resource.id.startsWith('config-')) {
+      tags.push('config', 'metadata');
     }
     
     return tags;

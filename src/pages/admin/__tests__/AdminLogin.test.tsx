@@ -38,7 +38,6 @@ jest.mock('../../../contexts/AdminContext', () => ({
     updateModules: jest.fn(),
     mindMapNodes: [],
     mindMapEdges: [],
-    updateMindMap: jest.fn()
   })
 }));
 

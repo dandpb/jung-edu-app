@@ -8,7 +8,6 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE IF NOT EXISTS prompt_templates (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     key TEXT NOT NULL UNIQUE, -- Unique identifier for the prompt (e.g., 'content.introduction', 'quiz.generation')
-    category TEXT NOT NULL, -- Category: 'content', 'quiz', 'mindmap', 'video', 'bibliography'
     name TEXT NOT NULL, -- Human-readable name
     description TEXT, -- Description of what this prompt does
     template TEXT NOT NULL, -- The actual prompt template with placeholders
@@ -158,7 +157,6 @@ CREATE TRIGGER prompt_template_version_trigger
 INSERT INTO prompt_categories (key, name, description, icon, color, display_order) VALUES
     ('content', 'Content Generation', 'Prompts for generating module content', '📚', '#8B5CF6', 1),
     ('quiz', 'Quiz Generation', 'Prompts for creating quizzes and assessments', '❓', '#3B82F6', 2),
-    ('mindmap', 'Mind Map Generation', 'Prompts for creating visual mind maps', '🗺️', '#10B981', 3),
     ('video', 'Video Curation', 'Prompts for finding and curating educational videos', '🎥', '#F59E0B', 4),
     ('bibliography', 'Bibliography Generation', 'Prompts for creating reading lists and references', '📖', '#EC4899', 5)
 ON CONFLICT (key) DO NOTHING;

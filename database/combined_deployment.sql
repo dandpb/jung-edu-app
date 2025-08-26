@@ -20,7 +20,6 @@ CREATE TYPE progress_status AS ENUM ('not_started', 'in_progress', 'completed', 
 CREATE TYPE theme_preference AS ENUM ('light', 'dark');
 CREATE TYPE source_type AS ENUM ('book', 'article', 'website', 'video', 'other');
 CREATE TYPE video_type AS ENUM ('youtube', 'vimeo', 'uploaded', 'external');
-CREATE TYPE mindmap_layout AS ENUM ('tree', 'radial', 'force', 'hierarchical');
 
 -- Users table (extends Supabase auth.users)
 CREATE TABLE users (
@@ -156,13 +155,11 @@ CREATE TABLE notes (
 );
 
 -- Mind maps table
-CREATE TABLE mindmaps (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     module_id UUID REFERENCES modules(id) ON DELETE SET NULL,
     title TEXT NOT NULL,
     data JSONB NOT NULL,
-    layout mindmap_layout DEFAULT 'tree' NOT NULL,
     is_public BOOLEAN DEFAULT false NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
@@ -247,9 +244,6 @@ CREATE INDEX idx_notes_module_id ON notes(module_id);
 CREATE INDEX idx_notes_private ON notes(is_private);
 CREATE INDEX idx_notes_tags ON notes USING GIN(tags);
 
-CREATE INDEX idx_mindmaps_user_id ON mindmaps(user_id);
-CREATE INDEX idx_mindmaps_module_id ON mindmaps(module_id);
-CREATE INDEX idx_mindmaps_public ON mindmaps(is_public);
 
 CREATE INDEX idx_bibliography_module_id ON bibliography(module_id);
 CREATE INDEX idx_bibliography_type ON bibliography(source_type);
@@ -278,7 +272,6 @@ CREATE TRIGGER update_modules_updated_at BEFORE UPDATE ON modules FOR EACH ROW E
 CREATE TRIGGER update_quizzes_updated_at BEFORE UPDATE ON quizzes FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_user_progress_updated_at BEFORE UPDATE ON user_progress FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_notes_updated_at BEFORE UPDATE ON notes FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_mindmaps_updated_at BEFORE UPDATE ON mindmaps FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_bibliography_updated_at BEFORE UPDATE ON bibliography FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();  
 CREATE TRIGGER update_videos_updated_at BEFORE UPDATE ON videos FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -361,7 +354,6 @@ ALTER TABLE modules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE quizzes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_progress ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE mindmaps ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bibliography ENABLE ROW LEVEL SECURITY;
 ALTER TABLE videos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE password_reset_tokens ENABLE ROW LEVEL SECURITY;
@@ -607,24 +599,15 @@ CREATE POLICY "Users can manage own notes" ON notes
     USING (auth.uid() = user_id)
     WITH CHECK (auth.uid() = user_id);
 
--- MINDMAPS TABLE POLICIES
--- Users can view their own mindmaps
-CREATE POLICY "Users can view own mindmaps" ON mindmaps
     FOR SELECT
     USING (auth.uid() = user_id);
 
--- Users can view public mindmaps
-CREATE POLICY "Users can view public mindmaps" ON mindmaps
     FOR SELECT
     USING (is_public = true);
 
--- Admins can view all mindmaps
-CREATE POLICY "Admins can view all mindmaps" ON mindmaps
     FOR SELECT
     USING (is_admin());
 
--- Users can manage their own mindmaps
-CREATE POLICY "Users can manage own mindmaps" ON mindmaps
     FOR ALL
     USING (auth.uid() = user_id)
     WITH CHECK (auth.uid() = user_id);
