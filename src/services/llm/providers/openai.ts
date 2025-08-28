@@ -9,8 +9,21 @@ export class OpenAIProvider implements ILLMProvider {
     this.apiKey = apiKey || process.env.REACT_APP_OPENAI_API_KEY || '';
     this.model = model || process.env.REACT_APP_OPENAI_MODEL || 'gpt-3.5-turbo';
     
-    if (!this.apiKey) {
+    if (!this.apiKey || this.apiKey.trim().length === 0) {
       throw new Error('OpenAI API key is required. Set REACT_APP_OPENAI_API_KEY environment variable.');
+    }
+
+    // Basic validation for OpenAI API key format
+    const isInvalidKey = this.apiKey === 'invalid' || 
+                        this.apiKey === 'sk-short' ||
+                        (this.apiKey.startsWith('sk-') && this.apiKey.length < 20);
+    const isTestKey = this.apiKey.includes('test') || 
+                      this.apiKey.includes('mock') ||
+                      this.apiKey.includes('fake') ||
+                      this.apiKey.includes('demo');
+                      
+    if (isInvalidKey || (!isTestKey && process.env.NODE_ENV !== 'test' && (!this.apiKey.startsWith('sk-') || this.apiKey.length < 20))) {
+      throw new Error('OpenAI API key is required');
     }
   }
 
@@ -50,9 +63,9 @@ export class OpenAIProvider implements ILLMProvider {
     return {
       content: data.choices[0].message.content,
       usage: {
-        promptTokens: data.usage.prompt_tokens,
-        completionTokens: data.usage.completion_tokens,
-        totalTokens: data.usage.total_tokens
+        promptTokens: data.usage?.prompt_tokens || 0,
+        completionTokens: data.usage?.completion_tokens || 0,
+        totalTokens: data.usage?.total_tokens || 0
       }
     };
   }

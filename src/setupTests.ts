@@ -8,7 +8,15 @@ import { setupTestEnvironment } from './test-utils/testConfig';
 if (typeof globalThis.crypto === 'undefined') {
   (globalThis as any).crypto = {
     subtle: {
-      sign: jest.fn().mockResolvedValue(new ArrayBuffer(64)),
+      sign: jest.fn().mockImplementation(async (algorithm: any, key: any, data: ArrayBuffer) => {
+        // Return proper ArrayBuffer for JWT signing
+        const buffer = Buffer.from(data);
+        const hash = require('crypto').createHash('sha256').update(buffer).digest();
+        const arrayBuffer = new ArrayBuffer(hash.length);
+        const uint8Array = new Uint8Array(arrayBuffer);
+        uint8Array.set(hash);
+        return arrayBuffer;
+      }),
       verify: jest.fn().mockResolvedValue(true),
       importKey: jest.fn().mockResolvedValue({}),
       generateKey: jest.fn().mockResolvedValue({})
@@ -292,10 +300,14 @@ if (typeof global.crypto === 'undefined') {
         return new ArrayBuffer(Math.max(0, data.byteLength - 16)); // Mock decrypted data
       },
       async sign(algorithm: any, key: any, data: ArrayBuffer) {
-        // Mock signing for JWT operations
+        // Mock signing for JWT operations - return proper ArrayBuffer
         const buffer = Buffer.from(data);
         const hash = crypto.createHash('sha256').update(buffer).digest();
-        return hash.buffer;
+        // Convert Buffer to ArrayBuffer properly
+        const arrayBuffer = new ArrayBuffer(hash.length);
+        const uint8Array = new Uint8Array(arrayBuffer);
+        uint8Array.set(hash);
+        return arrayBuffer;
       },
       async verify(algorithm: any, key: any, signature: ArrayBuffer, data: ArrayBuffer) {
         // Mock verification for JWT operations

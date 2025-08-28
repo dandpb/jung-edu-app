@@ -208,6 +208,7 @@ describe('IntegrationValidator', () => {
       expect(relationshipTests.length).toBeGreaterThan(0);
     });
 
+    it('should validate module integration properly', async () => {
       const result = await integrationValidator.validateIntegration([mockModule]);
       const moduleTests = result.categories.moduleIntegration;
 

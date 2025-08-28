@@ -65,8 +65,8 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
     const initializeI18n = async () => {
       try {
         await setupI18n({
-          fallbackLanguage: 'en',
           debug,
+          fallbackLanguage: 'en',
           ...options
         });
       } catch (error) {

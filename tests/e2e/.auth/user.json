@@ -5,7 +5,7 @@
       "value": "mock_user_session_token",
       "domain": "localhost",
       "path": "/",
-      "expires": 1767091200000,
+      "expires": 1767091200,
       "httpOnly": false,
       "secure": false,
       "sameSite": "Lax"

@@ -225,9 +225,8 @@ describe('I18nContext Enhanced Test Suite', () => {
 
       await waitFor(() => {
         expect(setupI18n).toHaveBeenCalledWith({
-          fallbackLanguage: 'en',
-          debug: true,
           fallbackLanguage: 'pt-BR',
+          debug: true,
           namespace: 'custom'
         });
       });

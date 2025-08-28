@@ -610,6 +610,7 @@ describe('Module Generation Demo - Comprehensive Coverage', () => {
     });
 
     it('should handle missing mind map data', async () => {
+      const moduleWithoutMindMap = {
         metadata: {
           topic: 'Test Topic',
           difficulty: 'intermediate',
@@ -619,6 +620,7 @@ describe('Module Generation Demo - Comprehensive Coverage', () => {
         mindMap: null
       };
 
+      mockGenerator.generateStudyModule.mockResolvedValue(moduleWithoutMindMap);
 
       await runCompleteDemo();
 
@@ -674,6 +676,7 @@ describe('Module Generation Demo - Comprehensive Coverage', () => {
     });
 
     it('should handle complex node type distribution in mind maps', async () => {
+      const complexMindMap = {
         nodes: [
           { id: '1', data: { label: 'Root', isRoot: true }, type: 'concept' },
           { id: '2', data: { label: 'Theory' }, type: 'theoretical' },
@@ -688,8 +691,12 @@ describe('Module Generation Demo - Comprehensive Coverage', () => {
         ]
       };
 
+      const moduleWithComplexMindMap = {
         ...createMockUnifiedModuleGenerator().generateStudyModule(),
+        mindMap: complexMindMap
       };
+
+      mockGenerator.generateStudyModule.mockResolvedValue(moduleWithComplexMindMap);
 
 
       await runCompleteDemo();

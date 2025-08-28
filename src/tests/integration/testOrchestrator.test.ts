@@ -17,6 +17,7 @@ import { EnhancedQuizGenerator } from '../../services/quiz/enhancedQuizGenerator
 import { YouTubeService } from '../../services/video/youtubeService';
 import { MockLLMProvider } from '../../services/llm/providers/mock';
 import { UserRole, RegistrationData } from '../../types/auth';
+import { ILLMProvider } from '../../services/llm/types';
 import { DifficultyLevel, ModuleStatus, PublicationType } from '../../schemas/module.schema';
 import { createVideoDuration } from '../helpers/test-data-helpers';
 
@@ -43,13 +44,15 @@ const createMockModule = (moduleData: any, id: string) => ({
 
 // Shared test state for mock services to maintain consistency
 let mockModuleStore: any = {};
+let testModule: any = null; // Declare testModule in the proper scope
 
 // Mock ModuleService static methods
 const mockModuleService = {
-  createModule: jest.fn().mockImplementation(async (data) => {
+  createModule: jest.fn(async (data) => {
     const id = `module-${Date.now()}`;
     const module = createMockModule(data, id);
     mockModuleStore[id] = module;
+    testModule = module; // Store for cross-test reference
     console.log('Mock createModule returning:', module);
     return module;
   }),
@@ -64,13 +67,14 @@ const mockModuleService = {
     console.log('Mock getModuleById returning:', module);
     return module;
   }),
-  updateModule: jest.fn().mockImplementation(async (id, updates) => {
+  updateModule: jest.fn(async (id, updates) => {
     const existingModule = mockModuleStore[id] || createMockModule({ 
       title: 'Base Module', 
       content: { sections: [] } 
     }, id);
     const updatedModule = { ...existingModule, ...updates };
     mockModuleStore[id] = updatedModule;
+    testModule = updatedModule; // Update reference
     console.log('Mock updateModule returning:', updatedModule);
     return updatedModule;
   }),
@@ -113,6 +117,50 @@ const mockModuleService = {
 (ModuleService as any).exportModules = mockModuleService.exportModules;
 (ModuleService as any).getAllModules = mockModuleService.getAllModules;
 
+// Mock the imported classes
+const mockAuthService = {
+  register: jest.fn().mockImplementation(async (userData: RegistrationData) => {
+    const mockUser = createMockUser(userData, `user-${Date.now()}`);
+    console.log('Mock register called with:', userData);
+    console.log('Mock register returning:', mockUser);
+    return mockUser;
+  }),
+  login: jest.fn().mockImplementation(async (credentials) => {
+    const user = createMockUser({ 
+      email: credentials.username + '@test.com', 
+      username: credentials.username,
+      password: 'mock',
+      firstName: 'Test',
+      lastName: 'User',
+      role: UserRole.INSTRUCTOR 
+    }, `user-${Date.now()}`);
+    const mockResponse = {
+      user: user,
+      accessToken: 'mock-jwt-token-12345',
+      refreshToken: 'mock-refresh-token-67890'
+    };
+    console.log('Mock login returning:', mockResponse);
+    return mockResponse;
+  }),
+  hasPermission: jest.fn().mockResolvedValue(true),
+  logout: jest.fn().mockResolvedValue(undefined),
+  getCurrentUser: jest.fn().mockResolvedValue(null),
+  refreshToken: jest.fn().mockResolvedValue('new-token')
+};
+
+const mockQuizGenerator = {
+  generateEnhancedQuiz: jest.fn()
+};
+
+const mockYouTubeService = {
+  searchVideos: jest.fn()
+};
+
+// Apply mocks to imported classes
+(AuthService as jest.MockedClass<typeof AuthService>).mockImplementation(() => mockAuthService as any);
+(EnhancedQuizGenerator as jest.MockedClass<typeof EnhancedQuizGenerator>).mockImplementation(() => mockQuizGenerator as any);
+(YouTubeService as jest.MockedClass<typeof YouTubeService>).mockImplementation(() => mockYouTubeService as any);
+
 describe('Integration Test Orchestrator', () => {
   let authService: AuthService;
   let mockLLMProvider: MockLLMProvider;
@@ -121,46 +169,52 @@ describe('Integration Test Orchestrator', () => {
   
   // Test data that persists across orchestrated tests
   let testUser: any = null;
-  let testModule: any = null;
   let testQuiz: any = null;
 
   beforeAll(async () => {
-    // Create mock instances
-    authService = {
-      register: jest.fn().mockImplementation(async (userData: RegistrationData) => {
-        const mockUser = createMockUser(userData, `user-${Date.now()}`);
-        console.log('Mock register returning:', mockUser);
-        return mockUser;
-      }),
-      login: jest.fn().mockImplementation(async (credentials) => {
-        const mockResponse = {
-          user: createMockUser({ 
-            email: credentials.username + '@test.com', 
-            username: credentials.username,
-            password: 'mock',
-            firstName: 'Test',
-            lastName: 'User',
-            role: UserRole.INSTRUCTOR 
-          }, `user-${Date.now()}`),
-          accessToken: 'mock-jwt-token-12345',
-          refreshToken: 'mock-refresh-token-67890'
-        };
-        console.log('Mock login returning:', mockResponse);
-        return mockResponse;
-      }),
-      hasPermission: jest.fn().mockResolvedValue(true),
-      logout: jest.fn().mockResolvedValue(undefined),
-      getCurrentUser: jest.fn().mockResolvedValue(null),
-      refreshToken: jest.fn().mockResolvedValue('new-token')
-    } as any;
+    // Create instances that will use the mocked implementations
+    authService = new AuthService();
+    const mockProvider = {} as ILLMProvider;
+    quizGenerator = new EnhancedQuizGenerator(mockProvider);
+    youtubeService = new YouTubeService();
+    
+    // Update mock implementations to use testUser for persistence
+    const originalRegister = mockAuthService.register.getMockImplementation();
+    mockAuthService.register.mockImplementation(async (userData: RegistrationData) => {
+      const mockUser = createMockUser(userData, `user-${Date.now()}`);
+      testUser = mockUser; // Assign to testUser for persistence
+      console.log('Mock register called with:', userData);
+      console.log('Mock register returning:', mockUser);
+      console.log('testUser assigned to:', testUser);
+      return mockUser;
+    });
+    
+    const originalLogin = mockAuthService.login.getMockImplementation();  
+    mockAuthService.login.mockImplementation(async (credentials) => {
+      const user = testUser || createMockUser({ 
+        email: credentials.username + '@test.com', 
+        username: credentials.username,
+        password: 'mock',
+        firstName: 'Test',
+        lastName: 'User',
+        role: UserRole.INSTRUCTOR 
+      }, `user-${Date.now()}`);
+      const mockResponse = {
+        user: user,
+        accessToken: 'mock-jwt-token-12345',
+        refreshToken: 'mock-refresh-token-67890'
+      };
+      console.log('Mock login returning:', mockResponse);
+      return mockResponse;
+    });
 
     mockLLMProvider = {
       generateCompletion: jest.fn().mockResolvedValue('Mock LLM response'),
       generateStructuredOutput: jest.fn().mockResolvedValue({ mock: true })
     } as any;
 
-    quizGenerator = {
-      generateEnhancedQuiz: jest.fn().mockImplementation(async (moduleId, title, content, objectives, count, options) => ({
+    mockQuizGenerator.generateEnhancedQuiz.mockImplementation(async (moduleId, title, content, objectives, count, options) => {
+      const quiz = {
         id: `quiz-${Date.now()}`,
         moduleId,
         title: title + ' Quiz',
@@ -178,24 +232,35 @@ describe('Integration Test Orchestrator', () => {
           explanation: `This is the explanation for question ${i + 1}`
         })),
         passingScore: 75
-      }))
-    } as any;
+      };
+      testQuiz = quiz; // Store for cross-test reference
+      return quiz;
+    });
 
-    youtubeService = {
-      searchVideos: jest.fn().mockResolvedValue([
-        {
-          videoId: 'mock-video-1',
-          title: 'Mock Video Title',
-          description: 'Mock video description',
-          channelTitle: 'Mock Channel',
-          publishedAt: '2023-01-01T00:00:00Z',
-          duration: 'PT15M30S',
-          viewCount: '1000',
-          likeCount: '100',
-          thumbnails: { default: { url: 'mock.jpg', width: 120, height: 90 } }
-        }
-      ])
-    } as any;
+    mockYouTubeService.searchVideos.mockResolvedValue([
+      {
+        videoId: 'mock-video-1',
+        title: 'Carl Jung: Understanding the Shadow',
+        description: 'Mock video description',
+        channelTitle: 'Mock Channel',
+        publishedAt: '2023-01-01T00:00:00Z',
+        duration: 'PT15M30S',
+        viewCount: '1000',
+        likeCount: '100',
+        thumbnails: { default: { url: 'mock.jpg', width: 120, height: 90 } }
+      },
+      {
+        videoId: 'mock-video-2',
+        title: 'The Structure of the Psyche - Jung\'s Model',
+        description: 'Mock video description 2',
+        channelTitle: 'Mock Channel 2',
+        publishedAt: '2023-01-02T00:00:00Z',
+        duration: 'PT12M00S',
+        viewCount: '2000',
+        likeCount: '200',
+        thumbnails: { default: { url: 'mock2.jpg', width: 120, height: 90 } }
+      }
+    ]);
     
     console.log('🚀 Integration Test Orchestrator Started');
   });
@@ -218,7 +283,21 @@ describe('Integration Test Orchestrator', () => {
         role: UserRole.INSTRUCTOR
       };
 
+      console.log('Calling authService.register with:', userData);
+      console.log('authService.register is:', typeof authService.register);
+      console.log('authService instance is:', authService);
+      console.log('mockAuthService.register mock calls:', mockAuthService.register.mock.calls.length);
+      
+      // Explicitly test the mock first
+      try {
+        const directMockResult = await mockAuthService.register(userData);
+        console.log('Direct mock call result:', directMockResult);
+      } catch (error) {
+        console.log('Direct mock call error:', error);
+      }
+      
       testUser = await authService.register(userData);
+      console.log('testUser result:', testUser);
       
       expect(testUser.id).toBeDefined();
       expect(testUser.email).toBe(userData.email);
@@ -333,7 +412,10 @@ describe('Integration Test Orchestrator', () => {
         }
       };
 
+      console.log('Calling ModuleService.createModule with:', moduleData.title);
+      console.log('ModuleService.createModule is:', typeof ModuleService.createModule);
       testModule = await ModuleService.createModule(moduleData);
+      console.log('testModule result:', testModule?.id);
       
       expect(testModule.id).toBeDefined();
       expect(testModule.title).toBe(moduleData.title);

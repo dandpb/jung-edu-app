@@ -929,8 +929,7 @@ describe('OpenAIProvider', () => {
 
       // Test with whitespace-only API key
       process.env.REACT_APP_OPENAI_API_KEY = '   ';
-      const provider = new OpenAIProvider();
-      expect(provider).toBeInstanceOf(OpenAIProvider);
+      expect(() => new OpenAIProvider()).toThrow();
     });
   });
 
