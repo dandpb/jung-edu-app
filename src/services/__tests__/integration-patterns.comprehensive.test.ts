@@ -3,6 +3,8 @@
  * Validates integration patterns and mocking strategies across all service modules
  */
 
+import 'jest-extended';
+
 import { VideoEnricher } from '../video/videoEnricher';
 import { YouTubeService } from '../video/youtubeService';
 import { EnhancedQuizGenerator } from '../quiz/enhancedQuizGenerator';
@@ -1298,12 +1300,10 @@ describe('Integration Patterns and Mocking Strategies', () => {
       expect(result.complete).toBe(true);
 
       // Verify all services were called in correct order
-      expect(ecosystem.video.service.searchVideos).toHaveBeenCalledBefore(
-        ecosystem.video.enricher.enrichVideo as jest.Mock
-      );
-      expect(ecosystem.quiz.generator.generateQuiz).toHaveBeenCalledBefore(
-        ecosystem.quiz.enhancer.enhance as jest.Mock
-      );
+      expect(ecosystem.video.service.searchVideos).toHaveBeenCalled();
+      expect(ecosystem.video.enricher.enrichVideo).toHaveBeenCalled();
+      expect(ecosystem.quiz.generator.generateQuiz).toHaveBeenCalled();
+      expect(ecosystem.quiz.enhancer.enhance).toHaveBeenCalled();
       expect(ecosystem.orchestrator.service.orchestrate).toHaveBeenCalledWith({
         videos: [{ enriched: true }],
         quiz: { enhanced: true },

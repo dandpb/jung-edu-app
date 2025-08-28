@@ -1,11 +1,13 @@
 module.exports = {
-  roots: ['<rootDir>/src'],
+  roots: ['<rootDir>/src', '<rootDir>/tests', '<rootDir>/backend'],
   setupFiles: ['<rootDir>/src/jest-setup.js'],
-  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
+  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts', 'jest-extended/all'],
   testTimeout: 30000, // Increased to 30000ms to handle slow cleanup operations
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
     '<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}',
+    '<rootDir>/tests/**/*.test.{js,jsx,ts,tsx}',
+    '<rootDir>/backend/**/*.test.{js,jsx,ts,tsx}',
     '!<rootDir>/src/**/__tests__/mocks/**',
     '!<rootDir>/src/**/*integration*.test.{js,jsx,ts,tsx}',
     '!<rootDir>/src/**/*endToEnd*.test.{js,jsx,ts,tsx}',

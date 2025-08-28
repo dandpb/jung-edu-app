@@ -1,0 +1,295 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: jaqedu
+  labels:
+    name: jaqedu
+    environment: production
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: jaqedu-secrets
+  namespace: jaqedu
+type: Opaque
+data:
+  database-url: cG9zdGdyZXNxbDovL3Bvc3RncmVzOnBhc3N3b3JkQHBvc3RncmVzOjU0MzIvamFxZWR1X3Byb2Q=
+  jwt-secret: cHJvZC1qd3Qtc2VjcmV0LWtleS0yMDI0
+  claude-api-key: Y2xhdWRlLWFwaS1rZXktcGxhY2Vob2xkZXI=
+  redis-url: cmVkaXM6Ly9yZWRpczozNjM3OQ==
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jaqedu-config
+  namespace: jaqedu
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  LOG_LEVEL: "info"
+  METRICS_ENABLED: "true"
+  HEALTH_CHECK_PATH: "/health"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaqedu-workflow
+  namespace: jaqedu
+  labels:
+    app: jaqedu-workflow
+    version: v1
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 2
+  selector:
+    matchLabels:
+      app: jaqedu-workflow
+  template:
+    metadata:
+      labels:
+        app: jaqedu-workflow
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+        prometheus.io/path: "/metrics"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+      containers:
+      - name: workflow-app
+        image: jaqedu/workflow:latest
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: jaqedu-config
+              key: NODE_ENV
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: jaqedu-config
+              key: PORT
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: jaqedu-secrets
+              key: database-url
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jaqedu-secrets
+              key: jwt-secret
+        - name: CLAUDE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: jaqedu-secrets
+              key: claude-api-key
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: jaqedu-secrets
+              key: redis-url
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 30
+        volumeMounts:
+        - name: app-logs
+          mountPath: /usr/src/app/logs
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      volumes:
+      - name: app-logs
+        emptyDir: {}
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaqedu-workflow-service
+  namespace: jaqedu
+  labels:
+    app: jaqedu-workflow
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "3000"
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+    name: http
+  selector:
+    app: jaqedu-workflow
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jaqedu-ingress
+  namespace: jaqedu
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+spec:
+  tls:
+  - hosts:
+    - api.jaqedu.com
+    secretName: jaqedu-tls
+  rules:
+  - host: api.jaqedu.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: jaqedu-workflow-service
+            port:
+              number: 80
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: jaqedu-workflow-hpa
+  namespace: jaqedu
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: jaqedu-workflow
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: jaqedu-workflow-pdb
+  namespace: jaqedu
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: jaqedu-workflow
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jaqedu-workflow-sa
+  namespace: jaqedu
+  labels:
+    app: jaqedu-workflow
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: jaqedu
+  name: jaqedu-workflow-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jaqedu-workflow-rolebinding
+  namespace: jaqedu
+subjects:
+- kind: ServiceAccount
+  name: jaqedu-workflow-sa
+  namespace: jaqedu
+roleRef:
+  kind: Role
+  name: jaqedu-workflow-role
+  apiGroup: rbac.authorization.k8s.io

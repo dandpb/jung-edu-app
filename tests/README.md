@@ -1,232 +1,355 @@
-# Unit Tests Documentation
+# Test Infrastructure Documentation
 
-This directory contains comprehensive unit tests for the jaqEdu educational platform's helper files and utility scripts.
+## Overview
 
-## Test Structure
+This directory contains the comprehensive test infrastructure for the jaqEdu educational platform. The infrastructure is designed to support reliable, scalable, and maintainable testing across all layers of the application.
+
+## Architecture
+
+### Directory Structure
 
 ```
 tests/
-├── unit/
-│   ├── helpers/           # Tests for .claude/helpers files
-│   │   └── github-safe.test.js
-│   ├── scripts/           # Tests for root-level scripts
-│   │   └── test-prompts-availability.test.js
-│   ├── jest.config.js     # Jest configuration for unit tests
-│   ├── jest.setup.js      # Test setup and global mocks
-│   └── coverage/          # Coverage reports (generated)
-└── README.md              # This file
+├── README.md                          # This file
+├── config/
+│   └── unified-test.config.ts         # Unified test configuration
+├── infrastructure/
+│   ├── test-database-manager.ts       # Database management and isolation
+│   ├── test-data-factory.ts           # Test data generation
+│   ├── test-execution-manager.ts      # Parallel test execution
+│   └── test-reporting-system.ts       # Test reporting and artifacts
+├── utils/
+│   └── logger.ts                      # Test logging utilities
+├── e2e/                               # End-to-end tests
+├── integration/                       # Integration tests
+├── performance/                       # Performance tests
+├── factories/                         # Data factories
+├── fixtures/                          # Test fixtures
+├── mocks/                            # Mock implementations
+└── automation/                       # Automated test scenarios
 ```
 
-## Test Coverage
+## Key Components
 
-### 1. GitHub Safe CLI Helper (`github-safe.test.js`)
-- **File Under Test**: `.claude/helpers/github-safe.js`
-- **Coverage Areas**:
-  - Command line argument parsing
-  - Body content handling with special characters
-  - Temporary file management and cleanup
-  - Error handling and recovery
-  - Command execution scenarios
-  - Edge cases and timeout handling
+### 1. Unified Test Configuration (`config/unified-test.config.ts`)
 
-**Key Test Categories**:
-- ✅ Argument validation and usage display
-- ✅ Issue and PR comment commands
-- ✅ Create commands with --body flags
-- ✅ Special character escaping (backticks, command substitution)
-- ✅ Temporary file creation and cleanup
-- ✅ Error handling (execSync failures, file write errors)
-- ✅ Timeout configuration and handling
-- ✅ Command logging and output
+Provides environment-specific configurations for all test types:
 
-### 2. Prompt Availability Test Script (`test-prompts-availability.test.js`)
-- **File Under Test**: `test-prompts-availability.js`
-- **Coverage Areas**:
-  - Prompt template availability checking
-  - Category and template enumeration
-  - Output formatting and console display
-  - Error handling for service failures
-  - Missing prompt detection
+- **Local Development**: SQLite, Docker containers
+- **CI/CD**: TestContainers, isolated databases
+- **Staging**: Real staging services
+- **Production-like**: Read-only production copies
 
-**Key Test Categories**:
-- ✅ Successful prompt discovery and validation
-- ✅ Missing prompt detection and error reporting
-- ✅ Category grouping and display formatting
-- ✅ Service error handling
-- ✅ Edge cases (empty templates, malformed data)
-- ✅ Console output verification
+### 2. Test Database Manager (`infrastructure/test-database-manager.ts`)
 
-### 3. Prompt Test Service (`promptTestService.test.ts`)
-- **File Under Test**: `src/services/prompts/promptTestService.ts`
-- **Coverage Areas**:
-  - Provider selection (OpenAI vs Mock)
-  - Mock response generation
-  - Real LLM provider integration
-  - JSON response cleaning and validation
-  - Error handling and recovery
+Features:
+- **Transaction Isolation**: Each test runs in isolated transactions
+- **Database Snapshots**: Save and restore database states
+- **Migration Management**: Automatic test schema migrations
+- **Connection Pooling**: Efficient database connection management
 
-**Key Test Categories**:
-- ✅ Provider selection based on API key availability
-- ✅ Mock response generation for different prompt types
-- ✅ Real provider execution and error handling
-- ✅ JSON response cleaning and validation
-- ✅ Token counting and execution timing
-- ✅ State management across multiple calls
+### 3. Test Data Factory (`infrastructure/test-data-factory.ts`)
 
-## Running Tests
+Comprehensive data generation:
+- **Realistic Data**: Using Faker.js for realistic test data
+- **Relationships**: Handles complex entity relationships
+- **Scenarios**: Pre-built scenarios for common test cases
+- **Customization**: Override defaults for specific test needs
 
-### Run All Unit Tests
+### 4. Test Execution Manager (`infrastructure/test-execution-manager.ts`)
+
+Advanced parallel execution:
+- **Worker Pool**: Manages multiple test execution workers
+- **Resource Management**: Monitors and allocates system resources
+- **Dependency Resolution**: Handles test suite dependencies
+- **Real-time Monitoring**: Live test execution monitoring
+
+### 5. Test Reporting System (`infrastructure/test-reporting-system.ts`)
+
+Multi-format reporting:
+- **HTML Reports**: Interactive test result dashboards
+- **JUnit XML**: CI/CD integration compatibility
+- **JSON Reports**: Programmatic result processing
+- **Allure Integration**: Advanced test reporting with history
+- **Artifact Management**: Screenshots, videos, logs storage
+
+## Test Types
+
+### Unit Tests (70% of test suite)
+- **Location**: `jung-edu-app/src/**/__tests__/`
+- **Framework**: Jest + React Testing Library
+- **Coverage Target**: 80%
+- **Execution Time**: < 30 seconds
+
+### Integration Tests (20% of test suite)
+- **Location**: `tests/integration/`
+- **Framework**: Jest + TestContainers
+- **Coverage Target**: 70%
+- **Execution Time**: < 5 minutes
+
+### End-to-End Tests (10% of test suite)
+- **Location**: `tests/e2e/`
+- **Framework**: Playwright
+- **Coverage Target**: 90% of critical user journeys
+- **Execution Time**: < 15 minutes
+
+### Performance Tests
+- **Location**: `tests/performance/`
+- **Framework**: K6 + Custom performance suite
+- **Metrics**: Response time, throughput, resource usage
+- **Execution**: Nightly and on-demand
+
+### Security Tests
+- **Location**: `tests/security/`
+- **Framework**: OWASP ZAP + Custom security tests
+- **Scope**: Vulnerability scanning, penetration testing
+- **Execution**: Weekly and before releases
+
+## Usage
+
+### Quick Start
+
 ```bash
-# From project root
+# Install dependencies
+npm install
+
+# Run all unit tests
 npm run test:unit
 
-# Or run directly with Jest
-npx jest --config tests/unit/jest.config.js
+# Run integration tests
+npm run test:integration
+
+# Run E2E tests
+npm run test:e2e
+
+# Run performance tests
+npm run test:performance
+
+# Generate coverage report
+npm run test:coverage
 ```
 
-### Run Specific Test Files
+### Advanced Usage
+
 ```bash
-# Test GitHub Safe helper
-npx jest tests/unit/helpers/github-safe.test.js
+# Run tests with specific environment
+TEST_ENV=staging npm run test:integration
 
-# Test prompt availability script
-npx jest tests/unit/scripts/test-prompts-availability.test.js
+# Run tests in parallel with custom worker count
+npm run test:unit -- --maxWorkers=8
 
-# Test prompt service
-npx jest src/services/prompts/__tests__/promptTestService.test.ts
+# Run tests with debugging
+npm run test:unit -- --detectOpenHandles --forceExit
+
+# Generate test report
+npm run test:report
+
+# Run specific test pattern
+npm run test:unit -- --testNamePattern="UserService"
 ```
 
-### Generate Coverage Reports
-```bash
-# Run tests with coverage
-npx jest --config tests/unit/jest.config.js --coverage
+### CI/CD Integration
 
-# Coverage reports will be available in:
-# - tests/unit/coverage/lcov-report/index.html (HTML report)
-# - tests/unit/coverage/lcov.info (LCOV format)
-```
+The test infrastructure integrates with GitHub Actions:
 
-### Watch Mode for Development
-```bash
-npx jest --config tests/unit/jest.config.js --watch
-```
-
-## Test Features
-
-### Comprehensive Mocking
-- **External Dependencies**: All Node.js modules (fs, child_process, crypto, etc.)
-- **Environment Variables**: Process.env and localStorage simulation
-- **Console Output**: Complete console.log/error capture and verification
-- **LLM Providers**: Mock and real provider implementations
-
-### Error Scenario Testing
-- Network timeouts and API failures
-- File system errors (write/read/cleanup failures)
-- Malformed data handling
-- Edge cases and boundary conditions
-
-### Edge Case Coverage
-- Empty inputs and missing parameters
-- Very long content and special characters
-- Unicode and internationalization
-- Concurrent operations and state management
-
-## Mock Data and Utilities
-
-### Global Test Utilities (jest.setup.js)
-```javascript
-// Available in all tests:
-global.createMockFunction(returnValue)
-global.createAsyncMockFunction(returnValue)  
-global.createRejectedMockFunction(error)
-global.mockConsole // Console output capture
-global.mockFileSystem // File operation mocks
-```
-
-### Console Output Testing
-```javascript
-// Capture console output
-expect(console.log).toHaveBeenCalledWith('Expected message');
-
-// Check output contains specific text
-const outputs = consoleOutputs.filter(o => o.args[0].includes('text'));
-expect(outputs).toHaveLength(1);
-```
-
-### Async Operation Testing
-```javascript
-// Test async operations with proper waiting
-require('../../../test-prompts-availability.js');
-await new Promise(resolve => setTimeout(resolve, 100));
-expect(mockExit).not.toHaveBeenCalled();
+```yaml
+# .github/workflows/test-pipeline.yml
+- name: Run Test Suite
+  run: |
+    npm run test:unit
+    npm run test:integration
+    npm run test:e2e
+  env:
+    TEST_ENV: ci
+    CI: true
 ```
 
 ## Configuration
 
-### Jest Configuration Highlights
-- **Test Environment**: Node.js for script testing
-- **Module Mapping**: Supports TypeScript and path aliases
-- **Coverage**: Includes all target files with exclusion patterns
-- **Timeouts**: 10-second timeout for async operations
-- **Mocking**: Automatic mock clearing between tests
+### Environment Variables
 
-### TypeScript Support
-- Full TypeScript test support via ts-jest
-- Type checking for service tests
-- Module resolution for complex imports
+```bash
+# Test Environment
+TEST_ENV=local|ci|staging|production-like
+
+# Database Configuration
+TEST_DB_HOST=localhost
+TEST_DB_PORT=5433
+TEST_DB_NAME=jaqedu_test
+TEST_DB_USER=test_user
+TEST_DB_PASS=test_pass
+
+# Redis Configuration
+TEST_REDIS_HOST=localhost
+TEST_REDIS_PORT=6380
+TEST_REDIS_DB=1
+
+# External Services
+TEST_OPENAI_API_KEY=test-key
+TEST_SUPABASE_URL=http://localhost:54321
+TEST_YOUTUBE_API_KEY=test-key
+```
+
+### Test Configuration Files
+
+- **jest.config.js**: Unit test configuration
+- **playwright.config.ts**: E2E test configuration
+- **k6-config.js**: Performance test configuration
 
 ## Best Practices
 
-### Test Organization
-1. **Descriptive Test Names**: Clear what is being tested and expected outcome
-2. **Grouped Test Suites**: Logical grouping with describe blocks
-3. **Setup/Teardown**: Consistent mock setup and cleanup
-4. **Isolation**: Each test is independent and can run alone
+### Writing Tests
 
-### Error Testing
-1. **Multiple Error Types**: Test different failure scenarios
-2. **Error Recovery**: Verify graceful degradation
-3. **Cleanup Verification**: Ensure resources are properly released
-4. **State Consistency**: Verify error states don't corrupt application state
+1. **Use AAA Pattern**: Arrange, Act, Assert
+2. **Descriptive Names**: Test names should describe the behavior
+3. **Single Responsibility**: One test should verify one behavior
+4. **Independent Tests**: Tests should not depend on each other
+5. **Proper Cleanup**: Always clean up after tests
 
-### Mock Strategy
-1. **Comprehensive Mocking**: Mock all external dependencies
-2. **Realistic Responses**: Mock data resembles real API responses
-3. **Error Simulation**: Include error scenarios in mocks
-4. **State Tracking**: Verify mock interactions and call patterns
+### Test Data
 
-## Maintenance
+```typescript
+// Good: Use factories for consistent test data
+const user = testDataFactory.createUser({
+  email: 'specific@test.com',
+  role: 'admin'
+});
 
-### Adding New Tests
-1. Create test file in appropriate directory
-2. Follow existing naming convention (*.test.js/ts)
-3. Include comprehensive describe/test blocks
-4. Add mock setup in beforeEach
-5. Update coverage configuration if needed
+// Good: Use builders for complex objects
+const module = new ModuleBuilder()
+  .withTitle('Test Module')
+  .withDifficulty('beginner')
+  .withAuthor(user)
+  .build();
+```
 
-### Updating Tests
-1. Maintain test isolation
-2. Update mocks when dependencies change
-3. Verify coverage remains comprehensive
-4. Test both success and failure paths
+### Mocking
 
-### Debugging Tests
-1. Use `--verbose` flag for detailed output
-2. Add temporary `console.log` statements
-3. Run individual test files for focused debugging
-4. Check mock call history with `toHaveBeenCalledWith`
+```typescript
+// Good: Mock external dependencies
+const mockEmailService = {
+  sendEmail: jest.fn().mockResolvedValue({ success: true })
+};
+
+// Good: Use MSW for HTTP mocking
+const server = setupServer(
+  rest.get('/api/users', (req, res, ctx) => {
+    return res(ctx.json([testDataFactory.createUser()]));
+  })
+);
+```
+
+### Assertions
+
+```typescript
+// Good: Specific assertions
+expect(result.email).toBe('user@example.com');
+expect(result.modules).toHaveLength(3);
+expect(mockService.create).toHaveBeenCalledWith(expectedData);
+
+// Good: Custom matchers
+expect(response).toMatchApiSchema(userSchema);
+expect(element).toBeVisibleOnScreen();
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Flaky Tests**
+   - Use `waitFor` for async operations
+   - Implement proper cleanup
+   - Use deterministic test data
+
+2. **Slow Tests**
+   - Check for unnecessary waiting
+   - Optimize database queries
+   - Use test doubles appropriately
+
+3. **Memory Leaks**
+   - Ensure proper cleanup in `afterEach`
+   - Close database connections
+   - Clear timers and intervals
+
+### Debug Configuration
+
+```json
+// VS Code launch.json
+{
+  "type": "node",
+  "request": "launch",
+  "name": "Debug Tests",
+  "program": "${workspaceFolder}/node_modules/.bin/jest",
+  "args": ["--runInBand"],
+  "env": {
+    "NODE_ENV": "test"
+  }
+}
+```
+
+## Performance Monitoring
+
+### Test Execution Metrics
+
+- **Unit Test Duration**: < 30 seconds total
+- **Integration Test Duration**: < 5 minutes total
+- **E2E Test Duration**: < 15 minutes total
+- **Memory Usage**: < 512MB per worker
+- **CPU Usage**: < 80% average
+
+### Coverage Metrics
+
+- **Overall Coverage**: 80% minimum
+- **Service Layer**: 90% minimum
+- **Component Layer**: 75% minimum
+- **Utility Functions**: 95% minimum
+
+## Continuous Improvement
+
+### Regular Reviews
+
+- **Weekly**: Review flaky tests and execution times
+- **Monthly**: Analyze coverage trends and gaps
+- **Quarterly**: Review and update test strategies
+
+### Metrics Dashboard
+
+Access real-time test metrics at:
+- Coverage reports: `/coverage/lcov-report/`
+- Test results: `/test-reports/html/`
+- Performance metrics: `/test-reports/performance/`
+
+## Support and Documentation
+
+### Resources
+
+- **Architecture Documentation**: `/docs/architecture/TEST_INFRASTRUCTURE_ARCHITECTURE.md`
+- **Testing Guidelines**: `/docs/architecture/TESTING_GUIDELINES.md`
+- **API Documentation**: Generated JSDoc comments in source code
+
+### Getting Help
+
+1. Check this documentation first
+2. Review existing test examples in the codebase
+3. Check GitHub Issues for known problems
+4. Create a new issue with detailed reproduction steps
+
+## Contributing
+
+### Adding New Test Types
+
+1. Create configuration in `unified-test.config.ts`
+2. Add execution logic in `test-execution-manager.ts`
+3. Update CI/CD pipeline in `.github/workflows/test-pipeline.yml`
+4. Document in this README
+
+### Modifying Infrastructure
+
+1. Update relevant infrastructure components
+2. Add/update tests for infrastructure changes
+3. Update documentation
+4. Test changes across all environments
 
 ---
 
-## Coverage Targets
-
-- **Statements**: >90%
-- **Branches**: >85%
-- **Functions**: >90%
-- **Lines**: >90%
-
-Current coverage meets these targets across all tested files.
-
-## Integration
-
-These unit tests are designed to run independently but complement the existing integration test suite. They focus on isolated functionality while integration tests verify end-to-end workflows.
+This test infrastructure provides a solid foundation for reliable, scalable testing. Regular maintenance and updates ensure it continues to meet the evolving needs of the jaqEdu platform.

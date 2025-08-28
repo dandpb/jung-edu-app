@@ -36,7 +36,8 @@ const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
-  useParams: () => ({ id: 'test-module-id' })
+  useParams: () => ({ id: 'test-module-id' }),
+  Link: ({ children, to, ...props }: any) => <a href={to} {...props}>{children}</a>
 }));
 
 const MockedModuleService = ModuleService as jest.Mocked<typeof ModuleService>;
@@ -123,7 +124,7 @@ describe('Component Integration Tests', () => {
           correctAnswer: 'b',
           explanation: 'Integration testing focuses on testing interactions between components.',
           type: 'multiple-choice' as const,
-          difficulty: 'intermediate' as const,
+          difficulty: DifficultyLevel.INTERMEDIATE,
           points: 1
         }
       ]
@@ -131,7 +132,7 @@ describe('Component Integration Tests', () => {
     bibliography: [],
     filmReferences: [],
     tags: ['integration', 'testing'],
-    difficulty: 'intermediate' as const,
+    difficulty: DifficultyLevel.INTERMEDIATE,
     estimatedTime: 90, // 90 minutes
     metadata: {
       createdAt: new Date().toISOString(),
@@ -184,6 +185,23 @@ describe('Component Integration Tests', () => {
     const adminValue = createAdminContextValue();
 
     return render(
+      <AuthContext.Provider value={authValue}>
+        <AdminContext.Provider value={adminValue}>
+          {component}
+        </AdminContext.Provider>
+      </AuthContext.Provider>
+    );
+  };
+
+  // For components that specifically need Router context (non-App components)
+  const renderWithRouterProviders = (
+    component: React.ReactElement,
+    { user = null, loading = false, route = '/' }: { user?: any, loading?: boolean, route?: string } = {}
+  ) => {
+    const authValue = createAuthContextValue(user, loading);
+    const adminValue = createAdminContextValue();
+
+    return render(
       <MemoryRouter initialEntries={[route]}>
         <AuthContext.Provider value={authValue}>
           <AdminContext.Provider value={adminValue}>
@@ -221,24 +239,16 @@ describe('Component Integration Tests', () => {
         login: mockLogin
       };
 
-      render(
-        <MemoryRouter initialEntries={['/login']}>
-          <AuthContext.Provider value={authValue}>
-            <AdminContext.Provider value={createAdminContextValue()}>
-              <App />
-            </AdminContext.Provider>
-          </AuthContext.Provider>
-        </MemoryRouter>
-      );
+      renderWithProviders(<App />, { route: '/login' });
 
-      // Should show login form
-      expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+      // Should show login form with Portuguese labels (hardcoded in component)
+      expect(screen.getByLabelText(/usuário ou email/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/senha/i)).toBeInTheDocument();
 
       // Fill and submit login form
-      await user.type(screen.getByLabelText(/username/i), 'testuser');
-      await user.type(screen.getByLabelText(/password/i), 'password123');
-      await user.click(screen.getByRole('button', { name: /login/i }));
+      await user.type(screen.getByLabelText(/usuário ou email/i), 'testuser');
+      await user.type(screen.getByLabelText(/senha/i), 'password123');
+      await user.click(screen.getByRole('button', { name: /entrar/i }));
 
       await waitFor(() => {
         expect(mockLogin).toHaveBeenCalledWith({
@@ -250,7 +260,7 @@ describe('Component Integration Tests', () => {
     });
 
     it('should redirect to login for protected routes', () => {
-      renderWithProviders(
+      renderWithRouterProviders(
         <ProtectedRoute>
           <div>Protected Content</div>
         </ProtectedRoute>,
@@ -260,12 +270,12 @@ describe('Component Integration Tests', () => {
       // Should not show protected content
       expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
       
-      // Should show login prompt or redirect (depends on implementation)
-      expect(screen.getByText(/login/i)).toBeInTheDocument();
+      // Should show login prompt or redirect (depends on implementation) - Portuguese text
+      expect(screen.getByText(/login|entrar|fazer login/i)).toBeInTheDocument();
     });
 
     it('should show protected content for authenticated users', () => {
-      renderWithProviders(
+      renderWithRouterProviders(
         <ProtectedRoute>
           <div>Protected Content</div>
         </ProtectedRoute>,
@@ -280,7 +290,7 @@ describe('Component Integration Tests', () => {
     it('should display modules and handle interactions', async () => {
       const user = userEvent.setup();
 
-      renderWithProviders(<Dashboard modules={[mockModule]} userProgress={mockUserProgress} />, { user: mockUser });
+      renderWithRouterProviders(<Dashboard modules={[mockModule]} userProgress={mockUserProgress} />, { user: mockUser });
 
       // Wait for modules to load
       await waitFor(() => {
@@ -289,7 +299,7 @@ describe('Component Integration Tests', () => {
 
       // Should show module information
       expect(screen.getByText(/Module for testing component integration/i)).toBeInTheDocument();
-      expect(screen.getByText(/Intermediate/i)).toBeInTheDocument();
+      expect(screen.getByText(/Intermediário/i)).toBeInTheDocument();
 
       // Click on module should navigate
       const moduleCard = screen.getByText('Integration Test Module').closest('[role="button"]') ||
@@ -305,16 +315,16 @@ describe('Component Integration Tests', () => {
     });
 
     it('should handle loading states correctly', () => {
-      renderWithProviders(<Dashboard modules={[mockModule]} userProgress={mockUserProgress} />, { user: mockUser, loading: true });
+      renderWithRouterProviders(<Dashboard modules={[mockModule]} userProgress={mockUserProgress} />, { user: mockUser, loading: true });
 
-      // Should show loading indicator
-      expect(screen.getByText(/loading/i)).toBeInTheDocument();
+      // Should show loading indicator in Portuguese
+      expect(screen.getByText(/loading|carregando|aguarde/i)).toBeInTheDocument();
     });
 
     it('should handle empty module list', async () => {
       MockedModuleService.getAllModules = jest.fn().mockResolvedValue([]);
 
-      renderWithProviders(<Dashboard modules={[]} userProgress={mockUserProgress} />, { user: mockUser });
+      renderWithRouterProviders(<Dashboard modules={[]} userProgress={mockUserProgress} />, { user: mockUser });
 
       await waitFor(() => {
         expect(screen.getByText(/no modules available/i)).toBeInTheDocument();

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResizeObserver Error Suppression Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-box {
+            border: 2px solid #007bff;
+            padding: 20px;
+            margin: 20px 0;
+            background: #f0f8ff;
+            transition: all 0.3s;
+        }
+        .resizing {
+            width: 100%;
+            height: 200px;
+            resize: both;
+            overflow: auto;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>ResizeObserver Error Suppression Test</h1>
+    
+    <div class="status success" id="status">
+        ✅ No ResizeObserver errors detected
+    </div>
+
+    <div class="test-box">
+        <h2>Test 1: Rapid Resize</h2>
+        <button onclick="rapidResize()">Trigger Rapid Resize</button>
+        <div id="rapidBox" style="width: 200px; height: 100px; background: lightblue;">
+            Resize me rapidly
+        </div>
+    </div>
+
+    <div class="test-box">
+        <h2>Test 2: Multiple Observers</h2>
+        <button onclick="multipleObservers()">Create Multiple Observers</button>
+        <div id="multiBox" style="width: 200px; height: 100px; background: lightgreen;">
+            Multiple observers target
+        </div>
+    </div>
+
+    <div class="test-box resizing">
+        <h2>Test 3: Manual Resize</h2>
+        <p>Drag the corner to resize this box. No errors should appear.</p>
+    </div>
+
+    <div class="test-box">
+        <h2>Console Output</h2>
+        <div id="console" style="background: #f4f4f4; padding: 10px; font-family: monospace; max-height: 200px; overflow-y: auto;">
+            Console messages will appear here...
+        </div>
+    </div>
+
+    <script>
+        let errorCount = 0;
+        const consoleDiv = document.getElementById('console');
+        const statusDiv = document.getElementById('status');
+
+        // Monitor for any ResizeObserver errors
+        window.addEventListener('error', (e) => {
+            if (e.message && e.message.includes('ResizeObserver')) {
+                errorCount++;
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = `❌ ResizeObserver error detected! Count: ${errorCount}`;
+                addToConsole(`ERROR: ${e.message}`, 'red');
+            }
+        });
+
+        // Override console methods to capture output
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+
+        console.log = (...args) => {
+            addToConsole(args.join(' '), 'black');
+            originalLog.apply(console, args);
+        };
+
+        console.error = (...args) => {
+            const message = args.join(' ');
+            if (message.includes('ResizeObserver')) {
+                errorCount++;
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = `❌ ResizeObserver error in console! Count: ${errorCount}`;
+            }
+            addToConsole(message, 'red');
+            originalError.apply(console, args);
+        };
+
+        console.warn = (...args) => {
+            addToConsole(args.join(' '), 'orange');
+            originalWarn.apply(console, args);
+        };
+
+        function addToConsole(message, color = 'black') {
+            const timestamp = new Date().toLocaleTimeString();
+            consoleDiv.innerHTML += `<div style="color: ${color};">[${timestamp}] ${message}</div>`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+
+        // Test 1: Rapid resize
+        function rapidResize() {
+            const box = document.getElementById('rapidBox');
+            let width = 200;
+            
+            console.log('Starting rapid resize test...');
+            
+            const observer = new ResizeObserver(entries => {
+                console.log(`Observed resize: ${entries[0].contentRect.width}px`);
+            });
+            
+            observer.observe(box);
+            
+            // Rapidly change size
+            const interval = setInterval(() => {
+                width = width === 200 ? 400 : 200;
+                box.style.width = width + 'px';
+            }, 10);
+            
+            setTimeout(() => {
+                clearInterval(interval);
+                observer.disconnect();
+                console.log('Rapid resize test completed');
+                
+                if (errorCount === 0) {
+                    console.log('✅ No errors detected!');
+                }
+            }, 2000);
+        }
+
+        // Test 2: Multiple observers
+        function multipleObservers() {
+            const box = document.getElementById('multiBox');
+            const observers = [];
+            
+            console.log('Creating 10 observers...');
+            
+            for (let i = 0; i < 10; i++) {
+                const observer = new ResizeObserver(entries => {
+                    // Simulate heavy processing
+                    for (let j = 0; j < 1000; j++) {
+                        Math.random();
+                    }
+                });
+                observer.observe(box);
+                observers.push(observer);
+            }
+            
+            // Trigger resize
+            box.style.width = '300px';
+            
+            setTimeout(() => {
+                box.style.width = '200px';
+            }, 100);
+            
+            setTimeout(() => {
+                observers.forEach(o => o.disconnect());
+                console.log('Multiple observers test completed');
+                
+                if (errorCount === 0) {
+                    console.log('✅ No errors detected!');
+                }
+            }, 1000);
+        }
+
+        // Create a ResizeObserver for the manual resize box
+        const resizingBox = document.querySelector('.resizing');
+        const resizeObserver = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                console.log(`Manual resize: ${Math.round(entry.contentRect.width)}x${Math.round(entry.contentRect.height)}`);
+            }
+        });
+        resizeObserver.observe(resizingBox);
+
+        // Initial log
+        console.log('ResizeObserver test page loaded');
+        console.log('All error suppression mechanisms active');
+    </script>
+</body>
+</html>

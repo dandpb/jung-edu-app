@@ -1,0 +1,56 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["ES2020", "DOM"],
+    "jsx": "react-jsx",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@tests/*": ["tests/*"]
+    },
+    "types": ["node", "jest", "@types/express", "@types/react"],
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "coverage",
+    "*.config.js",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "src/tests/**/*",
+    "jung-edu-app/src/tests/**/*",
+    "src/components/workflow/*",
+    "src/pages/admin/*",
+    "src/monitoring/*",
+    "src/recovery/*",
+    "src/self-healing/*",
+    "src/services/workflow/*",
+    "src/api/workflow/*",
+    "src/integration/*",
+    "src/data/*",
+    "src/WorkflowService.ts",
+    "src/config/monitoring.ts",
+    "src/config/plugins.ts",
+    "src/utils/performance.ts",
+    "src/utils/optimization.ts"
+  ]
+}

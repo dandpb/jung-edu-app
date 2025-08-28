@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { LoginPage } from './page-objects/login-page';
-import { DashboardPage } from './page-objects/dashboard-page';
+import { LoginPage } from './pages/login-page';
+import { DashboardPage } from './pages/dashboard-page';
 
 /**
  * E2E Tests for Authentication Flow

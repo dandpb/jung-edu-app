@@ -1,7 +1,26 @@
 import '@testing-library/jest-dom';
+import 'jest-extended';
 import 'jest-localstorage-mock';
 import * as React from 'react';
 import { setupTestEnvironment } from './test-utils/testConfig';
+
+// Add crypto.subtle mock for JWT tests
+if (typeof globalThis.crypto === 'undefined') {
+  (globalThis as any).crypto = {
+    subtle: {
+      sign: jest.fn().mockResolvedValue(new ArrayBuffer(64)),
+      verify: jest.fn().mockResolvedValue(true),
+      importKey: jest.fn().mockResolvedValue({}),
+      generateKey: jest.fn().mockResolvedValue({})
+    },
+    getRandomValues: (arr: any) => {
+      for (let i = 0; i < arr.length; i++) {
+        arr[i] = Math.floor(Math.random() * 256);
+      }
+      return arr;
+    }
+  };
+}
 
 // Setup test environment based on USE_REAL_API flag
 setupTestEnvironment();
@@ -271,6 +290,20 @@ if (typeof global.crypto === 'undefined') {
       async decrypt(algorithm: any, key: any, data: ArrayBuffer) {
         // Mock decryption for testing
         return new ArrayBuffer(Math.max(0, data.byteLength - 16)); // Mock decrypted data
+      },
+      async sign(algorithm: any, key: any, data: ArrayBuffer) {
+        // Mock signing for JWT operations
+        const buffer = Buffer.from(data);
+        const hash = crypto.createHash('sha256').update(buffer).digest();
+        return hash.buffer;
+      },
+      async verify(algorithm: any, key: any, signature: ArrayBuffer, data: ArrayBuffer) {
+        // Mock verification for JWT operations
+        return true; // Always return true for testing
+      },
+      async generateKey(algorithm: any, extractable: boolean, keyUsages: string[]) {
+        // Mock key generation
+        return { algorithm, extractable, type: 'secret', usages: keyUsages };
       }
     }
   } as any;

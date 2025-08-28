@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import TestYouTubeAPI from '../TestYouTubeAPI';
 
 // Mock fetch
@@ -8,9 +8,9 @@ global.fetch = jest.fn();
 
 const renderWithRouter = (component: React.ReactElement) => {
   return render(
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <MemoryRouter initialEntries={['/']}>
       {component}
-    </BrowserRouter>
+    </MemoryRouter>
   );
 };
 

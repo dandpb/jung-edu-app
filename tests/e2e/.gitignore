@@ -1,0 +1,45 @@
+# Test artifacts
+test-results/
+playwright-report/
+reports/
+
+# Screenshots and videos
+screenshots/
+videos/
+test-results*/
+
+# Authentication state files (may contain sensitive data)
+auth/*.json
+
+# Node modules
+node_modules/
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+
+# Coverage reports
+coverage/
+
+# Visual regression baselines (commit these, but ignore test artifacts)
+visual-baselines/*.png
+!visual-baselines/.gitkeep

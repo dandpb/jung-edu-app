@@ -1,0 +1,31 @@
+import { Pool } from 'pg';
+export declare const setupTestDatabase: () => Promise<Pool>;
+export declare const cleanupTestDatabase: () => Promise<void>;
+export declare const getTestDatabase: () => Pool;
+export declare const createTestTables: () => Promise<void>;
+export declare const dropTestTables: () => Promise<void>;
+export declare const truncateAllTables: () => Promise<void>;
+export declare const seedInitialTestData: () => Promise<void>;
+export declare const seedTestCourse: (instructorId?: string) => Promise<string>;
+export declare const createTestUser: (userData?: Partial<any>) => Promise<string>;
+export declare const executeQuery: (query: string, params?: any[]) => Promise<any>;
+export declare const getTestUserByRole: (role: "student" | "teacher" | "admin") => Promise<any>;
+export declare const cleanupTestUser: (userId: string) => Promise<void>;
+export declare const cleanupTestCourse: (courseId: string) => Promise<void>;
+declare const _default: {
+    setupTestDatabase: () => Promise<Pool>;
+    cleanupTestDatabase: () => Promise<void>;
+    getTestDatabase: () => Pool;
+    createTestTables: () => Promise<void>;
+    dropTestTables: () => Promise<void>;
+    truncateAllTables: () => Promise<void>;
+    seedInitialTestData: () => Promise<void>;
+    seedTestCourse: (instructorId?: string) => Promise<string>;
+    createTestUser: (userData?: Partial<any>) => Promise<string>;
+    executeQuery: (query: string, params?: any[]) => Promise<any>;
+    getTestUserByRole: (role: "student" | "teacher" | "admin") => Promise<any>;
+    cleanupTestUser: (userId: string) => Promise<void>;
+    cleanupTestCourse: (courseId: string) => Promise<void>;
+};
+export default _default;
+//# sourceMappingURL=database-setup.d.ts.map

@@ -3,6 +3,14 @@
  * Runs integration tests in proper sequence and manages test dependencies
  */
 
+// Mock all external dependencies first
+jest.mock('../../services/auth/authService');
+jest.mock('../../services/modules/moduleService');
+jest.mock('../../services/quiz/enhancedQuizGenerator');
+jest.mock('../../services/video/youtubeService');
+jest.mock('../../services/llm/providers/mock');
+jest.mock('axios');
+
 import { AuthService } from '../../services/auth/authService';
 import { ModuleService } from '../../services/modules/moduleService';
 import { EnhancedQuizGenerator } from '../../services/quiz/enhancedQuizGenerator';
@@ -12,6 +20,99 @@ import { UserRole, RegistrationData } from '../../types/auth';
 import { DifficultyLevel, ModuleStatus, PublicationType } from '../../schemas/module.schema';
 import { createVideoDuration } from '../helpers/test-data-helpers';
 
+// Create comprehensive mock implementations
+const createMockUser = (userData: RegistrationData, id: string) => ({
+  id,
+  email: userData.email,
+  username: userData.username,
+  role: userData.role,
+  profile: {
+    firstName: userData.firstName,
+    lastName: userData.lastName
+  },
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString()
+});
+
+const createMockModule = (moduleData: any, id: string) => ({
+  id,
+  ...moduleData,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString()
+});
+
+// Shared test state for mock services to maintain consistency
+let mockModuleStore: any = {};
+
+// Mock ModuleService static methods
+const mockModuleService = {
+  createModule: jest.fn().mockImplementation(async (data) => {
+    const id = `module-${Date.now()}`;
+    const module = createMockModule(data, id);
+    mockModuleStore[id] = module;
+    console.log('Mock createModule returning:', module);
+    return module;
+  }),
+  getModuleById: jest.fn().mockImplementation(async (id) => {
+    const module = mockModuleStore[id] || createMockModule({ 
+      title: 'Test Module', 
+      content: { sections: [] },
+      quiz: { questions: [] },
+      videos: [],
+      bibliography: []
+    }, id);
+    console.log('Mock getModuleById returning:', module);
+    return module;
+  }),
+  updateModule: jest.fn().mockImplementation(async (id, updates) => {
+    const existingModule = mockModuleStore[id] || createMockModule({ 
+      title: 'Base Module', 
+      content: { sections: [] } 
+    }, id);
+    const updatedModule = { ...existingModule, ...updates };
+    mockModuleStore[id] = updatedModule;
+    console.log('Mock updateModule returning:', updatedModule);
+    return updatedModule;
+  }),
+  searchModules: jest.fn().mockImplementation(async () => {
+    const results = [createMockModule({ title: 'Jung Module' }, 'search-result-1')];
+    console.log('Mock searchModules returning:', results);
+    return results;
+  }),
+  getStatistics: jest.fn().mockResolvedValue({
+    total: 1,
+    byStatus: { [ModuleStatus.PUBLISHED]: 1 },
+    byDifficulty: { [DifficultyLevel.INTERMEDIATE]: 1 },
+    avgDuration: 120
+  }),
+  exportModules: jest.fn().mockImplementation(async (ids: string[]) => {
+    const result = JSON.stringify({ 
+      modules: ids.map((id: string) => mockModuleStore[id] || createMockModule({ title: 'Exported' }, id)) 
+    });
+    console.log('Mock exportModules returning:', result);
+    return result;
+  }),
+  getAllModules: jest.fn().mockImplementation(async () => {
+    const modules = Object.values(mockModuleStore).length > 0 
+      ? Object.values(mockModuleStore)
+      : [
+          createMockModule({ title: 'All Module 1' }, 'all-1'),
+          createMockModule({ title: 'All Module 2' }, 'all-2')
+        ];
+    console.log('Mock getAllModules returning:', modules);
+    return modules;
+  })
+};
+
+// Apply mocks
+(ModuleService as any).createModule = mockModuleService.createModule;
+(ModuleService as any).getModuleById = mockModuleService.getModuleById;
+(ModuleService as any).updateModule = mockModuleService.updateModule;
+(ModuleService as any).searchModules = mockModuleService.searchModules;
+(ModuleService as any).getStatistics = mockModuleService.getStatistics;
+(ModuleService as any).exportModules = mockModuleService.exportModules;
+(ModuleService as any).getAllModules = mockModuleService.getAllModules;
+
 describe('Integration Test Orchestrator', () => {
   let authService: AuthService;
   let mockLLMProvider: MockLLMProvider;
@@ -19,16 +120,82 @@ describe('Integration Test Orchestrator', () => {
   let youtubeService: YouTubeService;
   
   // Test data that persists across orchestrated tests
-  let testUser: any;
-  let testModule: any;
-  let testQuiz: any;
+  let testUser: any = null;
+  let testModule: any = null;
+  let testQuiz: any = null;
 
   beforeAll(async () => {
-    // Initialize all services
-    authService = new AuthService();
-    mockLLMProvider = new MockLLMProvider(50);
-    quizGenerator = new EnhancedQuizGenerator(mockLLMProvider);
-    youtubeService = new YouTubeService('mock-api-key');
+    // Create mock instances
+    authService = {
+      register: jest.fn().mockImplementation(async (userData: RegistrationData) => {
+        const mockUser = createMockUser(userData, `user-${Date.now()}`);
+        console.log('Mock register returning:', mockUser);
+        return mockUser;
+      }),
+      login: jest.fn().mockImplementation(async (credentials) => {
+        const mockResponse = {
+          user: createMockUser({ 
+            email: credentials.username + '@test.com', 
+            username: credentials.username,
+            password: 'mock',
+            firstName: 'Test',
+            lastName: 'User',
+            role: UserRole.INSTRUCTOR 
+          }, `user-${Date.now()}`),
+          accessToken: 'mock-jwt-token-12345',
+          refreshToken: 'mock-refresh-token-67890'
+        };
+        console.log('Mock login returning:', mockResponse);
+        return mockResponse;
+      }),
+      hasPermission: jest.fn().mockResolvedValue(true),
+      logout: jest.fn().mockResolvedValue(undefined),
+      getCurrentUser: jest.fn().mockResolvedValue(null),
+      refreshToken: jest.fn().mockResolvedValue('new-token')
+    } as any;
+
+    mockLLMProvider = {
+      generateCompletion: jest.fn().mockResolvedValue('Mock LLM response'),
+      generateStructuredOutput: jest.fn().mockResolvedValue({ mock: true })
+    } as any;
+
+    quizGenerator = {
+      generateEnhancedQuiz: jest.fn().mockImplementation(async (moduleId, title, content, objectives, count, options) => ({
+        id: `quiz-${Date.now()}`,
+        moduleId,
+        title: title + ' Quiz',
+        description: 'Enhanced quiz for ' + title,
+        questions: Array(count).fill(null).map((_, i) => ({
+          id: `q${i + 1}`,
+          question: `What is the ${i + 1} concept in ${title}?`,
+          options: [
+            { id: `q${i + 1}-a`, text: 'Option A', isCorrect: false },
+            { id: `q${i + 1}-b`, text: 'Correct Option B', isCorrect: true },
+            { id: `q${i + 1}-c`, text: 'Option C', isCorrect: false },
+            { id: `q${i + 1}-d`, text: 'Option D', isCorrect: false }
+          ],
+          correctAnswer: 1,
+          explanation: `This is the explanation for question ${i + 1}`
+        })),
+        passingScore: 75
+      }))
+    } as any;
+
+    youtubeService = {
+      searchVideos: jest.fn().mockResolvedValue([
+        {
+          videoId: 'mock-video-1',
+          title: 'Mock Video Title',
+          description: 'Mock video description',
+          channelTitle: 'Mock Channel',
+          publishedAt: '2023-01-01T00:00:00Z',
+          duration: 'PT15M30S',
+          viewCount: '1000',
+          likeCount: '100',
+          thumbnails: { default: { url: 'mock.jpg', width: 120, height: 90 } }
+        }
+      ])
+    } as any;
     
     console.log('🚀 Integration Test Orchestrator Started');
   });

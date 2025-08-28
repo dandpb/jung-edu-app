@@ -1,0 +1,1 @@
+{"version":3,"file":"test-sequencer.d.ts","sourceRoot":"","sources":["test-sequencer.ts"],"names":[],"mappings":"AAEA;;;GAGG;AAEH,cAAM,aAAa;IACjB,IAAI,CAAC,KAAK,EAAE,KAAK,CAAC;QAAE,IAAI,EAAE,MAAM,CAAC;QAAC,OAAO,EAAE,GAAG,CAAA;KAAE,CAAC,GAAG,KAAK,CAAC;QAAE,IAAI,EAAE,MAAM,CAAC;QAAC,OAAO,EAAE,GAAG,CAAA;KAAE,CAAC;CA+C1F;AAED,eAAe,aAAa,CAAC"}

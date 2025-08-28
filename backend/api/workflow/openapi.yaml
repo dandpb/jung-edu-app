@@ -1,0 +1,1482 @@
+openapi: 3.0.0
+info:
+  title: Workflow Management API
+  version: 1.0.0
+  description: |
+    A comprehensive RESTful API for workflow management, execution, and monitoring.
+    
+    This API provides complete workflow lifecycle management including:
+    - Workflow CRUD operations (create, read, update, delete)
+    - Execution management (start, stop, pause, resume)
+    - Real-time monitoring (status, logs, metrics)
+    - Authentication and authorization
+    - Rate limiting and request validation
+    
+    Built with Express.js, TypeScript, and follows OpenAPI 3.0 specifications.
+  contact:
+    name: API Support
+    email: support@jaquedu.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.jaquedu.com/v1
+    description: Production server
+  - url: https://staging-api.jaquedu.com/v1
+    description: Staging server
+  - url: http://localhost:3000/api/v1
+    description: Development server
+
+security:
+  - bearerAuth: []
+  - apiKey: []
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      description: Check API health status
+      tags:
+        - System
+      security: []
+      responses:
+        200:
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            example: "healthy"
+                          uptime:
+                            type: number
+                            example: 86400
+                          version:
+                            type: string
+                            example: "1.0.0"
+
+  /workflows:
+    post:
+      summary: Create a new workflow
+      description: Create a new workflow with steps and configuration
+      tags:
+        - Workflows
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkflowRequest'
+            example:
+              name: "User Onboarding Workflow"
+              description: "Automated user onboarding process"
+              steps:
+                - name: "Send Welcome Email"
+                  type: "email"
+                  config:
+                    template: "welcome"
+                    recipient: "{{user.email}}"
+                - name: "Create User Account"
+                  type: "script"
+                  config:
+                    script: "createUser.js"
+              variables:
+                defaultRole: "user"
+              metadata:
+                tags: ["onboarding", "automation"]
+                priority: "normal"
+      responses:
+        201:
+          description: Workflow created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Workflow'
+        400:
+          $ref: '#/components/responses/ValidationError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        429:
+          $ref: '#/components/responses/RateLimitError'
+
+    get:
+      summary: List workflows
+      description: Retrieve a paginated list of workflows with filtering options
+      tags:
+        - Workflows
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number for pagination
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
+        - in: query
+          name: status
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/WorkflowStatus'
+          description: Filter by workflow status
+        - in: query
+          name: tags
+          schema:
+            type: array
+            items:
+              type: string
+          description: Filter by tags
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search in workflow names and descriptions
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum: [name, createdAt, updatedAt, status]
+            default: createdAt
+          description: Sort field
+        - in: query
+          name: sortOrder
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sort order
+      responses:
+        200:
+          description: List of workflows
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/WorkflowListResponse'
+
+  /workflows/{id}:
+    get:
+      summary: Get workflow by ID
+      description: Retrieve a specific workflow by its ID
+      tags:
+        - Workflows
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Workflow ID
+      responses:
+        200:
+          description: Workflow details
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Workflow'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+
+    put:
+      summary: Update workflow
+      description: Update an existing workflow
+      tags:
+        - Workflows
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Workflow ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWorkflowRequest'
+      responses:
+        200:
+          description: Workflow updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Workflow'
+        400:
+          $ref: '#/components/responses/ValidationError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      summary: Delete workflow
+      description: Delete a workflow (only if no active executions)
+      tags:
+        - Workflows
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Workflow ID
+      responses:
+        204:
+          description: Workflow deleted successfully
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        409:
+          description: Workflow has active executions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /workflows/{id}/execute:
+    post:
+      summary: Execute workflow
+      description: Start execution of a workflow
+      tags:
+        - Executions
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Workflow ID
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecuteWorkflowRequest'
+            example:
+              variables:
+                user:
+                  email: "user@example.com"
+                  name: "John Doe"
+              priority: "high"
+              timeout: 3600000
+      responses:
+        202:
+          description: Workflow execution started
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/WorkflowExecution'
+        400:
+          description: Workflow cannot be executed
+        404:
+          $ref: '#/components/responses/NotFoundError'
+
+  /executions:
+    get:
+      summary: List executions
+      description: Retrieve a paginated list of workflow executions
+      tags:
+        - Executions
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number for pagination
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
+        - in: query
+          name: status
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/ExecutionStatus'
+          description: Filter by execution status
+        - in: query
+          name: workflowId
+          schema:
+            type: string
+            format: uuid
+          description: Filter by workflow ID
+      responses:
+        200:
+          description: List of executions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ExecutionListResponse'
+
+  /executions/{executionId}:
+    get:
+      summary: Get execution details
+      description: Retrieve details of a specific execution
+      tags:
+        - Executions
+      parameters:
+        - in: path
+          name: executionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Execution ID
+      responses:
+        200:
+          description: Execution details
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/WorkflowExecution'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+
+  /executions/{executionId}/pause:
+    post:
+      summary: Pause execution
+      description: Pause a running workflow execution
+      tags:
+        - Executions
+      parameters:
+        - in: path
+          name: executionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Execution ID
+      responses:
+        200:
+          description: Execution paused successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/WorkflowExecution'
+        400:
+          description: Execution cannot be paused
+        404:
+          $ref: '#/components/responses/NotFoundError'
+
+  /executions/{executionId}/resume:
+    post:
+      summary: Resume execution
+      description: Resume a paused workflow execution
+      tags:
+        - Executions
+      parameters:
+        - in: path
+          name: executionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Execution ID
+      responses:
+        200:
+          description: Execution resumed successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/WorkflowExecution'
+        400:
+          description: Execution cannot be resumed
+        404:
+          $ref: '#/components/responses/NotFoundError'
+
+  /executions/{executionId}/cancel:
+    post:
+      summary: Cancel execution
+      description: Cancel a running or paused workflow execution
+      tags:
+        - Executions
+      parameters:
+        - in: path
+          name: executionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Execution ID
+      responses:
+        200:
+          description: Execution cancelled successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/WorkflowExecution'
+        400:
+          description: Execution cannot be cancelled
+        404:
+          $ref: '#/components/responses/NotFoundError'
+
+  /executions/{executionId}/logs:
+    get:
+      summary: Get execution logs
+      description: Retrieve logs for a specific execution
+      tags:
+        - Monitoring
+      parameters:
+        - in: path
+          name: executionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Execution ID
+        - in: query
+          name: level
+          schema:
+            $ref: '#/components/schemas/LogLevel'
+          description: Filter logs by level
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+          description: Number of logs to retrieve
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Number of logs to skip
+      responses:
+        200:
+          description: Execution logs
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          logs:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/ExecutionLog'
+                          total:
+                            type: integer
+        404:
+          $ref: '#/components/responses/NotFoundError'
+
+  /executions/{executionId}/metrics:
+    get:
+      summary: Get execution metrics
+      description: Retrieve performance metrics for a specific execution
+      tags:
+        - Monitoring
+      parameters:
+        - in: path
+          name: executionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Execution ID
+      responses:
+        200:
+          description: Execution metrics
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ExecutionMetrics'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token authentication
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key authentication
+
+  schemas:
+    # Core entities
+    Workflow:
+      type: object
+      required:
+        - id
+        - name
+        - version
+        - status
+        - steps
+        - createdAt
+        - updatedAt
+        - createdBy
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique workflow identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Workflow name
+          example: "User Onboarding"
+        description:
+          type: string
+          maxLength: 1000
+          description: Workflow description
+          example: "Automated user onboarding process"
+        version:
+          type: string
+          pattern: '^\\d+\\.\\d+\\.\\d+$'
+          description: Semantic version
+          example: "1.0.0"
+        status:
+          $ref: '#/components/schemas/WorkflowStatus'
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowStep'
+          minItems: 1
+        variables:
+          type: object
+          additionalProperties: true
+          description: Workflow variables
+        metadata:
+          $ref: '#/components/schemas/WorkflowMetadata'
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+        createdBy:
+          type: string
+          description: User who created the workflow
+
+    WorkflowStep:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - config
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique step identifier
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Step name
+          example: "Send Email"
+        type:
+          $ref: '#/components/schemas/StepType'
+        config:
+          type: object
+          additionalProperties: true
+          description: Step configuration
+          example:
+            template: "welcome_email"
+            recipient: "{{user.email}}"
+        dependencies:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Step dependencies (IDs of steps that must complete first)
+        timeout:
+          type: integer
+          minimum: 1000
+          maximum: 86400000
+          description: Step timeout in milliseconds
+        retryPolicy:
+          $ref: '#/components/schemas/RetryPolicy'
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExecutionCondition'
+
+    WorkflowExecution:
+      type: object
+      required:
+        - id
+        - workflowId
+        - status
+        - stepExecutions
+        - variables
+        - logs
+        - metrics
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique execution identifier
+        workflowId:
+          type: string
+          format: uuid
+          description: ID of the workflow being executed
+        status:
+          $ref: '#/components/schemas/ExecutionStatus'
+        startedAt:
+          type: string
+          format: date-time
+          description: Execution start time
+        completedAt:
+          type: string
+          format: date-time
+          description: Execution completion time
+        currentStep:
+          type: string
+          format: uuid
+          description: ID of currently executing step
+        stepExecutions:
+          type: array
+          items:
+            $ref: '#/components/schemas/StepExecution'
+        variables:
+          type: object
+          additionalProperties: true
+          description: Execution variables
+        logs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExecutionLog'
+        metrics:
+          $ref: '#/components/schemas/ExecutionMetrics'
+        error:
+          $ref: '#/components/schemas/ExecutionError'
+
+    StepExecution:
+      type: object
+      required:
+        - stepId
+        - status
+        - retryCount
+      properties:
+        stepId:
+          type: string
+          format: uuid
+          description: ID of the step being executed
+        status:
+          $ref: '#/components/schemas/ExecutionStatus'
+        startedAt:
+          type: string
+          format: date-time
+          description: Step execution start time
+        completedAt:
+          type: string
+          format: date-time
+          description: Step execution completion time
+        output:
+          description: Step execution output
+        error:
+          $ref: '#/components/schemas/ExecutionError'
+        retryCount:
+          type: integer
+          minimum: 0
+          description: Number of retry attempts
+
+    ExecutionLog:
+      type: object
+      required:
+        - id
+        - level
+        - message
+        - timestamp
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique log entry identifier
+        level:
+          $ref: '#/components/schemas/LogLevel'
+        message:
+          type: string
+          description: Log message
+          example: "Step completed successfully"
+        timestamp:
+          type: string
+          format: date-time
+          description: Log timestamp
+        stepId:
+          type: string
+          format: uuid
+          description: ID of the step that generated this log
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Additional log metadata
+
+    ExecutionMetrics:
+      type: object
+      required:
+        - stepDurations
+      properties:
+        totalDuration:
+          type: number
+          minimum: 0
+          description: Total execution duration in milliseconds
+        stepDurations:
+          type: object
+          additionalProperties:
+            type: number
+            minimum: 0
+          description: Duration of each step in milliseconds
+        resourceUsage:
+          $ref: '#/components/schemas/ResourceUsage'
+        throughput:
+          type: number
+          minimum: 0
+          description: Operations per second
+        errorRate:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Error rate (0-1)
+
+    ExecutionError:
+      type: object
+      required:
+        - code
+        - message
+        - timestamp
+        - recoverable
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: "STEP_TIMEOUT"
+        message:
+          type: string
+          description: Error message
+          example: "Step execution timed out after 30 seconds"
+        details:
+          description: Additional error details
+        stepId:
+          type: string
+          format: uuid
+          description: ID of the step where error occurred
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp
+        recoverable:
+          type: boolean
+          description: Whether the error is recoverable
+
+    # Request/Response schemas
+    CreateWorkflowRequest:
+      type: object
+      required:
+        - name
+        - steps
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Workflow name
+        description:
+          type: string
+          maxLength: 1000
+          description: Workflow description
+        steps:
+          type: array
+          items:
+            type: object
+            required:
+              - name
+              - type
+              - config
+            properties:
+              name:
+                type: string
+                minLength: 1
+                maxLength: 255
+              type:
+                $ref: '#/components/schemas/StepType'
+              config:
+                type: object
+                additionalProperties: true
+              dependencies:
+                type: array
+                items:
+                  type: string
+              timeout:
+                type: integer
+                minimum: 1000
+                maximum: 86400000
+              retryPolicy:
+                $ref: '#/components/schemas/RetryPolicy'
+              conditions:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExecutionCondition'
+          minItems: 1
+        variables:
+          type: object
+          additionalProperties: true
+        metadata:
+          type: object
+          properties:
+            tags:
+              type: array
+              items:
+                type: string
+                maxLength: 50
+              maxItems: 20
+            priority:
+              $ref: '#/components/schemas/Priority'
+            timeout:
+              type: integer
+              minimum: 1000
+              maximum: 86400000
+            schedule:
+              $ref: '#/components/schemas/ScheduleConfig'
+            notifications:
+              type: array
+              items:
+                $ref: '#/components/schemas/NotificationConfig'
+
+    UpdateWorkflowRequest:
+      type: object
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 1000
+        steps:
+          type: array
+          items:
+            type: object
+            required:
+              - name
+              - type
+              - config
+            properties:
+              name:
+                type: string
+                minLength: 1
+                maxLength: 255
+              type:
+                $ref: '#/components/schemas/StepType'
+              config:
+                type: object
+                additionalProperties: true
+              dependencies:
+                type: array
+                items:
+                  type: string
+              timeout:
+                type: integer
+                minimum: 1000
+                maximum: 86400000
+              retryPolicy:
+                $ref: '#/components/schemas/RetryPolicy'
+              conditions:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExecutionCondition'
+          minItems: 1
+        variables:
+          type: object
+          additionalProperties: true
+        metadata:
+          type: object
+          properties:
+            tags:
+              type: array
+              items:
+                type: string
+                maxLength: 50
+              maxItems: 20
+            priority:
+              $ref: '#/components/schemas/Priority'
+            timeout:
+              type: integer
+              minimum: 1000
+              maximum: 86400000
+            schedule:
+              $ref: '#/components/schemas/ScheduleConfig'
+            notifications:
+              type: array
+              items:
+                $ref: '#/components/schemas/NotificationConfig'
+        version:
+          type: string
+          pattern: '^\\d+\\.\\d+\\.\\d+$'
+
+    ExecuteWorkflowRequest:
+      type: object
+      properties:
+        variables:
+          type: object
+          additionalProperties: true
+          description: Runtime variables for workflow execution
+        priority:
+          $ref: '#/components/schemas/Priority'
+        timeout:
+          type: integer
+          minimum: 1000
+          maximum: 86400000
+          description: Execution timeout in milliseconds
+        notifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationConfig'
+
+    # List response schemas
+    WorkflowListResponse:
+      type: object
+      required:
+        - workflows
+        - pagination
+        - filters
+      properties:
+        workflows:
+          type: array
+          items:
+            $ref: '#/components/schemas/Workflow'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+        filters:
+          $ref: '#/components/schemas/FilterInfo'
+
+    ExecutionListResponse:
+      type: object
+      required:
+        - executions
+        - pagination
+        - filters
+      properties:
+        executions:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowExecution'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+        filters:
+          $ref: '#/components/schemas/FilterInfo'
+
+    # Support schemas
+    WorkflowMetadata:
+      type: object
+      required:
+        - tags
+        - owner
+        - priority
+      properties:
+        tags:
+          type: array
+          items:
+            type: string
+          description: Workflow tags
+        owner:
+          type: string
+          description: Workflow owner
+        priority:
+          $ref: '#/components/schemas/Priority'
+        timeout:
+          type: integer
+          minimum: 1000
+          description: Workflow timeout in milliseconds
+        schedule:
+          $ref: '#/components/schemas/ScheduleConfig'
+        notifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationConfig'
+
+    RetryPolicy:
+      type: object
+      required:
+        - maxAttempts
+        - backoffStrategy
+      properties:
+        maxAttempts:
+          type: integer
+          minimum: 0
+          maximum: 10
+          description: Maximum retry attempts
+        backoffStrategy:
+          $ref: '#/components/schemas/BackoffStrategy'
+        backoffMultiplier:
+          type: number
+          minimum: 1
+          maximum: 10
+          description: Backoff multiplier for exponential strategy
+        maxBackoffTime:
+          type: integer
+          minimum: 1000
+          maximum: 3600000
+          description: Maximum backoff time in milliseconds
+
+    ExecutionCondition:
+      type: object
+      required:
+        - type
+        - expression
+      properties:
+        type:
+          $ref: '#/components/schemas/ConditionType'
+        expression:
+          type: string
+          minLength: 1
+          description: Condition expression
+        description:
+          type: string
+          maxLength: 500
+          description: Condition description
+
+    ScheduleConfig:
+      type: object
+      properties:
+        cron:
+          type: string
+          pattern: '^[0-9*\\/,-\\s]+$'
+          description: Cron expression
+          example: "0 0 * * *"
+        interval:
+          type: integer
+          minimum: 60000
+          maximum: 86400000
+          description: Interval in milliseconds
+        startDate:
+          type: string
+          format: date-time
+          description: Schedule start date
+        endDate:
+          type: string
+          format: date-time
+          description: Schedule end date
+        timezone:
+          type: string
+          maxLength: 50
+          description: Timezone identifier
+          example: "America/New_York"
+
+    NotificationConfig:
+      type: object
+      required:
+        - type
+        - recipients
+        - events
+      properties:
+        type:
+          $ref: '#/components/schemas/NotificationType'
+        recipients:
+          type: array
+          items:
+            type: string
+            format: email
+          minItems: 1
+          description: Notification recipients
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationEvent'
+          minItems: 1
+          description: Events that trigger notifications
+        template:
+          type: string
+          maxLength: 1000
+          description: Notification template
+
+    ResourceUsage:
+      type: object
+      properties:
+        cpuUsage:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: CPU usage percentage
+        memoryUsage:
+          type: number
+          minimum: 0
+          description: Memory usage in bytes
+        networkIO:
+          type: number
+          minimum: 0
+          description: Network I/O in bytes
+        diskIO:
+          type: number
+          minimum: 0
+          description: Disk I/O in bytes
+
+    PaginationInfo:
+      type: object
+      required:
+        - page
+        - limit
+        - total
+        - pages
+        - hasNext
+        - hasPrev
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          description: Current page number
+        limit:
+          type: integer
+          minimum: 1
+          description: Items per page
+        total:
+          type: integer
+          minimum: 0
+          description: Total number of items
+        pages:
+          type: integer
+          minimum: 0
+          description: Total number of pages
+        hasNext:
+          type: boolean
+          description: Whether there is a next page
+        hasPrev:
+          type: boolean
+          description: Whether there is a previous page
+
+    FilterInfo:
+      type: object
+      properties:
+        status:
+          type: array
+          items:
+            type: string
+          description: Applied status filters
+        owner:
+          type: string
+          description: Applied owner filter
+        tags:
+          type: array
+          items:
+            type: string
+          description: Applied tag filters
+        dateRange:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date-time
+            end:
+              type: string
+              format: date-time
+
+    ApiResponse:
+      type: object
+      required:
+        - success
+        - timestamp
+        - requestId
+      properties:
+        success:
+          type: boolean
+          description: Whether the request was successful
+        data:
+          description: Response data (present on success)
+        error:
+          $ref: '#/components/schemas/ApiError'
+        timestamp:
+          type: string
+          format: date-time
+          description: Response timestamp
+        requestId:
+          type: string
+          description: Unique request identifier
+
+    ApiError:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+          description: Error message
+          example: "Request validation failed"
+        details:
+          description: Additional error details
+        field:
+          type: string
+          description: Field that caused the error
+
+    # Enums
+    WorkflowStatus:
+      type: string
+      enum: [draft, active, inactive, archived]
+      description: Workflow status
+
+    ExecutionStatus:
+      type: string
+      enum: [pending, running, paused, completed, failed, cancelled, timeout]
+      description: Execution status
+
+    StepType:
+      type: string
+      enum: [http_request, script, approval, delay, condition, loop, parallel, webhook, email, database]
+      description: Step type
+
+    LogLevel:
+      type: string
+      enum: [debug, info, warn, error, fatal]
+      description: Log level
+
+    BackoffStrategy:
+      type: string
+      enum: [linear, exponential, fixed]
+      description: Retry backoff strategy
+
+    ConditionType:
+      type: string
+      enum: [expression, script, webhook]
+      description: Execution condition type
+
+    Priority:
+      type: string
+      enum: [low, normal, high, critical]
+      description: Priority level
+
+    NotificationType:
+      type: string
+      enum: [email, slack, webhook, sms]
+      description: Notification type
+
+    NotificationEvent:
+      type: string
+      enum: [started, completed, failed, paused, resumed, cancelled]
+      description: Notification event
+
+  responses:
+    ValidationError:
+      description: Request validation failed
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  error:
+                    allOf:
+                      - $ref: '#/components/schemas/ApiError'
+                      - type: object
+                        properties:
+                          code:
+                            example: "VALIDATION_ERROR"
+                          message:
+                            example: "Request validation failed"
+                          details:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                field:
+                                  type: string
+                                  example: "name"
+                                message:
+                                  type: string
+                                  example: "name is required"
+                                value:
+                                  example: null
+
+    UnauthorizedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  error:
+                    allOf:
+                      - $ref: '#/components/schemas/ApiError'
+                      - type: object
+                        properties:
+                          code:
+                            example: "MISSING_AUTH"
+                          message:
+                            example: "Authentication required - provide Bearer token or API key"
+
+    ForbiddenError:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  error:
+                    allOf:
+                      - $ref: '#/components/schemas/ApiError'
+                      - type: object
+                        properties:
+                          code:
+                            example: "INSUFFICIENT_PERMISSIONS"
+                          message:
+                            example: "Insufficient permissions to access this resource"
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  error:
+                    allOf:
+                      - $ref: '#/components/schemas/ApiError'
+                      - type: object
+                        properties:
+                          code:
+                            example: "WORKFLOW_NOT_FOUND"
+                          message:
+                            example: "Workflow with ID 550e8400-e29b-41d4-a716-446655440000 not found"
+
+    RateLimitError:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+          description: Rate limit ceiling for that given request
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+          description: Number of requests left for the time window
+        X-RateLimit-Reset:
+          schema:
+            type: string
+            format: date-time
+          description: Time when the rate limit resets
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds to wait before making a new request
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  error:
+                    allOf:
+                      - $ref: '#/components/schemas/ApiError'
+                      - type: object
+                        properties:
+                          code:
+                            example: "RATE_LIMIT_EXCEEDED"
+                          message:
+                            example: "Too many requests from this IP, please try again later"
+
+tags:
+  - name: System
+    description: System health and status endpoints
+  - name: Workflows
+    description: Workflow CRUD operations
+  - name: Executions
+    description: Workflow execution management
+  - name: Monitoring
+    description: Monitoring and observability endpoints

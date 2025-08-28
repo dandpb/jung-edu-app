@@ -1,0 +1,29 @@
+{
+  "cookies": [
+    {
+      "name": "auth_session",
+      "value": "mock_admin_session",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1756487307159,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "http://localhost:3000",
+      "localStorage": [
+        {
+          "name": "auth_user",
+          "value": "{\"role\":\"admin\",\"email\":\"admin@jaquedu.com\",\"id\":1}"
+        },
+        {
+          "name": "auth_token",
+          "value": "mock_admin_token"
+        }
+      ]
+    }
+  ]
+}

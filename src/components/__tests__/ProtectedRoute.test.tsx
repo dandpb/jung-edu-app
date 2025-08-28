@@ -47,6 +47,26 @@ describe('ProtectedRoute Component', () => {
     );
   };
 
+  // For testing ProtectedRoute component in isolation
+  const renderProtectedRouteOnly = (isAdmin: boolean) => {
+    mockUseAdmin.mockReturnValue({
+      isAdmin,
+      currentAdmin: isAdmin ? { id: 'admin-1', username: 'admin', password: '', role: 'admin', lastLogin: Date.now() } : null,
+      login: jest.fn(),
+      logout: jest.fn(),
+      modules: [],
+      updateModules: jest.fn(),
+      mindMapNodes: [],
+      mindMapEdges: [],
+    });
+    
+    return render(
+      <ProtectedRoute>
+        <ProtectedComponent />
+      </ProtectedRoute>
+    );
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -122,22 +142,13 @@ describe('ProtectedRoute Component', () => {
     });
     
     render(
-      <MemoryRouter initialEntries={['/admin']}>
-        <Routes>
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <>
-                  <div>Child 1</div>
-                  <div>Child 2</div>
-                  <div>Child 3</div>
-                </>
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </MemoryRouter>
+      <ProtectedRoute>
+        <>
+          <div>Child 1</div>
+          <div>Child 2</div>
+          <div>Child 3</div>
+        </>
+      </ProtectedRoute>
     );
     
     expect(screen.getByText('Child 1')).toBeInTheDocument();

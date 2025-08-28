@@ -1,0 +1,115 @@
+{
+  "name": "jaquedu-self-healing-tests",
+  "version": "2.0.0",
+  "description": "Comprehensive self-healing capabilities testing suite with chaos engineering and automated failure injection",
+  "main": "run-self-healing-tests.js",
+  "bin": {
+    "run-self-healing-tests": "./run-self-healing-tests.js"
+  },
+  "scripts": {
+    "test": "node run-self-healing-tests.js",
+    "test:chaos": "node run-self-healing-tests.js --config ./test-configs/chaos-only-config.js",
+    "test:load": "node run-self-healing-tests.js --config ./test-configs/load-only-config.js",
+    "test:integration": "node run-self-healing-tests.js --config ./test-configs/integration-only-config.js",
+    "test:recovery": "node run-self-healing-tests.js --config ./test-configs/recovery-only-config.js",
+    "test:parallel": "node run-self-healing-tests.js --parallel true",
+    "test:sequential": "node run-self-healing-tests.js --parallel false",
+    "test:quick": "node run-self-healing-tests.js --timeout 180000",
+    "test:comprehensive": "node run-self-healing-tests.js --timeout 600000 --parallel true --hooks true",
+    "validate": "node -c run-self-healing-tests.js && echo 'Syntax validation passed'",
+    "benchmark": "node benchmark-self-healing.js",
+    "report": "node generate-report.js",
+    "cleanup": "rm -rf test-results/* && echo 'Test results cleaned up'",
+    "hooks:test": "npx claude-flow@alpha hooks pre-task --description 'testing hooks integration'",
+    "memory:store": "npx claude-flow@alpha hooks post-edit --file 'test-results' --memory-key 'swarm/tests/results'",
+    "memory:retrieve": "npx claude-flow@alpha memory usage --action retrieve --key 'swarm/tests/results'"
+  },
+  "keywords": [
+    "self-healing",
+    "chaos-engineering",
+    "testing",
+    "resilience",
+    "fault-tolerance",
+    "load-testing",
+    "integration-testing",
+    "recovery-testing",
+    "automated-testing",
+    "system-reliability"
+  ],
+  "author": "jaqEdu Development Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "events": "^3.3.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "@types/node": "^18.0.0",
+    "eslint": "^8.0.0",
+    "prettier": "^2.8.0"
+  },
+  "peerDependencies": {
+    "claude-flow": "^2.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jaquedu/self-healing-tests.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jaquedu/self-healing-tests/issues"
+  },
+  "homepage": "https://github.com/jaquedu/self-healing-tests#readme",
+  "config": {
+    "defaultTimeout": 600000,
+    "maxConcurrentTests": 10,
+    "retryAttempts": 2,
+    "reportFormats": ["json", "html", "csv"]
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.js",
+      "**/?(*.)+(spec|test).js"
+    ],
+    "collectCoverageFrom": [
+      "**/*.js",
+      "!**/node_modules/**",
+      "!**/test-results/**",
+      "!**/coverage/**"
+    ],
+    "coverageReporters": [
+      "text",
+      "html",
+      "json-summary"
+    ],
+    "testTimeout": 300000
+  },
+  "eslintConfig": {
+    "env": {
+      "node": true,
+      "es2021": true,
+      "jest": true
+    },
+    "extends": [
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 12,
+      "sourceType": "module"
+    },
+    "rules": {
+      "no-console": "off",
+      "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+      "prefer-const": "error",
+      "no-var": "error"
+    }
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5"
+  }
+}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter, MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import AIDemo from '../AIDemo';
 
 // Mock Lucide icons
@@ -20,9 +20,9 @@ const renderWithRouter = (component: React.ReactElement, initialEntries?: string
     );
   }
   return render(
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <MemoryRouter initialEntries={['/']}>
       {component}
-    </BrowserRouter>
+    </MemoryRouter>
   );
 };
 

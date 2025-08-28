@@ -11,13 +11,15 @@ import { I18nProvider, useI18n } from '../I18nContext';
 import { setupI18n, switchLanguage } from '../../config/i18n';
 
 // Mock coordination hooks
-jest.mock('../../../hooks/coordination', () => ({
+jest.mock('../../hooks/useCoordination', () => ({
   useCoordination: () => ({
     reportProgress: jest.fn(),
     updateMemory: jest.fn(),
-    notify: jest.fn()
+    notify: jest.fn(),
+    getMemory: jest.fn().mockResolvedValue(null),
+    setMemory: jest.fn().mockResolvedValue(undefined)
   })
-}), { virtual: true });
+}));
 
 // Mock i18next and related modules
 const mockT = jest.fn((key: string, options?: any) => {
@@ -73,7 +75,25 @@ jest.mock('react-i18next', () => ({
 jest.mock('../../config/i18n', () => ({
   setupI18n: jest.fn().mockResolvedValue(undefined),
   switchLanguage: jest.fn().mockResolvedValue(undefined),
-  getI18nInstance: jest.fn().mockReturnValue(mockI18nInstance)
+  getI18nInstance: jest.fn().mockImplementation(() => ({
+    changeLanguage: jest.fn().mockResolvedValue(undefined),
+    language: 'en',
+    languages: ['en', 'pt-BR', 'es'],
+    loadNamespaces: jest.fn().mockResolvedValue(undefined),
+    getResource: jest.fn(),
+    exists: jest.fn().mockReturnValue(true),
+    getResourceBundle: jest.fn().mockReturnValue({
+      'test.key': 'Test Value',
+      'nested.deep.key': 'Deep Value'
+    }),
+    isInitialized: true,
+    store: {
+      data: {
+        'en': { translation: { 'test.key': 'Test Value' }},
+        'pt-BR': { translation: { 'test.key': 'Valor de Teste' }}
+      }
+    }
+  }))
 }));
 
 // Test components

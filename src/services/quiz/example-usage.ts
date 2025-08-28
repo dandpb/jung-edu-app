@@ -8,8 +8,20 @@ import { getQuestionTemplate, topicTemplates } from './quizTemplates';
 import { OpenAIProvider } from '../llm/provider';
 import { Quiz, Question } from '../../types';
 
-// Initialize the enhanced quiz generator
-const quizGenerator = new EnhancedQuizGenerator(new OpenAIProvider(process.env.REACT_APP_OPENAI_API_KEY || ''));
+// Lazy initialization of the enhanced quiz generator to make it more testable
+let quizGenerator: EnhancedQuizGenerator | null = null;
+
+export function getQuizGenerator(): EnhancedQuizGenerator {
+  if (!quizGenerator) {
+    quizGenerator = new EnhancedQuizGenerator(new OpenAIProvider(process.env.REACT_APP_OPENAI_API_KEY || ''));
+  }
+  return quizGenerator;
+}
+
+// For testing - allows injection of a mock instance
+export function setQuizGenerator(generator: EnhancedQuizGenerator): void {
+  quizGenerator = generator;
+}
 
 /**
  * Example 1: Generate a comprehensive quiz for beginners
@@ -24,7 +36,7 @@ export async function generateBeginnerQuiz(): Promise<Quiz> {
     userLevel: 'beginner'
   };
 
-  const quiz = await quizGenerator.generateEnhancedQuiz(
+  const quiz = await getQuizGenerator().generateEnhancedQuiz(
     'module-intro-001',
     'Collective Unconscious',
     `The collective unconscious is a key concept in Jung's analytical psychology...`,
@@ -60,7 +72,7 @@ export async function generateAdvancedQuiz(): Promise<Quiz> {
     userLevel: 'advanced'
   };
 
-  const quiz = await quizGenerator.generateEnhancedQuiz(
+  const quiz = await getQuizGenerator().generateEnhancedQuiz(
     'module-adv-shadow',
     'Shadow',
     `The shadow represents the parts of the personality that the conscious ego doesn't identify with...`,
@@ -89,7 +101,7 @@ export async function generateAdaptiveFollowUp(
     difficulty: p.difficulty
   }));
 
-  const adaptiveQuestions = await quizGenerator.generateAdaptiveQuestions(
+  const adaptiveQuestions = await getQuizGenerator().generateAdaptiveQuestions(
     topic,
     responses,
     5 // Generate 5 follow-up questions
@@ -118,7 +130,7 @@ export async function generateConceptPractice(
   topic: string,
   concept: string
 ): Promise<Question[]> {
-  const practiceQuestions = await quizGenerator.generatePracticeQuestions(
+  const practiceQuestions = await getQuizGenerator().generatePracticeQuestions(
     topic,
     concept,
     5
@@ -147,7 +159,7 @@ export async function generatePersonalizedStudyGuide(
   quiz: Quiz,
   userResponses: Array<{ questionId: string; answer: any; correct: boolean }>
 ): Promise<string> {
-  const studyGuide = await quizGenerator.generateStudyGuide(
+  const studyGuide = await getQuizGenerator().generateStudyGuide(
     quiz,
     userResponses.map(r => ({ questionId: r.questionId, correct: r.correct })),
     quiz.title.split(' - ')[0] // Extract topic from title

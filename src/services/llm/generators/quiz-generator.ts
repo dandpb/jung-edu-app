@@ -1,7 +1,7 @@
 import { ILLMProvider } from '../types';
 import { Quiz, Question } from '../../../types';
-import { quizEnhancer } from '../../../services/quiz/quizEnhancer';
-import { quizValidator } from '../../../services/quiz/quizValidator';
+import { quizEnhancer } from '../../quiz/quizEnhancer';
+import { quizValidator } from '../../quiz/quizValidator';
 import { randomizeAllQuestionOptions, ensureVariedCorrectAnswerPositions } from '../../../utils/quizUtils';
 
 export class QuizGenerator {

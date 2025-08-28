@@ -297,7 +297,8 @@ export function createVideoPlaylist(videos: any[]): Record<string, any[]> {
           return video.duration;
         }
         if (video.duration && video.duration.minutes) {
-          return video.duration.hours * 60 + video.duration.minutes;
+          const hours = video.duration.hours || 0;
+          return hours * 60 + video.duration.minutes;
         }
         return 600; // default 10 minutes
       };

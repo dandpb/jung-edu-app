@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { ModulePage } from './page-objects/module-page';
-import { DashboardPage } from './page-objects/dashboard-page';
+import { ModulePage } from './pages/module-page';
+import { DashboardPage } from './pages/dashboard-page';
 
 /**
  * E2E Tests for Module Learning Functionality

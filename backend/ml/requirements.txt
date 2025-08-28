@@ -1,0 +1,43 @@
+# ML-Powered Predictive Failure Detection and Self-Healing Intelligence
+# Core ML and Data Science Libraries
+numpy>=1.21.0
+pandas>=1.3.0
+scikit-learn>=1.0.0
+scipy>=1.7.0
+
+# Deep Learning
+tensorflow>=2.8.0
+keras>=2.8.0
+
+# Time Series Analysis
+statsmodels>=0.13.0
+
+# Optimization
+optuna>=3.0.0
+
+# Data Visualization (optional)
+matplotlib>=3.5.0
+seaborn>=0.11.0
+
+# Utilities
+joblib>=1.1.0
+tqdm>=4.62.0
+python-dateutil>=2.8.0
+
+# System Monitoring (optional)
+psutil>=5.8.0
+
+# Database
+sqlite3  # Built-in with Python
+
+# Testing
+pytest>=6.2.0
+pytest-cov>=3.0.0
+
+# Development Tools (optional)
+jupyter>=1.0.0
+ipython>=7.0.0
+
+# Claude Flow Dependencies (MCP Integration)
+# Note: These would be installed via the project's main requirements
+# claude-flow>=2.0.0

@@ -6,12 +6,12 @@
 import { setupI18n, getI18nInstance, switchLanguage } from '../i18n';
 
 // Mock react-i18next
-const mockUse = jest.fn();
+const mockUse = jest.fn().mockReturnThis();
 const mockInit = jest.fn().mockResolvedValue(undefined);
 const mockChangeLanguage = jest.fn().mockResolvedValue(undefined);
 
 jest.mock('react-i18next', () => ({
-  use: mockUse.mockReturnThis(),
+  use: mockUse,
   init: mockInit,
   changeLanguage: mockChangeLanguage,
 }));
@@ -25,10 +25,13 @@ const mockLanguageDetector = {
 };
 
 jest.mock('i18next-browser-languagedetector', () => {
-  return function() {
-    return mockLanguageDetector;
+  return {
+    __esModule: true,
+    default: function() {
+      return mockLanguageDetector;
+    }
   };
-});
+}, { virtual: true });
 
 describe('i18n configuration', () => {
   beforeEach(() => {

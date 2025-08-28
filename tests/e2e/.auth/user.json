@@ -1,0 +1,37 @@
+{
+  "cookies": [
+    {
+      "name": "auth_session",
+      "value": "mock_user_session_token",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1767091200000,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "http://localhost:3000",
+      "localStorage": [
+        {
+          "name": "auth_user",
+          "value": "{\"id\":2,\"email\":\"user@jaquedu.com\",\"role\":\"user\",\"name\":\"Test User\",\"isAuthenticated\":true}"
+        },
+        {
+          "name": "auth_token",
+          "value": "mock_user_jwt_token"
+        },
+        {
+          "name": "user_preferences",
+          "value": "{\"theme\":\"light\",\"language\":\"en\"}"
+        },
+        {
+          "name": "test_mode",
+          "value": "true"
+        }
+      ]
+    }
+  ]
+}

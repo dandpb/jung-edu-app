@@ -636,7 +636,11 @@ export class AuthService {
    * Validate current session
    */
   async validateSession(): Promise<boolean> {
-    return this.isAuthenticated();
+    try {
+      return await this.isAuthenticated();
+    } catch (error) {
+      return false;
+    }
   }
 
   /**

@@ -1,0 +1,58 @@
+{
+  "name": "jaquedu-e2e-tests",
+  "version": "1.0.0",
+  "description": "End-to-end tests for jaqEdu educational platform",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report",
+    "test:install": "playwright install",
+    "test:install-deps": "playwright install-deps",
+    "test:student": "playwright test student-journey.e2e.ts",
+    "test:instructor": "playwright test instructor-flow.e2e.ts",
+    "test:admin": "playwright test admin-dashboard.e2e.ts",
+    "test:collaboration": "playwright test collaboration.e2e.ts",
+    "test:mobile": "playwright test mobile.e2e.ts",
+    "test:accessibility": "playwright test accessibility.e2e.ts",
+    "test:visual": "playwright test visual-regression.e2e.ts",
+    "test:cross-browser": "playwright test cross-browser.e2e.ts",
+    "test:chrome": "playwright test --project=chromium",
+    "test:firefox": "playwright test --project=firefox",
+    "test:safari": "playwright test --project=webkit",
+    "test:mobile-chrome": "playwright test --project='Mobile Chrome'",
+    "test:mobile-safari": "playwright test --project='Mobile Safari'",
+    "test:parallel": "playwright test --workers=4",
+    "test:serial": "playwright test --workers=1",
+    "test:update-snapshots": "playwright test --update-snapshots",
+    "test:trace": "playwright test --trace=on",
+    "setup": "playwright install && npm run test:install-deps",
+    "ci": "playwright test --reporter=github",
+    "ci:parallel": "playwright test --workers=2 --reporter=github",
+    "validate": "npm run test:accessibility && npm run test:visual && npm run test:cross-browser"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "axe-core": "^4.8.0",
+    "axe-playwright": "^1.2.3"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "keywords": [
+    "e2e",
+    "testing",
+    "playwright",
+    "education",
+    "jung",
+    "psychology",
+    "accessibility",
+    "visual-regression",
+    "mobile",
+    "cross-browser"
+  ],
+  "author": "jaqEdu Team",
+  "license": "MIT"
+}

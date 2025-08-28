@@ -1,0 +1,85 @@
+{
+  "name": "jaqedu-api-automation-tests",
+  "version": "1.0.0",
+  "description": "Comprehensive API automation tests for jaqEdu educational platform",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:auth": "jest auth.test.ts",
+    "test:workflows": "jest workflows-api.test.ts",
+    "test:executions": "jest executions-api.test.ts",
+    "test:validation": "jest validation.test.ts",
+    "test:websocket": "jest websocket.test.ts",
+    "test:rate-limiting": "jest rate-limiting.test.ts",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:ci": "jest --ci --coverage --watchAll=false --testResultsProcessor=./test-results-processor.js",
+    "test:verbose": "jest --verbose",
+    "test:debug": "node --inspect-brk node_modules/.bin/jest --runInBand",
+    "clean": "rm -rf reports/ coverage/",
+    "setup": "npm install && npm run clean",
+    "lint": "eslint *.ts *.js",
+    "format": "prettier --write *.ts *.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "ws": "^8.14.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.8",
+    "@types/node": "^20.9.0",
+    "@types/uuid": "^9.0.6",
+    "@types/ws": "^8.5.8",
+    "@typescript-eslint/eslint-plugin": "^6.11.0",
+    "@typescript-eslint/parser": "^6.11.0",
+    "eslint": "^8.53.0",
+    "jest": "^29.7.0",
+    "jest-junit": "^16.0.0",
+    "prettier": "^3.0.3",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.2.2"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": ["<rootDir>/test-setup.js"],
+    "testTimeout": 60000,
+    "maxWorkers": 2,
+    "verbose": true,
+    "collectCoverage": false,
+    "testSequencer": "<rootDir>/test-sequencer.js",
+    "reporters": [
+      "default",
+      [
+        "jest-junit",
+        {
+          "outputDirectory": "./reports",
+          "outputName": "api-test-results.xml"
+        }
+      ]
+    ]
+  },
+  "keywords": [
+    "api",
+    "testing",
+    "automation",
+    "jest",
+    "typescript",
+    "rest",
+    "websocket",
+    "authentication",
+    "validation",
+    "jaqedu"
+  ],
+  "author": "jaqEdu Development Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jaqedu/api-automation-tests"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}

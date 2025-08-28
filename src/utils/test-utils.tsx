@@ -128,6 +128,27 @@ export const renderWithoutProviders = (
   };
 };
 
+// Render function for components that need Router context but not App's BrowserRouter
+export const renderWithRouter = (
+  ui: React.ReactElement,
+  options?: { initialEntries?: string[] } & RenderOptions
+) => {
+  const { initialEntries = ['/'], ...renderOptions } = options || {};
+  const user = userEvent.setup();
+  
+  const renderResult = render(
+    <MemoryRouter initialEntries={initialEntries}>
+      {ui}
+    </MemoryRouter>,
+    renderOptions
+  );
+  
+  return {
+    user,
+    ...renderResult
+  };
+};
+
 // Re-export everything from React Testing Library
 export * from '@testing-library/react';
 

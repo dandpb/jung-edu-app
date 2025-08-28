@@ -1,197 +1,237 @@
-# E2E Testing with Playwright
+# jaqEdu End-to-End Test Suite
 
-This directory contains comprehensive end-to-end tests for the jaqEdu educational platform using Playwright.
+Comprehensive end-to-end testing suite for the jaqEdu educational platform using Playwright.
 
-## 🏗️ Test Structure
+## 🎯 Overview
 
-```
-tests/e2e/
-├── auth.setup.ts              # Authentication setup for tests
-├── global-setup.ts            # Global test environment setup
-├── global-teardown.ts         # Global test environment cleanup
-├── fixtures/
-│   └── test-data.ts           # Test data fixtures and types
-├── helpers/
-│   └── test-helpers.ts        # Common helper functions
-├── pages/                     # Page Object Models
-│   ├── base-page.ts           # Base page class
-│   ├── login-page.ts          # Login page POM
-│   ├── dashboard-page.ts      # Dashboard page POM
-│   ├── module-page.ts         # Module viewer POM
-│   └── admin-dashboard-page.ts # Admin dashboard POM
-├── specs/                     # Test specifications
-│   ├── auth/
-│   │   └── authentication.spec.ts
-│   ├── student/
-│   │   └── learning-journey.spec.ts
-│   ├── admin/
-│   │   ├── admin-dashboard.spec.ts
-│   │   ├── module-management.spec.ts
-│   │   └── quiz-management.spec.ts
-│   ├── accessibility/
-│   │   └── accessibility.spec.ts
-│   └── cross-browser/
-│       └── responsive-design.spec.ts
-└── utils/
-    └── test-data-seeder.ts    # Test data seeding utilities
-```
+This test suite covers all critical user journeys and system functionality:
 
-## 🚀 Getting Started
+- **Student Journey Tests** - Complete learning experience from registration to course completion
+- **Instructor Workflow Tests** - Content creation, management, and student monitoring
+- **Admin Dashboard Tests** - System administration and user management
+- **Real-time Collaboration Tests** - WebSocket communication and collaborative features
+- **Mobile Responsiveness Tests** - Cross-device compatibility validation
+- **Accessibility Tests** - WCAG 2.1 AA compliance verification
+- **Visual Regression Tests** - Screenshot-based UI consistency checks
+- **Cross-browser Compatibility Tests** - Multi-browser functionality validation
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 16+
+- npm or yarn
+- Running jaqEdu application (typically on localhost:3000)
 
 ### Installation
 
 ```bash
-# Install Playwright
-npm run test:e2e:install
+# Install dependencies
+npm install
 
-# Install browsers
-npx playwright install
+# Install Playwright browsers
+npm run setup
 ```
 
-### Environment Setup
+### Running Tests
 
-Create a `.env.local` file for E2E test configuration:
-
-```env
-# E2E Test Configuration
-E2E_TEST_USER_EMAIL=test@jaqedu.com
-E2E_TEST_USER_PASSWORD=TestPassword123!
-E2E_ADMIN_USER_EMAIL=admin@jaqedu.com
-E2E_ADMIN_USER_PASSWORD=AdminPassword123!
-PLAYWRIGHT_TEST_BASE_URL=http://localhost:3000
-```
-
-## 🧪 Running Tests
-
-### All Tests
 ```bash
-npm run test:e2e
+# Run all tests
+npm test
+
+# Run with UI mode (recommended for development)
+npm run test:ui
+
+# Run specific test suites
+npm run test:student      # Student journey tests
+npm run test:instructor   # Instructor workflow tests
+npm run test:admin        # Admin dashboard tests
+npm run test:collaboration # Real-time collaboration tests
+npm run test:mobile       # Mobile responsiveness tests
+npm run test:accessibility # Accessibility compliance tests
+npm run test:visual       # Visual regression tests
+npm run test:cross-browser # Cross-browser compatibility tests
+
+# Run on specific browsers
+npm run test:chrome       # Chromium only
+npm run test:firefox      # Firefox only
+npm run test:safari       # WebKit/Safari only
+npm run test:mobile-chrome # Mobile Chrome
+npm run test:mobile-safari # Mobile Safari
+
+# Debug mode
+npm run test:debug
+
+# Generate and view reports
+npm run test:report
 ```
 
-### Test Suites
-```bash
-# Authentication tests
-npm run test:e2e:auth
+## 📁 Test Structure
 
-# Student learning journey
-npm run test:e2e:student
-
-# Admin functionality
-npm run test:e2e:admin
-
-# Accessibility tests
-npm run test:e2e:accessibility
-
-# Cross-browser and responsive
-npm run test:e2e:cross-browser
+```
+tests/e2e/
+├── playwright.config.ts           # Main Playwright configuration
+├── global-setup.ts               # Global test setup
+├── global-teardown.ts            # Global test cleanup
+├── auth.setup.ts                 # Authentication setup
+├── student-journey.e2e.ts        # Student user experience tests
+├── instructor-flow.e2e.ts        # Instructor workflow tests
+├── admin-dashboard.e2e.ts        # Admin functionality tests
+├── collaboration.e2e.ts          # Real-time collaboration tests
+├── mobile.e2e.ts                 # Mobile responsiveness tests
+├── accessibility.e2e.ts          # WCAG compliance tests
+├── visual-regression.e2e.ts      # Visual consistency tests
+├── cross-browser.e2e.ts          # Cross-browser compatibility tests
+├── auth/                         # Authentication state files
+├── screenshots/                  # Visual regression baselines
+├── reports/                      # Test reports and artifacts
+└── test-results/                 # Test execution artifacts
 ```
 
-### Browser-Specific Tests
-```bash
-# Single browser
-npm run test:e2e:chromium
-npm run test:e2e:firefox
-npm run test:e2e:webkit
+## 🧪 Test Categories
 
-# Mobile devices
-npm run test:e2e:mobile
-```
+### Student Journey Tests (`student-journey.e2e.ts`)
 
-### Development & Debugging
-```bash
-# Interactive UI mode
-npm run test:e2e:ui
+Tests the complete student experience:
 
-# Headed mode (see browser)
-npm run test:e2e:headed
+- **Registration & Onboarding**
+  - User registration form validation
+  - Email verification workflow
+  - Profile setup and customization
 
-# Debug mode (step through)
-npm run test:e2e:debug
+- **Authentication**
+  - Login/logout functionality
+  - Password reset workflow
+  - Session management
 
-# Show test report
-npm run test:e2e:report
-```
+- **Course Navigation**
+  - Module browsing and selection
+  - Progress tracking and saving
+  - Quiz completion and scoring
 
-## 📊 Test Coverage Areas
+- **User Profile Management**
+  - Profile information updates
+  - Password changes
+  - Notification preferences
 
-### 🔐 Authentication Flow
-- User login/logout
-- Registration process
-- Password reset
-- Session management
-- Role-based access control
+### Instructor Workflow Tests (`instructor-flow.e2e.ts`)
 
-### 📚 Student Learning Journey
-- Dashboard navigation
-- Module viewing and progression
-- Quiz taking and completion
-- Progress tracking
-- Bookmarking and notes
-- Search and filtering
+Tests instructor-specific functionality:
 
-### 👨‍💼 Admin Dashboard
-- User management
-- Module creation and editing
-- Quiz creation and management
-- Analytics and reporting
-- System configuration
+- **Content Creation**
+  - Module creation and editing
+  - Multimedia content integration
+  - Quiz and assessment creation
 
-### ♿ Accessibility
-- Keyboard navigation
-- Screen reader compatibility
-- ARIA labels and roles
-- Color contrast
-- Touch target sizes
-- Focus management
+- **Student Management**
+  - Progress monitoring and analytics
+  - Grading and feedback systems
+  - Communication tools
 
-### 📱 Cross-Browser & Responsive
-- Desktop browsers (Chrome, Firefox, Safari)
-- Mobile devices (iOS Safari, Android Chrome)
-- Tablet viewports
-- Responsive layouts
-- Touch interactions
+- **Content Library**
+  - Resource organization
+  - File upload and management
+  - Content categorization
 
-## 🏗️ Page Object Model
+### Admin Dashboard Tests (`admin-dashboard.e2e.ts`)
 
-Tests use the Page Object Model pattern for maintainable and reusable code:
+Tests administrative functionality:
 
-```typescript
-// Example usage
-const loginPage = new LoginPage(page);
-const dashboardPage = new DashboardPage(page);
+- **User Management**
+  - User creation, editing, and deletion
+  - Role-based access control
+  - Bulk user operations
 
-await loginPage.loginSuccessfully(email, password);
-await dashboardPage.verifyDashboardLoaded();
-```
+- **System Configuration**
+  - Settings management
+  - API key configuration
+  - System maintenance mode
 
-### Base Page Class
-All page objects extend `BasePage` which provides:
-- Common navigation methods
-- Error handling utilities
-- Screenshot capture
-- Accessibility checks
-- Wait helpers
+- **Analytics & Reporting**
+  - Usage statistics generation
+  - Performance monitoring
+  - Data export functionality
 
-## 🧩 Test Data Management
+### Real-time Collaboration Tests (`collaboration.e2e.ts`)
 
-### Fixtures
-Test data is managed through fixtures in `fixtures/test-data.ts`:
-- User accounts with different roles
-- Sample educational modules
-- Quiz templates and questions
-- Navigation paths and selectors
+Tests WebSocket-based collaborative features:
 
-### Data Seeding
-The `TestDataSeeder` class handles:
-- Creating test users
-- Seeding educational content
-- Setting up quiz data
-- Cleaning up after tests
+- **Real-time Communication**
+  - Forum discussions with live updates
+  - Typing indicators and presence status
+  - Message synchronization across users
+
+- **Collaborative Learning**
+  - Shared study sessions
+  - Progress synchronization
+  - Collaborative note-taking
+
+### Mobile Responsiveness Tests (`mobile.e2e.ts`)
+
+Tests cross-device compatibility:
+
+- **Device-specific Testing**
+  - iPhone, iPad, Android devices
+  - Portrait and landscape orientations
+  - Touch interaction validation
+
+- **Responsive Design**
+  - Layout adaptation across screen sizes
+  - Mobile navigation patterns
+  - Content accessibility on small screens
+
+### Accessibility Tests (`accessibility.e2e.ts`)
+
+Tests WCAG 2.1 AA compliance:
+
+- **Keyboard Navigation**
+  - Tab order and focus management
+  - Keyboard shortcuts and activation
+  - Screen reader compatibility
+
+- **Visual Accessibility**
+  - Color contrast compliance
+  - Alternative text for images
+  - Proper heading structure
+
+- **Form Accessibility**
+  - Label associations
+  - Error message accessibility
+  - Input validation feedback
+
+### Visual Regression Tests (`visual-regression.e2e.ts`)
+
+Tests UI consistency through screenshot comparison:
+
+- **Page Layout Screenshots**
+  - Full page captures
+  - Component-level screenshots
+  - Responsive layout validation
+
+- **Theme and State Testing**
+  - Dark mode compatibility
+  - Error state appearances
+  - Loading state visualization
+
+### Cross-browser Compatibility Tests (`cross-browser.e2e.ts`)
+
+Tests functionality across different browsers:
+
+- **Browser-specific Features**
+  - JavaScript API support
+  - CSS feature compatibility
+  - Form input behavior
+
+- **Performance Consistency**
+  - Load times across browsers
+  - Resource loading validation
+  - Error handling differences
 
 ## 🔧 Configuration
 
-### Playwright Config
-Key configuration options in `playwright.config.ts`:
+### Playwright Configuration (`playwright.config.ts`)
+
+Key configuration options:
 
 ```typescript
 export default defineConfig({
@@ -206,9 +246,8 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure'
   },
-  
+
   projects: [
-    { name: 'setup', testMatch: '**/auth.setup.ts' },
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
     { name: 'webkit', use: { ...devices['Desktop Safari'] } },
@@ -218,113 +257,170 @@ export default defineConfig({
 });
 ```
 
-### Browser Matrix
-Tests run across multiple browsers and devices:
-- **Desktop**: Chrome, Firefox, Safari
-- **Mobile**: iPhone, Android
-- **Tablet**: iPad Pro
+### Authentication Setup
 
-## 📈 Best Practices
+Tests use pre-configured authentication states stored in `auth/`:
 
-### Test Organization
-- Group related tests in describe blocks
-- Use descriptive test names
-- Keep tests focused and independent
-- Use proper setup/teardown
+- `admin-user.json` - Administrator access
+- `regular-user.json` - Standard user access
 
-### Page Objects
-- Encapsulate page interactions
-- Use meaningful method names
-- Wait for elements properly
-- Handle dynamic content
+Authentication is set up once during global setup and reused across tests for efficiency.
 
-### Data Management
-- Use fixtures for consistent data
-- Clean up test data after runs
-- Generate unique data when needed
-- Avoid hard-coded values
+## 📊 Reporting and Debugging
 
-### Assertions
-- Use specific assertions
-- Verify both positive and negative cases
-- Check for proper error messages
-- Validate accessibility features
+### HTML Reports
 
-## 🐛 Debugging
-
-### Common Issues
-1. **Timeouts**: Increase wait times for slow operations
-2. **Flaky tests**: Add proper waits and retries
-3. **Element not found**: Check selectors and timing
-4. **Auth issues**: Verify test user credentials
-
-### Debug Tools
-- Playwright Inspector: Step through tests
-- Trace Viewer: Analyze test execution
-- Screenshots: Visual verification
-- Console logs: Check for errors
-
-### Troubleshooting Commands
 ```bash
-# Run specific test with debug
-npx playwright test authentication.spec.ts --debug
-
-# Generate trace
-npx playwright test --trace on
-
-# Show trace viewer
-npx playwright show-trace trace.zip
+# Generate and view HTML report
+npm run test:report
 ```
 
-## 📋 Test Reports
+### Debug Mode
 
-Tests generate comprehensive reports:
-- HTML report with screenshots
-- JUnit XML for CI integration
-- JSON results for programmatic access
-- Trace files for detailed analysis
+```bash
+# Run in debug mode with browser open
+npm run test:debug
 
-## 🚀 CI/CD Integration
+# Run specific test in debug mode
+npx playwright test student-journey.e2e.ts --debug
+```
 
-### GitHub Actions
-The tests are configured to run in CI with:
-- Multiple browser testing
-- Screenshot and video capture
-- Test result artifacts
-- Parallel execution
+### Trace Viewer
+
+```bash
+# Run with trace collection
+npm run test:trace
+
+# View traces for failed tests
+npx playwright show-trace test-results/[test-name]/trace.zip
+```
+
+### Screenshots and Videos
+
+Failed tests automatically capture:
+- Screenshots at point of failure
+- Video recordings of the entire test
+- Browser traces for debugging
+
+## 🚨 Troubleshooting
+
+### Common Issues
+
+1. **Tests timing out**
+   ```bash
+   # Increase timeout in config or specific tests
+   test.setTimeout(60000); // 60 seconds
+   ```
+
+2. **Authentication failures**
+   ```bash
+   # Clear auth state and regenerate
+   rm -rf tests/e2e/auth/
+   npm test -- --project=setup
+   ```
+
+3. **Visual regression failures**
+   ```bash
+   # Update screenshots after UI changes
+   npm run test:update-snapshots
+   ```
+
+4. **Browser installation issues**
+   ```bash
+   # Reinstall browsers
+   npx playwright install --force
+   ```
 
 ### Environment Variables
-Required for CI:
-- `E2E_TEST_USER_EMAIL`
-- `E2E_TEST_USER_PASSWORD`
-- `E2E_ADMIN_USER_EMAIL`
-- `E2E_ADMIN_USER_PASSWORD`
-- `PLAYWRIGHT_TEST_BASE_URL`
 
-## 📚 Resources
+```bash
+# Set base URL for different environments
+PLAYWRIGHT_BASE_URL=https://staging.jaquedu.com npm test
 
-- [Playwright Documentation](https://playwright.dev/)
-- [Page Object Model Best Practices](https://playwright.dev/docs/pom)
-- [Test Fixtures Guide](https://playwright.dev/docs/test-fixtures)
-- [Accessibility Testing](https://playwright.dev/docs/accessibility-testing)
+# Skip integration tests if backend unavailable
+SKIP_INTEGRATION=true npm test
 
----
+# Enable debug logging
+DEBUG=pw:api npm test
+```
+
+## 🔄 CI/CD Integration
+
+### GitHub Actions Example
+
+```yaml
+name: E2E Tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - run: npm ci
+      - run: npm run setup
+      - run: npm run ci
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: playwright-report
+          path: tests/e2e/reports/
+```
+
+### Docker Support
+
+```dockerfile
+FROM mcr.microsoft.com/playwright:focal
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+CMD ["npm", "test"]
+```
+
+## 📈 Performance Considerations
+
+- Tests run in parallel by default for speed
+- Authentication state is shared to reduce setup time
+- Visual regression tests use image comparison thresholds
+- Network requests can be mocked for consistent testing
+- Test isolation ensures no cross-test contamination
+
+## 🎯 Best Practices
+
+1. **Test Organization**
+   - Group related tests in describe blocks
+   - Use descriptive test names
+   - Keep tests focused and atomic
+
+2. **Selector Strategy**
+   - Prefer `data-testid` attributes
+   - Use semantic selectors when possible
+   - Avoid brittle CSS selectors
+
+3. **Assertions**
+   - Use meaningful assertion messages
+   - Test user-visible behavior
+   - Include positive and negative test cases
+
+4. **Maintenance**
+   - Regular baseline updates for visual tests
+   - Monitor test execution times
+   - Review and update accessibility standards
 
 ## 🤝 Contributing
 
 When adding new tests:
-1. Follow existing patterns and structure
-2. Update page objects as needed
-3. Add appropriate test data fixtures
-4. Include accessibility checks
-5. Test across multiple browsers
-6. Update documentation
 
-## 🏷️ Test Tags
+1. Follow existing test patterns and structure
+2. Include both positive and negative test cases
+3. Add appropriate accessibility checks
+4. Update this documentation for new test categories
+5. Ensure tests pass in all supported browsers
 
-Use test tags for organization:
-- `@smoke` - Critical path tests
-- `@regression` - Full feature tests  
-- `@accessibility` - A11y specific tests
-- `@mobile` - Mobile-specific tests
-- `@admin` - Admin functionality tests
+## 📚 Resources
+
+- [Playwright Documentation](https://playwright.dev/)
+- [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
+- [axe-core Accessibility Testing](https://github.com/dequelabs/axe-core)
+- [Visual Testing Best Practices](https://playwright.dev/docs/test-snapshots)

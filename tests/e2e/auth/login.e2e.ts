@@ -5,8 +5,8 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { LoginPage } from '../page-objects/login-page';
-import { DashboardPage } from '../page-objects/dashboard-page';
+import { LoginPage } from '../pages/login-page';
+import { DashboardPage } from '../pages/dashboard-page';
 import { TEST_CONFIG } from '../../../playwright.config.enhanced';
 
 test.describe('Authentication Flow', () => {

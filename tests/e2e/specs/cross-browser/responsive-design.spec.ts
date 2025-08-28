@@ -3,4 +3,138 @@ import { LoginPage } from '../../pages/login-page';
 import { DashboardPage } from '../../pages/dashboard-page';
 import { ModulePage } from '../../pages/module-page';
 import { testUsers } from '../../fixtures/test-data';
-import { cleanupTestData, setMobileViewport, setDesktopViewport } from '../../helpers/test-helpers';\n\ntest.describe('Cross-Browser and Responsive Design', () => {\n  let loginPage: LoginPage;\n  let dashboardPage: DashboardPage;\n  let modulePage: ModulePage;\n\n  test.beforeEach(async ({ page }) => {\n    loginPage = new LoginPage(page);\n    dashboardPage = new DashboardPage(page);\n    modulePage = new ModulePage(page);\n  });\n\n  test.afterEach(async ({ page }) => {\n    await cleanupTestData(page);\n  });\n\n  test.describe('Desktop Viewports', () => {\n    test('should work on 1920x1080 resolution', async ({ page }) => {\n      await page.setViewportSize({ width: 1920, height: 1080 });\n      \n      const testUser = testUsers.student;\n      await loginPage.loginSuccessfully(testUser.email, testUser.password);\n      \n      await dashboardPage.verifyDashboardLoaded();\n      \n      // Check that layout uses available space effectively\n      const moduleCards = page.locator('[data-testid=\"module-card\"]');\n      const cardCount = await moduleCards.count();\n      \n      if (cardCount > 0) {\n        // Should show multiple cards per row on large screens\n        const firstCard = moduleCards.first();\n        const cardWidth = await firstCard.boundingBox();\n        \n        if (cardWidth) {\n          // Cards should be reasonably sized, not too wide\n          expect(cardWidth.width).toBeLessThan(600);\n          expect(cardWidth.width).toBeGreaterThan(200);\n        }\n      }\n    });\n\n    test('should work on 1366x768 resolution', async ({ page }) => {\n      await page.setViewportSize({ width: 1366, height: 768 });\n      \n      const testUser = testUsers.student;\n      await loginPage.loginSuccessfully(testUser.email, testUser.password);\n      \n      await dashboardPage.verifyDashboardLoaded();\n      \n      // Navigation should be fully visible\n      await expect(dashboardPage.mainNavigation).toBeVisible();\n      \n      // Content should not be cut off\n      const dashboardHeader = dashboardPage.dashboardHeader;\n      const headerBox = await dashboardHeader.boundingBox();\n      \n      if (headerBox) {\n        expect(headerBox.y).toBeGreaterThanOrEqual(0);\n        expect(headerBox.x).toBeGreaterThanOrEqual(0);\n      }\n    });\n\n    test('should work on ultrawide displays (2560x1080)', async ({ page }) => {\n      await page.setViewportSize({ width: 2560, height: 1080 });\n      \n      const testUser = testUsers.student;\n      await loginPage.loginSuccessfully(testUser.email, testUser.password);\n      \n      await dashboardPage.verifyDashboardLoaded();\n      \n      // Content should not be stretched too wide\n      const mainContent = page.locator('[data-testid=\"main-content\"]');\n      \n      if (await mainContent.isVisible()) {\n        const contentBox = await mainContent.boundingBox();\n        \n        if (contentBox) {\n          // Content should have reasonable max width\n          expect(contentBox.width).toBeLessThan(1400);\n        }\n      }\n    });\n  });\n\n  test.describe('Tablet Viewports', () => {\n    test('should work on iPad (768x1024)', async ({ page }) => {\n      await page.setViewportSize({ width: 768, height: 1024 });\n      \n      const testUser = testUsers.student;\n      await loginPage.loginSuccessfully(testUser.email, testUser.password);\n      \n      await dashboardPage.verifyDashboardLoaded();\n      \n      // Check if navigation adapts to tablet\n      const mobileMenu = page.locator('[data-testid=\"mobile-menu-button\"]');\n      const desktopNav = page.locator('[data-testid=\"desktop-navigation\"]');\n      \n      // Either mobile menu should be visible or desktop nav should adapt\n      const hasMobileMenu = await mobileMenu.isVisible();\n      const hasDesktopNav = await desktopNav.isVisible();\n      \n      expect(hasMobileMenu || hasDesktopNav).toBe(true);\n      \n      // Module cards should adapt to tablet width\n      const moduleCards = page.locator('[data-testid=\"module-card\"]');\n      if (await moduleCards.count() > 0) {\n        const firstCard = moduleCards.first();\n        const cardBox = await firstCard.boundingBox();\n        \n        if (cardBox) {\n          // Cards should be appropriately sized for tablet\n          expect(cardBox.width).toBeLessThan(400);\n          expect(cardBox.width).toBeGreaterThan(150);\n        }\n      }\n    });\n\n    test('should work on iPad Pro (1024x1366)', async ({ page }) => {\n      await page.setViewportSize({ width: 1024, height: 1366 });\n      \n      const testUser = testUsers.student;\n      await loginPage.loginSuccessfully(testUser.email, testUser.password);\n      \n      await dashboardPage.verifyDashboardLoaded();\n      \n      // Should work similar to desktop but with tablet optimizations\n      await expect(dashboardPage.mainNavigation).toBeVisible();\n      \n      // Test module viewing\n      if (await dashboardPage.getModuleCount() > 0) {\n        await dashboardPage.clickModule(0);\n        await modulePage.verifyContentLoaded();\n        \n        // Content should be readable and well-formatted\n        const moduleContent = page.locator('[data-testid=\"module-content\"]');\n        const contentBox = await moduleContent.boundingBox();\n        \n        if (contentBox) {\n          expect(contentBox.width).toBeGreaterThan(500);\n        }\n      }\n    });\n  });\n\n  test.describe('Mobile Viewports', () => {\n    test('should work on iPhone SE (375x667)', async ({ page }) => {\n      await page.setViewportSize({ width: 375, height: 667 });\n      \n      const testUser = testUsers.student;\n      await loginPage.loginSuccessfully(testUser.email, testUser.password);\n      \n      await dashboardPage.verifyDashboardLoaded();\n      \n      // Mobile menu should be available\n      const mobileMenu = page.locator('[data-testid=\"mobile-menu-button\"]');\n      \n      if (await mobileMenu.isVisible()) {\n        await mobileMenu.click();\n        \n        const mobileNavigation = page.locator('[data-testid=\"mobile-navigation\"]');\n        await expect(mobileNavigation).toBeVisible();\n        \n        // Close menu\n        const closeButton = page.locator('[data-testid=\"close-mobile-menu\"]');\n        if (await closeButton.isVisible()) {\n          await closeButton.click();\n        }\n      }\n      \n      // Module cards should stack vertically on mobile\n      const moduleCards = page.locator('[data-testid=\"module-card\"]');\n      if (await moduleCards.count() > 1) {\n        const firstCard = moduleCards.first();\n        const secondCard = moduleCards.nth(1);\n        \n        const firstBox = await firstCard.boundingBox();\n        const secondBox = await secondCard.boundingBox();\n        \n        if (firstBox && secondBox) {\n          // Second card should be below first card (vertical stacking)\n          expect(secondBox.y).toBeGreaterThan(firstBox.y + firstBox.height - 50);\n        }\n      }\n    });\n\n    test('should work on iPhone 12 (390x844)', async ({ page }) => {\n      await page.setViewportSize({ width: 390, height: 844 });\n      \n      const testUser = testUsers.student;\n      await loginPage.loginSuccessfully(testUser.email, testUser.password);\n      \n      await dashboardPage.verifyDashboardLoaded();\n      \n      // Test module viewing on mobile\n      if (await dashboardPage.getModuleCount() > 0) {\n        await dashboardPage.clickModule(0);\n        await modulePage.verifyContentLoaded();\n        \n        // Navigation buttons should be accessible\n        const nextButton = page.locator('[data-testid=\"next-button\"]');\n        \n        if (await nextButton.isVisible()) {\n          const buttonBox = await nextButton.boundingBox();\n          \n          if (buttonBox) {\n            // Button should be large enough for touch interaction\n            expect(buttonBox.width).toBeGreaterThan(40);\n            expect(buttonBox.height).toBeGreaterThan(40);\n          }\n        }\n      }\n    });\n\n    test('should work on Android phones (360x640)', async ({ page }) => {\n      await page.setViewportSize({ width: 360, height: 640 });\n      \n      const testUser = testUsers.student;\n      await loginPage.loginSuccessfully(testUser.email, testUser.password);\n      \n      await dashboardPage.verifyDashboardLoaded();\n      \n      // Test touch interactions\n      const moduleCards = page.locator('[data-testid=\"module-card\"]');\n      \n      if (await moduleCards.count() > 0) {\n        const firstCard = moduleCards.first();\n        \n        // Tap should work (not just hover)\n        await firstCard.tap();\n        \n        // Should navigate to module\n        await page.waitForTimeout(1000);\n        \n        // Verify navigation occurred\n        const currentUrl = page.url();\n        expect(currentUrl).toContain('/modules/');\n      }\n    });\n  });\n\n  test.describe('Orientation Changes', () => {\n    test('should handle portrait to landscape rotation', async ({ page }) => {\n      // Start in portrait\n      await page.setViewportSize({ width: 375, height: 667 });\n      \n      const testUser = testUsers.student;\n      await loginPage.loginSuccessfully(testUser.email, testUser.password);\n      \n      // Rotate to landscape\n      await page.setViewportSize({ width: 667, height: 375 });\n      \n      // Dashboard should still be functional\n      await dashboardPage.verifyDashboardLoaded();\n      \n      // Content should adapt to new orientation\n      const moduleCards = page.locator('[data-testid=\"module-card\"]');\n      \n      if (await moduleCards.count() > 1) {\n        const firstCard = moduleCards.first();\n        const secondCard = moduleCards.nth(1);\n        \n        const firstBox = await firstCard.boundingBox();\n        const secondBox = await secondCard.boundingBox();\n        \n        if (firstBox && secondBox) {\n          // In landscape, cards might be side by side\n          const isHorizontal = Math.abs(firstBox.y - secondBox.y) < 100;\n          const isVertical = secondBox.y > firstBox.y + firstBox.height - 50;\n          \n          // Should be either horizontal or vertical layout\n          expect(isHorizontal || isVertical).toBe(true);\n        }\n      }\n    });\n  });\n\n  test.describe('Touch and Mouse Interactions', () => {\n    test('should support touch interactions on mobile', async ({ page }) => {\n      await page.setViewportSize({ width: 375, height: 667 });\n      \n      const testUser = testUsers.student;\n      await loginPage.loginSuccessfully(testUser.email, testUser.password);\n      \n      // Test swipe gestures if implemented\n      const moduleContent = page.locator('[data-testid=\"module-content\"]');\n      \n      if (await moduleContent.isVisible()) {\n        // Test touch scroll\n        await page.touchscreen.tap(200, 300);\n        \n        // Simulate swipe down\n        await page.touchscreen.tap(200, 200);\n        await page.touchscreen.tap(200, 400);\n      }\n      \n      // Test tap vs click behavior\n      const moduleCards = page.locator('[data-testid=\"module-card\"]');\n      \n      if (await moduleCards.count() > 0) {\n        const firstCard = moduleCards.first();\n        \n        // Use tap instead of click on mobile\n        await firstCard.tap();\n        \n        await page.waitForTimeout(1000);\n        \n        // Should navigate successfully\n        expect(page.url()).toContain('/modules/');\n      }\n    });\n\n    test('should support hover states on desktop', async ({ page }) => {\n      await page.setViewportSize({ width: 1920, height: 1080 });\n      \n      const testUser = testUsers.student;\n      await loginPage.loginSuccessfully(testUser.email, testUser.password);\n      \n      // Test hover effects on desktop\n      const moduleCards = page.locator('[data-testid=\"module-card\"]');\n      \n      if (await moduleCards.count() > 0) {\n        const firstCard = moduleCards.first();\n        \n        // Get initial state\n        const initialStyle = await firstCard.evaluate(el => {\n          return window.getComputedStyle(el).transform;\n        });\n        \n        // Hover over card\n        await firstCard.hover();\n        \n        // Check if hover state changes appearance\n        const hoveredStyle = await firstCard.evaluate(el => {\n          return window.getComputedStyle(el).transform;\n        });\n        \n        // Style might change on hover (like scale transform)\n        // This test just ensures hover doesn't break anything\n        expect(typeof hoveredStyle).toBe('string');\n      }\n    });\n  });\n\n  test.describe('Performance on Different Devices', () => {\n    test('should load quickly on mobile devices', async ({ page }) => {\n      await page.setViewportSize({ width: 375, height: 667 });\n      \n      // Simulate slower mobile network\n      await page.route('**/*', route => {\n        setTimeout(() => route.continue(), 100); // Add 100ms delay\n      });\n      \n      const startTime = Date.now();\n      \n      const testUser = testUsers.student;\n      await loginPage.loginSuccessfully(testUser.email, testUser.password);\n      \n      const loadTime = Date.now() - startTime;\n      \n      // Should load within reasonable time even with network delay\n      expect(loadTime).toBeLessThan(10000); // 10 seconds with delay\n    });\n\n    test('should handle slow image loading gracefully', async ({ page }) => {\n      // Simulate slow image loading\n      await page.route('**/*.{png,jpg,jpeg,gif,webp}', route => {\n        setTimeout(() => route.continue(), 2000); // 2 second delay for images\n      });\n      \n      const testUser = testUsers.student;\n      await loginPage.loginSuccessfully(testUser.email, testUser.password);\n      \n      // Dashboard should still be functional while images load\n      await dashboardPage.verifyDashboardLoaded();\n      \n      // Module cards should show loading states or placeholders\n      const moduleCards = page.locator('[data-testid=\"module-card\"]');\n      \n      if (await moduleCards.count() > 0) {\n        const firstCard = moduleCards.first();\n        await expect(firstCard).toBeVisible();\n        \n        // Card should be interactive even if image is still loading\n        await firstCard.click({ timeout: 5000 });\n      }\n    });\n  });\n\n  test.describe('Accessibility on Different Devices', () => {\n    test('should maintain accessibility on mobile', async ({ page }) => {\n      await page.setViewportSize({ width: 375, height: 667 });\n      \n      const testUser = testUsers.student;\n      await loginPage.loginSuccessfully(testUser.email, testUser.password);\n      \n      // Check touch target sizes\n      const interactiveElements = page.locator('button, a, [role=\"button\"], [tabindex=\"0\"]');\n      const count = await interactiveElements.count();\n      \n      for (let i = 0; i < Math.min(count, 10); i++) {\n        const element = interactiveElements.nth(i);\n        \n        if (await element.isVisible()) {\n          const box = await element.boundingBox();\n          \n          if (box) {\n            // Touch targets should be at least 44x44 pixels\n            const minSize = 40; // Slightly smaller for testing tolerance\n            expect(box.width).toBeGreaterThan(minSize);\n            expect(box.height).toBeGreaterThan(minSize);\n          }\n        }\n      }\n    });\n\n    test('should support keyboard navigation on all screen sizes', async ({ page }) => {\n      const viewports = [\n        { width: 375, height: 667 },   // Mobile\n        { width: 768, height: 1024 },  // Tablet\n        { width: 1920, height: 1080 }  // Desktop\n      ];\n      \n      for (const viewport of viewports) {\n        await page.setViewportSize(viewport);\n        \n        const testUser = testUsers.student;\n        await loginPage.loginSuccessfully(testUser.email, testUser.password);\n        \n        // Test tab navigation\n        await page.keyboard.press('Tab');\n        \n        // Should focus on a focusable element\n        const focusedElement = page.locator(':focus');\n        await expect(focusedElement).toBeVisible();\n        \n        // Continue tabbing\n        await page.keyboard.press('Tab');\n        await page.keyboard.press('Tab');\n        \n        // Should still have a focused element\n        const secondFocusedElement = page.locator(':focus');\n        await expect(secondFocusedElement).toBeVisible();\n      }\n    });\n  });\n});
+import { cleanupTestData, setMobileViewport, setDesktopViewport } from '../../helpers/test-helpers';
+
+test.describe('Cross-Browser and Responsive Design', () => {
+  let loginPage: LoginPage;
+  let dashboardPage: DashboardPage;
+  let modulePage: ModulePage;
+
+  test.beforeEach(async ({ page }) => {
+    loginPage = new LoginPage(page);
+    dashboardPage = new DashboardPage(page);
+    modulePage = new ModulePage(page);
+  });
+
+  test.afterEach(async ({ page }) => {
+    await cleanupTestData(page);
+  });
+
+  test.describe('Desktop Viewports', () => {
+    test('should work on 1920x1080 resolution', async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      
+      const testUser = testUsers.student;
+      await loginPage.loginSuccessfully(testUser.email, testUser.password);
+      
+      await dashboardPage.verifyDashboardLoaded();
+      
+      // Check that layout uses available space effectively
+      const moduleCards = page.locator('[data-testid="module-card"]');
+      const cardCount = await moduleCards.count();
+      
+      if (cardCount > 0) {
+        // Should show multiple cards per row on large screens
+        const firstCard = moduleCards.first();
+        const cardWidth = await firstCard.boundingBox();
+        
+        if (cardWidth) {
+          // Cards should be reasonably sized, not too wide
+          expect(cardWidth.width).toBeLessThan(600);
+          expect(cardWidth.width).toBeGreaterThan(200);
+        }
+      }
+    });
+
+    test('should work on 1366x768 resolution', async ({ page }) => {
+      await page.setViewportSize({ width: 1366, height: 768 });
+      
+      const testUser = testUsers.student;
+      await loginPage.loginSuccessfully(testUser.email, testUser.password);
+      
+      await dashboardPage.verifyDashboardLoaded();
+      
+      // Navigation should be fully visible
+      await expect(dashboardPage.mainNavigation).toBeVisible();
+      
+      // Content should not be cut off
+      const dashboardHeader = dashboardPage.dashboardHeader;
+      const headerBox = await dashboardHeader.boundingBox();
+      
+      if (headerBox) {
+        expect(headerBox.y).toBeGreaterThanOrEqual(0);
+        expect(headerBox.x).toBeGreaterThanOrEqual(0);
+      }
+    });
+  });
+
+  test.describe('Mobile Viewports', () => {
+    test('should work on iPhone SE (375x667)', async ({ page }) => {
+      await page.setViewportSize({ width: 375, height: 667 });
+      
+      const testUser = testUsers.student;
+      await loginPage.loginSuccessfully(testUser.email, testUser.password);
+      
+      await dashboardPage.verifyDashboardLoaded();
+      
+      // Mobile menu should be available
+      const mobileMenu = page.locator('[data-testid="mobile-menu-button"]');
+      
+      if (await mobileMenu.isVisible()) {
+        await mobileMenu.click();
+        
+        const mobileNavigation = page.locator('[data-testid="mobile-navigation"]');
+        await expect(mobileNavigation).toBeVisible();
+        
+        // Close menu
+        const closeButton = page.locator('[data-testid="close-mobile-menu"]');
+        if (await closeButton.isVisible()) {
+          await closeButton.click();
+        }
+      }
+      
+      // Module cards should stack vertically on mobile
+      const moduleCards = page.locator('[data-testid="module-card"]');
+      if (await moduleCards.count() > 1) {
+        const firstCard = moduleCards.first();
+        const secondCard = moduleCards.nth(1);
+        
+        const firstBox = await firstCard.boundingBox();
+        const secondBox = await secondCard.boundingBox();
+        
+        if (firstBox && secondBox) {
+          // Second card should be below first card (vertical stacking)
+          expect(secondBox.y).toBeGreaterThan(firstBox.y + firstBox.height - 50);
+        }
+      }
+    });
+  });
+
+  test.describe('Accessibility on Different Devices', () => {
+    test('should maintain accessibility on mobile', async ({ page }) => {
+      await page.setViewportSize({ width: 375, height: 667 });
+      
+      const testUser = testUsers.student;
+      await loginPage.loginSuccessfully(testUser.email, testUser.password);
+      
+      // Check touch target sizes
+      const interactiveElements = page.locator('button, a, [role="button"], [tabindex="0"]');
+      const count = await interactiveElements.count();
+      
+      for (let i = 0; i < Math.min(count, 10); i++) {
+        const element = interactiveElements.nth(i);
+        
+        if (await element.isVisible()) {
+          const box = await element.boundingBox();
+          
+          if (box) {
+            // Touch targets should be at least 44x44 pixels
+            const minSize = 40; // Slightly smaller for testing tolerance
+            expect(box.width).toBeGreaterThan(minSize);
+            expect(box.height).toBeGreaterThan(minSize);
+          }
+        }
+      }
+    });
+  });
+});

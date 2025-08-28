@@ -1,5 +1,13 @@
 import React from 'react';
-import { Handle, Position } from 'reactflow';
+import { Handle } from 'reactflow';
+
+// Manual import for Position to work around TypeScript issue
+const Position = {
+  Left: 'left' as const,
+  Top: 'top' as const,
+  Right: 'right' as const,
+  Bottom: 'bottom' as const
+};
 
 interface ModuleSector {
   id: string;

@@ -43,9 +43,10 @@ jest.mock('./pages/Dashboard', () => {
 jest.mock('./pages/ModulePage', () => {
   return function ModulePage() { return <div data-testid="module-page">Module Page</div>; };
 });
-jest.mock('./pages/MiniMapDemo', () => {
-  return function MiniMapDemo() { return <div data-testid="minimap-demo">MiniMap Demo</div>; };
-});
+// MiniMapDemo component has been removed
+// jest.mock('./pages/MiniMapDemo', () => {
+//   return function MiniMapDemo() { return <div data-testid="minimap-demo">MiniMap Demo</div>; };
+// });
 jest.mock('./pages/AIDemo', () => {
   return function AIDemo() { return <div data-testid="ai-demo">AI Demo</div>; };
 });

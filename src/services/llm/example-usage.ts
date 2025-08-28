@@ -91,55 +91,70 @@ async function generateJungianModule() {
  * Example: Generate adaptive quiz questions based on performance
  */
 async function generateAdaptiveQuiz() {
-  const { QuizGenerator } = await import('./generators/quiz-generator');
-  const { MockLLMProvider } = await import('./provider');
-  
-  const provider = new MockLLMProvider();
-  const quizGen = new QuizGenerator(provider);
+  try {
+    const { QuizGenerator } = await import('./generators/quiz-generator');
+    const { MockLLMProvider } = await import('./providers/mock');
+    
+    const provider = new MockLLMProvider();
+    const quizGen = new QuizGenerator(provider);
 
-  // Simulate previous responses
-  const previousResponses = [
-    { correct: true, difficulty: 'easy' },
-    { correct: true, difficulty: 'easy' },
-    { correct: false, difficulty: 'medium' },
-    { correct: true, difficulty: 'medium' },
-  ];
+    // Simulate previous responses
+    const previousResponses = [
+      { correct: true, difficulty: 'easy' },
+      { correct: true, difficulty: 'easy' },
+      { correct: false, difficulty: 'medium' },
+      { correct: true, difficulty: 'medium' },
+    ];
 
-  const adaptiveQuestions = await quizGen.generateAdaptiveQuestions(
-    'Individuation Process',
-    previousResponses,
-    3
-  );
+    const adaptiveQuestions = await quizGen.generateAdaptiveQuestions(
+      'Individuation Process',
+      previousResponses,
+      3
+    );
 
-  console.log('Generated adaptive questions:', adaptiveQuestions);
+    console.log('Generated adaptive questions:', adaptiveQuestions);
+  } catch (error) {
+    console.error('Adaptive quiz generation failed:', error);
+  }
 }
 
 /**
  * Example: Generate specific practice questions
  */
 async function generatePracticeQuestions() {
-  const { QuizGenerator } = await import('./generators/quiz-generator');
-  const { MockLLMProvider } = await import('./provider');
-  
-  const provider = new MockLLMProvider();
-  const quizGen = new QuizGenerator(provider);
+  try {
+    const { QuizGenerator } = await import('./generators/quiz-generator');
+    const { MockLLMProvider } = await import('./providers/mock');
+    
+    const provider = new MockLLMProvider();
+    const quizGen = new QuizGenerator(provider);
 
-  const practiceQuestions = await quizGen.generatePracticeQuestions(
-    'Psychological Types',
-    'Introversion vs Extraversion',
-    5
-  );
+    const practiceQuestions = await quizGen.generatePracticeQuestions(
+      'Psychological Types',
+      'Introversion vs Extraversion',
+      5
+    );
 
-  console.log('Practice questions generated:', practiceQuestions.length);
-  practiceQuestions.forEach((q, i) => {
-    console.log(`\nQ${i + 1}: ${q.question}`);
-    if (q.options) {
-      q.options.forEach((opt: any, j: number) => {
-        console.log(`  ${String.fromCharCode(65 + j)}. ${opt.text}`);
-      });
-    }
-  });
+    console.log('Practice questions generated:', practiceQuestions.length);
+    practiceQuestions.forEach((q, i) => {
+      console.log(`\nQ${i + 1}: ${q.question}`);
+      if (q.options) {
+        q.options.forEach((opt: any, j: number) => {
+          console.log(`  ${String.fromCharCode(65 + j)}. ${opt.text}`);
+        });
+      }
+    });
+  } catch (error) {
+    console.error('Practice questions generation failed:', error);
+  }
 }
+
+// Export functions for testing
+export {
+  generateJungianModule,
+  generateAdaptiveQuiz,
+  generatePracticeQuestions
+};
 
 // Run examples
 if (require.main === module) {
