@@ -27,7 +27,11 @@ module.exports = {
   modulePaths: [],
   moduleNameMapper: {
     '^react-native$': 'react-native-web',
-    '^.+\\.module\\.(css|sass|scss)$': 'identity-obj-proxy'
+    '^.+\\.module\\.(css|sass|scss)$': 'identity-obj-proxy',
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '^react-markdown$': '<rootDir>/src/__mocks__/react-markdown.tsx',
+    '^remark-gfm$': '<rootDir>/src/__mocks__/remark-gfm.ts',
+    '^axios$': '<rootDir>/src/__mocks__/axios.ts'
   },
   moduleFileExtensions: [
     'web.js',

@@ -41,6 +41,14 @@ export class MockLLMProvider implements ILLMProvider {
       return this.generateMockQuizQuestions(prompt) as unknown as T;
     } else if (prompt.includes('quiz') && (prompt.includes('questions') || prompt.includes('question'))) {
       return this.generateMockQuizQuestions(prompt) as unknown as T;
+    } else if (prompt.includes('Create comprehensive educational content') || prompt.includes('educational content')) {
+      return this.generateMockContent(prompt) as unknown as T;
+    } else if (prompt.includes('Recommend') && prompt.includes('videos')) {
+      return this.generateMockVideos(prompt) as unknown as T;
+    } else if (prompt.includes('bibliography') || prompt.includes('sources')) {
+      return this.generateMockBibliography(prompt) as unknown as T;
+    } else if (prompt.includes('films') && prompt.includes('Recommend')) {
+      return this.generateMockFilmReferences(prompt) as unknown as T;
     }
 
     // Default mock response
@@ -61,8 +69,18 @@ export class MockLLMProvider implements ILLMProvider {
     // Sanitize malicious content
     const sanitizedPrompt = this.sanitizeInput(prompt);
     
-    // Handle mind map patterns - return different responses based on the prompt
-    if (sanitizedPrompt.toLowerCase().includes('mind map')) {
+    // Handle specific prompt patterns first
+    if (prompt.toLowerCase().includes('title')) {
+      return 'Introduction to Jungian Psychology';
+    } else if (prompt.toLowerCase().includes('description')) {
+      return 'This module explores the fundamental concepts of Carl Jung\'s analytical psychology.';
+    } else if (prompt.toLowerCase().includes('tags')) {
+      return 'psychology,jung,analytical,unconscious,archetypes';
+    } else if (prompt.toLowerCase().includes('learning objectives')) {
+      return 'Understand the collective unconscious\nIdentify major archetypes\nApply individuation process';
+    } else if (prompt.toLowerCase().includes('prerequisites')) {
+      return 'Basic understanding of psychology\nFamiliarity with psychoanalytic concepts';
+    } else if (prompt.toLowerCase().includes('mind map')) {
       // If the original prompt was for testing patterns, include it in response
       if (prompt === 'mind map generation') {
         return 'Mock response for: ' + prompt;
@@ -223,5 +241,120 @@ export class MockLLMProvider implements ILLMProvider {
       // Add space after each chunk to match expected output
       onChunk(chunk + ' ');
     }
+  }
+
+  private generateMockContent(prompt: string): any {
+    // Extract topic from prompt
+    const topicMatch = prompt.match(/about (.+?) in Jungian psychology/);
+    const topic = topicMatch ? topicMatch[1] : 'Jungian Psychology';
+
+    return {
+      introduction: `This module explores the fundamental concepts of ${topic} within Carl Jung's analytical psychology. Students will gain a comprehensive understanding of the theoretical foundations and practical applications of these important psychological concepts.`,
+      sections: [
+        {
+          id: 'section-1',
+          title: `Introduction to ${topic}`,
+          content: `Overview and historical context of ${topic} in Jungian thought.`,
+          duration: 15,
+          objectives: [`Understand the basic concepts of ${topic}`]
+        },
+        {
+          id: 'section-2', 
+          title: 'Theoretical Framework',
+          content: `Deep dive into the theoretical aspects and mechanisms underlying ${topic}.`,
+          duration: 20,
+          objectives: ['Analyze theoretical components', 'Identify key principles']
+        },
+        {
+          id: 'section-3',
+          title: 'Practical Applications',
+          content: `Explore how ${topic} manifests in therapy and personal development.`,
+          duration: 15,
+          objectives: ['Apply concepts to real situations', 'Recognize practical implications']
+        }
+      ],
+      keyTerms: [
+        { term: topic, definition: `Core concept in Jungian psychology related to ${topic}` },
+        { term: 'Analytical Psychology', definition: 'Jung\'s approach to understanding the human psyche' },
+        { term: 'Individuation', definition: 'The process of integrating conscious and unconscious aspects of the psyche' }
+      ],
+      summary: `This module provided a comprehensive overview of ${topic}, examining its theoretical foundations, practical applications, and significance within the broader framework of analytical psychology.`
+    };
+  }
+
+  private generateMockVideos(prompt: string): any[] {
+    const topicMatch = prompt.match(/about (.+?) in Jungian psychology/);
+    const topic = topicMatch ? topicMatch[1] : 'Jungian Psychology';
+
+    return [
+      {
+        id: 'video-1',
+        title: `Understanding ${topic}: A Jungian Perspective`,
+        description: `An introductory video exploring the basics of ${topic} in analytical psychology.`,
+        url: `https://example.com/video-${topic.toLowerCase().replace(/\s+/g, '-')}`,
+        duration: '12:30',
+        relevance: `Provides foundational understanding of ${topic} concepts`
+      },
+      {
+        id: 'video-2',
+        title: `${topic} in Clinical Practice`,
+        description: `Real-world applications and case studies demonstrating ${topic} in therapeutic settings.`,
+        url: `https://example.com/video-${topic.toLowerCase().replace(/\s+/g, '-')}-clinical`,
+        duration: '18:45',
+        relevance: `Shows practical applications of ${topic} in therapy`
+      }
+    ];
+  }
+
+  private generateMockBibliography(prompt: string): any[] {
+    const topicMatch = prompt.match(/studying (.+?) in Jungian psychology/);
+    const topic = topicMatch ? topicMatch[1] : 'Jungian Psychology';
+
+    return [
+      {
+        id: 'ref-1',
+        type: 'book',
+        title: `The Psychology of ${topic}`,
+        author: 'Carl Gustav Jung',
+        year: 1968,
+        publisher: 'Princeton University Press',
+        relevance: `Jung's original writings on ${topic}`
+      },
+      {
+        id: 'ref-2',
+        type: 'article',
+        title: `Modern Perspectives on ${topic}`,
+        author: 'Marie-Louise von Franz',
+        journal: 'Journal of Analytical Psychology',
+        year: 1985,
+        volume: 30,
+        pages: '123-145',
+        relevance: `Contemporary analysis of ${topic} concepts`
+      }
+    ];
+  }
+
+  private generateMockFilmReferences(prompt: string): any[] {
+    const topicMatch = prompt.match(/relate to (.+?) in Jungian psychology/);
+    const topic = topicMatch ? topicMatch[1] : 'Jungian Psychology';
+
+    return [
+      {
+        id: 'film-1',
+        title: 'The Matrix',
+        year: 1999,
+        director: 'The Wachowskis',
+        connection: `Explores themes related to ${topic} through the concept of awakening to hidden realities and psychological transformation.`,
+        relevance: `Demonstrates key aspects of ${topic} in popular culture`
+      },
+      {
+        id: 'film-2',
+        title: 'Black Swan',
+        year: 2010,
+        director: 'Darren Aronofsky',
+        connection: `Illustrates psychological concepts related to ${topic} through the protagonist's journey of self-discovery and transformation.`,
+        relevance: `Shows psychological processes connected to ${topic}`
+      }
+    ];
   }
 }

@@ -182,7 +182,12 @@ export class ModuleGenerator {
 
   private async reportProgress(stage: GenerationStage, progress: number, message: string, details?: any) {
     if (this.progressCallback) {
-      this.progressCallback({ stage, progress, message, details });
+      try {
+        this.progressCallback({ stage, progress, message, details });
+      } catch (error) {
+        // Log progress callback errors but don't fail the generation
+        console.warn('Progress callback error:', error);
+      }
     }
   }
 
@@ -193,7 +198,7 @@ export class ModuleGenerator {
       maxTokens: 50,
       temperature: 0.7
     });
-    return response.content;
+    return response?.content || '';
   }
 
   private async generateDescription(options: GenerationOptions): Promise<string> {
@@ -203,7 +208,7 @@ export class ModuleGenerator {
       maxTokens: 150,
       temperature: 0.7
     });
-    return response.content;
+    return response?.content || '';
   }
 
   private async generateTags(options: GenerationOptions): Promise<string[]> {
@@ -214,7 +219,7 @@ export class ModuleGenerator {
       temperature: 0.5
     });
 
-    return response.content.split(',').map(tag => tag.trim());
+    return response?.content?.split(',').map(tag => tag.trim()) || ['psychology', 'jung', 'analytical'];
   }
 
   private async generateContent(options: GenerationOptions): Promise<any> {
@@ -258,7 +263,7 @@ Format the response as a structured JSON object matching the ModuleContent schem
   private async generateQuiz(options: GenerationOptions, content: any): Promise<any> {
     const prompt = `Create a quiz based on the following educational content about ${options.topic}.
 
-Content summary: ${content.introduction}
+Content summary: ${content?.introduction || content?.summary || `Educational content about ${options.topic}`}
 
 Generate 5-10 questions of varying types (multiple choice, true/false, open-ended) that test understanding of the key concepts. Include explanations for each answer.
 
@@ -357,9 +362,24 @@ Difficulty level: ${options.difficulty}`;
       module.prerequisites = await this.generatePrerequisites(module);
     }
 
-    // Update metadata
-    module.metadata.updatedAt = new Date().toISOString();
-    module.metadata.status = ModuleStatus.REVIEW;
+    // Update metadata - ensure it exists
+    if (!module.metadata) {
+      module.metadata = {
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        version: '1.0.0',
+        status: ModuleStatus.REVIEW,
+        language: 'en',
+        author: {
+          id: 'ai-generator',
+          name: 'AI Module Generator',
+          role: 'content_creator'
+        }
+      };
+    } else {
+      module.metadata.updatedAt = new Date().toISOString();
+      module.metadata.status = ModuleStatus.REVIEW;
+    }
 
     return module;
   }
@@ -372,7 +392,7 @@ Difficulty level: ${options.difficulty}`;
       temperature: 0.6
     });
 
-    return response.content.split('\n').filter(obj => obj.trim().length > 0);
+    return response?.content?.split('\n').filter(obj => obj.trim().length > 0) || [];
   }
 
   private async generatePrerequisites(module: EducationalModule): Promise<string[]> {
@@ -387,7 +407,7 @@ Difficulty level: ${options.difficulty}`;
       temperature: 0.6
     });
 
-    return response.content.split('\n').filter(prereq => prereq.trim().length > 0);
+    return response?.content?.split('\n').filter(prereq => prereq.trim().length > 0) || [];
   }
 
   private estimateTime(targetMinutes?: number): { hours: number; minutes: number; description?: string } {

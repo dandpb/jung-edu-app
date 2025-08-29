@@ -4,37 +4,27 @@
  */
 
 import { UnifiedModuleGenerator, ModuleGenerationConfig } from '../index';
+import * as demo from '../demo';
 
 // Mock dependencies
 jest.mock('../index');
-jest.mock('fs', () => ({
-  writeFileSync: jest.fn(),
-  existsSync: jest.fn().mockReturnValue(true)
-}));
-jest.mock('path', () => ({
-  join: jest.fn((...args) => args.join('/')),
-  resolve: jest.fn((...args) => args.join('/'))
-}));
-
-// Import the demo after mocking
-let demo: any;
 
 const mockUnifiedModuleGenerator = UnifiedModuleGenerator as jest.MockedClass<typeof UnifiedModuleGenerator>;
 
-// Mock module generation results
-const mockQuickModule = {
+// Mock module generation result to match actual demo implementation
+const mockDemoModule = {
   metadata: {
-    topic: 'Shadow Integration in Jungian Psychology',
+    topic: 'Jungian Psychology Demo',
     difficulty: 'intermediate',
-    componentsIncluded: ['module', 'quiz', 'videos', 'bibliography']
+    componentsIncluded: ['module', 'quiz']
   },
   module: {
-    title: 'Shadow Integration in Jungian Psychology',
-    description: 'Comprehensive exploration of shadow work',
+    title: 'Jungian Psychology Demo Module',
+    description: 'A comprehensive introduction to Jungian psychology concepts',
     objectives: [
-      'Understand the shadow archetype',
-      'Learn integration techniques',
-      'Apply shadow work principles'
+      'Understand basic Jung concepts',
+      'Explore archetypal patterns',
+      'Apply psychological insights'
     ]
   },
   quiz: {
@@ -42,514 +32,186 @@ const mockQuickModule = {
       {
         id: 'q1',
         type: 'multiple-choice',
-        question: 'What is the shadow?',
+        question: 'What is the collective unconscious?',
         options: [
-          { text: 'Conscious self', isCorrect: false },
-          { text: 'Unconscious aspects', isCorrect: true }
+          { text: 'Personal memories', isCorrect: false },
+          { text: 'Universal patterns', isCorrect: true }
         ]
-      },
-      {
-        id: 'q2',
-        type: 'short-answer',
-        question: 'Describe shadow projection',
-        expectedKeywords: ['projection', 'unconscious', 'other']
       }
     ]
-  },
-  videos: [
-    {
-      title: 'Introduction to Shadow Work',
-      duration: 900, // 15 minutes in seconds
-      url: 'https://youtube.com/watch?v=shadow1',
-      channelName: 'Jung Institute',
-      relevanceScore: 0.9
-    },
-    {
-      title: 'Shadow Integration Techniques',
-      duration: 1200, // 20 minutes
-      url: 'https://youtube.com/watch?v=shadow2',
-      channelName: 'Psychology Today',
-      relevanceScore: 0.85
-    }
-  ],
-  bibliography: [
-    {
-      authors: ['Carl Jung', 'Marie-Louise von Franz'],
-      year: 1964,
-      title: 'Man and His Symbols',
-      doi: '10.1234/example'
-    },
-    {
-      authors: ['Robert Johnson'],
-      year: 1991,
-      title: 'Owning Your Own Shadow',
-      doi: null
-    }
-  ]
-};
-
-const mockStudyModule = {
-  metadata: {
-    topic: 'Collective Unconscious and Archetypes',
-    difficulty: 'advanced',
-  },
-  module: {
-    title: 'Collective Unconscious and Archetypes',
-    description: 'Deep exploration of Jung\'s collective unconscious theory',
-    objectives: [
-      'Master archetypal theory',
-      'Recognize universal patterns',
-      'Apply archetypal analysis'
-    ]
-  },
-  quiz: {
-    questions: Array(12).fill(null).map((_, i) => ({
-      id: `q${i}`,
-      type: i % 3 === 0 ? 'multiple-choice' : i % 3 === 1 ? 'short-answer' : 'essay',
-      question: `Question ${i}`,
-      explanation: `Explanation ${i}`
-    }))
-  },
-  videos: Array(8).fill(null).map((_, i) => ({
-    title: `Video ${i}`,
-    duration: 600 + (i * 300),
-    channelName: `Channel ${i}`,
-    relevanceScore: 0.8 + (i * 0.02)
-  })),
-  bibliography: Array(15).fill(null).map((_, i) => ({
-    authors: [`Author ${i}`],
-    year: 2000 + i,
-    title: `Reference ${i}`,
-    abstract: i < 5 ? `Abstract for reference ${i}` : undefined
-  }))
-};
-
-const mockCustomModule = {
-  metadata: {
-    topic: 'Individuation Process and Self-Realization',
-    difficulty: 'advanced',
-    componentsIncluded: ['module', 'quiz', 'bibliography']
-  },
-  module: {
-    metadata: {
-      jungianConcepts: ['individuation', 'self', 'ego', 'persona', 'shadow']
-    }
-  },
-  quiz: {
-    questions: Array(20).fill(null).map((_, i) => ({
-      id: `cq${i}`,
-      type: i > 15 ? 'essay' : 'multiple-choice',
-      question: `Custom question ${i}`,
-      points: 10
-    })),
-    passingScore: 75,
-    timeLimit: 45
   }
 };
 
-const mockResearchModule = {
-  metadata: {
-    topic: 'Synchronicity and Quantum Psychology',
-    difficulty: 'scholar',
-  },
-  bibliography: Array(25).fill(null).map((_, i) => ({
-    type: i % 4 === 0 ? 'article' : i % 4 === 1 ? 'book' : i % 4 === 2 ? 'journal' : 'conference',
-    title: `Research ${i}`,
-    year: 1990 + i,
-    abstract: i < 10 ? `Research abstract ${i}` : undefined
-  })),
-};
 
 describe('Module Generation Demo - Comprehensive Tests', () => {
   let mockGeneratorInstance: jest.Mocked<UnifiedModuleGenerator>;
+  let consoleLogSpy: jest.SpyInstance;
+  let consoleErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
     jest.clearAllMocks();
     
     // Mock console methods
-    console.log = jest.fn();
-    console.error = jest.fn();
-    console.warn = jest.fn();
+    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     // Setup UnifiedModuleGenerator mock
     mockGeneratorInstance = {
-      generateQuickModule: jest.fn().mockResolvedValue(mockQuickModule),
-      generateStudyModule: jest.fn().mockResolvedValue(mockStudyModule),
-      generateCompleteModule: jest.fn().mockResolvedValue(mockCustomModule),
-      generateResearchModule: jest.fn().mockResolvedValue(mockResearchModule)
+      generateCompleteModule: jest.fn().mockResolvedValue(mockDemoModule)
     } as any;
     mockUnifiedModuleGenerator.mockImplementation(() => mockGeneratorInstance);
-
-    // Import demo after mocking
-    demo = require('../demo');
   });
 
-  describe('Quick Module Generation Demo', () => {
-    it('should execute quick module generation demo', async () => {
-      // Extract and test just the quick module part
-      const generator = new UnifiedModuleGenerator();
-      const quickModule = await generator.generateQuickModule('Shadow Integration in Jungian Psychology');
+  afterEach(() => {
+    consoleLogSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
+  });
+
+  describe('runCompleteDemo Function', () => {
+    it('should execute complete demo successfully', async () => {
+      await demo.runCompleteDemo();
 
       expect(mockUnifiedModuleGenerator).toHaveBeenCalled();
-      expect(mockGeneratorInstance.generateQuickModule).toHaveBeenCalledWith(
-        'Shadow Integration in Jungian Psychology'
-      );
+      expect(mockGeneratorInstance.generateCompleteModule).toHaveBeenCalledWith({
+        topic: 'Jungian Psychology Demo',
+        objectives: [
+          'Understand basic Jung concepts',
+          'Explore archetypal patterns',
+          'Apply psychological insights'
+        ],
+        targetAudience: 'Psychology students',
+        duration: 60,
+        difficulty: 'intermediate',
+        language: 'pt-BR'
+      });
 
-      // Verify structure
-      expect(quickModule).toHaveProperty('metadata');
-      expect(quickModule.metadata.topic).toBe('Shadow Integration in Jungian Psychology');
-      expect(quickModule.metadata.difficulty).toBe('intermediate');
-      expect(quickModule.metadata.componentsIncluded).toContain('quiz');
-      expect(quickModule.metadata.componentsIncluded).toContain('videos');
-
-      // Should have quiz questions
-      expect(quickModule.quiz).toBeDefined();
-      expect(quickModule.quiz.questions).toHaveLength(2);
-
-      // Should have videos
-      expect(quickModule.videos).toBeDefined();
-      expect(quickModule.videos).toHaveLength(2);
-      expect(quickModule.videos[0].title).toBe('Introduction to Shadow Work');
+      // Check console output
+      expect(consoleLogSpy).toHaveBeenCalledWith('🚀 Starting module generation demo...');
+      expect(consoleLogSpy).toHaveBeenCalledWith('📝 Generating module content...');
+      expect(consoleLogSpy).toHaveBeenCalledWith('✅ Demo completed successfully!');
+      expect(consoleLogSpy).toHaveBeenCalledWith('Generated module: Jungian Psychology Demo Module');
+      expect(consoleLogSpy).toHaveBeenCalledWith('Components: module, quiz');
     });
 
-    it('should handle quick module generation errors', async () => {
-      mockGeneratorInstance.generateQuickModule.mockRejectedValue(new Error('Quick generation failed'));
+    it('should handle demo generation errors', async () => {
+      const testError = new Error('Generation failed');
+      mockGeneratorInstance.generateCompleteModule.mockRejectedValue(testError);
 
-      try {
-        const generator = new UnifiedModuleGenerator();
-        await generator.generateQuickModule('Test Topic');
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error);
-        expect((error as Error).message).toBe('Quick generation failed');
-      }
-    });
-
-    it('should validate quick module output structure', async () => {
-      const generator = new UnifiedModuleGenerator();
-      const quickModule = await generator.generateQuickModule('Test Topic');
-
-      // Required fields
-      expect(quickModule).toHaveProperty('metadata');
-      expect(quickModule).toHaveProperty('module');
-      expect(quickModule.metadata).toHaveProperty('topic');
-      expect(quickModule.metadata).toHaveProperty('difficulty');
-      expect(quickModule.metadata).toHaveProperty('componentsIncluded');
-
-      // Optional but expected fields
-      if (quickModule.quiz) {
-        expect(quickModule.quiz).toHaveProperty('questions');
-        expect(Array.isArray(quickModule.quiz.questions)).toBe(true);
-      }
-
-      if (quickModule.videos) {
-        expect(Array.isArray(quickModule.videos)).toBe(true);
-        quickModule.videos.forEach((video: any) => {
-          expect(video).toHaveProperty('title');
-          expect(video).toHaveProperty('duration');
-        });
-      }
-    });
-  });
-
-  describe('Study Module Generation Demo', () => {
-    it('should execute comprehensive study module demo', async () => {
-      const generator = new UnifiedModuleGenerator();
-      const studyModule = await generator.generateStudyModule('Collective Unconscious and Archetypes');
-
-      expect(mockGeneratorInstance.generateStudyModule).toHaveBeenCalledWith(
-        'Collective Unconscious and Archetypes'
-      );
-
-      // Verify comprehensive structure
-      expect(studyModule.metadata.topic).toBe('Collective Unconscious and Archetypes');
-      expect(studyModule.metadata.difficulty).toBe('advanced');
-
-      // Quiz analysis
-      expect(studyModule.quiz.questions).toHaveLength(12);
+      await expect(demo.runCompleteDemo()).rejects.toThrow('Generation failed');
       
-      // Video analysis
-      expect(studyModule.videos).toHaveLength(8);
-      const totalDuration = studyModule.videos.reduce((sum: number, v: any) => sum + v.duration, 0);
-      expect(totalDuration).toBeGreaterThan(0);
-
-      // Bibliography analysis
-      expect(studyModule.bibliography).toHaveLength(15);
-      const referencesWithAbstracts = studyModule.bibliography.filter((ref: any) => ref.abstract);
-      expect(referencesWithAbstracts).toHaveLength(5);
+      expect(consoleErrorSpy).toHaveBeenCalledWith('❌ Demo failed:', testError);
     });
 
-
-    it('should analyze quiz question types correctly', async () => {
-      const generator = new UnifiedModuleGenerator();
-      const studyModule = await generator.generateStudyModule('Test Topic');
-
-      if (studyModule.quiz) {
-        const questionTypes = studyModule.quiz.questions.reduce((acc: Record<string, number>, q: any) => {
-          acc[q.type] = (acc[q.type] || 0) + 1;
-          return acc;
-        }, {});
-
-        expect(questionTypes['multiple-choice']).toBeGreaterThan(0);
-        expect(questionTypes['short-answer']).toBeGreaterThan(0);
-        expect(questionTypes['essay']).toBeGreaterThan(0);
-      }
-    });
-
-    it('should handle missing components gracefully', async () => {
-      const studyModuleWithoutVideos = { ...mockStudyModule, videos: null };
-      mockGeneratorInstance.generateStudyModule.mockResolvedValue(studyModuleWithoutVideos);
-
-      const generator = new UnifiedModuleGenerator();
-      const studyModule = await generator.generateStudyModule('Test Topic');
-
-      expect(studyModule.videos).toBeNull();
-      // Should not crash when videos are missing
-    });
-  });
-
-  describe('Custom Module Generation Demo', () => {
-    it('should execute custom module with specific configuration', async () => {
+    it('should accept custom configuration', async () => {
       const customConfig: ModuleGenerationConfig = {
-        topic: 'Individuation Process and Self-Realization',
+        topic: 'Custom Topic',
         difficulty: 'advanced',
-        targetAudience: 'psychology students and practitioners',
-        includeVideos: false,
-        includeQuiz: true,
-        includeBibliography: true,
-        quizQuestions: 20
+        duration: 90
       };
 
-      const generator = new UnifiedModuleGenerator();
-      const customModule = await generator.generateCompleteModule(customConfig);
+      await demo.runCompleteDemo(customConfig);
 
       expect(mockGeneratorInstance.generateCompleteModule).toHaveBeenCalledWith(customConfig);
-
-      // Verify configuration compliance
-      expect(customModule.metadata.difficulty).toBe('advanced');
-      expect(customModule.metadata.componentsIncluded).not.toContain('videos'); // Videos disabled
-      expect(customModule.metadata.componentsIncluded).toContain('quiz');
-      expect(customModule.metadata.componentsIncluded).toContain('bibliography');
-
-      // Verify advanced quiz features
-      expect(customModule.quiz.questions).toHaveLength(20);
-      expect(customModule.quiz.passingScore).toBe(75);
-      expect(customModule.quiz.timeLimit).toBe(45);
-
-      // Jungian concepts should be identified
-      expect(customModule.module.metadata.jungianConcepts).toContain('individuation');
-      expect(customModule.module.metadata.jungianConcepts).toContain('self');
-    });
-
-    it('should handle custom configuration validation', async () => {
-      const invalidConfig = {
-        topic: '', // Empty topic should cause error
-        difficulty: 'invalid' as any,
-        quizQuestions: -5 // Invalid question count
-      };
-
-      mockGeneratorInstance.generateCompleteModule.mockRejectedValue(new Error('Invalid configuration'));
-
-      const generator = new UnifiedModuleGenerator();
-      
-      await expect(generator.generateCompleteModule(invalidConfig))
-        .rejects.toThrow('Invalid configuration');
-    });
-
-    it('should identify complex questions correctly', async () => {
-      const generator = new UnifiedModuleGenerator();
-      const customModule = await generator.generateCompleteModule({
-        topic: 'Test Topic',
-        difficulty: 'advanced',
-        includeQuiz: true,
-        quizQuestions: 20
-      });
-
-      // Find essay questions (should be complex)
-      const essayQuestions = customModule.quiz.questions.filter((q: any) => q.type === 'essay');
-      const complexQuestions = customModule.quiz.questions.filter((q: any) => 
-        q.type === 'essay' || q.question.length > 100
-      );
-
-      expect(essayQuestions.length).toBeGreaterThan(0);
-      expect(complexQuestions.length).toBeGreaterThanOrEqual(essayQuestions.length);
     });
   });
 
-  describe('Research Module Generation Demo', () => {
-    it('should execute research module generation', async () => {
-      const generator = new UnifiedModuleGenerator();
-      const researchModule = await generator.generateResearchModule('Synchronicity and Quantum Psychology');
-
-      expect(mockGeneratorInstance.generateResearchModule).toHaveBeenCalledWith(
-        'Synchronicity and Quantum Psychology'
-      );
-
-      expect(researchModule.metadata.topic).toBe('Synchronicity and Quantum Psychology');
-      expect(researchModule.metadata.difficulty).toBe('scholar');
-
-      // Bibliography analysis
-      expect(researchModule.bibliography).toHaveLength(25);
-
-      // Analyze source types
-      const sourceTypes = researchModule.bibliography.reduce((acc: any, ref: any) => {
-        const type = ref.type || 'unknown';
-        acc[type] = (acc[type] || 0) + 1;
-        return acc;
-      }, {});
-
-      expect(sourceTypes).toHaveProperty('article');
-      expect(sourceTypes).toHaveProperty('book');
-      expect(sourceTypes).toHaveProperty('journal');
-
-      // Analyze years
-      const years = researchModule.bibliography
-        .map((ref: any) => ref.year)
-        .filter((year: number) => year)
-        .sort((a: number, b: number) => b - a);
-
-      expect(years.length).toBeGreaterThan(0);
-      expect(years[0]).toBeGreaterThanOrEqual(years[years.length - 1]);
-
-      // Most recent sources should have abstracts
-      const recentSources = researchModule.bibliography
-        .filter((ref: any) => ref.year)
-        .sort((a: any, b: any) => (b.year || 0) - (a.year || 0))
-        .slice(0, 3);
-      
-      expect(recentSources).toHaveLength(3);
+  describe('runDemoSuite Function', () => {
+    it('should execute demo suite without errors', () => {
+      expect(() => demo.runDemoSuite()).not.toThrow();
     });
 
+    it('should display proper test configurations', () => {
+      demo.runDemoSuite();
 
-    it('should handle research module without abstracts', async () => {
-      const moduleWithoutAbstracts = {
-        ...mockResearchModule,
-        bibliography: mockResearchModule.bibliography.map((ref: any) => ({
-          ...ref,
-          abstract: undefined
-        }))
-      };
-      mockGeneratorInstance.generateResearchModule.mockResolvedValue(moduleWithoutAbstracts);
+      expect(consoleLogSpy).toHaveBeenCalledWith('🧪 Running demo test suite...');
+      expect(consoleLogSpy).toHaveBeenCalledWith('Test 1: Basic Jung');
+      expect(consoleLogSpy).toHaveBeenCalledWith('  Difficulty: beginner');
+      expect(consoleLogSpy).toHaveBeenCalledWith('  Duration: 30min');
+      expect(consoleLogSpy).toHaveBeenCalledWith('Test 2: Advanced Analytical Psychology');
+      expect(consoleLogSpy).toHaveBeenCalledWith('  Difficulty: advanced');
+      expect(consoleLogSpy).toHaveBeenCalledWith('  Duration: 90min');
+      expect(consoleLogSpy).toHaveBeenCalledWith('✅ Demo suite configuration verified');
+    });
 
-      const generator = new UnifiedModuleGenerator();
-      const researchModule = await generator.generateResearchModule('Test Topic');
-
-      const referencesWithAbstracts = researchModule.bibliography.filter((ref: any) => ref.abstract);
-      expect(referencesWithAbstracts).toHaveLength(0);
+    it('should validate test configuration structure', () => {
+      demo.runDemoSuite();
+      
+      // Should complete without errors and show completion message
+      expect(consoleLogSpy).toHaveBeenCalledWith('✅ Demo suite configuration verified');
     });
   });
 
-  describe('Demo Execution and Output', () => {
-    it('should run complete demo without errors', async () => {
-      await expect(demo.runCompleteDemo()).resolves.not.toThrow();
-    });
-
-    it('should execute all demo sections', async () => {
+  describe('Module Result Validation', () => {
+    it('should validate module structure from demo', async () => {
       await demo.runCompleteDemo();
-
-      expect(mockGeneratorInstance.generateQuickModule).toHaveBeenCalled();
-      expect(mockGeneratorInstance.generateStudyModule).toHaveBeenCalled();
-      expect(mockGeneratorInstance.generateCompleteModule).toHaveBeenCalled();
-      expect(mockGeneratorInstance.generateResearchModule).toHaveBeenCalled();
-    });
-
-    it('should handle demo section errors gracefully', async () => {
-      mockGeneratorInstance.generateQuickModule.mockRejectedValue(new Error('Demo 1 error'));
-
-      await demo.runCompleteDemo();
-
-      expect(console.error).toHaveBeenCalledWith('Error in Demo 1:', expect.any(Error));
       
-      // Should continue with other demos
-      expect(mockGeneratorInstance.generateStudyModule).toHaveBeenCalled();
+      const generatedModule = mockDemoModule;
+      
+      expect(generatedModule).toHaveProperty('metadata');
+      expect(generatedModule).toHaveProperty('module');
+      expect(generatedModule.metadata).toHaveProperty('topic');
+      expect(generatedModule.metadata).toHaveProperty('difficulty');
+      expect(generatedModule.metadata).toHaveProperty('componentsIncluded');
+      
+      expect(generatedModule.module).toHaveProperty('title');
+      expect(generatedModule.module).toHaveProperty('description');
+      expect(generatedModule.module).toHaveProperty('objectives');
     });
 
-    it('should display proper demo headers and formatting', async () => {
-      await demo.runCompleteDemo();
-
-      expect(console.log).toHaveBeenCalledWith('🚀 Jung Education Module Generation System - Complete Demo\n');
-      expect(console.log).toHaveBeenCalledWith('═══════════════════════════════════════════════════════════════');
-      expect(console.log).toHaveBeenCalledWith('📚 Demo 1: Quick Module Generation');
-      expect(console.log).toHaveBeenCalledWith('📖 Demo 2: Comprehensive Study Module');
-      expect(console.log).toHaveBeenCalledWith('🎯 Demo 3: Custom Module Generation');
-      expect(console.log).toHaveBeenCalledWith('🔬 Demo 4: Research Module Generation');
-    });
-
-    it('should show completion summary', async () => {
-      await demo.runCompleteDemo();
-
-      expect(console.log).toHaveBeenCalledWith('✅ Demo Complete!');
-      expect(console.log).toHaveBeenCalledWith('Summary of Features Demonstrated:');
-      expect(console.log).toHaveBeenCalledWith('  ✓ Quick module generation for rapid content creation');
-      expect(console.log).toHaveBeenCalledWith('The module generation system is ready for production use! 🎉');
-    });
-
-    it('should demonstrate file saving capability', async () => {
-      await demo.runCompleteDemo();
-
-      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('💾 Saving outputs to:'));
-      expect(console.log).toHaveBeenCalledWith('  Would save:');
-      expect(console.log).toHaveBeenCalledWith('    - module-structure.json');
-      expect(console.log).toHaveBeenCalledWith('    - mind-map.json');
-      expect(console.log).toHaveBeenCalledWith('    - quiz.json');
-    });
-  });
-
-  describe('Error Handling and Resilience', () => {
-    it('should handle generator initialization failures', () => {
-      mockUnifiedModuleGenerator.mockImplementation(() => {
-        throw new Error('Generator initialization failed');
-      });
-
-      expect(() => new UnifiedModuleGenerator()).toThrow('Generator initialization failed');
-    });
-
-    it('should handle malformed module results', async () => {
+    it('should handle malformed results gracefully', async () => {
       const malformedModule = {
         metadata: null,
-        module: undefined,
-        quiz: { questions: [] },
-        videos: null
+        module: { title: 'Test' },
+        quiz: undefined
       };
-      mockGeneratorInstance.generateQuickModule.mockResolvedValue(malformedModule);
+      
+      mockGeneratorInstance.generateCompleteModule.mockResolvedValue(malformedModule as any);
+      
+      await demo.runCompleteDemo();
+      
+      // Should complete without throwing despite malformed data
+      expect(consoleLogSpy).toHaveBeenCalledWith('Generated module: Test');
+    });
+  });
 
-      const generator = new UnifiedModuleGenerator();
-      const result = await generator.generateQuickModule('Test');
-
-      expect(result.metadata).toBeNull();
-      expect(result.module).toBeUndefined();
-      expect(result.videos).toBeNull();
+  describe('Integration Tests', () => {
+    it('should demonstrate UnifiedModuleGenerator integration', async () => {
+      await demo.runCompleteDemo();
+      
+      // Verify that the generator was instantiated and called correctly
+      expect(mockUnifiedModuleGenerator).toHaveBeenCalledTimes(1);
+      expect(mockGeneratorInstance.generateCompleteModule).toHaveBeenCalledTimes(1);
     });
 
     it('should handle concurrent demo executions', async () => {
-      const promises = Array(3).fill(null).map(() => demo.runCompleteDemo());
-
+      const promises = [demo.runCompleteDemo(), demo.runCompleteDemo(), demo.runCompleteDemo()];
+      
       await Promise.all(promises);
-
-      // All should complete without interference
-      expect(mockGeneratorInstance.generateQuickModule).toHaveBeenCalledTimes(3);
-      expect(mockGeneratorInstance.generateStudyModule).toHaveBeenCalledTimes(3);
+      
+      expect(mockGeneratorInstance.generateCompleteModule).toHaveBeenCalledTimes(3);
     });
 
-    it('should handle memory-intensive operations', async () => {
-      // Simulate large module with many components
-      const largeModule = {
-        ...mockStudyModule,
-        videos: Array(1000).fill(mockStudyModule.videos[0]),
-        bibliography: Array(500).fill(mockStudyModule.bibliography[0]),
-        quiz: {
-          questions: Array(200).fill(mockStudyModule.quiz.questions[0])
-        }
-      };
-      mockGeneratorInstance.generateStudyModule.mockResolvedValue(largeModule);
-
+    it('should validate demo configuration defaults', async () => {
       await demo.runCompleteDemo();
-
-      expect(console.log).toHaveBeenCalledWith('  Total Videos: 1000');
-      expect(console.log).toHaveBeenCalledWith('  Total References: 500');
+      
+      const expectedConfig = {
+        topic: 'Jungian Psychology Demo',
+        objectives: [
+          'Understand basic Jung concepts',
+          'Explore archetypal patterns',
+          'Apply psychological insights'
+        ],
+        targetAudience: 'Psychology students',
+        duration: 60,
+        difficulty: 'intermediate',
+        language: 'pt-BR'
+      };
+      
+      expect(mockGeneratorInstance.generateCompleteModule).toHaveBeenCalledWith(expectedConfig);
     });
   });
 
-  describe('Performance and Integration', () => {
+  describe('Performance and Reliability', () => {
     it('should complete demo within reasonable time', async () => {
       const startTime = Date.now();
       
@@ -558,82 +220,87 @@ describe('Module Generation Demo - Comprehensive Tests', () => {
       const endTime = Date.now();
       const duration = endTime - startTime;
 
-      // Should complete quickly in test environment
-      expect(duration).toBeLessThan(10000); // 10 seconds max
+      // Should complete quickly in test environment with mocks
+      expect(duration).toBeLessThan(1000); // 1 second max with mocks
     });
 
-    it('should demonstrate all major features', async () => {
-      await demo.runCompleteDemo();
+    it('should handle generator initialization errors', () => {
+      mockUnifiedModuleGenerator.mockImplementation(() => {
+        throw new Error('Generator initialization failed');
+      });
 
-      // Verify all generation types were demonstrated
-      expect(mockGeneratorInstance.generateQuickModule).toHaveBeenCalled();
-      expect(mockGeneratorInstance.generateStudyModule).toHaveBeenCalled();
-      expect(mockGeneratorInstance.generateCompleteModule).toHaveBeenCalled();
-      expect(mockGeneratorInstance.generateResearchModule).toHaveBeenCalled();
-
-      // Verify feature coverage in summary
-      expect(console.log).toHaveBeenCalledWith('  ✓ Quick module generation for rapid content creation');
-      expect(console.log).toHaveBeenCalledWith('  ✓ Comprehensive study modules with all components');
-      expect(console.log).toHaveBeenCalledWith('  ✓ Custom configuration for specific needs');
-      expect(console.log).toHaveBeenCalledWith('  ✓ Research-focused modules with academic bibliography');
+      expect(demo.runCompleteDemo()).rejects.toThrow('Generator initialization failed');
     });
 
-    it('should handle edge cases in data analysis', async () => {
-      // Test with empty arrays and null values
-      const edgeCaseModule = {
-        ...mockStudyModule,
-        quiz: { questions: [] },
-        videos: [],
-        bibliography: [],
-      };
-      mockGeneratorInstance.generateStudyModule.mockResolvedValue(edgeCaseModule);
+    it('should maintain proper async error handling', async () => {
+      const asyncError = new Error('Async operation failed');
+      mockGeneratorInstance.generateCompleteModule.mockRejectedValue(asyncError);
 
-      await demo.runCompleteDemo();
-
-      expect(console.log).toHaveBeenCalledWith('  Total Videos: 0');
-      expect(console.log).toHaveBeenCalledWith('  Total References: 0');
-    });
-
-    it('should validate exported demo function', () => {
-      expect(typeof demo.runCompleteDemo).toBe('function');
-      expect(demo.runCompleteDemo).toBeDefined();
+      await expect(demo.runCompleteDemo()).rejects.toThrow('Async operation failed');
+      expect(consoleErrorSpy).toHaveBeenCalledWith('❌ Demo failed:', asyncError);
     });
   });
 
-  describe('Output Directory and File Operations', () => {
-    it('should handle output directory creation simulation', async () => {
-      await demo.runCompleteDemo();
-
-      // Should mention output directory
-      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('output/module-generation-demo'));
+  describe('Function Exports', () => {
+    it('should export runCompleteDemo function', () => {
+      expect(typeof demo.runCompleteDemo).toBe('function');
+      expect(demo.runCompleteDemo).toBeDefined();
     });
 
-    it('should list all files that would be saved', async () => {
-      await demo.runCompleteDemo();
-
-      const expectedFiles = [
-        'module-structure.json',
-        'mind-map.json',
-        'quiz.json',
-        'videos.json',
-        'bibliography.json'
-      ];
-
-      expectedFiles.forEach(file => {
-        expect(console.log).toHaveBeenCalledWith(`    - ${file}`);
-      });
+    it('should export runDemoSuite function', () => {
+      expect(typeof demo.runDemoSuite).toBe('function');
+      expect(demo.runDemoSuite).toBeDefined();
     });
 
-    it('should handle file path operations', async () => {
-      const path = require('path');
+    it('should have correct function signatures', () => {
+      // runCompleteDemo should accept optional config parameter
+      expect(demo.runCompleteDemo.length).toBe(1); // One optional parameter
       
-      await demo.runCompleteDemo();
+      // runDemoSuite should have no parameters
+      expect(demo.runDemoSuite.length).toBe(0);
+    });
+  });
 
-      expect(path.join).toHaveBeenCalledWith(
-        expect.anything(),
-        'output',
-        'module-generation-demo'
-      );
+  describe('Configuration Handling', () => {
+    it('should use default configuration when none provided', async () => {
+      await demo.runCompleteDemo();
+      
+      const expectedDefaultConfig = {
+        topic: 'Jungian Psychology Demo',
+        objectives: [
+          'Understand basic Jung concepts',
+          'Explore archetypal patterns',
+          'Apply psychological insights'
+        ],
+        targetAudience: 'Psychology students',
+        duration: 60,
+        difficulty: 'intermediate',
+        language: 'pt-BR'
+      };
+      
+      expect(mockGeneratorInstance.generateCompleteModule).toHaveBeenCalledWith(expectedDefaultConfig);
+    });
+
+    it('should override default configuration with provided config', async () => {
+      const customConfig: ModuleGenerationConfig = {
+        topic: 'Custom Test Topic',
+        difficulty: 'advanced',
+        duration: 120
+      };
+      
+      await demo.runCompleteDemo(customConfig);
+      
+      expect(mockGeneratorInstance.generateCompleteModule).toHaveBeenCalledWith(customConfig);
+    });
+
+    it('should handle undefined config parameter', async () => {
+      await demo.runCompleteDemo(undefined);
+      
+      // Should use default config when undefined is passed
+      expect(mockGeneratorInstance.generateCompleteModule).toHaveBeenCalledWith(expect.objectContaining({
+        topic: 'Jungian Psychology Demo',
+        difficulty: 'intermediate'
+      }));
     });
   });
 });

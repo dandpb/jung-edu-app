@@ -76,18 +76,18 @@ describe('RegisterForm Component', () => {
         </TestWrapper>
       );
 
-      // Header elements
-      expect(screen.getByText('Criar Conta')).toBeInTheDocument();
+      // Header elements - use more specific selectors to avoid multiple element conflicts
+      expect(screen.getByRole('heading', { name: 'Criar Conta' })).toBeInTheDocument();
       expect(screen.getByText('Junte-se à plataforma educacional de Jung')).toBeInTheDocument();
 
-      // Form fields
-      expect(screen.getByLabelText(/nome/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/sobrenome/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/usuário/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/tipo de conta/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/^senha$/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/confirmar senha/i)).toBeInTheDocument();
+      // Form fields - use more specific selectors
+      expect(screen.getByLabelText('Nome')).toBeInTheDocument();
+      expect(screen.getByLabelText('Sobrenome')).toBeInTheDocument();
+      expect(screen.getByLabelText('Email')).toBeInTheDocument();
+      expect(screen.getByLabelText('Usuário')).toBeInTheDocument();
+      expect(screen.getByLabelText('Tipo de Conta')).toBeInTheDocument();
+      expect(screen.getByLabelText('Senha')).toBeInTheDocument();
+      expect(screen.getByLabelText('Confirmar Senha')).toBeInTheDocument();
 
       // Submit button and links
       expect(screen.getByRole('button', { name: /criar conta/i })).toBeInTheDocument();
@@ -127,20 +127,20 @@ describe('RegisterForm Component', () => {
       );
 
       // Fill all form fields
-      await user.type(screen.getByLabelText(/nome/i), 'João');
-      await user.type(screen.getByLabelText(/sobrenome/i), 'Silva');
-      await user.type(screen.getByLabelText(/email/i), 'joao@example.com');
-      await user.type(screen.getByLabelText(/usuário/i), 'joaosilva');
-      await user.type(screen.getByLabelText(/^senha$/i), 'SecurePass123!');
-      await user.type(screen.getByLabelText(/confirmar senha/i), 'SecurePass123!');
+      await user.type(screen.getByLabelText('Nome'), 'João');
+      await user.type(screen.getByLabelText('Sobrenome'), 'Silva');
+      await user.type(screen.getByLabelText('Email'), 'joao@example.com');
+      await user.type(screen.getByLabelText('Usuário'), 'joaosilva');
+      await user.type(screen.getByLabelText('Senha'), 'SecurePass123!');
+      await user.type(screen.getByLabelText('Confirmar Senha'), 'SecurePass123!');
 
       // Check all values
-      expect(screen.getByLabelText(/nome/i)).toHaveValue('João');
-      expect(screen.getByLabelText(/sobrenome/i)).toHaveValue('Silva');
-      expect(screen.getByLabelText(/email/i)).toHaveValue('joao@example.com');
-      expect(screen.getByLabelText(/usuário/i)).toHaveValue('joaosilva');
-      expect(screen.getByLabelText(/^senha$/i)).toHaveValue('SecurePass123!');
-      expect(screen.getByLabelText(/confirmar senha/i)).toHaveValue('SecurePass123!');
+      expect(screen.getByLabelText('Nome')).toHaveValue('João');
+      expect(screen.getByLabelText('Sobrenome')).toHaveValue('Silva');
+      expect(screen.getByLabelText('Email')).toHaveValue('joao@example.com');
+      expect(screen.getByLabelText('Usuário')).toHaveValue('joaosilva');
+      expect(screen.getByLabelText('Senha')).toHaveValue('SecurePass123!');
+      expect(screen.getByLabelText('Confirmar Senha')).toHaveValue('SecurePass123!');
     });
 
     it('should change user role selection', async () => {
@@ -151,7 +151,7 @@ describe('RegisterForm Component', () => {
         </TestWrapper>
       );
 
-      const roleSelect = screen.getByLabelText(/tipo de conta/i);
+      const roleSelect = screen.getByLabelText('Tipo de Conta');
       expect(roleSelect).toHaveValue(UserRole.STUDENT);
 
       await user.selectOptions(roleSelect, UserRole.INSTRUCTOR);
@@ -166,8 +166,8 @@ describe('RegisterForm Component', () => {
         </TestWrapper>
       );
 
-      const passwordInput = screen.getByLabelText(/^senha$/i);
-      const confirmPasswordInput = screen.getByLabelText(/confirmar senha/i);
+      const passwordInput = screen.getByLabelText('Senha');
+      const confirmPasswordInput = screen.getByLabelText('Confirmar Senha');
       
       // Get toggle buttons (there should be two)
       const toggleButtons = screen.getAllByRole('button', { name: '' }); // Icons don't have text
@@ -202,7 +202,7 @@ describe('RegisterForm Component', () => {
         </TestWrapper>
       );
 
-      const passwordInput = screen.getByLabelText(/^senha$/i);
+      const passwordInput = screen.getByLabelText('Senha');
       await user.type(passwordInput, '123');
 
       expect(screen.getByText('Força da senha:')).toBeInTheDocument();
@@ -223,7 +223,7 @@ describe('RegisterForm Component', () => {
         </TestWrapper>
       );
 
-      const passwordInput = screen.getByLabelText(/^senha$/i);
+      const passwordInput = screen.getByLabelText('Senha');
       await user.type(passwordInput, 'weak');
 
       expect(screen.getByText('Password must be at least 8 characters')).toBeInTheDocument();
@@ -244,7 +244,7 @@ describe('RegisterForm Component', () => {
         </TestWrapper>
       );
 
-      const passwordInput = screen.getByLabelText(/^senha$/i);
+      const passwordInput = screen.getByLabelText('Senha');
       await user.type(passwordInput, 'VerySecurePassword123!@#');
 
       expect(screen.getByText('Muito Forte')).toBeInTheDocument();
