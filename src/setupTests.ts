@@ -10,16 +10,26 @@ if (typeof globalThis.crypto === 'undefined') {
     subtle: {
       sign: jest.fn().mockImplementation(async (algorithm: any, key: any, data: ArrayBuffer) => {
         // Return proper ArrayBuffer for JWT signing
-        const buffer = Buffer.from(data);
-        const hash = require('crypto').createHash('sha256').update(buffer).digest();
-        const arrayBuffer = new ArrayBuffer(hash.length);
-        const uint8Array = new Uint8Array(arrayBuffer);
-        uint8Array.set(hash);
-        return arrayBuffer;
+        const signature = new Uint8Array(64);
+        for (let i = 0; i < 64; i++) {
+          signature[i] = Math.floor(Math.random() * 256);
+        }
+        return signature.buffer;
       }),
       verify: jest.fn().mockResolvedValue(true),
-      importKey: jest.fn().mockResolvedValue({}),
-      generateKey: jest.fn().mockResolvedValue({})
+      importKey: jest.fn().mockImplementation(async (format, keyData, algorithm, extractable, keyUsages) => {
+        return { type: 'secret', algorithm, extractable, usages: keyUsages };
+      }),
+      generateKey: jest.fn().mockImplementation(async (algorithm, extractable, keyUsages) => {
+        return { type: 'secret', algorithm, extractable, usages: keyUsages };
+      }),
+      digest: jest.fn().mockImplementation(async (algorithm, data) => {
+        const hash = new Uint8Array(32);
+        for (let i = 0; i < 32; i++) {
+          hash[i] = Math.floor(Math.random() * 256);
+        }
+        return hash.buffer;
+      })
     },
     getRandomValues: (arr: any) => {
       for (let i = 0; i < arr.length; i++) {

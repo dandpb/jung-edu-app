@@ -46,7 +46,7 @@ export class VideoEnricher {
       title: this.enhanceTitle(video.title, metadata),
       description: await this.enhanceDescription(video, metadata, safeOptions),
       url: `https://youtube.com/watch?v=${video.videoId}`,
-      duration: this.convertMinutesToDuration(this.parseDurationToMinutes(video.duration)),
+      duration: this.parseDurationToObject(video.duration),
       platform: VideoPlatform.YOUTUBE,
       metadata: {
         ...metadata
@@ -215,12 +215,13 @@ Response format:
     
     // Difficulty assessment
     let difficulty: 'beginner' | 'intermediate' | 'advanced' = 'intermediate';
-    const beginnerKeywords = ['introduction', 'basics', 'beginner', 'explained simply', 'for dummies'];
+    const beginnerKeywords = ['introduction', 'basics', 'beginner', 'explained simply', 'for dummies', 'basic'];
     const advancedKeywords = ['advanced', 'deep dive', 'complex', 'theoretical', 'clinical', 'research'];
     
-    if (beginnerKeywords.some(kw => video.title.toLowerCase().includes(kw))) {
+    const titleDesc = `${video.title} ${video.description}`.toLowerCase();
+    if (beginnerKeywords.some(kw => titleDesc.includes(kw))) {
       difficulty = 'beginner';
-    } else if (advancedKeywords.some(kw => video.title.toLowerCase().includes(kw))) {
+    } else if (advancedKeywords.some(kw => titleDesc.includes(kw))) {
       difficulty = 'advanced';
     }
     
@@ -246,9 +247,11 @@ Response format:
       educationalValue,
       relevanceScore,
       difficulty,
-      relatedConcepts: relatedConcepts.length > 0 ? relatedConcepts : ['general psychology'],
+      relatedConcepts: relatedConcepts.length > 0 ? relatedConcepts : 
+        titleDesc.includes('basic') ? ['basic concepts'] : ['general psychology'],
       suggestedPrerequisites: difficulty === 'advanced' ? 
-        ['Basic understanding of Jungian psychology'] : undefined,
+        ['Basic understanding of Jungian psychology'] : 
+        difficulty === 'beginner' ? [] : undefined,
       learningOutcomes: this.generateBasicLearningOutcomes(video.title, relatedConcepts),
       keyTimestamps,
     };
@@ -441,6 +444,23 @@ Response format:
     const seconds = parseInt(match[3] || '0');
     
     return hours * 60 + minutes + Math.ceil(seconds / 60);
+  }
+
+  private parseDurationToObject(isoDuration: string): import('../../schemas/module.schema').VideoDuration {
+    const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    if (!match) {
+      return { hours: 0, minutes: 0, seconds: 0 };
+    }
+    
+    const hours = parseInt(match[1] || '0');
+    const minutes = parseInt(match[2] || '0');
+    const seconds = parseInt(match[3] || '0');
+    
+    return {
+      hours,
+      minutes,
+      seconds
+    };
   }
 
   private formatTimestamp(seconds: number): string {

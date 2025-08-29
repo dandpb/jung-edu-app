@@ -77,7 +77,7 @@ describe('AuthService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    localStorageMock.clear();
+    localStorage.clear();
     testAuthService = new AuthService();
     
     // Setup default mock behaviors
@@ -485,7 +485,7 @@ describe('AuthService', () => {
   describe('security and edge cases', () => {
     beforeEach(() => {
       // Clear state to avoid test interference
-      localStorageMock.clear();
+      localStorage.clear();
       testAuthService = new AuthService();
     });
 
@@ -551,7 +551,7 @@ describe('AuthService', () => {
 
   describe('rate limiting and performance', () => {
     beforeEach(() => {
-      localStorageMock.clear();
+      localStorage.clear();
       testAuthService = new AuthService();
     });
 
@@ -610,7 +610,7 @@ describe('AuthService', () => {
 
   describe('additional functionality', () => {
     beforeEach(() => {
-      localStorageMock.clear();
+      localStorage.clear();
       testAuthService = new AuthService();
     });
 

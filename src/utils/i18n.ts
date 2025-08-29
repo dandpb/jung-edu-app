@@ -28,7 +28,7 @@ const DEFAULT_CONFIG: I18nConfig = {
   defaultLanguage: 'en',
   supportedLanguages: ['en', 'pt-BR', 'es', 'fr'],
   fallbackLanguage: 'en',
-  enableDebug: process.env.NODE_ENV === 'development'
+  enableDebug: false // Default to false, can be overridden
 };
 
 // Translation resources
@@ -239,23 +239,44 @@ let config: I18nConfig = { ...DEFAULT_CONFIG };
 const LANGUAGE_STORAGE_KEY = 'jungApp_language_preference';
 
 /**
+ * Reset the i18n system to defaults (for testing purposes)
+ */
+export function resetI18n(): void {
+  currentLanguage = DEFAULT_CONFIG.defaultLanguage;
+  config = { ...DEFAULT_CONFIG };
+}
+
+/**
  * Initialize the i18n system
  */
 export function initializeI18n(customConfig?: Partial<I18nConfig>): void {
   try {
+    // Reset to base config first
+    config = { ...DEFAULT_CONFIG };
+    currentLanguage = DEFAULT_CONFIG.defaultLanguage;
+    
     if (customConfig) {
       config = { ...DEFAULT_CONFIG, ...customConfig };
+      // Set current language to the default from custom config if provided
+      if (customConfig.defaultLanguage) {
+        currentLanguage = customConfig.defaultLanguage;
+      }
     }
 
-    // Try to load saved language preference
-    const savedLanguage = loadLanguagePreference();
-    if (savedLanguage && isSupportedLanguage(savedLanguage)) {
-      currentLanguage = savedLanguage;
-    } else {
-      // Detect browser language
-      const browserLanguage = detectBrowserLanguage();
-      if (browserLanguage && isSupportedLanguage(browserLanguage)) {
-        currentLanguage = browserLanguage;
+    // Try to load saved language preference (only if no custom default language is provided)
+    if (!customConfig?.defaultLanguage) {
+      const savedLanguage = loadLanguagePreference();
+      if (savedLanguage && isSupportedLanguage(savedLanguage)) {
+        currentLanguage = savedLanguage;
+      } else {
+        // Detect browser language
+        const browserLanguage = detectBrowserLanguage();
+        if (browserLanguage) {
+          // detectBrowserLanguage already handles the supported language check
+          if (isSupportedLanguage(browserLanguage)) {
+            currentLanguage = browserLanguage;
+          }
+        }
       }
     }
 
@@ -264,7 +285,7 @@ export function initializeI18n(customConfig?: Partial<I18nConfig>): void {
     }
   } catch (error) {
     console.error('Failed to initialize i18n:', error);
-    currentLanguage = config.fallbackLanguage;
+    currentLanguage = config.fallbackLanguage || DEFAULT_CONFIG.defaultLanguage;
   }
 }
 
@@ -279,6 +300,10 @@ export function getCurrentLanguage(): SupportedLanguage {
  * Get all supported languages
  */
 export function getSupportedLanguages(): SupportedLanguage[] {
+  // Ensure we have a valid array to return
+  if (!config.supportedLanguages || !Array.isArray(config.supportedLanguages)) {
+    return [...DEFAULT_CONFIG.supportedLanguages];
+  }
   return [...config.supportedLanguages];
 }
 
@@ -286,7 +311,12 @@ export function getSupportedLanguages(): SupportedLanguage[] {
  * Check if a language is supported
  */
 export function isSupportedLanguage(language: string): language is SupportedLanguage {
-  return config.supportedLanguages.includes(language as SupportedLanguage);
+  // Ensure we have a valid array to check against
+  const supportedLangs = config.supportedLanguages && Array.isArray(config.supportedLanguages) 
+    ? config.supportedLanguages 
+    : DEFAULT_CONFIG.supportedLanguages;
+  
+  return supportedLangs.includes(language as SupportedLanguage);
 }
 
 /**
@@ -299,14 +329,25 @@ export async function switchLanguage(language: SupportedLanguage): Promise<void>
     }
 
     currentLanguage = language;
-    await saveLanguagePreference(language);
+    
+    try {
+      await saveLanguagePreference(language);
+    } catch (saveError) {
+      console.error('Error saving language preference:', saveError);
+      throw saveError;
+    }
 
     if (config.enableDebug) {
       console.log(`[i18n] Switched to language: ${language}`);
     }
 
     // Trigger any language change listeners
-    dispatchLanguageChange(language);
+    try {
+      dispatchLanguageChange(language);
+    } catch (dispatchError) {
+      console.error('Error dispatching language change event:', dispatchError);
+      // Don't throw here - language switch succeeded even if event dispatch failed
+    }
   } catch (error) {
     console.error('Failed to switch language:', error);
     throw error;
@@ -344,9 +385,8 @@ export function translate(key: string, options?: FormatOptions): string {
       return options.fallback;
     }
 
-    if (config.enableDebug) {
-      console.warn(`[i18n] Missing translation for key: ${key}`);
-    }
+    // Always warn about missing translations, not just in debug mode
+    console.warn(`[i18n] Missing translation for key: ${key}`);
 
     return key;
   } catch (error) {
@@ -441,7 +481,20 @@ function interpolateString(template: string, values?: Record<string, string | nu
 function detectBrowserLanguage(): string | null {
   try {
     if (typeof navigator !== 'undefined') {
-      return navigator.language || (navigator as any).userLanguage;
+      const browserLang = navigator.language || (navigator as any).userLanguage;
+      if (browserLang) {
+        // Try exact match first
+        if (isSupportedLanguage(browserLang)) {
+          return browserLang;
+        }
+        // Try language part only (e.g., 'fr-FR' -> 'fr')
+        const langPart = browserLang.split('-')[0];
+        if (isSupportedLanguage(langPart)) {
+          return langPart;
+        }
+        // Return full string for caller to handle
+        return browserLang;
+      }
     }
     return null;
   } catch (error) {
@@ -497,5 +550,7 @@ function dispatchLanguageChange(language: SupportedLanguage): void {
   }
 }
 
-// Initialize on module load
-initializeI18n();
+// Initialize on module load only if not in test environment
+if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
+  initializeI18n();
+}

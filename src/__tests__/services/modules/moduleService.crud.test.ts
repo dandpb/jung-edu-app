@@ -13,7 +13,7 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 describe('ModuleService CRUD Operations', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    localStorageMock.clear();
+    localStorage.clear();
   });
 
   const mockModule: EducationalModule = {

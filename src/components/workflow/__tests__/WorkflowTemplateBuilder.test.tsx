@@ -3,11 +3,37 @@
  * Tests workflow template creation, editing, validation and Jung-specific template features
  */
 
+// Mock the contexts without referencing external variables
+jest.mock('../../../contexts/AdminContext', () => ({
+  AdminContext: {
+    Provider: ({ children }: any) => children,
+    Consumer: ({ children }: any) => children({})
+  },
+  useAdmin: () => ({
+    user: { id: 'admin-1', role: 'admin', name: 'Test Admin' },
+    isAuthenticated: true,
+    login: jest.fn(),
+    logout: jest.fn(),
+    hasPermission: jest.fn().mockReturnValue(true)
+  })
+}));
+
+jest.mock('../../../contexts/AuthContext', () => ({
+  AuthContext: {
+    Provider: ({ children }: any) => children,
+    Consumer: ({ children }: any) => children({})
+  },
+  useAuth: () => ({
+    user: { id: 'user-1', role: 'user', name: 'Test User' },
+    isAuthenticated: true,
+    login: jest.fn(),
+    logout: jest.fn()
+  })
+}));
+
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { AdminContext } from '../../../contexts/AdminContext';
-import { AuthContext } from '../../../contexts/AuthContext';
 import { 
   WorkflowDefinition, 
   WorkflowCategory, 
@@ -722,17 +748,9 @@ const MockWorkflowTemplateBuilder: React.FC<{
   );
 };
 
-// Test wrapper components
-const TestAdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const adminValue = {
-    user: { id: 'admin-1', role: 'admin', name: 'Test Admin' },
-    isAuthenticated: true,
-    login: jest.fn(),
-    logout: jest.fn(),
-    hasPermission: jest.fn().mockReturnValue(true)
-  };
-
-  return <AdminContext.Provider value={adminValue}>{children}</AdminContext.Provider>;
+// Simple test wrapper component
+const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return <div data-testid="test-wrapper">{children}</div>;
 };
 
 describe('WorkflowTemplateBuilder Component', () => {
@@ -746,9 +764,9 @@ describe('WorkflowTemplateBuilder Component', () => {
   describe('Basic Rendering', () => {
     test('should render template builder with all tabs', () => {
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       expect(screen.getByText('Create Workflow Template')).toBeInTheDocument();
@@ -761,9 +779,9 @@ describe('WorkflowTemplateBuilder Component', () => {
 
     test('should show edit mode when isEditing is true', () => {
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} isEditing />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       expect(screen.getByText('Edit Workflow Template')).toBeInTheDocument();
@@ -777,13 +795,13 @@ describe('WorkflowTemplateBuilder Component', () => {
       };
 
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder 
             initialTemplate={initialTemplate}
             onSave={mockOnSave} 
             onCancel={mockOnCancel} 
           />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       expect(screen.getByDisplayValue('Jung Psychology Progress Tracker')).toBeInTheDocument();
@@ -795,9 +813,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should handle template name input', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       const nameInput = screen.getByTestId('template-name-input');
@@ -809,9 +827,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should handle description input', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       const descriptionInput = screen.getByTestId('template-description-input');
@@ -823,9 +841,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should handle category selection', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       const categorySelect = screen.getByTestId('template-category-select');
@@ -837,9 +855,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should handle tags input', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       const tagsInput = screen.getByTestId('template-tags-input');
@@ -853,9 +871,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should navigate to trigger tab and configure trigger', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       await user.click(screen.getByTestId('trigger-tab'));
@@ -874,9 +892,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should handle trigger options checkboxes', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       await user.click(screen.getByTestId('trigger-tab'));
@@ -896,9 +914,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should add and configure states', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       await user.click(screen.getByTestId('states-tab'));
@@ -923,9 +941,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should add actions to states', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       await user.click(screen.getByTestId('states-tab'));
@@ -945,9 +963,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should delete states', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       await user.click(screen.getByTestId('states-tab'));
@@ -967,9 +985,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should handle initial and final state flags', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       await user.click(screen.getByTestId('states-tab'));
@@ -992,9 +1010,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should configure action types and plugins', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       await user.click(screen.getByTestId('states-tab'));
@@ -1021,9 +1039,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should add and configure transitions', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       // First add some states
@@ -1052,9 +1070,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should delete transitions', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       await user.click(screen.getByTestId('states-tab'));
@@ -1077,9 +1095,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should add and configure variables', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       await user.click(screen.getByTestId('variables-tab'));
@@ -1112,9 +1130,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should delete variables', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       await user.click(screen.getByTestId('variables-tab'));
@@ -1133,9 +1151,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should validate required fields before saving', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       // Try to save without filling required fields
@@ -1151,9 +1169,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should validate states configuration', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       // Fill basic info but don't add states
@@ -1180,9 +1198,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should save valid template', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       // Fill all required fields
@@ -1225,9 +1243,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should call onCancel when cancel button is clicked', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       const cancelButton = screen.getByTestId('cancel-button');
@@ -1240,9 +1258,9 @@ describe('WorkflowTemplateBuilder Component', () => {
   describe('Jung Psychology Specific Features', () => {
     test('should suggest Jung-specific workflow categories', () => {
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       const categorySelect = screen.getByTestId('template-category-select');
@@ -1257,9 +1275,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should handle Jung psychology tags suggestions', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       const tagsInput = screen.getByTestId('template-tags-input');
@@ -1272,9 +1290,9 @@ describe('WorkflowTemplateBuilder Component', () => {
     test('should create Jung-specific workflow template', async () => {
       const user = userEvent.setup();
       render(
-        <TestAdminProvider>
+        <TestWrapper>
           <MockWorkflowTemplateBuilder onSave={mockOnSave} onCancel={mockOnCancel} />
-        </TestAdminProvider>
+        </TestWrapper>
       );
 
       // Create a comprehensive Jung psychology workflow

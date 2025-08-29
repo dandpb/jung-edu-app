@@ -78,9 +78,6 @@ jest.mock('../pages/ModulePage', () => ({
   default: () => <div data-testid="module-page">Module Page</div>
 }));
 
-  __esModule: true,
-}));
-
 jest.mock('../pages/admin/AdminLogin', () => ({
   __esModule: true,
   default: () => <div data-testid="admin-login">Admin Login</div>

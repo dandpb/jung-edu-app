@@ -42,7 +42,13 @@ export function loadNotes(): Note[] {
   try {
     const stored = localStorage.getItem(NOTES_KEY);
     if (!stored) return [];
-    return JSON.parse(stored);
+    const parsed = JSON.parse(stored);
+    // Ensure we always return an array
+    if (!Array.isArray(parsed)) {
+      console.error('Invalid notes data format - expected array, got:', typeof parsed);
+      return [];
+    }
+    return parsed;
   } catch (error) {
     console.error('Failed to load notes:', error);
     return [];
@@ -77,14 +83,23 @@ export function saveModuleProgress(moduleId: string, completed: boolean, score?:
 
 export function loadModuleProgress(moduleId: string): { completed: boolean; score?: number } {
   try {
+    // Handle null/undefined/empty moduleId
+    if (!moduleId) {
+      return { completed: false };
+    }
+
     const progress = loadUserProgress();
     if (!progress) {
       return { completed: false };
     }
 
+    // Handle missing properties in progress data
+    const completedModules = progress.completedModules || [];
+    const quizScores = progress.quizScores || {};
+
     return {
-      completed: progress.completedModules.includes(moduleId),
-      score: progress.quizScores[moduleId]
+      completed: completedModules.includes(moduleId),
+      score: quizScores[moduleId]
     };
   } catch (error) {
     console.error('Failed to load module progress:', error);

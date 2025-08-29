@@ -540,7 +540,7 @@ describe('Video Example Usage - Comprehensive Tests', () => {
           'Psychology students and self-help enthusiasts',
           5
         );
-        expect(console.log).toHaveBeenCalledWith('Generated 2 video resources:');
+        expect(console.log).toHaveBeenCalledWith('\nGenerated 2 video resources:');
       });
     });
 

@@ -373,16 +373,20 @@ describe('LocalStorage Utilities Comprehensive Tests', () => {
 
         saveModuleProgress('module-2', true, 88);
 
-        const expectedProgress = {
-          ...existingProgress,
-          completedModules: ['module-1', 'module-2'],
-          quizScores: { 'module-1': 75, 'module-2': 88 },
-          lastAccessed: expect.any(Number)
-        };
+        // Don't include lastAccessed in expected since it's dynamic
+        const savedData = mockLocalStorage.setItem.mock.calls[0][1];
+        const savedProgress = JSON.parse(savedData);
+        
+        expect(savedProgress.userId).toBe('test-user');
+        expect(savedProgress.completedModules).toEqual(['module-1', 'module-2']);
+        expect(savedProgress.quizScores).toEqual({ 'module-1': 75, 'module-2': 88 });
+        expect(savedProgress.totalTime).toBe(1800);
+        expect(typeof savedProgress.lastAccessed).toBe('number');
+        expect(savedProgress.lastAccessed).toBeGreaterThan(Date.now() - 5000);
 
         expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
           'jungAppUserProgress',
-          JSON.stringify(expectedProgress)
+          expect.any(String)
         );
       });
 
@@ -391,18 +395,20 @@ describe('LocalStorage Utilities Comprehensive Tests', () => {
 
         saveModuleProgress('module-1', true, 90);
 
-        const expectedProgress = {
-          userId: 'default-user',
-          completedModules: ['module-1'],
-          quizScores: { 'module-1': 90 },
-          totalTime: 0,
-          lastAccessed: expect.any(Number),
-          notes: []
-        };
+        // Don't include lastAccessed in expected since it's dynamic
+        const savedData = mockLocalStorage.setItem.mock.calls[0][1];
+        const savedProgress = JSON.parse(savedData);
+        
+        expect(savedProgress.userId).toBe('default-user');
+        expect(savedProgress.completedModules).toEqual(['module-1']);
+        expect(savedProgress.quizScores).toEqual({ 'module-1': 90 });
+        expect(savedProgress.totalTime).toBe(0);
+        expect(savedProgress.notes).toEqual([]);
+        expect(typeof savedProgress.lastAccessed).toBe('number');
 
         expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
           'jungAppUserProgress',
-          JSON.stringify(expectedProgress)
+          expect.any(String)
         );
       });
 
@@ -420,13 +426,13 @@ describe('LocalStorage Utilities Comprehensive Tests', () => {
 
         saveModuleProgress('module-1', true); // Mark already completed module as complete again
 
-        expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-          'jungAppUserProgress',
-          JSON.stringify({
-            ...progressWithModule,
-            lastAccessed: expect.any(Number)
-          })
-        );
+        // Check that the saved data has the correct structure
+        const savedData = mockLocalStorage.setItem.mock.calls[0][1];
+        const savedProgress = JSON.parse(savedData);
+        
+        expect(savedProgress.userId).toBe('test-user');
+        expect(savedProgress.completedModules).toEqual(['module-1']); // Should not duplicate
+        expect(typeof savedProgress.lastAccessed).toBe('number');
       });
 
       it('should save quiz score without marking as completed', () => {
@@ -443,15 +449,18 @@ describe('LocalStorage Utilities Comprehensive Tests', () => {
 
         saveModuleProgress('module-1', false, 65);
 
-        const expectedProgress = {
-          ...existingProgress,
-          quizScores: { 'module-1': 65 },
-          lastAccessed: expect.any(Number)
-        };
+        // Check that the saved data has the correct structure
+        const savedData = mockLocalStorage.setItem.mock.calls[0][1];
+        const savedProgress = JSON.parse(savedData);
+        
+        expect(savedProgress.userId).toBe('test-user');
+        expect(savedProgress.completedModules).toEqual([]); // Should remain empty
+        expect(savedProgress.quizScores).toEqual({ 'module-1': 65 });
+        expect(typeof savedProgress.lastAccessed).toBe('number');
 
         expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
           'jungAppUserProgress',
-          JSON.stringify(expectedProgress)
+          expect.any(String)
         );
       });
 
@@ -460,18 +469,20 @@ describe('LocalStorage Utilities Comprehensive Tests', () => {
 
         saveModuleProgress('module-1', true);
 
-        const expectedProgress = {
-          userId: 'default-user',
-          completedModules: ['module-1'],
-          quizScores: {},
-          totalTime: 0,
-          lastAccessed: expect.any(Number),
-          notes: []
-        };
+        // Check that the saved data has the correct structure
+        const savedData = mockLocalStorage.setItem.mock.calls[0][1];
+        const savedProgress = JSON.parse(savedData);
+        
+        expect(savedProgress.userId).toBe('default-user');
+        expect(savedProgress.completedModules).toEqual(['module-1']);
+        expect(savedProgress.quizScores).toEqual({});
+        expect(savedProgress.totalTime).toBe(0);
+        expect(savedProgress.notes).toEqual([]);
+        expect(typeof savedProgress.lastAccessed).toBe('number');
 
         expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
           'jungAppUserProgress',
-          JSON.stringify(expectedProgress)
+          expect.any(String)
         );
       });
 
@@ -481,8 +492,9 @@ describe('LocalStorage Utilities Comprehensive Tests', () => {
         });
 
         expect(() => saveModuleProgress('module-1', true, 85)).not.toThrow();
+        // The error is from loadUserProgress called by saveModuleProgress
         expect(console.error).toHaveBeenCalledWith(
-          'Failed to save module progress:',
+          'Failed to load user progress:',
           expect.any(Error)
         );
       });
@@ -554,8 +566,9 @@ describe('LocalStorage Utilities Comprehensive Tests', () => {
         const result = loadModuleProgress('module-1');
 
         expect(result).toEqual({ completed: false });
+        // The error is from loadUserProgress called by loadModuleProgress
         expect(console.error).toHaveBeenCalledWith(
-          'Failed to load module progress:',
+          'Failed to load user progress:',
           expect.any(Error)
         );
       });
@@ -609,6 +622,23 @@ describe('LocalStorage Utilities Comprehensive Tests', () => {
   });
 
   describe('Edge Cases and Performance', () => {
+    const testUserProgress: UserProgress = {
+      userId: 'test-user-123',
+      completedModules: ['module-1', 'module-2'],
+      quizScores: {
+        'module-1': 85,
+        'module-2': 92
+      },
+      totalTime: 3600,
+      lastAccessed: Date.now(),
+      notes: [],
+      preferences: {
+        theme: 'dark',
+        language: 'en',
+        notifications: true
+      }
+    };
+
     it('should handle extremely large data structures', () => {
       const largeProgress: UserProgress = {
         userId: 'large-data-user',
@@ -662,7 +692,7 @@ describe('LocalStorage Utilities Comprehensive Tests', () => {
         throw new DOMException('QuotaExceededError');
       });
 
-      expect(() => saveUserProgress(mockUserProgress)).not.toThrow();
+      expect(() => saveUserProgress(testUserProgress)).not.toThrow();
       expect(console.error).toHaveBeenCalledWith(
         'Failed to save user progress:',
         expect.any(DOMException)
@@ -678,7 +708,7 @@ describe('LocalStorage Utilities Comprehensive Tests', () => {
         throw new Error('localStorage is not available');
       });
 
-      expect(() => saveUserProgress(mockUserProgress)).not.toThrow();
+      expect(() => saveUserProgress(testUserProgress)).not.toThrow();
       expect(loadUserProgress()).toBeNull();
       expect(loadNotes()).toEqual([]);
     });

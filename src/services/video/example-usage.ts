@@ -1,7 +1,7 @@
 import { YouTubeService } from './youtubeService';
 import { VideoEnricher } from './videoEnricher';
 import { VideoGenerator } from '../llm/generators/video-generator';
-import { OpenAIProvider } from '../llm/provider';
+import { OpenAIProvider } from '../llm/providers/openai';
 
 // Example 1: Basic YouTube Search
 async function exampleBasicSearch() {

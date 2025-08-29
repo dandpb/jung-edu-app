@@ -38,7 +38,7 @@ describe('SessionManager', () => {
 
   beforeEach(() => {
     sessionManager = new SessionManager();
-    localStorageMock.clear();
+    localStorage.clear();
     jest.clearAllMocks();
   });
 

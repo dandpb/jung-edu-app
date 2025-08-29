@@ -129,3 +129,86 @@ export async function measureAPICall<T>(
   
   return { result, duration };
 }
+
+/**
+ * Setup test database with basic schema
+ */
+export async function setupTestDatabase(): Promise<any> {
+  // Mock database for testing
+  const mockDatabase = {
+    query: jest.fn().mockImplementation((sql: string, params?: any[]) => {
+      // Basic mock responses for common queries
+      if (sql.includes('SELECT')) {
+        return Promise.resolve([]);
+      }
+      if (sql.includes('INSERT')) {
+        return Promise.resolve({ id: 'test-id', insertedId: 'test-id' });
+      }
+      if (sql.includes('UPDATE')) {
+        return Promise.resolve({ affected: 1 });
+      }
+      if (sql.includes('DELETE')) {
+        return Promise.resolve({ deleted: 1 });
+      }
+      return Promise.resolve([]);
+    }),
+    transaction: jest.fn().mockImplementation(async (callback) => {
+      const tx = {
+        query: jest.fn().mockResolvedValue([]),
+        commit: jest.fn().mockResolvedValue(undefined),
+        rollback: jest.fn().mockResolvedValue(undefined)
+      };
+      return await callback(tx);
+    }),
+    close: jest.fn().mockResolvedValue(undefined)
+  };
+
+  // Initialize mock tables/collections
+  console.log('📦 Setting up test database...');
+  
+  return mockDatabase;
+}
+
+/**
+ * Cleanup test database
+ */
+export async function cleanupTestDatabase(database: any): Promise<void> {
+  if (database && typeof database.close === 'function') {
+    await database.close();
+  }
+  console.log('🧹 Test database cleaned up');
+}
+
+/**
+ * Create a mock Supabase client for testing
+ */
+export function createMockSupabaseClient() {
+  return {
+    from: jest.fn(() => ({
+      select: jest.fn().mockReturnThis(),
+      insert: jest.fn().mockReturnThis(),
+      update: jest.fn().mockReturnThis(),
+      delete: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({ data: null, error: null }),
+      then: jest.fn().mockResolvedValue({ data: [], error: null })
+    })),
+    channel: jest.fn(() => ({
+      subscribe: jest.fn().mockReturnThis(),
+      on: jest.fn().mockReturnThis(),
+      unsubscribe: jest.fn().mockReturnThis()
+    })),
+    auth: {
+      getUser: jest.fn().mockResolvedValue({ data: { user: null }, error: null }),
+      signIn: jest.fn().mockResolvedValue({ data: { user: null }, error: null }),
+      signOut: jest.fn().mockResolvedValue({ error: null })
+    },
+    realtime: {
+      channel: jest.fn(() => ({
+        subscribe: jest.fn().mockReturnThis(),
+        on: jest.fn().mockReturnThis(),
+        unsubscribe: jest.fn().mockReturnThis()
+      }))
+    }
+  };
+}

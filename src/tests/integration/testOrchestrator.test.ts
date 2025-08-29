@@ -3,7 +3,36 @@
  * Runs integration tests in proper sequence and manages test dependencies
  */
 
-// Mock all external dependencies first
+// Setup localStorage mock before any imports
+const localStorageMock = (() => {
+  let store: Record<string, string> = {};
+  return {
+    getItem: jest.fn((key: string) => store[key] || null),
+    setItem: jest.fn((key: string, value: string) => {
+      store[key] = value;
+    }),
+    removeItem: jest.fn((key: string) => {
+      delete store[key];
+    }),
+    clear: jest.fn(() => {
+      store = {};
+    }),
+    get length() {
+      return Object.keys(store).length;
+    },
+    key: jest.fn((index: number) => {
+      const keys = Object.keys(store);
+      return keys[index] || null;
+    })
+  };
+})();
+
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+  writable: true
+});
+
+// Mock all external dependencies after localStorage setup
 jest.mock('../../services/auth/authService');
 jest.mock('../../services/modules/moduleService');
 jest.mock('../../services/quiz/enhancedQuizGenerator');
@@ -20,6 +49,7 @@ import { UserRole, RegistrationData } from '../../types/auth';
 import { ILLMProvider } from '../../services/llm/types';
 import { DifficultyLevel, ModuleStatus, PublicationType } from '../../schemas/module.schema';
 import { createVideoDuration } from '../helpers/test-data-helpers';
+import { setupCryptoMocks, cleanupCryptoMocks } from '../../test-utils/cryptoMocks';
 
 // Create comprehensive mock implementations
 const createMockUser = (userData: RegistrationData, id: string) => ({
@@ -44,7 +74,9 @@ const createMockModule = (moduleData: any, id: string) => ({
 
 // Shared test state for mock services to maintain consistency
 let mockModuleStore: any = {};
-let testModule: any = null; // Declare testModule in the proper scope
+let mockUserStore: any = {};
+let testModule: any = null;
+let testUser: any = null;
 
 // Mock ModuleService static methods
 const mockModuleService = {
@@ -108,14 +140,42 @@ const mockModuleService = {
   })
 };
 
-// Apply mocks
-(ModuleService as any).createModule = mockModuleService.createModule;
-(ModuleService as any).getModuleById = mockModuleService.getModuleById;
-(ModuleService as any).updateModule = mockModuleService.updateModule;
-(ModuleService as any).searchModules = mockModuleService.searchModules;
-(ModuleService as any).getStatistics = mockModuleService.getStatistics;
-(ModuleService as any).exportModules = mockModuleService.exportModules;
-(ModuleService as any).getAllModules = mockModuleService.getAllModules;
+// Apply mocks to static methods after import
+Object.defineProperty(ModuleService, 'createModule', {
+  value: mockModuleService.createModule,
+  writable: true,
+  configurable: true
+});
+Object.defineProperty(ModuleService, 'getModuleById', {
+  value: mockModuleService.getModuleById,
+  writable: true,
+  configurable: true
+});
+Object.defineProperty(ModuleService, 'updateModule', {
+  value: mockModuleService.updateModule,
+  writable: true,
+  configurable: true
+});
+Object.defineProperty(ModuleService, 'searchModules', {
+  value: mockModuleService.searchModules,
+  writable: true,
+  configurable: true
+});
+Object.defineProperty(ModuleService, 'getStatistics', {
+  value: mockModuleService.getStatistics,
+  writable: true,
+  configurable: true
+});
+Object.defineProperty(ModuleService, 'exportModules', {
+  value: mockModuleService.exportModules,
+  writable: true,
+  configurable: true
+});
+Object.defineProperty(ModuleService, 'getAllModules', {
+  value: mockModuleService.getAllModules,
+  writable: true,
+  configurable: true
+});
 
 // Mock the imported classes
 const mockAuthService = {
@@ -149,17 +209,30 @@ const mockAuthService = {
 };
 
 const mockQuizGenerator = {
-  generateEnhancedQuiz: jest.fn()
+  generateEnhancedQuiz: jest.fn(),
+  analyzeUserPerformance: jest.fn(),
+  generateStudyGuide: jest.fn()
 };
 
 const mockYouTubeService = {
-  searchVideos: jest.fn()
+  searchVideos: jest.fn(),
+  suggestVideos: jest.fn(),
+  getChannelInfo: jest.fn()
 };
 
 // Apply mocks to imported classes
 (AuthService as jest.MockedClass<typeof AuthService>).mockImplementation(() => mockAuthService as any);
 (EnhancedQuizGenerator as jest.MockedClass<typeof EnhancedQuizGenerator>).mockImplementation(() => mockQuizGenerator as any);
 (YouTubeService as jest.MockedClass<typeof YouTubeService>).mockImplementation(() => mockYouTubeService as any);
+
+// Setup global mocks
+beforeAll(() => {
+  setupCryptoMocks();
+});
+
+afterAll(() => {
+  cleanupCryptoMocks();
+});
 
 describe('Integration Test Orchestrator', () => {
   let authService: AuthService;
@@ -174,9 +247,25 @@ describe('Integration Test Orchestrator', () => {
   beforeAll(async () => {
     // Create instances that will use the mocked implementations
     authService = new AuthService();
-    const mockProvider = {} as ILLMProvider;
+    const mockProvider = new MockLLMProvider(50);
     quizGenerator = new EnhancedQuizGenerator(mockProvider);
-    youtubeService = new YouTubeService();
+    youtubeService = new YouTubeService('mock-api-key');
+    
+    // Wire up the mocks to the service instances
+    (authService as any).register = mockAuthService.register;
+    (authService as any).login = mockAuthService.login;
+    (authService as any).hasPermission = mockAuthService.hasPermission;
+    (authService as any).logout = mockAuthService.logout;
+    (authService as any).getCurrentUser = mockAuthService.getCurrentUser;
+    (authService as any).refreshToken = mockAuthService.refreshToken;
+    
+    (quizGenerator as any).generateEnhancedQuiz = mockQuizGenerator.generateEnhancedQuiz;
+    (quizGenerator as any).analyzeUserPerformance = mockQuizGenerator.analyzeUserPerformance;
+    (quizGenerator as any).generateStudyGuide = mockQuizGenerator.generateStudyGuide;
+    
+    (youtubeService as any).searchVideos = mockYouTubeService.searchVideos;
+    (youtubeService as any).suggestVideos = mockYouTubeService.suggestVideos;
+    (youtubeService as any).getChannelInfo = mockYouTubeService.getChannelInfo;
     
     // Update mock implementations to use testUser for persistence
     const originalRegister = mockAuthService.register.getMockImplementation();
@@ -267,6 +356,15 @@ describe('Integration Test Orchestrator', () => {
 
   beforeEach(() => {
     localStorage.clear();
+    // Don't reset testModule and testUser - they need to persist across tests in the orchestrated workflow
+    // Only reset them if they're null (first test)
+    if (!testModule) {
+      mockModuleStore = {};
+    }
+    if (!testUser) {
+      mockUserStore = {};
+    }
+    jest.clearAllMocks();
   });
 
   describe('Orchestrated Integration Workflow', () => {
@@ -283,21 +381,7 @@ describe('Integration Test Orchestrator', () => {
         role: UserRole.INSTRUCTOR
       };
 
-      console.log('Calling authService.register with:', userData);
-      console.log('authService.register is:', typeof authService.register);
-      console.log('authService instance is:', authService);
-      console.log('mockAuthService.register mock calls:', mockAuthService.register.mock.calls.length);
-      
-      // Explicitly test the mock first
-      try {
-        const directMockResult = await mockAuthService.register(userData);
-        console.log('Direct mock call result:', directMockResult);
-      } catch (error) {
-        console.log('Direct mock call error:', error);
-      }
-      
       testUser = await authService.register(userData);
-      console.log('testUser result:', testUser);
       
       expect(testUser.id).toBeDefined();
       expect(testUser.email).toBe(userData.email);
@@ -412,10 +496,7 @@ describe('Integration Test Orchestrator', () => {
         }
       };
 
-      console.log('Calling ModuleService.createModule with:', moduleData.title);
-      console.log('ModuleService.createModule is:', typeof ModuleService.createModule);
       testModule = await ModuleService.createModule(moduleData);
-      console.log('testModule result:', testModule?.id);
       
       expect(testModule.id).toBeDefined();
       expect(testModule.title).toBe(moduleData.title);

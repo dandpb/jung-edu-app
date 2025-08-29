@@ -3,6 +3,9 @@
  * Tests progress tracking, visualization components, and Jung-specific progress indicators
  */
 
+// Mock timers for real-time testing
+jest.useFakeTimers();
+
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -457,6 +460,17 @@ describe('WorkflowProgressVisualization Component', () => {
   let mockStudentProgressData: StudentProgressWorkflowData;
   let mockLearningPathData: LearningPathWorkflowData;
 
+  afterEach(() => {
+    // Clean up timers after each test
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+    jest.useFakeTimers();
+  });
+
+  afterAll(() => {
+    jest.useRealTimers();
+  });
+
   beforeEach(() => {
     mockStudentProgressData = {
       userId: 'user-1',
@@ -908,10 +922,13 @@ describe('WorkflowProgressVisualization Component', () => {
         />
       );
 
-      // Wait for real-time updates to trigger
+      // Advance timers to trigger real-time updates
+      jest.advanceTimersByTime(2000);
+
+      // Wait for milestone callback to be triggered
       await waitFor(() => {
         expect(onMilestoneReached).toHaveBeenCalled();
-      }, { timeout: 5000 });
+      });
     });
 
     test('should not show real-time indicator when disabled', () => {
@@ -1032,9 +1049,25 @@ describe('WorkflowProgressVisualization Component', () => {
     });
 
     test('should show Jung-specific achievements', () => {
+      const jungianAchievements = [...mockStudentProgressData.achievements!, {
+        id: 'jungian-master',
+        title: 'Jungian Psychology Master',
+        description: 'Achieved comprehensive understanding of analytical psychology',
+        icon: '🏆',
+        category: 'mastery' as const,
+        points: 500,
+        rarity: 'legendary' as const,
+        unlockedAt: new Date(),
+        requirements: []
+      }];
+      
       const jungianExecution = {
         ...mockExecution,
-        variables: { ...mockStudentProgressData, progress: 100 }
+        variables: { 
+          ...mockStudentProgressData, 
+          progress: 100,
+          achievements: jungianAchievements
+        }
       };
 
       render(
