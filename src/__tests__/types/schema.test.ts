@@ -184,33 +184,6 @@ describe('Types - schema.ts', () => {
       expect(moduleWithBibliography.bibliography![2].type).toBe('article');
     });
 
-    it('should allow modules with mind maps', () => {
-      const moduleWithMindMap: EducationalModule = {
-        id: 'edu-module-6',
-        title: 'Visual Learning',
-        description: 'Module with mind map',
-        content: {
-          introduction: 'Visual representation of concepts'
-        },
-        mindMap: {
-          nodes: [
-            { id: 'node-1', label: 'Psychology', x: 0, y: 0 },
-            { id: 'node-2', label: 'Cognitive', x: 100, y: 0 },
-            { id: 'node-3', label: 'Behavioral', x: -100, y: 0 }
-          ],
-          edges: [
-            { id: 'edge-1', source: 'node-1', target: 'node-2', label: 'branch' },
-            { id: 'edge-2', source: 'node-1', target: 'node-3' }
-          ]
-        },
-        estimatedTime: 45,
-        difficulty: 'beginner'
-      };
-
-      expect(moduleWithMindMap.mindMap).toBeDefined();
-      expect(moduleWithMindMap.mindMap?.nodes).toHaveLength(3);
-      expect(moduleWithMindMap.mindMap?.edges).toHaveLength(2);
-    });
 
     it('should accept educational module with all optional fields', () => {
       const fullModule: EducationalModule = {

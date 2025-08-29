@@ -102,29 +102,6 @@ const mockStudyModule = {
       'Apply archetypal analysis'
     ]
   },
-  mindMap: {
-    nodes: [
-      { 
-        id: 'root',
-        type: 'central',
-        data: { label: 'Collective Unconscious', isRoot: true }
-      },
-      {
-        id: 'archetypes',
-        type: 'concept',
-        data: { label: 'Archetypes', isRoot: false }
-      },
-      {
-        id: 'symbols',
-        type: 'concept',
-        data: { label: 'Universal Symbols', isRoot: false }
-      }
-    ],
-    edges: [
-      { id: 'e1', source: 'root', target: 'archetypes' },
-      { id: 'e2', source: 'root', target: 'symbols' }
-    ]
-  },
   quiz: {
     questions: Array(12).fill(null).map((_, i) => ({
       id: `q${i}`,

@@ -143,7 +143,6 @@ describe('SystemValidator', () => {
       expect(structural.contentStructure).toBe(true);
       expect(structural.quizValidity).toBe(true);
       expect(structural.bibliographyQuality).toBe(true);
-      expect(structural.mindMapCoherence).toBe(true);
     });
 
     it('should handle empty module array', async () => {

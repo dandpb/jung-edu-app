@@ -45,13 +45,6 @@ describe('UnifiedModuleGenerator', () => {
     }
   };
 
-  const mockMindMap = {
-    nodes: [
-      { id: '1', data: { label: 'Collective Unconscious' } },
-      { id: '2', data: { label: 'Archetypes' } }
-    ],
-    edges: [{ source: '1', target: '2' }]
-  };
 
   const mockQuiz = {
     id: 'quiz-1',
@@ -164,7 +157,6 @@ describe('UnifiedModuleGenerator', () => {
       expect(result.quiz).toBeDefined();
       expect(result.bibliography).toEqual(mockBibliography);
       expect(result.metadata.componentsIncluded).toContain('module');
-      expect(result.metadata.componentsIncluded).toContain('mindMap');
       expect(result.metadata.componentsIncluded).toContain('quiz');
       expect(result.metadata.componentsIncluded).toContain('bibliography');
     });
@@ -187,7 +179,6 @@ describe('UnifiedModuleGenerator', () => {
       expect(result.module).toEqual(mockModuleStructure);
       expect(result.quiz).toBeUndefined();
       expect(result.metadata.componentsIncluded).toContain('module');
-      expect(result.metadata.componentsIncluded).not.toContain('mindMap');
       expect(result.metadata.componentsIncluded).not.toContain('quiz');
     });
 
@@ -242,7 +233,6 @@ describe('UnifiedModuleGenerator', () => {
 
       const result = await generator.generateCustomModule('Test Topic', {
         module: true,
-        mindMap: true,
         quiz: false,
         videos: false,
         bibliography: false
@@ -269,7 +259,6 @@ describe('UnifiedModuleGenerator', () => {
 
         expect(result).toBeDefined();
         expect(result.metadata.componentsIncluded).toContain('module');
-        expect(result.metadata.componentsIncluded).toContain('mindMap');
         expect(result.metadata.componentsIncluded).toContain('quiz');
         expect(result.metadata.componentsIncluded).not.toContain('bibliography');
         
@@ -287,7 +276,6 @@ describe('UnifiedModuleGenerator', () => {
 
         expect(result).toBeDefined();
         expect(result.metadata.componentsIncluded).toContain('module');
-        expect(result.metadata.componentsIncluded).toContain('mindMap');
         expect(result.metadata.componentsIncluded).toContain('quiz');
         expect(result.metadata.componentsIncluded).toContain('bibliography');
         
@@ -306,7 +294,6 @@ describe('UnifiedModuleGenerator', () => {
         expect(result).toBeDefined();
         expect(result.metadata.difficulty).toBe('advanced');
         expect(result.metadata.componentsIncluded).toContain('module');
-        expect(result.metadata.componentsIncluded).toContain('mindMap');
         expect(result.metadata.componentsIncluded).toContain('bibliography');
         expect(result.metadata.componentsIncluded).not.toContain('quiz');
         expect(result.videos).toEqual([]);
@@ -433,7 +420,6 @@ describe('UnifiedModuleGenerator', () => {
       expect(result.quiz).toBeDefined();
       expect(result.bibliography).toBeUndefined();
       expect(result.metadata.componentsIncluded).toContain('module');
-      expect(result.metadata.componentsIncluded).toContain('mindMap');
       expect(result.metadata.componentsIncluded).toContain('quiz');
       expect(result.metadata.componentsIncluded).not.toContain('bibliography');
     });

@@ -33,11 +33,6 @@ describe('UnifiedModuleGenerator Integration Tests', () => {
           tags: ['test', 'module'],
         }
       },
-      mindMap: { 
-        centralNode: { id: 'central', label: 'Test' }, 
-        nodes: [], 
-        edges: [] 
-      },
       quiz: { 
         questions: [{ id: 'q1', question: 'Test?' }] 
       },
@@ -47,7 +42,7 @@ describe('UnifiedModuleGenerator Integration Tests', () => {
         generatedAt: new Date(),
         difficulty: 'intermediate',
         topic: 'Test Topic',
-        componentsIncluded: ['module', 'mindMap', 'quiz', 'videos', 'bibliography']
+        componentsIncluded: ['module', 'quiz', 'videos', 'bibliography']
       }
     });
     
@@ -73,13 +68,12 @@ describe('UnifiedModuleGenerator Integration Tests', () => {
         description: 'A test module',
         metadata: { difficulty: 'intermediate' }
       },
-      mindMap: { centralNode: { id: 'central', label: 'Test' } },
       quiz: { questions: [] },
       metadata: {
         generatedAt: new Date(),
         difficulty: 'intermediate',
         topic: 'Test Topic',
-        componentsIncluded: ['module', 'mindMap', 'quiz']
+        componentsIncluded: ['module', 'quiz']
       }
     });
     
@@ -208,7 +202,7 @@ describe('UnifiedModuleGenerator Integration Tests', () => {
 
       expect(result.module).toBeDefined();
       expect(result.quiz).toBeDefined();
-      expect(result.metadata.componentsIncluded).toEqual(['module', 'mindMap', 'quiz']);
+      expect(result.metadata.componentsIncluded).toEqual(['module', 'quiz']);
     });
 
     it('should generate a research module focused on academic content', async () => {
@@ -288,7 +282,6 @@ describe('Integration with Individual Services', () => {
     generator = Object.create(UnifiedModuleGenerator.prototype);
     generator.generateCustomModule = jest.fn().mockResolvedValue({
       module: { id: 'test-1', title: 'Test' },
-      mindMap: { nodes: [], edges: [] },
       quiz: { questions: [] },
       videos: [],
       bibliography: [],
@@ -296,18 +289,11 @@ describe('Integration with Individual Services', () => {
         generatedAt: new Date(),
         difficulty: 'intermediate',
         topic: 'Test',
-        componentsIncluded: ['module', 'mindMap', 'quiz', 'videos', 'bibliography']
+        componentsIncluded: ['module', 'quiz', 'videos', 'bibliography']
       }
     });
   });
 
-  it('should properly integrate mind map generation', async () => {
-    const result = await generator.generateCustomModule(
-      'Psychological Types',
-      { mindMap: true }
-    );
-
-  });
 
   it('should properly integrate quiz generation with enhancements', async () => {
     const result = await generator.generateCustomModule(

@@ -84,29 +84,6 @@ const createMockUnifiedModuleGenerator = () => {
         ]
       }
     },
-    mindMap: {
-      nodes: [
-        {
-          id: 'root',
-          data: { label: 'Collective Unconscious', isRoot: true },
-          type: 'concept'
-        },
-        {
-          id: 'archetypes',
-          data: { label: 'Universal Archetypes' },
-          type: 'archetypal'
-        },
-        {
-          id: 'symbols',
-          data: { label: 'Symbolic Representations' },
-          type: 'symbolic'
-        }
-      ],
-      edges: [
-        { id: 'e1', from: 'root', to: 'archetypes' },
-        { id: 'e2', from: 'archetypes', to: 'symbols' }
-      ]
-    },
     quiz: {
       questions: [
         {
@@ -248,36 +225,6 @@ const createMockUnifiedModuleGenerator = () => {
         abstract: 'Comprehensive analysis of Jung\'s synchronicity concept in religious contexts.'
       }
     ],
-    mindMap: {
-      nodes: [
-        {
-          id: 'sync-root',
-          data: { 
-            label: 'Synchronicity Research',
-            isRoot: true
-          },
-          type: 'research'
-        },
-        {
-          id: 'quantum-theory',
-          data: { 
-            label: 'Quantum Theory Connections'
-          },
-          type: 'theoretical'
-        },
-        {
-          id: 'research-methods',
-          data: { 
-            label: 'Research Methodologies'
-          },
-          type: 'methodological'
-        }
-      ],
-      edges: [
-        { id: 'er1', from: 'sync-root', to: 'quantum-theory' },
-        { id: 'er2', from: 'sync-root', to: 'research-methods' }
-      ]
-    }
   };
 
   return {
@@ -406,24 +353,6 @@ describe('Module Generation Demo - Comprehensive Coverage', () => {
       expect(mockConsoleLog).toHaveBeenCalledWith('       Relevance: 92%');
     });
 
-    it('should display mind map analysis details', async () => {
-      await runCompleteDemo();
-
-      expect(mockConsoleLog).toHaveBeenCalledWith('🧠 Mind Map Analysis:');
-      expect(mockConsoleLog).toHaveBeenCalledWith('  Central Concept: Collective Unconscious');
-      expect(mockConsoleLog).toHaveBeenCalledWith('  Total Nodes: 3');
-      expect(mockConsoleLog).toHaveBeenCalledWith('  Connections: 2');
-
-      // Node type distribution
-      expect(mockConsoleLog).toHaveBeenCalledWith(
-        '  Node Distribution:', 
-        { concept: 1, archetypal: 1, symbolic: 1 }
-      );
-
-      // Research module mind map
-      expect(mockConsoleLog).toHaveBeenCalledWith('🧠 Research Mind Map Features:');
-      expect(mockConsoleLog).toHaveBeenCalledWith('  Research-oriented nodes: 1');
-    });
 
     it('should analyze bibliography comprehensively', async () => {
       await runCompleteDemo();
@@ -485,7 +414,6 @@ describe('Module Generation Demo - Comprehensive Coverage', () => {
       );
       expect(mockConsoleLog).toHaveBeenCalledWith('  Would save:');
       expect(mockConsoleLog).toHaveBeenCalledWith('    - module-structure.json');
-      expect(mockConsoleLog).toHaveBeenCalledWith('    - mind-map.json');
       expect(mockConsoleLog).toHaveBeenCalledWith('    - quiz.json');
       expect(mockConsoleLog).toHaveBeenCalledWith('    - videos.json');
       expect(mockConsoleLog).toHaveBeenCalledWith('    - bibliography.json');
@@ -609,24 +537,6 @@ describe('Module Generation Demo - Comprehensive Coverage', () => {
       expect(mockConsoleLog).toHaveBeenCalledWith('  Total References: 0');
     });
 
-    it('should handle missing mind map data', async () => {
-      const moduleWithoutMindMap = {
-        metadata: {
-          topic: 'Test Topic',
-          difficulty: 'intermediate',
-          componentsIncluded: ['content', 'quiz']
-        },
-        module: { title: 'Test Module', objectives: [] },
-        mindMap: null
-      };
-
-      mockGenerator.generateStudyModule.mockResolvedValue(moduleWithoutMindMap);
-
-      await runCompleteDemo();
-
-      // Should not attempt to display mind map information
-      expect(mockConsoleLog).not.toHaveBeenCalledWith(expect.stringContaining('🧠 Mind Map Analysis:'));
-    });
 
     it('should handle question types analysis with mixed question types', async () => {
       const mixedQuestions = [
@@ -675,39 +585,6 @@ describe('Module Generation Demo - Comprehensive Coverage', () => {
       expect(mockConsoleLog).toHaveBeenCalledWith('  Average Year: 2019');
     });
 
-    it('should handle complex node type distribution in mind maps', async () => {
-      const complexMindMap = {
-        nodes: [
-          { id: '1', data: { label: 'Root', isRoot: true }, type: 'concept' },
-          { id: '2', data: { label: 'Theory' }, type: 'theoretical' },
-          { id: '3', data: { label: 'Practice' }, type: 'practical' },
-          { id: '4', data: { label: 'Research' }, type: 'research' },
-          { id: '5', data: { label: 'Application' }, type: 'practical' },
-          { id: '6', data: { label: 'Method' }, type: 'theoretical' }
-        ],
-        edges: [
-          { id: 'e1', from: '1', to: '2' },
-          { id: 'e2', from: '2', to: '3' }
-        ]
-      };
-
-      const moduleWithComplexMindMap = {
-        ...createMockUnifiedModuleGenerator().generateStudyModule(),
-        mindMap: complexMindMap
-      };
-
-      mockGenerator.generateStudyModule.mockResolvedValue(moduleWithComplexMindMap);
-
-
-      await runCompleteDemo();
-
-      expect(mockConsoleLog).toHaveBeenCalledWith('  Node Distribution:', {
-        concept: 1,
-        theoretical: 2,
-        practical: 2,
-        research: 1
-      });
-    });
 
     it('should handle research module with various abstract lengths', async () => {
       const researchBibliography = [
@@ -856,7 +733,6 @@ describe('Module Generation Demo - Comprehensive Coverage', () => {
           quiz: { questions: [] },
           videos: [],
           bibliography: null,
-          mindMap: undefined
         }),
         generateCompleteModule: jest.fn().mockResolvedValue({
           metadata: { topic: 'Complete Topic', difficulty: 'advanced', componentsIncluded: ['all'] },
@@ -867,7 +743,6 @@ describe('Module Generation Demo - Comprehensive Coverage', () => {
           metadata: { topic: 'Research Topic', difficulty: 'expert', componentsIncluded: ['research'] },
           module: { title: 'Research Module', objectives: [] },
           bibliography: [],
-          mindMap: null
         })
       };
 

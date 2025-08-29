@@ -88,13 +88,6 @@ describe('AIResourcePipeline', () => {
     }
   ];
 
-  const mockMindMap = {
-    nodes: [
-      { id: 'n1', data: { label: 'Archetypes' } },
-      { id: 'n2', data: { label: 'Shadow' } }
-    ],
-    edges: [{ source: 'n1', target: 'n2' }]
-  };
 
   beforeEach(() => {
     jest.clearAllMocks();

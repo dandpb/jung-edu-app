@@ -108,8 +108,8 @@ describe('Navigation Component', () => {
     
     render(<Navigation />, { initialEntries: ['/notes'] });
     
-    const mindMapLink = screen.getByText('Anotações').closest('a');
-    expect(mindMapLink).toHaveClass('bg-primary-50', 'text-primary-700');
+    const notesLink = screen.getByText('Anotações').closest('a');
+    expect(notesLink).toHaveClass('bg-primary-50', 'text-primary-700');
   });
 
   test('shows inactive links with correct styling', () => {

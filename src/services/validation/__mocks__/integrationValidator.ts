@@ -17,8 +17,8 @@ export class IntegrationValidator {
     const hasNullModules = hasModules && modules.some((m: any) => m === null || m === undefined || (typeof m === 'object' && Object.keys(m).length === 0));
     
     // Ensure we get boolean values, not null/undefined
-    const moduleValid = Boolean(hasModules && modules[0] && modules[0].quiz !== undefined && modules[0].mindMap !== undefined);
-    const incompleteModule = Boolean(hasModules && modules[0] && (modules[0].quiz === undefined || modules[0].mindMap === undefined));
+    const moduleValid = Boolean(hasModules && modules[0] && modules[0].quiz !== undefined);
+    const incompleteModule = Boolean(hasModules && modules[0] && modules[0].quiz === undefined);
     
     // Check for empty questions array
     const hasEmptyQuestions = Boolean(hasModules && modules[0] && modules[0].quiz && 

@@ -66,16 +66,6 @@ describe('IntegrationValidator', () => {
         relevance: 'Essential introduction'
       }
     ],
-    mindMap: {
-      moduleId: 'test-module-1',
-      nodes: [
-        { id: 'root', label: 'Jungian Psychology', x: 0, y: 0, type: 'central' }
-      ],
-      edges: [],
-      centralConcept: 'Jungian Psychology',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
     createdAt: new Date(),
     updatedAt: new Date(),
     videos: []
@@ -136,8 +126,7 @@ describe('IntegrationValidator', () => {
     it('should handle module with missing components', async () => {
       const incompleteModule = {
         ...mockModule,
-        quiz: undefined,
-        mindMap: undefined
+        quiz: undefined
       };
 
       const result = await integrationValidator.validateIntegration([incompleteModule]);
