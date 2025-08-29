@@ -410,8 +410,6 @@ describe('Types - index.ts', () => {
     it('should accept valid app settings', () => {
       const settings: AppSettings = {
         modules: [],
-        mindMapNodes: [],
-        mindMapEdges: [],
         adminUsers: []
       };
 
@@ -430,17 +428,6 @@ describe('Types - index.ts', () => {
             difficulty: 'beginner'
           }
         ],
-        mindMapNodes: [
-          {
-            id: 'node-1',
-            data: { label: 'Test Node' },
-            position: { x: 0, y: 0 }
-          }
-        ],
-        mindMapEdges: [
-          {
-            id: 'edge-1',
-            source: 'node-1',
             target: 'node-2'
           }
         ],
@@ -455,8 +442,6 @@ describe('Types - index.ts', () => {
       };
 
       expect(populatedSettings.modules).toHaveLength(1);
-      expect(populatedSettings.mindMapNodes).toHaveLength(1);
-      expect(populatedSettings.mindMapEdges).toHaveLength(1);
       expect(populatedSettings.adminUsers).toHaveLength(1);
     });
   });

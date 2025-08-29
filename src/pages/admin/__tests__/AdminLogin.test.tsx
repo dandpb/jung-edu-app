@@ -36,8 +36,6 @@ jest.mock('../../../contexts/AdminContext', () => ({
     adminLogout: jest.fn(),
     modules: [],
     updateModules: jest.fn(),
-    mindMapNodes: [],
-    mindMapEdges: [],
   })
 }));
 

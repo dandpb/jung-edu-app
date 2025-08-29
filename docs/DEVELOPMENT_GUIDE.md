@@ -53,7 +53,6 @@ jung-edu-app/
 │   │   ├── admin/        # Admin-specific components
 │   │   ├── auth/         # Authentication components
 │   │   ├── common/       # Shared components
-│   │   ├── mindmap/      # Mind map visualization
 │   │   ├── modules/      # Module-related components
 │   │   ├── notes/        # Note-taking components
 │   │   └── quiz/         # Quiz components

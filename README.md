@@ -5,7 +5,6 @@ An interactive educational web application for learning Carl Jung's analytical p
 ## Features
 
 - **Module-based Learning**: 6 comprehensive modules covering Jung's key concepts
-- **Interactive Mind Map**: Visual representation of interconnected concepts using React Flow
 - **Video Integration**: YouTube embeds for educational content
 - **Note-taking System**: Personal notes with localStorage persistence
 - **Quiz Functionality**: Interactive quizzes with scoring and progress tracking
@@ -88,7 +87,6 @@ src/
 │   ├── NotesPage.test.tsx
 │   ├── ProgressPage.test.tsx
 │   ├── SearchPage.test.tsx
-│   ├── MindMapPage.test.tsx
 │   └── BibliographyPage.test.tsx
 ├── hooks/__tests__/
 │   └── useProgress.test.tsx
@@ -113,7 +111,6 @@ jung-edu-app/
 │   ├── pages/
 │   │   ├── Dashboard.tsx
 │   │   ├── ModulePage.tsx
-│   │   ├── MindMapPage.tsx
 │   │   ├── NotesPage.tsx
 │   │   ├── ProgressPage.tsx
 │   │   ├── BibliographyPage.tsx
@@ -171,11 +168,6 @@ jung-edu-app/
 - Score tracking
 - Progress indicators
 
-### Mind Map
-- Visual representation of concepts
-- Interactive navigation
-- Click to explore modules
-- Color-coded node types
 
 ## Contributing
 

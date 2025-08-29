@@ -158,19 +158,6 @@ const mockResearchModule = {
     year: 1990 + i,
     abstract: i < 10 ? `Research abstract ${i}` : undefined
   })),
-  mindMap: {
-    nodes: Array(20).fill(null).map((_, i) => ({
-      id: `node${i}`,
-      type: 'research',
-      data: { 
-        label: i % 5 === 0 ? `Research Topic ${i}` : 
-               i % 5 === 1 ? `Theory ${i}` :
-               i % 5 === 2 ? `Hypothesis ${i}` :
-               `Concept ${i}`
-      }
-    })),
-    edges: []
-  }
 };
 
 describe('Module Generation Demo - Comprehensive Tests', () => {
@@ -277,15 +264,6 @@ describe('Module Generation Demo - Comprehensive Tests', () => {
       expect(studyModule.metadata.topic).toBe('Collective Unconscious and Archetypes');
       expect(studyModule.metadata.difficulty).toBe('advanced');
 
-      // Mind map analysis
-      expect(studyModule.mindMap).toBeDefined();
-      expect(studyModule.mindMap.nodes).toHaveLength(3);
-      expect(studyModule.mindMap.edges).toHaveLength(2);
-
-      const centralNode = studyModule.mindMap.nodes.find((n: any) => n.data.isRoot);
-      expect(centralNode).toBeDefined();
-      expect(centralNode!.data.label).toBe('Collective Unconscious');
-
       // Quiz analysis
       expect(studyModule.quiz.questions).toHaveLength(12);
       
@@ -300,20 +278,6 @@ describe('Module Generation Demo - Comprehensive Tests', () => {
       expect(referencesWithAbstracts).toHaveLength(5);
     });
 
-    it('should handle mind map analysis correctly', async () => {
-      const generator = new UnifiedModuleGenerator();
-      const studyModule = await generator.generateStudyModule('Test Topic');
-
-      if (studyModule.mindMap) {
-        const nodeTypes = studyModule.mindMap.nodes.reduce((acc: Record<string, number>, node: any) => {
-          acc[node.type] = (acc[node.type] || 0) + 1;
-          return acc;
-        }, {});
-
-        expect(nodeTypes).toHaveProperty('central', 1);
-        expect(nodeTypes).toHaveProperty('concept', 2);
-      }
-    });
 
     it('should analyze quiz question types correctly', async () => {
       const generator = new UnifiedModuleGenerator();
@@ -455,32 +419,6 @@ describe('Module Generation Demo - Comprehensive Tests', () => {
       expect(recentSources).toHaveLength(3);
     });
 
-    it('should analyze research-oriented mind map', async () => {
-      const generator = new UnifiedModuleGenerator();
-      const researchModule = await generator.generateResearchModule('Test Research Topic');
-
-      if (researchModule.mindMap) {
-        const researchNodes = researchModule.mindMap.nodes.filter((n: any) => 
-          n.data.label.toLowerCase().includes('research') ||
-          n.data.label.toLowerCase().includes('theory') ||
-          n.data.label.toLowerCase().includes('hypothesis')
-        );
-
-        // Should have research-oriented nodes
-        expect(researchNodes.length).toBeGreaterThan(0);
-
-        // Verify node distribution
-        const labelCounts = researchModule.mindMap.nodes.reduce((acc: any, node: any) => {
-          const label = node.data.label;
-          if (label.includes('Research')) acc.research++;
-          if (label.includes('Theory')) acc.theory++;
-          if (label.includes('Hypothesis')) acc.hypothesis++;
-          return acc;
-        }, { research: 0, theory: 0, hypothesis: 0 });
-
-        expect(labelCounts.research + labelCounts.theory + labelCounts.hypothesis).toBeGreaterThan(0);
-      }
-    });
 
     it('should handle research module without abstracts', async () => {
       const moduleWithoutAbstracts = {
@@ -647,7 +585,6 @@ describe('Module Generation Demo - Comprehensive Tests', () => {
         quiz: { questions: [] },
         videos: [],
         bibliography: [],
-        mindMap: { nodes: [], edges: [] }
       };
       mockGeneratorInstance.generateStudyModule.mockResolvedValue(edgeCaseModule);
 

@@ -15,7 +15,7 @@ describe('AIDemo Component', () => {
   test('renders page title and main heading', () => {
     renderWithRouter(<AIDemo />);
 
-    expect(screen.getByText('Mapas Mentais com IA')).toBeInTheDocument();
+    expect(screen.getByText('Demonstração de IA')).toBeInTheDocument();
     expect(screen.getByText(/Experimente o futuro do conteúdo educacional/)).toBeInTheDocument();
   });
 
@@ -43,7 +43,7 @@ describe('AIDemo Component', () => {
   test('renders CTA button with correct link', () => {
     renderWithRouter(<AIDemo />);
 
-    const ctaButton = screen.getByRole('link', { name: /Experimente Mapas Mentais com IA/i });
+    const ctaButton = screen.getByRole('link', { name: /Experimente a Demonstração de IA/i });
     expect(ctaButton).toBeInTheDocument();
   });
 
@@ -111,11 +111,11 @@ describe('AIDemo Component', () => {
     renderWithRouter(<AIDemo />);
 
     // Check gradient background
-    const mainContainer = screen.getByText('Mapas Mentais com IA').closest('div[class*="bg-gradient-to-br"]');
+    const mainContainer = screen.getByText('Demonstração de IA').closest('div[class*="bg-gradient-to-br"]');
     expect(mainContainer).toBeInTheDocument();
 
     // Check CTA button styling
-    const ctaButton = screen.getByRole('link', { name: /Experimente Mapas Mentais com IA/i });
+    const ctaButton = screen.getByRole('link', { name: /Experimente a Demonstração de IA/i });
     expect(ctaButton).toHaveClass('bg-primary-600');
   });
 
@@ -144,7 +144,7 @@ describe('AIDemo Component', () => {
     renderWithRouter(<AIDemo />);
 
     // Check hierarchy of headings
-    const h1 = screen.getByRole('heading', { level: 1, name: 'Mapas Mentais com IA' });
+    const h1 = screen.getByRole('heading', { level: 1, name: 'Demonstração de IA' });
     const h2 = screen.getByRole('heading', { level: 2, name: 'Como Funciona' });
     const h3Elements = screen.getAllByRole('heading', { level: 3 });
 

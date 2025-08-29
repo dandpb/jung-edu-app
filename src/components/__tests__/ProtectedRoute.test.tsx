@@ -25,8 +25,6 @@ describe('ProtectedRoute Component', () => {
       logout: jest.fn(),
       modules: [],
       updateModules: jest.fn(),
-      mindMapNodes: [],
-      mindMapEdges: [],
     });
     
     return render(
@@ -56,8 +54,6 @@ describe('ProtectedRoute Component', () => {
       logout: jest.fn(),
       modules: [],
       updateModules: jest.fn(),
-      mindMapNodes: [],
-      mindMapEdges: [],
     });
     
     return render(
@@ -101,8 +97,6 @@ describe('ProtectedRoute Component', () => {
       logout: jest.fn(),
       modules: [],
       updateModules: jest.fn(),
-      mindMapNodes: [],
-      mindMapEdges: [],
     });
     
     const NestedComponent = () => <div>Nested Admin Content</div>;
@@ -137,8 +131,6 @@ describe('ProtectedRoute Component', () => {
       logout: jest.fn(),
       modules: [],
       updateModules: jest.fn(),
-      mindMapNodes: [],
-      mindMapEdges: [],
     });
     
     render(

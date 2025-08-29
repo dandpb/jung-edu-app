@@ -11,7 +11,6 @@ jaqEdu's API is built using a service-oriented architecture with TypeScript. Thi
 - [Quiz Service](#quiz-service)
 - [User Progress Service](#user-progress-service)
 - [LLM Service](#llm-service)
-- [Mind Map Service](#mind-map-service)
 - [Video Service](#video-service)
 - [Bibliography Service](#bibliography-service)
 
@@ -315,45 +314,6 @@ Enhances existing content with AI.
 - `'summary'` - Creates concise summary
 - `'expand'` - Adds more detail
 
-## 🧠 Mind Map Service
-
-### Overview
-Generates and manages interactive mind maps.
-
-### Service Location
-`/src/services/mindmap/mindMapGenerator.ts`
-
-### Methods
-
-#### `generateMindMap(moduleId: string): Promise<MindMapData>`
-Generates a mind map for a module.
-
-**Response:**
-```typescript
-interface MindMapData {
-  nodes: MindMapNode[];
-  edges: MindMapEdge[];
-  layout: 'tree' | 'radial' | 'force' | 'hierarchical';
-}
-
-interface MindMapNode {
-  id: string;
-  label: string;
-  type: 'concept' | 'module' | 'topic';
-  position: { x: number; y: number };
-  data: {
-    description?: string;
-    moduleId?: string;
-    color?: string;
-  };
-}
-```
-
-#### `saveMindMap(mindMapData: MindMapData): Promise<string>`
-Saves a user-created mind map.
-
-#### `getMindMap(id: string): Promise<MindMapData>`
-Retrieves a saved mind map.
 
 ## 🎥 Video Service
 

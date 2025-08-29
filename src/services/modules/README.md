@@ -133,7 +133,6 @@ Modules follow the comprehensive schema defined in `../../schemas/module.schema.
 
 - **Content**: Introduction, sections, summaries, key takeaways
 - **Media**: Videos with transcripts, captions, and chapters
-- **Visualizations**: Mind maps with nodes, edges, and layouts
 - **Assessment**: Quizzes with multiple question types
 - **References**: Bibliography and film references
 - **Metadata**: Status, author, timestamps, analytics
@@ -157,7 +156,6 @@ enum GenerationStage {
   GENERATING_CONTENT = 'generating_content',
   GENERATING_QUIZ = 'generating_quiz',
   SOURCING_VIDEOS = 'sourcing_videos',
-  CREATING_MINDMAP = 'creating_mindmap',
   ADDING_BIBLIOGRAPHY = 'adding_bibliography',
   FINALIZING = 'finalizing',
   COMPLETED = 'completed',

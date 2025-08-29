@@ -107,19 +107,6 @@ export const mockLLMResponses = {
   
   quizQuestions: createMockQuestions(5),
   
-  mindMapData: {
-    centralConcept: 'Jungian Psychology',
-    branches: [
-      {
-        label: 'Collective Unconscious',
-        children: ['Archetypes', 'Instincts', 'Universal Patterns']
-      },
-      {
-        label: 'Individuation',
-        children: ['Self-realization', 'Integration', 'Wholeness']
-      }
-    ]
-  },
   
   contentGeneration: {
     introduction: 'This module explores the fundamental concepts of Carl Jung\'s analytical psychology.',

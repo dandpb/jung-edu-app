@@ -3,7 +3,6 @@ const { execSync } = require('child_process');
 console.log('Running quick test check...\n');
 
 const testFiles = [
-  'src/__tests__/services/mindmap/mindMapGenerator.test.ts',
   'src/__tests__/services/llm/provider.test.ts',
   'src/__tests__/services/llm/generators/content-generator.test.ts',
   'src/__tests__/services/quiz/enhancedQuizGenerator.test.ts',

@@ -194,10 +194,6 @@ export class DashboardPage extends BasePage {
     await this.waitForPageLoad();
   }
 
-  async navigateToMindMap(): Promise<void> {
-    await this.page.locator('[data-testid="nav-mindmap"]').click();
-    await this.waitForPageLoad();
-  }
 
   async navigateToNotes(): Promise<void> {
     await this.page.locator('[data-testid="nav-notes"]').click();

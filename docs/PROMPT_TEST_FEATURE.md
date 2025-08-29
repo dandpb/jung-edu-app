@@ -84,11 +84,7 @@ REACT_APP_OPENAI_API_KEY=sua-chave-aqui
 - **Formato**: Markdown ou texto plano
 - **Preservação**: Mantém formatação original
 
-### 3. Mapas Mentais
-- **Formato**: Estrutura hierárquica
-- **Visualização**: Texto indentado
-
-### 4. Recursos Bibliográficos
+### 3. Recursos Bibliográficos
 - **Formato**: Lista de recursos
 - **Detalhes**: Autor, ano, descrição
 

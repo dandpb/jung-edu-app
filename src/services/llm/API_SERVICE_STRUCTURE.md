@@ -18,7 +18,6 @@ src/services/llm/
 │   ├── quiz.ts               # Quiz question generator
 │   ├── video.ts              # Video finder/recommender
 │   ├── bibliography.ts       # Bibliography generator
-│   ├── mindmap.ts            # Mind map generator
 │   ├── metadata.ts           # Tags and difficulty assessment
 │   └── index.ts              # Generator orchestrator
 ├── validators/
@@ -93,7 +92,6 @@ export type GenerationStage =
   | 'videos' 
   | 'quiz' 
   | 'bibliography' 
-  | 'mindmap' 
   | 'validation' 
   | 'complete';
 
@@ -354,7 +352,6 @@ export class ModuleGenerationOrchestrator {
   private quizGenerator: QuizGenerator;
   private videoFinder: VideoFinder;
   private bibliographyGenerator: BibliographyGenerator;
-  private mindMapGenerator: MindMapGenerator;
   private metadataGenerator: MetadataGenerator;
   private cache: CacheService;
   
@@ -391,7 +388,6 @@ export class ModuleGenerationOrchestrator {
         ? await this.generateBibliography(content, request, progress)
         : null;
         
-      const mindMap = await this.generateMindMap(content, progress);
       
       const metadata = await this.generateMetadata(content, request);
       

@@ -131,7 +131,7 @@ const questions = createMockQuestions(10, {
 });
 
 // Use predefined responses
-const { moduleOutline, quizQuestions, mindMapData } = mockLLMResponses;
+const { moduleOutline, quizQuestions } = mockLLMResponses;
 ```
 
 ### MSW API Mocks

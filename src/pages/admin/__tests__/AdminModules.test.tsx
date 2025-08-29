@@ -115,8 +115,6 @@ const mockUseAdmin = () => ({
   logout: jest.fn(),
   modules: mockModules,
   updateModules: mockUpdateModules,
-  mindMapNodes: [],
-  mindMapEdges: [],
 });
 
 describe('AdminModules Component', () => {

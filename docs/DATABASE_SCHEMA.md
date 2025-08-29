@@ -42,9 +42,9 @@ jaqEdu uses PostgreSQL via Supabase with a comprehensive schema supporting educa
     ┌────┴────┬─────────┬──────────┐
     │         │         │          │
 ┌───▼──┐  ┌──▼───┐  ┌─▼────┐  ┌──▼────┐
-│notes │  │videos│  │biblio│  │mindmaps│
-│      │  │      │  │graphy│  │       │
-└──────┘  └──────┘  └──────┘  └───────┘
+│notes │  │videos│  │biblio│
+│      │  │      │  │graphy│
+└──────┘  └──────┘  └──────┘
 ```
 
 ## 📋 Table Definitions
@@ -253,47 +253,6 @@ CREATE TABLE notes (
 );
 ```
 
-#### `mindmaps`
-User-created or system mind maps.
-```sql
-CREATE TABLE mindmaps (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID NOT NULL REFERENCES users(id),
-    module_id UUID REFERENCES modules(id),
-    title TEXT NOT NULL,
-    data JSONB NOT NULL,
-    layout mindmap_layout DEFAULT 'tree',
-    is_public BOOLEAN DEFAULT false,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
-
-**Mind Map Data JSONB Structure**:
-```json
-{
-  "nodes": [
-    {
-      "id": "string",
-      "label": "string",
-      "type": "concept|module|topic",
-      "position": { "x": "number", "y": "number" },
-      "data": {
-        "description": "string",
-        "moduleId": "string"
-      }
-    }
-  ],
-  "edges": [
-    {
-      "id": "string",
-      "source": "string",
-      "target": "string",
-      "type": "relates|requires|contains"
-    }
-  ]
-}
-```
 
 ### Resources
 
@@ -381,12 +340,6 @@ CREATE TYPE video_type AS ENUM (
     'external'       -- Other platforms
 );
 
-CREATE TYPE mindmap_layout AS ENUM (
-    'tree',          -- Hierarchical tree
-    'radial',        -- Radial layout
-    'force',         -- Force-directed
-    'hierarchical'   -- Top-down hierarchy
-);
 ```
 
 ## 📑 Indexes
@@ -542,7 +495,6 @@ CREATE POLICY "Users manage own notes" ON notes
 2. **One-to-Many**
    - `users` → `user_sessions`
    - `users` → `notes`
-   - `users` → `mindmaps`
    - `modules` → `quizzes`
    - `modules` → `bibliography`
    - `modules` → `videos`

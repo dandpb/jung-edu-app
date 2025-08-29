@@ -11,8 +11,7 @@ __tests__/
 │   ├── video/         # YouTube service tests
 │   ├── quiz/          # Quiz generator tests
 │   ├── bibliography/  # Bibliography enricher tests
-│   ├── mindmap/       # Mind map generator tests
-│   └── modules/       # Module service tests
+│   │   └── modules/       # Module service tests
 ├── integration/       # Integration tests
 │   ├── moduleGeneration.test.tsx  # Full workflow tests
 │   └── errorHandling.test.tsx     # Error scenarios
@@ -55,7 +54,6 @@ All tests use centralized mock data from `mocks/mockData.ts`:
 - `mockModule` - Complete module structure
 - `mockVideo` - YouTube video data
 - `mockQuiz` - Quiz with questions
-- `mockMindMapData` - Mind map nodes/edges
 - `mockBibliographyItem` - Bibliography reference
 - `mockApiResponses` - Mock API functions
 

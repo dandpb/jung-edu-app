@@ -6,7 +6,6 @@ The **Module Generation Service** is the central integration point for creating 
 
 This service unifies:
 - **Module Structure Generation** - Creates the base educational module
-- **Mind Map Generation** - Visual concept mapping with React Flow
 - **Quiz Generation** - Interactive assessments with explanations
 - **Video Enrichment** - Educational video discovery and integration
 - **Bibliography Generation** - Academic references and citations
@@ -49,7 +48,6 @@ const module = await generator.generateCompleteModule(config);
 
 // Access generated components
 console.log(module.module);      // Base module structure
-console.log(module.mindMap);     // React Flow nodes and edges
 console.log(module.quiz);        // Enhanced quiz with explanations
 console.log(module.videos);      // Enriched video resources
 console.log(module.bibliography); // Academic references
@@ -63,7 +61,6 @@ const customModule = await generator.generateCustomModule(
   'Dream Analysis',
   {
     module: true,
-    mindMap: true,
     quiz: false,
     videos: true,
     bibliography: false
@@ -129,10 +126,6 @@ interface GeneratedModule {
     };
   };
   
-  mindMap?: {
-    nodes: Node[];
-    edges: Edge[];
-  };
   
   quiz?: {
     questions: Question[];
@@ -158,7 +151,6 @@ interface GeneratedModule {
 ### Quick Module
 - 5 quiz questions
 - 3 videos maximum
-- Includes mind map
 - Skips bibliography
 - Fast generation time
 
@@ -166,13 +158,11 @@ interface GeneratedModule {
 - 15 quiz questions
 - 10 videos maximum
 - Full bibliography
-- Comprehensive mind map
 - All components included
 
 ### Research Module
 - Advanced difficulty
 - Focus on bibliography
-- Detailed mind map
 - No quiz or videos
 - Academic oriented
 
@@ -180,7 +170,6 @@ interface GeneratedModule {
 
 The module generator seamlessly integrates with:
 
-1. **Mind Map Service** - Creates visual concept hierarchies
 2. **Quiz Service** - Generates and enhances assessments
 3. **Video Service** - Searches and enriches video content
 4. **Bibliography Service** - Creates and enriches references

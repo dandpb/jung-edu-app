@@ -71,14 +71,6 @@ describe('EndToEndValidator', () => {
       updatedAt: new Date()
     },
     bibliography: [],
-    mindMap: {
-      moduleId: 'test-module-1',
-      nodes: [],
-      edges: [],
-      centralConcept: 'Jungian Psychology',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
     createdAt: new Date(),
     updatedAt: new Date(),
     videos: []
@@ -369,7 +361,6 @@ describe('EndToEndValidator', () => {
       const incompleteModule = {
         ...mockModule,
         quiz: undefined,
-        mindMap: undefined,
         bibliography: undefined
       };
 

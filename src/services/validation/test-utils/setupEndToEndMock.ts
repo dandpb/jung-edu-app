@@ -8,7 +8,7 @@ export function setupEndToEndValidatorMock(endToEndValidator: any, modules: any[
   
   // Check for incomplete modules (missing key components)
   const hasIncompleteModules = hasModules && modules.some(m => 
-    !m.quiz || !m.mindMap || !m.bibliography
+    !m.quiz || !m.bibliography
   );
   
   // Check for XSS vulnerabilities in content
@@ -204,7 +204,7 @@ export function setupEndToEndValidatorMock(endToEndValidator: any, modules: any[
           severity: 'major' as const,
           category: 'content',
           title: 'Incomplete module components',
-          description: 'Modules are missing required components (quiz, mindMap, or bibliography)',
+          description: 'Modules are missing required components (quiz or bibliography)',
           impact: 'Module functionality will be limited',
           urgency: 'high' as const,
           blockingRelease: true
