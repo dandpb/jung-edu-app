@@ -1,0 +1,3624 @@
+<testsuites id="" name="" tests="876" failures="0" skipped="876" errors="0" time="0.18780699999999995">
+<testsuite name="auth.setup.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="setup" tests="2" failures="0" skipped="2" time="0" errors="0">
+<testcase name="authenticate as admin" classname="auth.setup.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="authenticate as regular user" classname="auth.setup.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="dashboard.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="chromium" tests="14" failures="0" skipped="14" time="0" errors="0">
+<testcase name="Dashboard › should display dashboard correctly for authenticated user" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should show user progress information" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should display recent modules correctly" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should navigate to module from dashboard" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should show quick actions" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle continue studying action" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle browse modules action" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle user menu interactions" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle profile navigation" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle settings navigation" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle logout" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should be responsive on mobile viewport" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle loading states correctly" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should display notifications if present" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="example.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="chromium" tests="12" failures="0" skipped="12" time="0" errors="0">
+<testcase name="E2E Testing Utilities Demo › User Login Flow" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Admin Dashboard Access" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Module Interaction" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Multi-Language Support" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Error Handling and Recovery" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Performance Monitoring" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › API Integration Testing" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Visual Regression Testing" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Form Validation and Submission" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Browser and Context Management" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Advanced E2E Scenarios › Complete User Journey" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration-based Testing › Run tests based on environment" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="login.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="chromium" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="Authentication Flow › should display login form correctly" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should validate required fields" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should handle invalid credentials" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should login successfully with valid credentials" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should toggle password visibility" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should handle remember me functionality" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should navigate to registration page" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should navigate to forgot password page" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="modules.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="chromium" tests="11" failures="0" skipped="11" time="0" errors="0">
+<testcase name="Module Learning › should display module content correctly" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should navigate between module sections" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should track reading progress" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should display video content correctly" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should handle quiz interactions" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should handle note-taking functionality" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should bookmark content" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should navigate to related modules" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should complete module and update progress" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should handle module accessibility features" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should return to dashboard from module" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/accessibility/accessibility.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="chromium" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Accessibility Testing › Keyboard Navigation › should support basic keyboard navigation" classname="specs/accessibility/accessibility.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Accessibility Testing › Screen Reader Support › should have proper heading structure" classname="specs/accessibility/accessibility.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Accessibility Testing › Basic Accessibility › should have accessible images" classname="specs/accessibility/accessibility.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/admin/admin-dashboard.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="chromium" tests="23" failures="0" skipped="23" time="0" errors="0">
+<testcase name="Admin Dashboard › Admin Authentication &amp; Access › should allow admin login" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Admin Authentication &amp; Access › should restrict access to admin-only areas" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Admin Authentication &amp; Access › should show admin navigation" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should display system statistics" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should show system health status" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should display recent admin activities" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should provide quick actions" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should display user list" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow user search and filtering" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow user role management" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow creating new admin users" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow user deactivation" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Analytics › should display usage analytics" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Analytics › should allow date range filtering" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Analytics › should export analytics reports" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Settings › should allow system configuration" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Settings › should manage email templates" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Security &amp; Audit › should display audit logs" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Security &amp; Audit › should allow filtering audit logs" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Responsive Design › should work on tablet viewport" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Responsive Design › should handle mobile admin interface" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Performance &amp; Reliability › should load dashboard quickly" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Performance &amp; Reliability › should handle large datasets gracefully" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/admin/module-management.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="chromium" tests="20" failures="0" skipped="20" time="0" errors="0">
+<testcase name="Admin Module Management › Module Creation › should create new module successfully" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Creation › should validate required fields" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Creation › should support rich text content editing" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Creation › should support media upload" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Editing › should edit existing module" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Editing › should preview module before publishing" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Editing › should manage module versions" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Organization › should organize modules by categories" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Organization › should support bulk operations" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Organization › should support module ordering/sorting" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Publishing › should publish module" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Publishing › should unpublish module" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Publishing › should schedule module publication" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Analytics › should display module performance metrics" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Analytics › should show user progress tracking" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Deletion › should delete module with confirmation" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Deletion › should prevent deletion of modules with active enrollments" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Search and Filtering › should search modules by title" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Search and Filtering › should filter by status" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Search and Filtering › should filter by difficulty" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/admin/quiz-management.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="chromium" tests="21" failures="0" skipped="21" time="0" errors="0">
+<testcase name="Admin Quiz Management › Quiz Creation › should create new quiz successfully" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add multiple choice questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add true/false questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add essay questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add fill-in-the-blank questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Configuration › should configure quiz timing and attempts" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Configuration › should configure grading options" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Configuration › should configure question randomization" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should preview quiz before publishing" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should publish quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should duplicate quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should export quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should import quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Question Bank Management › should create question bank" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Question Bank Management › should add questions to bank" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Question Bank Management › should use question bank in quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Analytics › should display quiz performance analytics" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Analytics › should show individual student results" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Analytics › should allow manual grading of essay questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Deletion and Cleanup › should delete quiz with confirmation" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Deletion and Cleanup › should archive quiz instead of deleting if has results" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/auth/authentication.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="chromium" tests="21" failures="0" skipped="21" time="0" errors="0">
+<testcase name="Authentication Flow › User Login › should login successfully with valid credentials" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should show error message with invalid credentials" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should validate required fields" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should validate email format" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should handle remember me functionality" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should toggle password visibility" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should redirect to intended page after login" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Registration › should register new user successfully" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Registration › should validate password requirements" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Registration › should validate password confirmation match" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Registration › should prevent duplicate email registration" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Password Reset › should initiate password reset" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Password Reset › should handle invalid email for reset" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Logout › should logout successfully" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Logout › should clear session on logout" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Logout › should handle auto-logout on session expiry" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Social Authentication › should show social login options" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Security › should prevent XSS in login form" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Security › should enforce rate limiting" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Accessibility › should be accessible with keyboard navigation" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Accessibility › should have proper ARIA labels" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/cross-browser/responsive-design.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="chromium" tests="4" failures="0" skipped="4" time="0" errors="0">
+<testcase name="Cross-Browser and Responsive Design › Desktop Viewports › should work on 1920x1080 resolution" classname="specs/cross-browser/responsive-design.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Cross-Browser and Responsive Design › Desktop Viewports › should work on 1366x768 resolution" classname="specs/cross-browser/responsive-design.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Cross-Browser and Responsive Design › Mobile Viewports › should work on iPhone SE (375x667)" classname="specs/cross-browser/responsive-design.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Cross-Browser and Responsive Design › Accessibility on Different Devices › should maintain accessibility on mobile" classname="specs/cross-browser/responsive-design.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/student/learning-journey.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="chromium" tests="25" failures="0" skipped="25" time="0" errors="0">
+<testcase name="Student Learning Journey › Dashboard Navigation › should display student dashboard correctly" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Dashboard Navigation › should show learning progress" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Dashboard Navigation › should display recent activities" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Dashboard Navigation › should allow module search and filtering" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Dashboard Navigation › should toggle between grid and list view" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should navigate to and view module content" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should track progress through module sections" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should allow bookmarking modules" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should support note-taking" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should play videos correctly" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should navigate using table of contents" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should test interactive elements" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should mark module as completed" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should start and complete a quiz" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should handle quiz timer" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should save quiz progress" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should show quiz results and feedback" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should allow quiz retaking if permitted" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Progress Tracking › should display learning analytics" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Progress Tracking › should show learning path recommendations" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Progress Tracking › should track study streaks" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Mobile Responsiveness › should work correctly on mobile devices" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Accessibility › should support screen readers" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Accessibility › should support keyboard navigation" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Accessibility › should adjust text size" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="dashboard.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="firefox" tests="14" failures="0" skipped="14" time="0" errors="0">
+<testcase name="Dashboard › should display dashboard correctly for authenticated user" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should show user progress information" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should display recent modules correctly" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should navigate to module from dashboard" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should show quick actions" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle continue studying action" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle browse modules action" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle user menu interactions" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle profile navigation" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle settings navigation" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle logout" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should be responsive on mobile viewport" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle loading states correctly" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should display notifications if present" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="example.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="firefox" tests="12" failures="0" skipped="12" time="0" errors="0">
+<testcase name="E2E Testing Utilities Demo › User Login Flow" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Admin Dashboard Access" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Module Interaction" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Multi-Language Support" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Error Handling and Recovery" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Performance Monitoring" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › API Integration Testing" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Visual Regression Testing" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Form Validation and Submission" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Browser and Context Management" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Advanced E2E Scenarios › Complete User Journey" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration-based Testing › Run tests based on environment" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="login.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="firefox" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="Authentication Flow › should display login form correctly" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should validate required fields" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should handle invalid credentials" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should login successfully with valid credentials" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should toggle password visibility" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should handle remember me functionality" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should navigate to registration page" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should navigate to forgot password page" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="modules.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="firefox" tests="11" failures="0" skipped="11" time="0" errors="0">
+<testcase name="Module Learning › should display module content correctly" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should navigate between module sections" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should track reading progress" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should display video content correctly" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should handle quiz interactions" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should handle note-taking functionality" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should bookmark content" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should navigate to related modules" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should complete module and update progress" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should handle module accessibility features" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should return to dashboard from module" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/accessibility/accessibility.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="firefox" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Accessibility Testing › Keyboard Navigation › should support basic keyboard navigation" classname="specs/accessibility/accessibility.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Accessibility Testing › Screen Reader Support › should have proper heading structure" classname="specs/accessibility/accessibility.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Accessibility Testing › Basic Accessibility › should have accessible images" classname="specs/accessibility/accessibility.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/admin/admin-dashboard.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="firefox" tests="23" failures="0" skipped="23" time="0" errors="0">
+<testcase name="Admin Dashboard › Admin Authentication &amp; Access › should allow admin login" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Admin Authentication &amp; Access › should restrict access to admin-only areas" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Admin Authentication &amp; Access › should show admin navigation" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should display system statistics" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should show system health status" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should display recent admin activities" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should provide quick actions" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should display user list" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow user search and filtering" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow user role management" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow creating new admin users" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow user deactivation" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Analytics › should display usage analytics" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Analytics › should allow date range filtering" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Analytics › should export analytics reports" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Settings › should allow system configuration" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Settings › should manage email templates" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Security &amp; Audit › should display audit logs" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Security &amp; Audit › should allow filtering audit logs" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Responsive Design › should work on tablet viewport" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Responsive Design › should handle mobile admin interface" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Performance &amp; Reliability › should load dashboard quickly" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Performance &amp; Reliability › should handle large datasets gracefully" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/admin/module-management.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="firefox" tests="20" failures="0" skipped="20" time="0" errors="0">
+<testcase name="Admin Module Management › Module Creation › should create new module successfully" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Creation › should validate required fields" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Creation › should support rich text content editing" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Creation › should support media upload" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Editing › should edit existing module" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Editing › should preview module before publishing" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Editing › should manage module versions" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Organization › should organize modules by categories" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Organization › should support bulk operations" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Organization › should support module ordering/sorting" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Publishing › should publish module" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Publishing › should unpublish module" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Publishing › should schedule module publication" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Analytics › should display module performance metrics" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Analytics › should show user progress tracking" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Deletion › should delete module with confirmation" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Deletion › should prevent deletion of modules with active enrollments" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Search and Filtering › should search modules by title" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Search and Filtering › should filter by status" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Search and Filtering › should filter by difficulty" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/admin/quiz-management.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="firefox" tests="21" failures="0" skipped="21" time="0" errors="0">
+<testcase name="Admin Quiz Management › Quiz Creation › should create new quiz successfully" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add multiple choice questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add true/false questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add essay questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add fill-in-the-blank questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Configuration › should configure quiz timing and attempts" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Configuration › should configure grading options" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Configuration › should configure question randomization" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should preview quiz before publishing" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should publish quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should duplicate quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should export quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should import quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Question Bank Management › should create question bank" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Question Bank Management › should add questions to bank" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Question Bank Management › should use question bank in quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Analytics › should display quiz performance analytics" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Analytics › should show individual student results" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Analytics › should allow manual grading of essay questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Deletion and Cleanup › should delete quiz with confirmation" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Deletion and Cleanup › should archive quiz instead of deleting if has results" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/auth/authentication.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="firefox" tests="21" failures="0" skipped="21" time="0" errors="0">
+<testcase name="Authentication Flow › User Login › should login successfully with valid credentials" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should show error message with invalid credentials" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should validate required fields" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should validate email format" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should handle remember me functionality" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should toggle password visibility" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should redirect to intended page after login" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Registration › should register new user successfully" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Registration › should validate password requirements" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Registration › should validate password confirmation match" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Registration › should prevent duplicate email registration" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Password Reset › should initiate password reset" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Password Reset › should handle invalid email for reset" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Logout › should logout successfully" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Logout › should clear session on logout" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Logout › should handle auto-logout on session expiry" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Social Authentication › should show social login options" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Security › should prevent XSS in login form" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Security › should enforce rate limiting" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Accessibility › should be accessible with keyboard navigation" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Accessibility › should have proper ARIA labels" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/cross-browser/responsive-design.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="firefox" tests="4" failures="0" skipped="4" time="0" errors="0">
+<testcase name="Cross-Browser and Responsive Design › Desktop Viewports › should work on 1920x1080 resolution" classname="specs/cross-browser/responsive-design.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Cross-Browser and Responsive Design › Desktop Viewports › should work on 1366x768 resolution" classname="specs/cross-browser/responsive-design.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Cross-Browser and Responsive Design › Mobile Viewports › should work on iPhone SE (375x667)" classname="specs/cross-browser/responsive-design.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Cross-Browser and Responsive Design › Accessibility on Different Devices › should maintain accessibility on mobile" classname="specs/cross-browser/responsive-design.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/student/learning-journey.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="firefox" tests="25" failures="0" skipped="25" time="0" errors="0">
+<testcase name="Student Learning Journey › Dashboard Navigation › should display student dashboard correctly" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Dashboard Navigation › should show learning progress" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Dashboard Navigation › should display recent activities" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Dashboard Navigation › should allow module search and filtering" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Dashboard Navigation › should toggle between grid and list view" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should navigate to and view module content" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should track progress through module sections" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should allow bookmarking modules" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should support note-taking" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should play videos correctly" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should navigate using table of contents" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should test interactive elements" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should mark module as completed" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should start and complete a quiz" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should handle quiz timer" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should save quiz progress" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should show quiz results and feedback" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should allow quiz retaking if permitted" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Progress Tracking › should display learning analytics" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Progress Tracking › should show learning path recommendations" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Progress Tracking › should track study streaks" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Mobile Responsiveness › should work correctly on mobile devices" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Accessibility › should support screen readers" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Accessibility › should support keyboard navigation" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Accessibility › should adjust text size" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="dashboard.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="webkit" tests="14" failures="0" skipped="14" time="0" errors="0">
+<testcase name="Dashboard › should display dashboard correctly for authenticated user" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should show user progress information" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should display recent modules correctly" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should navigate to module from dashboard" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should show quick actions" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle continue studying action" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle browse modules action" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle user menu interactions" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle profile navigation" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle settings navigation" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle logout" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should be responsive on mobile viewport" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle loading states correctly" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should display notifications if present" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="example.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="webkit" tests="12" failures="0" skipped="12" time="0" errors="0">
+<testcase name="E2E Testing Utilities Demo › User Login Flow" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Admin Dashboard Access" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Module Interaction" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Multi-Language Support" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Error Handling and Recovery" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Performance Monitoring" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › API Integration Testing" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Visual Regression Testing" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Form Validation and Submission" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Browser and Context Management" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Advanced E2E Scenarios › Complete User Journey" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration-based Testing › Run tests based on environment" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="login.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="webkit" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="Authentication Flow › should display login form correctly" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should validate required fields" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should handle invalid credentials" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should login successfully with valid credentials" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should toggle password visibility" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should handle remember me functionality" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should navigate to registration page" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should navigate to forgot password page" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="modules.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="webkit" tests="11" failures="0" skipped="11" time="0" errors="0">
+<testcase name="Module Learning › should display module content correctly" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should navigate between module sections" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should track reading progress" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should display video content correctly" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should handle quiz interactions" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should handle note-taking functionality" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should bookmark content" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should navigate to related modules" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should complete module and update progress" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should handle module accessibility features" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should return to dashboard from module" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/accessibility/accessibility.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="webkit" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Accessibility Testing › Keyboard Navigation › should support basic keyboard navigation" classname="specs/accessibility/accessibility.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Accessibility Testing › Screen Reader Support › should have proper heading structure" classname="specs/accessibility/accessibility.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Accessibility Testing › Basic Accessibility › should have accessible images" classname="specs/accessibility/accessibility.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/admin/admin-dashboard.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="webkit" tests="23" failures="0" skipped="23" time="0" errors="0">
+<testcase name="Admin Dashboard › Admin Authentication &amp; Access › should allow admin login" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Admin Authentication &amp; Access › should restrict access to admin-only areas" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Admin Authentication &amp; Access › should show admin navigation" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should display system statistics" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should show system health status" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should display recent admin activities" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should provide quick actions" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should display user list" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow user search and filtering" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow user role management" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow creating new admin users" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow user deactivation" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Analytics › should display usage analytics" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Analytics › should allow date range filtering" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Analytics › should export analytics reports" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Settings › should allow system configuration" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Settings › should manage email templates" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Security &amp; Audit › should display audit logs" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Security &amp; Audit › should allow filtering audit logs" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Responsive Design › should work on tablet viewport" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Responsive Design › should handle mobile admin interface" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Performance &amp; Reliability › should load dashboard quickly" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Performance &amp; Reliability › should handle large datasets gracefully" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/admin/module-management.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="webkit" tests="20" failures="0" skipped="20" time="0" errors="0">
+<testcase name="Admin Module Management › Module Creation › should create new module successfully" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Creation › should validate required fields" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Creation › should support rich text content editing" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Creation › should support media upload" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Editing › should edit existing module" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Editing › should preview module before publishing" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Editing › should manage module versions" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Organization › should organize modules by categories" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Organization › should support bulk operations" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Organization › should support module ordering/sorting" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Publishing › should publish module" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Publishing › should unpublish module" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Publishing › should schedule module publication" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Analytics › should display module performance metrics" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Analytics › should show user progress tracking" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Deletion › should delete module with confirmation" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Deletion › should prevent deletion of modules with active enrollments" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Search and Filtering › should search modules by title" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Search and Filtering › should filter by status" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Search and Filtering › should filter by difficulty" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/admin/quiz-management.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="webkit" tests="21" failures="0" skipped="21" time="0" errors="0">
+<testcase name="Admin Quiz Management › Quiz Creation › should create new quiz successfully" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add multiple choice questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add true/false questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add essay questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add fill-in-the-blank questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Configuration › should configure quiz timing and attempts" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Configuration › should configure grading options" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Configuration › should configure question randomization" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should preview quiz before publishing" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should publish quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should duplicate quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should export quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should import quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Question Bank Management › should create question bank" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Question Bank Management › should add questions to bank" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Question Bank Management › should use question bank in quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Analytics › should display quiz performance analytics" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Analytics › should show individual student results" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Analytics › should allow manual grading of essay questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Deletion and Cleanup › should delete quiz with confirmation" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Deletion and Cleanup › should archive quiz instead of deleting if has results" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/auth/authentication.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="webkit" tests="21" failures="0" skipped="21" time="0" errors="0">
+<testcase name="Authentication Flow › User Login › should login successfully with valid credentials" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should show error message with invalid credentials" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should validate required fields" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should validate email format" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should handle remember me functionality" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should toggle password visibility" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should redirect to intended page after login" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Registration › should register new user successfully" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Registration › should validate password requirements" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Registration › should validate password confirmation match" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Registration › should prevent duplicate email registration" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Password Reset › should initiate password reset" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Password Reset › should handle invalid email for reset" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Logout › should logout successfully" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Logout › should clear session on logout" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Logout › should handle auto-logout on session expiry" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Social Authentication › should show social login options" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Security › should prevent XSS in login form" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Security › should enforce rate limiting" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Accessibility › should be accessible with keyboard navigation" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Accessibility › should have proper ARIA labels" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/cross-browser/responsive-design.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="webkit" tests="4" failures="0" skipped="4" time="0" errors="0">
+<testcase name="Cross-Browser and Responsive Design › Desktop Viewports › should work on 1920x1080 resolution" classname="specs/cross-browser/responsive-design.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Cross-Browser and Responsive Design › Desktop Viewports › should work on 1366x768 resolution" classname="specs/cross-browser/responsive-design.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Cross-Browser and Responsive Design › Mobile Viewports › should work on iPhone SE (375x667)" classname="specs/cross-browser/responsive-design.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Cross-Browser and Responsive Design › Accessibility on Different Devices › should maintain accessibility on mobile" classname="specs/cross-browser/responsive-design.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/student/learning-journey.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="webkit" tests="25" failures="0" skipped="25" time="0" errors="0">
+<testcase name="Student Learning Journey › Dashboard Navigation › should display student dashboard correctly" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Dashboard Navigation › should show learning progress" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Dashboard Navigation › should display recent activities" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Dashboard Navigation › should allow module search and filtering" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Dashboard Navigation › should toggle between grid and list view" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should navigate to and view module content" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should track progress through module sections" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should allow bookmarking modules" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should support note-taking" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should play videos correctly" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should navigate using table of contents" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should test interactive elements" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should mark module as completed" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should start and complete a quiz" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should handle quiz timer" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should save quiz progress" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should show quiz results and feedback" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should allow quiz retaking if permitted" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Progress Tracking › should display learning analytics" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Progress Tracking › should show learning path recommendations" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Progress Tracking › should track study streaks" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Mobile Responsiveness › should work correctly on mobile devices" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Accessibility › should support screen readers" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Accessibility › should support keyboard navigation" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Accessibility › should adjust text size" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="dashboard.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Chrome" tests="14" failures="0" skipped="14" time="0" errors="0">
+<testcase name="Dashboard › should display dashboard correctly for authenticated user" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should show user progress information" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should display recent modules correctly" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should navigate to module from dashboard" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should show quick actions" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle continue studying action" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle browse modules action" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle user menu interactions" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle profile navigation" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle settings navigation" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle logout" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should be responsive on mobile viewport" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle loading states correctly" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should display notifications if present" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="example.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Chrome" tests="12" failures="0" skipped="12" time="0" errors="0">
+<testcase name="E2E Testing Utilities Demo › User Login Flow" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Admin Dashboard Access" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Module Interaction" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Multi-Language Support" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Error Handling and Recovery" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Performance Monitoring" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › API Integration Testing" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Visual Regression Testing" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Form Validation and Submission" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Browser and Context Management" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Advanced E2E Scenarios › Complete User Journey" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration-based Testing › Run tests based on environment" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="login.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Chrome" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="Authentication Flow › should display login form correctly" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should validate required fields" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should handle invalid credentials" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should login successfully with valid credentials" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should toggle password visibility" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should handle remember me functionality" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should navigate to registration page" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should navigate to forgot password page" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="modules.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Chrome" tests="11" failures="0" skipped="11" time="0" errors="0">
+<testcase name="Module Learning › should display module content correctly" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should navigate between module sections" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should track reading progress" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should display video content correctly" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should handle quiz interactions" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should handle note-taking functionality" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should bookmark content" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should navigate to related modules" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should complete module and update progress" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should handle module accessibility features" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should return to dashboard from module" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/accessibility/accessibility.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Chrome" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Accessibility Testing › Keyboard Navigation › should support basic keyboard navigation" classname="specs/accessibility/accessibility.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Accessibility Testing › Screen Reader Support › should have proper heading structure" classname="specs/accessibility/accessibility.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Accessibility Testing › Basic Accessibility › should have accessible images" classname="specs/accessibility/accessibility.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/admin/admin-dashboard.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Chrome" tests="23" failures="0" skipped="23" time="0" errors="0">
+<testcase name="Admin Dashboard › Admin Authentication &amp; Access › should allow admin login" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Admin Authentication &amp; Access › should restrict access to admin-only areas" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Admin Authentication &amp; Access › should show admin navigation" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should display system statistics" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should show system health status" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should display recent admin activities" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should provide quick actions" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should display user list" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow user search and filtering" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow user role management" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow creating new admin users" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow user deactivation" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Analytics › should display usage analytics" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Analytics › should allow date range filtering" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Analytics › should export analytics reports" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Settings › should allow system configuration" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Settings › should manage email templates" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Security &amp; Audit › should display audit logs" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Security &amp; Audit › should allow filtering audit logs" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Responsive Design › should work on tablet viewport" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Responsive Design › should handle mobile admin interface" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Performance &amp; Reliability › should load dashboard quickly" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Performance &amp; Reliability › should handle large datasets gracefully" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/admin/module-management.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Chrome" tests="20" failures="0" skipped="20" time="0" errors="0">
+<testcase name="Admin Module Management › Module Creation › should create new module successfully" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Creation › should validate required fields" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Creation › should support rich text content editing" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Creation › should support media upload" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Editing › should edit existing module" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Editing › should preview module before publishing" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Editing › should manage module versions" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Organization › should organize modules by categories" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Organization › should support bulk operations" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Organization › should support module ordering/sorting" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Publishing › should publish module" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Publishing › should unpublish module" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Publishing › should schedule module publication" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Analytics › should display module performance metrics" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Analytics › should show user progress tracking" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Deletion › should delete module with confirmation" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Deletion › should prevent deletion of modules with active enrollments" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Search and Filtering › should search modules by title" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Search and Filtering › should filter by status" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Search and Filtering › should filter by difficulty" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/admin/quiz-management.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Chrome" tests="21" failures="0" skipped="21" time="0" errors="0">
+<testcase name="Admin Quiz Management › Quiz Creation › should create new quiz successfully" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add multiple choice questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add true/false questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add essay questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add fill-in-the-blank questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Configuration › should configure quiz timing and attempts" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Configuration › should configure grading options" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Configuration › should configure question randomization" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should preview quiz before publishing" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should publish quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should duplicate quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should export quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should import quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Question Bank Management › should create question bank" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Question Bank Management › should add questions to bank" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Question Bank Management › should use question bank in quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Analytics › should display quiz performance analytics" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Analytics › should show individual student results" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Analytics › should allow manual grading of essay questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Deletion and Cleanup › should delete quiz with confirmation" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Deletion and Cleanup › should archive quiz instead of deleting if has results" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/auth/authentication.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Chrome" tests="21" failures="0" skipped="21" time="0" errors="0">
+<testcase name="Authentication Flow › User Login › should login successfully with valid credentials" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should show error message with invalid credentials" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should validate required fields" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should validate email format" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should handle remember me functionality" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should toggle password visibility" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should redirect to intended page after login" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Registration › should register new user successfully" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Registration › should validate password requirements" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Registration › should validate password confirmation match" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Registration › should prevent duplicate email registration" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Password Reset › should initiate password reset" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Password Reset › should handle invalid email for reset" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Logout › should logout successfully" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Logout › should clear session on logout" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Logout › should handle auto-logout on session expiry" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Social Authentication › should show social login options" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Security › should prevent XSS in login form" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Security › should enforce rate limiting" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Accessibility › should be accessible with keyboard navigation" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Accessibility › should have proper ARIA labels" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/cross-browser/responsive-design.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Chrome" tests="4" failures="0" skipped="4" time="0" errors="0">
+<testcase name="Cross-Browser and Responsive Design › Desktop Viewports › should work on 1920x1080 resolution" classname="specs/cross-browser/responsive-design.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Cross-Browser and Responsive Design › Desktop Viewports › should work on 1366x768 resolution" classname="specs/cross-browser/responsive-design.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Cross-Browser and Responsive Design › Mobile Viewports › should work on iPhone SE (375x667)" classname="specs/cross-browser/responsive-design.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Cross-Browser and Responsive Design › Accessibility on Different Devices › should maintain accessibility on mobile" classname="specs/cross-browser/responsive-design.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/student/learning-journey.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Chrome" tests="25" failures="0" skipped="25" time="0" errors="0">
+<testcase name="Student Learning Journey › Dashboard Navigation › should display student dashboard correctly" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Dashboard Navigation › should show learning progress" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Dashboard Navigation › should display recent activities" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Dashboard Navigation › should allow module search and filtering" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Dashboard Navigation › should toggle between grid and list view" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should navigate to and view module content" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should track progress through module sections" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should allow bookmarking modules" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should support note-taking" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should play videos correctly" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should navigate using table of contents" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should test interactive elements" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should mark module as completed" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should start and complete a quiz" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should handle quiz timer" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should save quiz progress" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should show quiz results and feedback" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should allow quiz retaking if permitted" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Progress Tracking › should display learning analytics" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Progress Tracking › should show learning path recommendations" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Progress Tracking › should track study streaks" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Mobile Responsiveness › should work correctly on mobile devices" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Accessibility › should support screen readers" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Accessibility › should support keyboard navigation" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Accessibility › should adjust text size" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="dashboard.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Safari" tests="14" failures="0" skipped="14" time="0" errors="0">
+<testcase name="Dashboard › should display dashboard correctly for authenticated user" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should show user progress information" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should display recent modules correctly" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should navigate to module from dashboard" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should show quick actions" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle continue studying action" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle browse modules action" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle user menu interactions" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle profile navigation" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle settings navigation" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle logout" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should be responsive on mobile viewport" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should handle loading states correctly" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard › should display notifications if present" classname="dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="example.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Safari" tests="12" failures="0" skipped="12" time="0" errors="0">
+<testcase name="E2E Testing Utilities Demo › User Login Flow" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Admin Dashboard Access" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Module Interaction" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Multi-Language Support" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Error Handling and Recovery" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Performance Monitoring" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › API Integration Testing" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Visual Regression Testing" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Form Validation and Submission" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E Testing Utilities Demo › Browser and Context Management" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Advanced E2E Scenarios › Complete User Journey" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration-based Testing › Run tests based on environment" classname="example.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="login.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Safari" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="Authentication Flow › should display login form correctly" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should validate required fields" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should handle invalid credentials" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should login successfully with valid credentials" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should toggle password visibility" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should handle remember me functionality" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should navigate to registration page" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › should navigate to forgot password page" classname="login.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="modules.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Safari" tests="11" failures="0" skipped="11" time="0" errors="0">
+<testcase name="Module Learning › should display module content correctly" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should navigate between module sections" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should track reading progress" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should display video content correctly" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should handle quiz interactions" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should handle note-taking functionality" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should bookmark content" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should navigate to related modules" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should complete module and update progress" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should handle module accessibility features" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Module Learning › should return to dashboard from module" classname="modules.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/accessibility/accessibility.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Safari" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Accessibility Testing › Keyboard Navigation › should support basic keyboard navigation" classname="specs/accessibility/accessibility.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Accessibility Testing › Screen Reader Support › should have proper heading structure" classname="specs/accessibility/accessibility.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Accessibility Testing › Basic Accessibility › should have accessible images" classname="specs/accessibility/accessibility.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/admin/admin-dashboard.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Safari" tests="23" failures="0" skipped="23" time="0" errors="0">
+<testcase name="Admin Dashboard › Admin Authentication &amp; Access › should allow admin login" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Admin Authentication &amp; Access › should restrict access to admin-only areas" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Admin Authentication &amp; Access › should show admin navigation" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should display system statistics" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should show system health status" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should display recent admin activities" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should provide quick actions" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should display user list" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow user search and filtering" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow user role management" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow creating new admin users" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow user deactivation" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Analytics › should display usage analytics" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Analytics › should allow date range filtering" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Analytics › should export analytics reports" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Settings › should allow system configuration" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Settings › should manage email templates" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Security &amp; Audit › should display audit logs" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Security &amp; Audit › should allow filtering audit logs" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Responsive Design › should work on tablet viewport" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Responsive Design › should handle mobile admin interface" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Performance &amp; Reliability › should load dashboard quickly" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Performance &amp; Reliability › should handle large datasets gracefully" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/admin/module-management.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Safari" tests="20" failures="0" skipped="20" time="0" errors="0">
+<testcase name="Admin Module Management › Module Creation › should create new module successfully" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Creation › should validate required fields" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Creation › should support rich text content editing" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Creation › should support media upload" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Editing › should edit existing module" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Editing › should preview module before publishing" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Editing › should manage module versions" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Organization › should organize modules by categories" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Organization › should support bulk operations" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Organization › should support module ordering/sorting" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Publishing › should publish module" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Publishing › should unpublish module" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Publishing › should schedule module publication" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Analytics › should display module performance metrics" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Analytics › should show user progress tracking" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Deletion › should delete module with confirmation" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Deletion › should prevent deletion of modules with active enrollments" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Search and Filtering › should search modules by title" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Search and Filtering › should filter by status" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Search and Filtering › should filter by difficulty" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/admin/quiz-management.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Safari" tests="21" failures="0" skipped="21" time="0" errors="0">
+<testcase name="Admin Quiz Management › Quiz Creation › should create new quiz successfully" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add multiple choice questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add true/false questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add essay questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add fill-in-the-blank questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Configuration › should configure quiz timing and attempts" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Configuration › should configure grading options" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Configuration › should configure question randomization" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should preview quiz before publishing" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should publish quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should duplicate quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should export quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should import quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Question Bank Management › should create question bank" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Question Bank Management › should add questions to bank" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Question Bank Management › should use question bank in quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Analytics › should display quiz performance analytics" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Analytics › should show individual student results" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Analytics › should allow manual grading of essay questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Deletion and Cleanup › should delete quiz with confirmation" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Deletion and Cleanup › should archive quiz instead of deleting if has results" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/auth/authentication.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Safari" tests="21" failures="0" skipped="21" time="0" errors="0">
+<testcase name="Authentication Flow › User Login › should login successfully with valid credentials" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should show error message with invalid credentials" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should validate required fields" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should validate email format" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should handle remember me functionality" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should toggle password visibility" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Login › should redirect to intended page after login" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Registration › should register new user successfully" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Registration › should validate password requirements" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Registration › should validate password confirmation match" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › User Registration › should prevent duplicate email registration" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Password Reset › should initiate password reset" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Password Reset › should handle invalid email for reset" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Logout › should logout successfully" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Logout › should clear session on logout" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Logout › should handle auto-logout on session expiry" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Social Authentication › should show social login options" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Security › should prevent XSS in login form" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Security › should enforce rate limiting" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Accessibility › should be accessible with keyboard navigation" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication Flow › Accessibility › should have proper ARIA labels" classname="specs/auth/authentication.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/cross-browser/responsive-design.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Safari" tests="4" failures="0" skipped="4" time="0" errors="0">
+<testcase name="Cross-Browser and Responsive Design › Desktop Viewports › should work on 1920x1080 resolution" classname="specs/cross-browser/responsive-design.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Cross-Browser and Responsive Design › Desktop Viewports › should work on 1366x768 resolution" classname="specs/cross-browser/responsive-design.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Cross-Browser and Responsive Design › Mobile Viewports › should work on iPhone SE (375x667)" classname="specs/cross-browser/responsive-design.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Cross-Browser and Responsive Design › Accessibility on Different Devices › should maintain accessibility on mobile" classname="specs/cross-browser/responsive-design.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/student/learning-journey.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="Mobile Safari" tests="25" failures="0" skipped="25" time="0" errors="0">
+<testcase name="Student Learning Journey › Dashboard Navigation › should display student dashboard correctly" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Dashboard Navigation › should show learning progress" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Dashboard Navigation › should display recent activities" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Dashboard Navigation › should allow module search and filtering" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Dashboard Navigation › should toggle between grid and list view" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should navigate to and view module content" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should track progress through module sections" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should allow bookmarking modules" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should support note-taking" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should play videos correctly" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should navigate using table of contents" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should test interactive elements" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Module Learning › should mark module as completed" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should start and complete a quiz" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should handle quiz timer" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should save quiz progress" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should show quiz results and feedback" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Quiz Taking › should allow quiz retaking if permitted" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Progress Tracking › should display learning analytics" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Progress Tracking › should show learning path recommendations" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Progress Tracking › should track study streaks" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Mobile Responsiveness › should work correctly on mobile devices" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Accessibility › should support screen readers" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Accessibility › should support keyboard navigation" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Student Learning Journey › Accessibility › should adjust text size" classname="specs/student/learning-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/admin/admin-dashboard.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="admin-chromium" tests="23" failures="0" skipped="23" time="0" errors="0">
+<testcase name="Admin Dashboard › Admin Authentication &amp; Access › should allow admin login" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Admin Authentication &amp; Access › should restrict access to admin-only areas" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Admin Authentication &amp; Access › should show admin navigation" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should display system statistics" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should show system health status" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should display recent admin activities" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Dashboard Overview › should provide quick actions" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should display user list" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow user search and filtering" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow user role management" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow creating new admin users" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › User Management › should allow user deactivation" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Analytics › should display usage analytics" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Analytics › should allow date range filtering" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Analytics › should export analytics reports" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Settings › should allow system configuration" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › System Settings › should manage email templates" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Security &amp; Audit › should display audit logs" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Security &amp; Audit › should allow filtering audit logs" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Responsive Design › should work on tablet viewport" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Responsive Design › should handle mobile admin interface" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Performance &amp; Reliability › should load dashboard quickly" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Dashboard › Performance &amp; Reliability › should handle large datasets gracefully" classname="specs/admin/admin-dashboard.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/admin/module-management.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="admin-chromium" tests="20" failures="0" skipped="20" time="0" errors="0">
+<testcase name="Admin Module Management › Module Creation › should create new module successfully" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Creation › should validate required fields" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Creation › should support rich text content editing" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Creation › should support media upload" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Editing › should edit existing module" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Editing › should preview module before publishing" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Editing › should manage module versions" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Organization › should organize modules by categories" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Organization › should support bulk operations" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Organization › should support module ordering/sorting" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Publishing › should publish module" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Publishing › should unpublish module" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Publishing › should schedule module publication" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Analytics › should display module performance metrics" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Analytics › should show user progress tracking" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Deletion › should delete module with confirmation" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Module Deletion › should prevent deletion of modules with active enrollments" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Search and Filtering › should search modules by title" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Search and Filtering › should filter by status" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Module Management › Search and Filtering › should filter by difficulty" classname="specs/admin/module-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="specs/admin/quiz-management.spec.ts" timestamp="2025-08-29T11:52:23.354Z" hostname="admin-chromium" tests="21" failures="0" skipped="21" time="0" errors="0">
+<testcase name="Admin Quiz Management › Quiz Creation › should create new quiz successfully" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add multiple choice questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add true/false questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add essay questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Creation › should add fill-in-the-blank questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Configuration › should configure quiz timing and attempts" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Configuration › should configure grading options" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Configuration › should configure question randomization" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should preview quiz before publishing" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should publish quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should duplicate quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should export quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Management › should import quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Question Bank Management › should create question bank" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Question Bank Management › should add questions to bank" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Question Bank Management › should use question bank in quiz" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Analytics › should display quiz performance analytics" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Analytics › should show individual student results" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Analytics › should allow manual grading of essay questions" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Deletion and Cleanup › should delete quiz with confirmation" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Quiz Management › Quiz Deletion and Cleanup › should archive quiz instead of deleting if has results" classname="specs/admin/quiz-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+</testsuites>

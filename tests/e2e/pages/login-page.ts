@@ -18,10 +18,10 @@ export class LoginPage extends BasePage {
 
   constructor(page: Page) {
     super(page);
-    this.loginForm = page.locator('[data-testid="login-form"]');
-    this.emailInput = page.locator('[data-testid="email-input"]');
-    this.passwordInput = page.locator('[data-testid="password-input"]');
-    this.submitButton = page.locator('[data-testid="login-button"]');
+    this.loginForm = page.locator('form, [data-testid="login-form"]').first();
+    this.emailInput = page.locator('[data-testid="email-input"], input[type="email"], input[name="email"]').first();
+    this.passwordInput = page.locator('[data-testid="password-input"], input[type="password"], input[name="password"]').first();
+    this.submitButton = page.locator('[data-testid="login-button"], button[type="submit"], button:has-text("Entrar"), button:has-text("Login")').first();
     this.registerLink = page.locator('[data-testid="register-link"]');
     this.forgotPasswordLink = page.locator('[data-testid="forgot-password-link"]');
     this.rememberMeCheckbox = page.locator('[data-testid="remember-me-checkbox"]');
@@ -37,11 +37,13 @@ export class LoginPage extends BasePage {
     // Setup mock API responses
     await this.setupLoginPageMocks();
     
-    // Navigate to our mock HTML file
-    const mockHtmlPath = 'file://' + process.cwd() + '/tests/e2e/fixtures/mock-app.html';
-    await this.page.goto(mockHtmlPath);
+    // Navigate to the real login page
+    await this.page.goto('/login');
     await this.waitForPageLoad();
-    await expect(this.loginForm).toBeVisible();
+    
+    // Use more flexible form selector that works with real app
+    const form = this.page.locator('form, [data-testid="login-form"]').first();
+    await expect(form).toBeVisible();
   }
 
   /**
@@ -137,15 +139,15 @@ export class LoginPage extends BasePage {
    * Fill demo credentials for testing
    */
   async fillDemoCredentials() {
-    await this.fillEmail('demo@jaqedu.com');
-    await this.fillPassword('demo123');
+    await this.fillEmail('student@test.jaquedu.com');
+    await this.fillPassword('StudentTest123!');
   }
   
   /**
    * Wait for login redirect
    */
   async waitForLoginRedirect() {
-    await this.page.waitForURL(/dashboard|\//, { timeout: 10000 });
+    await this.page.waitForURL(/dashboard/, { timeout: 10000 });
   }
 
   /**
@@ -228,6 +230,7 @@ export class LoginPage extends BasePage {
 
   async loginWithValidCredentials() {
     await this.fillDemoCredentials();
+    await this.clickLoginButton();
   }
 
   async loginWithInvalidCredentials() {

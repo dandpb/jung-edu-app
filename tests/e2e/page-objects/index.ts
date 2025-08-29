@@ -79,7 +79,9 @@ export class PageObjectManager {
 
   async loginAsAdmin(): Promise<AdminDashboardPage> {
     await this.loginPage.navigateToLogin();
-    await this.loginPage.loginAsAdmin();
+    await this.loginPage.fillEmail('admin@test.jaquedu.com');
+    await this.loginPage.fillPassword('AdminTest123!');
+    await this.loginPage.clickLoginButton();
     return this.adminDashboardPage;
   }
 
@@ -93,7 +95,9 @@ export class PageObjectManager {
 
   async completeAdminLoginFlow(): Promise<AdminDashboardPage> {
     const loginPage = await this.goToLogin();
-    await loginPage.loginAsAdmin();
+    await loginPage.fillEmail('admin@test.jaquedu.com');
+    await loginPage.fillPassword('AdminTest123!');
+    await loginPage.clickLoginButton();
     await loginPage.waitForLoginRedirect();
     return this.adminDashboardPage;
   }

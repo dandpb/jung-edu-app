@@ -38,7 +38,8 @@ export abstract class BasePage {
 
   // Common actions
   async goto(path: string = ''): Promise<void> {
-    const fullUrl = path.startsWith('http') ? path : `${this.page.url()}${path}`;
+    const baseUrl = 'http://localhost:3000';
+    const fullUrl = path.startsWith('http') ? path : `${baseUrl}${path}`;
     await this.page.goto(fullUrl);
     await this.waitForPageLoad();
   }
