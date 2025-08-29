@@ -39,7 +39,7 @@ const Navigation: React.FC = () => {
   }
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200">
+    <nav className="bg-white shadow-sm border-b border-gray-200" data-testid="main-navigation">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/dashboard" className="flex items-center space-x-3">
@@ -108,16 +108,17 @@ const Navigation: React.FC = () => {
                   </>
                 )}
                 
-                <div className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600">
+                <div className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600" data-testid="user-menu">
                   <User className="w-4 h-4" />
                   <span className="hidden sm:inline font-medium">
-                    {user?.profile.firstName} {user?.profile.lastName}
+                    {user?.profile?.firstName || user?.username || 'Usuário'} {user?.profile?.lastName || ''}
                   </span>
                 </div>
                 
                 <button
                   onClick={handleLogout}
                   className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200"
+                  data-testid="logout-button"
                 >
                   <LogOut className="w-4 h-4" />
                   <span className="hidden sm:inline">Sair</span>

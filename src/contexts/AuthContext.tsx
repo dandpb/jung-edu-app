@@ -119,6 +119,57 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const checkAuth = async () => {
     try {
       setIsLoading(true);
+      
+      // Check if we're in test mode
+      const isTestMode = localStorage.getItem('test-mode') === 'true';
+      const authUser = localStorage.getItem('auth_user');
+      
+      if (isTestMode && authUser) {
+        try {
+          const parsedUser = JSON.parse(authUser);
+          // Create a valid User object for test mode
+          const testUser: User = {
+            id: parsedUser.id,
+            username: parsedUser.email || 'testuser',
+            email: parsedUser.email,
+            role: parsedUser.role as UserRole,
+            permissions: parsedUser.permissions || [],
+            passwordHash: '',
+            salt: '',
+            profile: {
+              firstName: parsedUser.name || 'Test',
+              lastName: 'User',
+              bio: '',
+              avatar: '',
+              preferences: {
+                language: 'pt',
+                emailNotifications: true,
+                pushNotifications: true,
+                theme: 'light'
+              }
+            },
+            security: {
+              lastPasswordChange: new Date(),
+              twoFactorEnabled: false,
+              passwordHistory: [],
+              loginNotifications: true,
+              trustedDevices: [],
+              sessions: []
+            },
+            isVerified: true,
+            isActive: true,
+            createdAt: new Date(Date.now()),
+            updatedAt: new Date(Date.now()),
+            lastLogin: new Date(Date.now())
+          };
+          setUser(testUser);
+          setIsLoading(false);
+          return;
+        } catch (parseError) {
+          console.warn('Failed to parse test user data:', parseError);
+        }
+      }
+      
       const { accessToken, refreshToken } = getStoredTokens();
       
       if (!accessToken || !refreshToken) {

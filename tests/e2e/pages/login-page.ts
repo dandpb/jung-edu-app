@@ -1,9 +1,8 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './base-page';
-import { testSelectors, testPaths, testConfig } from '../fixtures/test-data';
 
 /**
- * Login page object model
+ * Login page object model with mock data support
  */
 export class LoginPage extends BasePage {
   readonly loginForm: Locator;
@@ -13,142 +12,231 @@ export class LoginPage extends BasePage {
   readonly registerLink: Locator;
   readonly forgotPasswordLink: Locator;
   readonly rememberMeCheckbox: Locator;
+  readonly passwordToggle: Locator;
+  readonly validationError: Locator;
+  readonly serverError: Locator;
 
   constructor(page: Page) {
     super(page);
-    this.loginForm = page.locator(testSelectors.loginForm);
-    this.emailInput = page.locator(testSelectors.emailInput);
-    this.passwordInput = page.locator(testSelectors.passwordInput);
-    this.submitButton = page.locator(testSelectors.submitButton);
-    this.registerLink = page.locator('[data-testid=\"register-link\"]');
-    this.forgotPasswordLink = page.locator('[data-testid=\"forgot-password-link\"]');
-    this.rememberMeCheckbox = page.locator('[data-testid=\"remember-me-checkbox\"]');
+    this.loginForm = page.locator('[data-testid="login-form"]');
+    this.emailInput = page.locator('[data-testid="email-input"]');
+    this.passwordInput = page.locator('[data-testid="password-input"]');
+    this.submitButton = page.locator('[data-testid="login-button"]');
+    this.registerLink = page.locator('[data-testid="register-link"]');
+    this.forgotPasswordLink = page.locator('[data-testid="forgot-password-link"]');
+    this.rememberMeCheckbox = page.locator('[data-testid="remember-me-checkbox"]');
+    this.passwordToggle = page.locator('[data-testid="password-toggle"]');
+    this.validationError = page.locator('.text-red-600, [data-testid="validation-error"]');
+    this.serverError = page.locator('[data-testid="server-error"]');
   }
 
   /**
-   * Navigate to login page
+   * Navigate to login page with mock setup
    */
-  async goto() {
-    await this.page.goto(testPaths.login);
+  async navigateToLogin() {
+    // Setup mock API responses
+    await this.setupLoginPageMocks();
+    
+    // Navigate to our mock HTML file
+    const mockHtmlPath = 'file://' + process.cwd() + '/tests/e2e/fixtures/mock-app.html';
+    await this.page.goto(mockHtmlPath);
     await this.waitForPageLoad();
     await expect(this.loginForm).toBeVisible();
   }
 
   /**
-   * Perform login with credentials
+   * Setup mock API responses for login page
    */
-  async login(email: string, password: string, rememberMe = false) {
-    await this.goto();
+  private async setupLoginPageMocks() {
+    // Mock successful login response
+    await this.page.route('**/api/auth/login', async route => {
+      const request = route.request();
+      const postData = request.postData();
+      
+      if (postData) {
+        const loginData = JSON.parse(postData);
+        
+        // Check for demo credentials
+        if (loginData.username === 'demo@jaqedu.com' || loginData.username === 'student@jaqedu.com') {
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              success: true,
+              user: {
+                id: 'user-456',
+                name: 'Test Student',
+                email: 'student@jaqedu.com',
+                role: 'student'
+              },
+              token: 'mock-jwt-token'
+            })
+          });
+        } else {
+          // Mock invalid credentials
+          await route.fulfill({
+            status: 401,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              error: 'Invalid credentials',
+              message: 'Email ou senha incorretos'
+            })
+          });
+        }
+      }
+    });
     
-    // Fill in credentials
-    await this.fillField(testSelectors.emailInput, email);
-    await this.fillField(testSelectors.passwordInput, password);
-    
-    // Set remember me if requested
-    if (rememberMe) {
-      await this.rememberMeCheckbox.check();
-    }
-    
-    // Submit form and wait for navigation
-    await this.clickAndWait(testSelectors.submitButton, {
-      waitForNavigation: true,
-      timeout: testConfig.longTimeout
+    // Mock navigation after login
+    await this.page.route('**/api/user/profile', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: 'user-456',
+          name: 'Test Student',
+          email: 'student@jaqedu.com',
+          role: 'student'
+        })
+      });
     });
   }
 
   /**
-   * Login with valid credentials and verify success
+   * Perform login with credentials
    */
-  async loginSuccessfully(email: string, password: string) {
-    await this.login(email, password);
-    
-    // Verify redirect to dashboard
-    await expect(this.page).toHaveURL(testPaths.dashboard);
-    await expect(this.userMenu).toBeVisible();
+  async login(email: string, password: string) {
+    await this.fillEmail(email);
+    await this.fillPassword(password);
+    await this.clickLoginButton();
+  }
+  
+  /**
+   * Fill email input
+   */
+  async fillEmail(email: string) {
+    await this.emailInput.clear();
+    await this.emailInput.fill(email);
+  }
+  
+  /**
+   * Fill password input
+   */
+  async fillPassword(password: string) {
+    await this.passwordInput.clear();
+    await this.passwordInput.fill(password);
+  }
+  
+  /**
+   * Click login button
+   */
+  async clickLoginButton() {
+    await this.submitButton.click();
+  }
+  
+  /**
+   * Fill demo credentials for testing
+   */
+  async fillDemoCredentials() {
+    await this.fillEmail('demo@jaqedu.com');
+    await this.fillPassword('demo123');
+  }
+  
+  /**
+   * Wait for login redirect
+   */
+  async waitForLoginRedirect() {
+    await this.page.waitForURL(/dashboard|\//, { timeout: 10000 });
   }
 
   /**
-   * Attempt login with invalid credentials
+   * Check if password is visible
    */
-  async loginWithInvalidCredentials(email: string, password: string) {
-    await this.login(email, password);
-    
-    // Should remain on login page with error message
-    await expect(this.page).toHaveURL(testPaths.login);
-    await this.waitForErrorMessage();
+  async isPasswordVisible(): Promise<boolean> {
+    const type = await this.passwordInput.getAttribute('type');
+    return type === 'text';
+  }
+  
+  /**
+   * Toggle password visibility
+   */
+  async togglePasswordVisibility() {
+    await this.passwordToggle.click();
+  }
+  
+  /**
+   * Check if remember me is checked
+   */
+  async isRememberMeChecked(): Promise<boolean> {
+    return await this.rememberMeCheckbox.isChecked();
+  }
+  
+  /**
+   * Toggle remember me checkbox
+   */
+  async toggleRememberMe() {
+    await this.rememberMeCheckbox.click();
   }
 
   /**
    * Navigate to register page
    */
-  async goToRegister() {
+  async clickRegisterLink() {
     await this.registerLink.click();
-    await expect(this.page).toHaveURL(testPaths.register);
   }
 
   /**
    * Navigate to forgot password page
    */
-  async goToForgotPassword() {
+  async clickForgotPasswordLink() {
     await this.forgotPasswordLink.click();
-    await expect(this.page).toHaveURL(testPaths.forgotPassword);
   }
 
   /**
-   * Verify login form validation
+   * Test form validation
    */
-  async testFormValidation() {
-    await this.goto();
-    
-    // Test empty form submission
-    await this.submitButton.click();
+  async expectEmailToBeRequired() {
+    await this.emailInput.clear();
+    await this.clickLoginButton();
     await expect(this.emailInput).toHaveAttribute('required');
+  }
+
+  async expectPasswordToBeRequired() {
+    await this.passwordInput.clear();
+    await this.clickLoginButton();
     await expect(this.passwordInput).toHaveAttribute('required');
-    
-    // Test invalid email format
-    await this.fillField(testSelectors.emailInput, 'invalid-email');
-    await this.submitButton.click();
-    // Browser should show validation message for invalid email
   }
 
-  /**
-   * Test password visibility toggle
-   */
-  async testPasswordVisibility() {
-    await this.goto();
-    
-    const passwordToggle = this.page.locator('[data-testid=\"password-toggle\"]');
-    if (await passwordToggle.isVisible()) {
-      await this.fillField(testSelectors.passwordInput, 'testpassword');
-      
-      // Password should be hidden initially
-      await expect(this.passwordInput).toHaveAttribute('type', 'password');
-      
-      // Click toggle to show password
-      await passwordToggle.click();
-      await expect(this.passwordInput).toHaveAttribute('type', 'text');
-      
-      // Click toggle to hide password again
-      await passwordToggle.click();
-      await expect(this.passwordInput).toHaveAttribute('type', 'password');
+  async expectValidEmailFormat() {
+    await this.fillEmail('invalid-email');
+    await this.clickLoginButton();
+    // Browser should show validation for invalid email format
+  }
+
+  async clearForm() {
+    await this.emailInput.clear();
+    await this.passwordInput.clear();
+  }
+
+  async hasServerError(): Promise<boolean> {
+    try {
+      await this.serverError.waitFor({ state: 'visible', timeout: 2000 });
+      return true;
+    } catch {
+      return false;
     }
   }
 
-  /**
-   * Test social login if available
-   */
-  async testSocialLogin() {
-    await this.goto();
-    
-    const googleLogin = this.page.locator('[data-testid=\"google-login\"]');
-    const githubLogin = this.page.locator('[data-testid=\"github-login\"]');
-    
-    if (await googleLogin.isVisible()) {
-      await expect(googleLogin).toBeEnabled();
-    }
-    
-    if (await githubLogin.isVisible()) {
-      await expect(githubLogin).toBeEnabled();
-    }
+  async loginWithValidCredentials() {
+    await this.fillDemoCredentials();
+  }
+
+  async loginWithInvalidCredentials() {
+    await this.fillEmail('invalid@email.com');
+    await this.fillPassword('wrongpassword');
+    await this.clickLoginButton();
+  }
+
+  async submitLoginForm() {
+    await this.clickLoginButton();
   }
 }

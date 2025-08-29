@@ -1,13 +1,8 @@
 import React from 'react';
 import { Handle } from 'reactflow';
 
-// Manual import for Position to work around TypeScript issue
-const Position = {
-  Left: 'left' as const,
-  Top: 'top' as const,
-  Right: 'right' as const,
-  Bottom: 'bottom' as const
-};
+// Position type for ReactFlow Handle
+type Position = 'top' | 'right' | 'bottom' | 'left';
 
 interface ModuleSector {
   id: string;
@@ -149,7 +144,7 @@ export const ModuleNode: React.FC<{ data: any }> = ({ data }) => {
         position: 'relative',
       }}
     >
-      <Handle type="target" position={Position.Top} />
+      <Handle type="target" position="top" />
       
       {/* Module category badge */}
       {data.moduleCategory && (
@@ -198,7 +193,7 @@ export const ModuleNode: React.FC<{ data: any }> = ({ data }) => {
         />
       )}
       
-      <Handle type="source" position={Position.Bottom} />
+      <Handle type="source" position="bottom" />
     </div>
   );
 };

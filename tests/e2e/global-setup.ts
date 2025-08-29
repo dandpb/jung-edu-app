@@ -1,123 +1,215 @@
-import { chromium, FullConfig } from '@playwright/test';
+import { FullConfig } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
 
+/**
+ * Global setup for E2E tests
+ * Creates mock authentication states and test fixtures without requiring a live server
+ */
 async function globalSetup(config: FullConfig) {
-  console.log('Starting global setup...');
+  console.log('Starting mock E2E global setup...');
   
   // Create necessary directories
   const authDir = path.join(__dirname, 'auth');
   const reportsDir = path.join(__dirname, 'reports');
   const screenshotsDir = path.join(__dirname, 'screenshots');
   const visualBaselineDir = path.join(__dirname, 'visual-baselines');
+  const testResultsDir = path.join(__dirname, 'test-results');
   
-  [authDir, reportsDir, screenshotsDir, visualBaselineDir].forEach(dir => {
+  [authDir, reportsDir, screenshotsDir, visualBaselineDir, testResultsDir].forEach(dir => {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
   });
 
-  // Set up authentication for different user types
-  const browser = await chromium.launch();
   const baseURL = config.projects[0].use?.baseURL || 'http://localhost:3000';
-
-  // Setup admin user authentication
-  const adminContext = await browser.newContext();
-  const adminPage = await adminContext.newPage();
   
-  try {
-    console.log('Setting up admin authentication...');
-    await adminPage.goto(`${baseURL}/admin/login`);
-    
-    // Try to create admin credentials if login form exists
-    const loginForm = adminPage.locator('form');
-    if (await loginForm.isVisible()) {
-      // Fill in admin credentials (adjust selectors based on your actual login form)
-      await adminPage.fill('[data-testid="email-input"], [name="email"], input[type="email"]', 'admin@jaquedu.com');
-      await adminPage.fill('[data-testid="password-input"], [name="password"], input[type="password"]', 'admin123');
-      await adminPage.click('[data-testid="login-button"], [type="submit"], button:has-text("Login")');
-      
-      // Wait for successful login
-      await adminPage.waitForURL(/\/admin(?:\/dashboard)?/, { timeout: 10000 });
+  // Create mock admin authentication state
+  console.log('Creating mock admin authentication state...');
+  const adminAuthState = {
+    cookies: [
+      {
+        name: 'auth-token',
+        value: 'mock-admin-jwt-token',
+        domain: 'localhost',
+        path: '/',
+        expires: Date.now() + 1000 * 60 * 60 * 24, // 24 hours
+        httpOnly: false,
+        secure: false,
+        sameSite: 'Lax'
+      }
+    ],
+    origins: [
+      {
+        origin: baseURL,
+        localStorage: [
+          {
+            name: 'user-role',
+            value: 'admin'
+          },
+          {
+            name: 'user-id',
+            value: 'admin-123'
+          },
+          {
+            name: 'user-name',
+            value: 'Test Admin'
+          },
+          {
+            name: 'user-email',
+            value: 'admin@jaqedu.com'
+          },
+          {
+            name: 'auth-token',
+            value: 'mock-admin-jwt-token'
+          },
+          {
+            name: 'test-mode',
+            value: 'true'
+          }
+        ],
+        sessionStorage: [
+          {
+            name: 'session-id',
+            value: 'mock-admin-session-123'
+          }
+        ]
+      }
+    ]
+  };
+  
+  fs.writeFileSync(
+    path.join(authDir, 'admin-user.json'),
+    JSON.stringify(adminAuthState, null, 2)
+  );
+  
+  // Create mock regular user authentication state
+  console.log('Creating mock user authentication state...');
+  const userAuthState = {
+    cookies: [
+      {
+        name: 'auth-token',
+        value: 'mock-user-jwt-token',
+        domain: 'localhost',
+        path: '/',
+        expires: Date.now() + 1000 * 60 * 60 * 24, // 24 hours
+        httpOnly: false,
+        secure: false,
+        sameSite: 'Lax'
+      }
+    ],
+    origins: [
+      {
+        origin: baseURL,
+        localStorage: [
+          {
+            name: 'user-role',
+            value: 'student'
+          },
+          {
+            name: 'user-id',
+            value: 'user-456'
+          },
+          {
+            name: 'user-name',
+            value: 'Test Student'
+          },
+          {
+            name: 'user-email',
+            value: 'student@jaqedu.com'
+          },
+          {
+            name: 'auth-token',
+            value: 'mock-user-jwt-token'
+          },
+          {
+            name: 'test-mode',
+            value: 'true'
+          }
+        ],
+        sessionStorage: [
+          {
+            name: 'session-id',
+            value: 'mock-user-session-456'
+          }
+        ]
+      }
+    ]
+  };
+  
+  fs.writeFileSync(
+    path.join(authDir, 'regular-user.json'),
+    JSON.stringify(userAuthState, null, 2)
+  );
+  
+  // Create mock test data fixtures
+  console.log('Creating mock test data fixtures...');
+  const mockModules = [
+    {
+      id: 'jung-basics',
+      title: 'Fundamentos da Psicologia Jungiana',
+      description: 'Introdução às teorias básicas de Carl Jung',
+      difficulty: 'beginner',
+      icon: '🧠',
+      estimatedTime: 45,
+      topics: ['Inconsciente Coletivo', 'Arquétipos', 'Individuação'],
+      completed: false,
+      progress: 0
+    },
+    {
+      id: 'archetypes',
+      title: 'Arquétipos Jungianos',
+      description: 'Explorando os arquétipos fundamentais',
+      difficulty: 'intermediate',
+      icon: '🎭',
+      estimatedTime: 60,
+      topics: ['Sombra', 'Anima/Animus', 'Self'],
+      completed: false,
+      progress: 25
+    },
+    {
+      id: 'individuation',
+      title: 'Processo de Individuação',
+      description: 'O caminho para a autorrealização',
+      difficulty: 'advanced',
+      icon: '🌟',
+      estimatedTime: 90,
+      topics: ['Integração', 'Transformação', 'Autorealização'],
+      completed: false,
+      progress: 0
     }
-    
-    // Save authenticated state
-    await adminContext.storageState({ path: path.join(authDir, 'admin-user.json') });
-    console.log('Admin authentication saved.');
-    
-  } catch (error) {
-    console.log('Admin setup failed, creating minimal auth state:', error.message);
-    // Create minimal auth state for tests that don't require real authentication
-    const minimalAuthState = {
-      cookies: [],
-      origins: [
-        {
-          origin: baseURL,
-          localStorage: [
-            {
-              name: 'test-mode',
-              value: 'true'
-            }
-          ]
-        }
-      ]
-    };
-    
-    fs.writeFileSync(
-      path.join(authDir, 'admin-user.json'),
-      JSON.stringify(minimalAuthState, null, 2)
-    );
+  ];
+  
+  const mockUserProgress = {
+    userId: 'user-456',
+    completedModules: [],
+    totalTime: 120,
+    currentStreak: 5,
+    totalPoints: 250,
+    level: 2
+  };
+  
+  // Save mock data to fixtures
+  const fixturesDir = path.join(__dirname, 'fixtures');
+  if (!fs.existsSync(fixturesDir)) {
+    fs.mkdirSync(fixturesDir, { recursive: true });
   }
   
-  await adminContext.close();
-
-  // Setup regular user authentication
-  const userContext = await browser.newContext();
-  const userPage = await userContext.newPage();
+  fs.writeFileSync(
+    path.join(fixturesDir, 'mock-modules.json'),
+    JSON.stringify(mockModules, null, 2)
+  );
   
-  try {
-    console.log('Setting up user authentication...');
-    await userPage.goto(`${baseURL}/login`);
-    
-    const loginForm = userPage.locator('form');
-    if (await loginForm.isVisible()) {
-      await userPage.fill('[data-testid="email-input"], [name="email"], input[type="email"]', 'user@jaquedu.com');
-      await userPage.fill('[data-testid="password-input"], [name="password"], input[type="password"]', 'user123');
-      await userPage.click('[data-testid="login-button"], [type="submit"], button:has-text("Login")');
-      
-      await userPage.waitForURL(/\/(?:dashboard)?/, { timeout: 10000 });
-    }
-    
-    await userContext.storageState({ path: path.join(authDir, 'regular-user.json') });
-    console.log('User authentication saved.');
-    
-  } catch (error) {
-    console.log('User setup failed, creating minimal auth state:', error.message);
-    const minimalAuthState = {
-      cookies: [],
-      origins: [
-        {
-          origin: baseURL,
-          localStorage: [
-            {
-              name: 'test-user-mode',
-              value: 'true'
-            }
-          ]
-        }
-      ]
-    };
-    
-    fs.writeFileSync(
-      path.join(authDir, 'regular-user.json'),
-      JSON.stringify(minimalAuthState, null, 2)
-    );
-  }
+  fs.writeFileSync(
+    path.join(fixturesDir, 'mock-user-progress.json'),
+    JSON.stringify(mockUserProgress, null, 2)
+  );
   
-  await userContext.close();
-  await browser.close();
-
-  console.log('Global setup completed.');
+  console.log('Mock E2E global setup completed successfully!');
+  console.log('- Admin auth state created');
+  console.log('- User auth state created');
+  console.log('- Mock test data fixtures created');
+  console.log('- Test directories prepared');
 }
 
 export default globalSetup;

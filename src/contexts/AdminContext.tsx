@@ -31,6 +31,57 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [currentAdmin, setCurrentAdmin] = useState<AdminUser | null>(null);
   const [modules, setModules] = useState<Module[]>(() => {
+    // Check if we're in test mode
+    const isTestMode = localStorage.getItem('test-mode') === 'true';
+    
+    if (isTestMode) {
+      // Return mock test modules for E2E testing
+      return [
+        {
+          id: 'intro-psychology',
+          title: 'Introdução à Psicologia Jungiana',
+          description: 'Conceitos básicos da psicologia analítica de Carl Jung',
+          difficulty: 'beginner' as const,
+          icon: '🧠',
+          estimatedTime: 45,
+          topics: ['Inconsciente', 'Arquétipos', 'Símbolos'],
+          content: 'Conteúdo do módulo de teste...',
+          quiz: {
+            questions: [],
+            passingScore: 70
+          }
+        },
+        {
+          id: 'archetypes-study',
+          title: 'Arquétipos Fundamentais',
+          description: 'Explorando os arquétipos principais na obra de Jung',
+          difficulty: 'intermediate' as const,
+          icon: '🎭',
+          estimatedTime: 60,
+          topics: ['Sombra', 'Anima/Animus', 'Self'],
+          content: 'Conteúdo avançado sobre arquétipos...',
+          quiz: {
+            questions: [],
+            passingScore: 70
+          }
+        },
+        {
+          id: 'individuation-process',
+          title: 'Processo de Individuação',
+          description: 'O caminho para a completude psíquica',
+          difficulty: 'advanced' as const,
+          icon: '🌟',
+          estimatedTime: 90,
+          topics: ['Individuação', 'Transcendência', 'Integração'],
+          content: 'Conteúdo sobre individuação...',
+          quiz: {
+            questions: [],
+            passingScore: 70
+          }
+        }
+      ];
+    }
+
     try {
       const saved = localStorage.getItem('jungAppModules');
       return saved ? JSON.parse(saved) : defaultModules;

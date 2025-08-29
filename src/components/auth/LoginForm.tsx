@@ -69,7 +69,7 @@ export const LoginForm: React.FC = () => {
             </div>
           )}
           
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6" data-testid="login-form">
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
                 Usuário ou Email
@@ -88,6 +88,7 @@ export const LoginForm: React.FC = () => {
                   placeholder="Digite seu usuário ou email"
                   required
                   disabled={isSubmitting}
+                  data-testid="email-input"
                 />
               </div>
             </div>
@@ -110,12 +111,14 @@ export const LoginForm: React.FC = () => {
                   placeholder="Digite sua senha"
                   required
                   disabled={isSubmitting}
+                  data-testid="password-input"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   tabIndex={-1}
+                  data-testid="password-toggle"
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5 text-gray-400" />
@@ -136,6 +139,7 @@ export const LoginForm: React.FC = () => {
                   onChange={handleChange}
                   className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                   disabled={isSubmitting}
+                  data-testid="remember-me-checkbox"
                 />
                 <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700">
                   Lembrar de mim
@@ -145,13 +149,14 @@ export const LoginForm: React.FC = () => {
               <Link
                 to="/forgot-password"
                 className="text-sm text-primary-600 hover:text-primary-700"
+                data-testid="forgot-password-link"
               >
                 Esqueceu a senha?
               </Link>
             </div>
             
             {error && (
-              <div className="flex items-start space-x-2 text-red-600 text-sm">
+              <div className="flex items-start space-x-2 text-red-600 text-sm" data-testid="server-error">
                 <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
                 <span>{error.message}</span>
               </div>
@@ -161,6 +166,7 @@ export const LoginForm: React.FC = () => {
               type="submit"
               disabled={isSubmitting}
               className="w-full btn-primary flex items-center justify-center"
+              data-testid="login-button"
             >
               {isSubmitting ? (
                 <>
@@ -176,7 +182,7 @@ export const LoginForm: React.FC = () => {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Não tem uma conta?{' '}
-              <Link to="/register" className="text-primary-600 hover:text-primary-700 font-medium">
+              <Link to="/register" className="text-primary-600 hover:text-primary-700 font-medium" data-testid="register-link">
                 Criar conta
               </Link>
             </p>

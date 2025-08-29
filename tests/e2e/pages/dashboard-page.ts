@@ -10,31 +10,61 @@ export class DashboardPage extends BasePage {
   readonly welcomeMessage: Locator;
   readonly moduleCards: Locator;
   readonly progressBar: Locator;
+  readonly progressSection: Locator;
+  readonly progressChart: Locator;
+  readonly completionStats: Locator;
+  readonly recentModulesSection: Locator;
+  readonly recentModulesList: Locator;
+  readonly quickActionsSection: Locator;
   readonly recentActivity: Locator;
   readonly quickActions: Locator;
   readonly searchBox: Locator;
   readonly filterDropdown: Locator;
   readonly viewToggle: Locator;
+  readonly continueStudyingButton: Locator;
+  readonly browseModulesButton: Locator;
+  readonly viewProfileButton: Locator;
+  readonly profileMenuItem: Locator;
+  readonly settingsMenuItem: Locator;
+  readonly logoutMenuItem: Locator;
+  readonly navigationMenu: Locator;
+  readonly mobileNavigationMenu: Locator;
 
   constructor(page: Page) {
     super(page);
-    this.dashboardHeader = page.locator(testSelectors.dashboardHeader);
-    this.welcomeMessage = page.locator('[data-testid=\"welcome-message\"]');
-    this.moduleCards = page.locator(testSelectors.moduleCard);
-    this.progressBar = page.locator(testSelectors.progressBar);
-    this.recentActivity = page.locator('[data-testid=\"recent-activity\"]');
-    this.quickActions = page.locator('[data-testid=\"quick-actions\"]');
-    this.searchBox = page.locator('[data-testid=\"search-box\"]');
-    this.filterDropdown = page.locator('[data-testid=\"filter-dropdown\"]');
-    this.viewToggle = page.locator('[data-testid=\"view-toggle\"]');
+    this.dashboardHeader = page.locator('[data-testid="dashboard-header"]');
+    this.welcomeMessage = page.locator('[data-testid="welcome-message"]');
+    this.moduleCards = page.locator('[data-testid="module-card"]');
+    this.progressBar = page.locator('[data-testid="progress-bar"]');
+    this.progressSection = page.locator('[data-testid="progress-section"]');
+    this.progressChart = page.locator('[data-testid="progress-chart"]');
+    this.completionStats = page.locator('[data-testid="completion-stats"]');
+    this.recentModulesSection = page.locator('[data-testid="recent-modules-section"]');
+    this.recentModulesList = page.locator('[data-testid="recent-modules-list"]');
+    this.quickActionsSection = page.locator('[data-testid="quick-actions-section"]');
+    this.recentActivity = page.locator('[data-testid="recent-activity"]');
+    this.quickActions = page.locator('[data-testid="quick-actions"]');
+    this.searchBox = page.locator('[data-testid="search-box"]');
+    this.filterDropdown = page.locator('[data-testid="filter-dropdown"]');
+    this.viewToggle = page.locator('[data-testid="view-toggle"]');
+    this.continueStudyingButton = page.locator('[data-testid="quick-action-search"]');
+    this.browseModulesButton = page.locator('[data-testid="quick-action-progress"]');
+    this.viewProfileButton = page.locator('[data-testid="user-menu"]');
+    this.profileMenuItem = page.locator('[data-testid="profile-menu-item"]');
+    this.settingsMenuItem = page.locator('[data-testid="settings-menu-item"]');
+    this.logoutMenuItem = page.locator('[data-testid="logout-button"]');
+    this.navigationMenu = page.locator('[data-testid="main-navigation"]');
+    this.mobileNavigationMenu = page.locator('[data-testid="mobile-navigation"]');
   }
 
   /**
    * Navigate to dashboard
    */
-  async goto() {
-    await this.page.goto(testPaths.dashboard);
+  async goto(path = '/dashboard') {
+    await this.page.goto(path);
     await this.waitForPageLoad();
+    // Give the auth context time to check test mode and set up the user
+    await this.page.waitForTimeout(1000);
     await expect(this.dashboardHeader).toBeVisible();
   }
 
@@ -124,10 +154,35 @@ export class DashboardPage extends BasePage {
   async getOverallProgress(): Promise<number> {
     if (await this.progressBar.isVisible()) {
       const progressText = await this.progressBar.textContent();
-      const match = progressText?.match(/(\\d+)%/);
+      const match = progressText?.match(/(\d+)%/);
       return match ? parseInt(match[1]) : 0;
     }
     return 0;
+  }
+
+  /**
+   * Get progress text for validation
+   */
+  async getProgressText(): Promise<string> {
+    const progressElement = this.page.locator('[data-testid="completion-percentage"]');
+    if (await progressElement.isVisible()) {
+      return await progressElement.textContent() || '';
+    }
+    return '';
+  }
+
+  /**
+   * Get recent modules count
+   */
+  async getRecentModulesCount(): Promise<number> {
+    return await this.moduleCards.count();
+  }
+
+  /**
+   * Get module card by index
+   */
+  getModuleCard(index: number): Locator {
+    return this.moduleCards.nth(index);
   }
 
   /**
@@ -208,5 +263,60 @@ export class DashboardPage extends BasePage {
     // Test desktop viewport
     await this.page.setViewportSize({ width: 1920, height: 1080 });
     await expect(this.dashboardHeader).toBeVisible();
+  }
+
+  /**
+   * Click continue studying button
+   */
+  async clickContinueStudying() {
+    await this.continueStudyingButton.click();
+  }
+
+  /**
+   * Click browse modules button
+   */
+  async clickBrowseModules() {
+    await this.browseModulesButton.click();
+  }
+
+  /**
+   * Open user menu
+   */
+  async openUserMenu() {
+    await this.viewProfileButton.click();
+  }
+
+  /**
+   * Click profile menu item
+   */
+  async clickProfileMenuItem() {
+    if (await this.profileMenuItem.isVisible()) {
+      await this.profileMenuItem.click();
+    }
+  }
+
+  /**
+   * Click settings menu item
+   */
+  async clickSettingsMenuItem() {
+    if (await this.settingsMenuItem.isVisible()) {
+      await this.settingsMenuItem.click();
+    }
+  }
+
+  /**
+   * Click logout menu item
+   */
+  async clickLogoutMenuItem() {
+    await this.logoutMenuItem.click();
+  }
+
+  /**
+   * Click module card by index
+   */
+  async clickModuleCard(index: number) {
+    const moduleCard = this.moduleCards.nth(index);
+    await expect(moduleCard).toBeVisible();
+    await moduleCard.click();
   }
 }
