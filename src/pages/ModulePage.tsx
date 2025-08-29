@@ -113,11 +113,12 @@ const ModulePage: React.FC<ModulePageProps> = ({ modules, userProgress, updatePr
   ];
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-6">
+    <div className="max-w-4xl mx-auto" data-testid="module-content">
+      <div className="mb-6" data-testid="module-header">
         <button
           onClick={() => navigate('/dashboard')}
           className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
+          data-testid="back-to-dashboard"
         >
           <ArrowLeft className="w-4 h-4 mr-1" />
           Voltar ao Painel

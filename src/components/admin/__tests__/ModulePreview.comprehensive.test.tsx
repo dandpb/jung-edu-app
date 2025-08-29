@@ -6,7 +6,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ModulePreview } from '../ModulePreview';
+import ModulePreview from '../ModulePreview';
 import { AdminContext } from '../../../contexts/AdminContext';
 import { Module } from '../../../types';
 

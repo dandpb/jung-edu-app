@@ -41,18 +41,10 @@ export class ModulePage extends BasePage {
    * Navigate to specific module
    */
   async goto(moduleId: string) {
-    // Navigate to our mock HTML file
-    const mockHtmlPath = 'file://' + process.cwd() + '/tests/e2e/fixtures/mock-app.html';
-    await this.page.goto(mockHtmlPath);
-    
-    // Simulate navigation to module page
-    await this.page.evaluate(() => {
-      if (typeof window.showPage === 'function') {
-        window.showPage('module');
-      }
-    });
-    
+    await this.page.goto(`/module/${moduleId}`);
     await this.waitForPageLoad();
+    // Give time for the module to load with test data
+    await this.page.waitForTimeout(1000);
     await expect(this.moduleContent).toBeVisible();
   }
 

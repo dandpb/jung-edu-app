@@ -39,8 +39,9 @@ export default defineConfig({
   },
 
   /* Configure global setup and teardown */
-  globalSetup: require.resolve('./tests/e2e/global-setup'),
-  globalTeardown: require.resolve('./tests/e2e/global-teardown'),
+  // Temporarily disabled to test
+  // globalSetup: require.resolve('./tests/e2e/global-setup'),
+  // globalTeardown: require.resolve('./tests/e2e/global-teardown'),
 
   /* Configure projects for major browsers */
   projects: [
