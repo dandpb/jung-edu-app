@@ -216,4 +216,183 @@ describe('Auth Utilities', () => {
       expect(payload?.exp).toBeGreaterThan(Date.now());
     });
   });
-});
+
+  describe('Security Edge Cases', () => {
+    test('should handle empty password', () => {
+      const salt = generateSalt();
+      const hash = hashPassword('', salt);
+      
+      expect(hash).toBeDefined();
+      expect(verifyPassword('', hash, salt)).toBe(true);
+      expect(verifyPassword('notEmpty', hash, salt)).toBe(false);
+    });
+
+    test('should handle very long passwords', () => {
+      const longPassword = 'a'.repeat(10000);
+      const salt = generateSalt();
+      const hash = hashPassword(longPassword, salt);
+      
+      expect(verifyPassword(longPassword, hash, salt)).toBe(true);
+    });
+
+    test('should handle passwords with special characters', () => {
+      const specialPassword = '!@#$%^&*()_+-=[]{}|;:,.<>?`~"\\\'';
+      const salt = generateSalt();
+      const hash = hashPassword(specialPassword, salt);
+      
+      expect(verifyPassword(specialPassword, hash, salt)).toBe(true);
+    });
+
+    test('should handle unicode passwords', () => {
+      const unicodePassword = '密码测试🔐🗝️';
+      const salt = generateSalt();
+      const hash = hashPassword(unicodePassword, salt);
+      
+      expect(verifyPassword(unicodePassword, hash, salt)).toBe(true);
+    });
+
+    test('should generate different hashes for similar passwords', () => {
+      const salt = generateSalt();
+      const hash1 = hashPassword('password', salt);
+      const hash2 = hashPassword('Password', salt);
+      const hash3 = hashPassword('password1', salt);
+      
+      expect(hash1).not.toBe(hash2);\n      expect(hash1).not.toBe(hash3);\n      expect(hash2).not.toBe(hash3);
+    });
+
+    test('should handle empty salt gracefully', () => {
+      const password = 'testPassword';
+      const hash1 = hashPassword(password, '');
+      const hash2 = hashPassword(password, '');
+      
+      expect(hash1).toBe(hash2); // Should be consistent
+      expect(verifyPassword(password, hash1, '')).toBe(true);
+    });
+
+    test('should generate tokens with sufficient entropy', () => {
+      const tokens = new Set();
+      for (let i = 0; i < 1000; i++) {
+        tokens.add(generateToken());
+      }
+      
+      // Should have high uniqueness
+      expect(tokens.size).toBe(1000);
+    });
+
+    test('should handle token length edge cases', () => {
+      expect(generateToken(0)).toHaveLength(0);
+      expect(generateToken(1)).toHaveLength(2);
+      expect(generateToken(100)).toHaveLength(200);
+    });
+
+    test('should handle extreme session token scenarios', () => {
+      // Very long userId
+      const longUserId = 'user' + 'a'.repeat(1000);
+      const token1 = createSessionToken(longUserId);
+      expect(validateSessionToken(token1)?.userId).toBe(longUserId);
+      
+      // Empty userId
+      const token2 = createSessionToken('');
+      expect(validateSessionToken(token2)?.userId).toBe('');
+      
+      // Unicode userId
+      const unicodeUserId = '用户🔐';
+      const token3 = createSessionToken(unicodeUserId);
+      expect(validateSessionToken(token3)?.userId).toBe(unicodeUserId);
+    });
+
+    test('should handle malformed base64 tokens', () => {
+      const malformedTokens = [
+        'invalid!!!',
+        'not-base64',
+        '==invalid==',
+        'MQ', // Valid base64 but invalid JSON
+        btoa('invalid json {'),
+        btoa('{}'), // Valid JSON but missing required fields
+      ];
+      
+      malformedTokens.forEach(token => {
+        expect(validateSessionToken(token)).toBeNull();
+      });
+    });
+
+    test('should handle token with missing fields', () => {
+      const incompletePayload = { userId: 'test' }; // Missing exp and iat
+      const token = btoa(JSON.stringify(incompletePayload));
+      
+      expect(validateSessionToken(token)).toBeNull();
+    });
+
+    test('should handle tokens with invalid expiry values', () => {
+      const invalidExpiryPayloads = [
+        { userId: 'test', exp: 'invalid', iat: Date.now() },
+        { userId: 'test', exp: null, iat: Date.now() },
+        { userId: 'test', exp: -1, iat: Date.now() },
+      ];
+      
+      invalidExpiryPayloads.forEach(payload => {
+        const token = btoa(JSON.stringify(payload));
+        expect(validateSessionToken(token)).toBeNull();
+      });
+    });
+  });
+
+  describe('Performance and Stress Tests', () => {
+    test('should handle many hash operations efficiently', () => {
+      const start = performance.now();
+      const salt = generateSalt();
+      
+      for (let i = 0; i < 1000; i++) {
+        hashPassword(`password${i}`, salt);
+      }
+      
+      const duration = performance.now() - start;
+      expect(duration).toBeLessThan(1000); // Should complete within 1 second
+    });
+
+    test('should handle many token generations efficiently', () => {
+      const start = performance.now();
+      
+      for (let i = 0; i < 1000; i++) {
+        generateToken();
+      }
+      
+      const duration = performance.now() - start;
+      expect(duration).toBeLessThan(100); // Should be very fast
+    });
+
+    test('should handle many session token operations efficiently', () => {
+      const start = performance.now();
+      const tokens = [];
+      
+      // Create many tokens
+      for (let i = 0; i < 100; i++) {
+        tokens.push(createSessionToken(`user${i}`));
+      }
+      
+      // Validate all tokens
+      tokens.forEach(token => {
+        validateSessionToken(token);
+      });
+      
+      const duration = performance.now() - start;
+      expect(duration).toBeLessThan(100);
+    });
+  });
+
+  describe('Cross-Environment Compatibility', () => {
+    test('should work consistently across different environments', () => {
+      // Test both browser (btoa/atob) and Node.js (Buffer) paths
+      const userId = 'testUser';
+      
+      // Create token using current environment
+      const token1 = createSessionToken(userId);
+      const payload1 = validateSessionToken(token1);
+      
+      expect(payload1?.userId).toBe(userId);
+      
+      // Test manual base64 encoding/decoding
+      const testPayload = { userId, exp: Date.now() + 10000, iat: Date.now() };
+      let manualToken: string;
+      
+      if (typeof btoa !== 'undefined') {\n        manualToken = btoa(JSON.stringify(testPayload));\n      } else {\n        manualToken = Buffer.from(JSON.stringify(testPayload)).toString('base64');\n      }\n      \n      const decodedPayload = validateSessionToken(manualToken);\n      expect(decodedPayload?.userId).toBe(userId);\n    });\n  });\n\n  describe('Boundary Value Tests', () => {\n    test('should handle boundary values for hash function', () => {\n      const testCases = [\n        { password: '0', salt: '0' },\n        { password: String.fromCharCode(0), salt: String.fromCharCode(0) },\n        { password: String.fromCharCode(255), salt: String.fromCharCode(255) },\n        { password: '\u0000\u0001\u00FF', salt: '\u00FF\u0001\u0000' },\n      ];\n      \n      testCases.forEach(({ password, salt }) => {\n        const hash = hashPassword(password, salt);\n        expect(hash).toHaveLength(16);\n        expect(verifyPassword(password, hash, salt)).toBe(true);\n      });\n    });\n\n    test('should handle exact expiry time boundaries', () => {\n      const userId = 'testUser';\n      const expiry = 1000; // 1 second\n      const token = createSessionToken(userId, expiry);\n      \n      // Should be valid immediately\n      expect(validateSessionToken(token)).not.toBeNull();\n      \n      // Mock time to be exactly at expiry\n      const originalNow = Date.now;\n      Date.now = jest.fn(() => originalNow() + expiry);\n      \n      // Should be invalid at exact expiry time\n      expect(validateSessionToken(token)).toBeNull();\n      \n      // Restore Date.now\n      Date.now = originalNow;\n    });\n  });\n});

@@ -52,8 +52,8 @@ describe('ErrorBoundary Component', () => {
     );
 
     expect(screen.getByTestId('error-boundary-fallback')).toBeInTheDocument();
-    expect(screen.getByText('Oops! Something went wrong')).toBeInTheDocument();
-    expect(screen.getByText("We're sorry for the inconvenience. Please try refreshing the page.")).toBeInTheDocument();
+    expect(screen.getByText('Ops! Algo deu errado')).toBeInTheDocument();
+    expect(screen.getByText('Lamentamos o inconveniente. Por favor, tente atualizar a página.')).toBeInTheDocument();
     expect(screen.getByTestId('reset-error-boundary')).toBeInTheDocument();
   });
 
@@ -126,7 +126,7 @@ describe('ErrorBoundary Component', () => {
       </ErrorBoundary>
     );
 
-    const details = screen.getByText('Error details (development only)');
+    const details = screen.getByText('Detalhes do erro (apenas desenvolvimento)');
     expect(details).toBeInTheDocument();
 
     // Click to expand details

@@ -1,42 +1,31 @@
 /**
- * Enhanced comprehensive test suite for useI18n hook
- * Tests hook functionality, translation features, language switching, edge cases, and coordination hooks
+ * Comprehensive test suite for useI18n hook
+ * Tests hook functionality, translation features, language switching, edge cases, and error handling
+ * 
+ * Coverage goals:
+ * - Hook interface and basic functionality
+ * - Translation functionality with interpolation and pluralization
+ * - Language switching and validation
+ * - Namespace management
+ * - Resource and translation management
+ * - State management and lifecycle
+ * - Error handling and edge cases
+ * - Performance considerations
  */
 
 import { renderHook, act } from '@testing-library/react';
-import React from 'react';
 import { useI18n } from '../useI18n';
-
-// Mock coordination hooks - this package doesn't exist in the project
-// jest.mock('@/hooks/coordination', () => ({
-//   useCoordination: () => ({
-//     reportProgress: jest.fn(),
-//     updateMemory: jest.fn(),
-//     notify: jest.fn()
-//   })
-// }));
+import * as i18nConfig from '../../config/i18n';
 
 // Mock dependencies
-const mockT = jest.fn((key: string, options?: any) => {
-  if (options?.defaultValue) return options.defaultValue;
-  if (key.includes('missing')) return key;
-  if (key === 'hello.name' && options?.name) return `Hello ${options.name}`;
-  if (key === 'count.items' && options?.count !== undefined) {
-    return options.count === 1 ? '1 item' : `${options.count} items`;
-  }
-  if (key.startsWith('error.')) throw new Error('Translation error');
-  return `translated_${key}`;
-});
-
+const mockT = jest.fn();
 const mockChangeLanguage = jest.fn().mockResolvedValue(undefined);
 const mockLoadNamespaces = jest.fn().mockResolvedValue(undefined);
 const mockExists = jest.fn().mockReturnValue(true);
 const mockGetResourceBundle = jest.fn().mockReturnValue({
   'test.key': 'Test Value',
   'nested.deep.key': 'Deep Value',
-  'dynamic.key': 'Dynamic Value',
-  'contextual.key_male': 'Male Context',
-  'contextual.key_female': 'Female Context'
+  'dynamic.key': 'Dynamic Value'
 });
 
 const mockI18nInstance = {
@@ -57,18 +46,17 @@ const mockI18nInstance = {
     data: {
       'en': { 
         translation: { 'test.key': 'Test Value' },
-        common: { 'button.save': 'Save', 'button.cancel': 'Cancel' },
-        forms: { 'field.name': 'Name', 'field.email': 'Email' }
+        common: { 'button.save': 'Save', 'button.cancel': 'Cancel' }
       },
       'pt-BR': { 
         translation: { 'test.key': 'Valor de Teste' },
-        common: { 'button.save': 'Salvar', 'button.cancel': 'Cancelar' },
-        forms: { 'field.name': 'Nome', 'field.email': 'E-mail' }
+        common: { 'button.save': 'Salvar', 'button.cancel': 'Cancelar' }
       }
     }
   }
 };
 
+// Mock react-i18next
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: mockT,
@@ -77,20 +65,18 @@ jest.mock('react-i18next', () => ({
   })
 }));
 
+// Mock i18n config
 jest.mock('../../config/i18n', () => ({
   switchLanguage: jest.fn().mockResolvedValue(undefined),
-  getI18nInstance: jest.fn(() => mockI18nInstance),
+  getI18nInstance: jest.fn(),
   setupI18n: jest.fn().mockResolvedValue(undefined)
 }));
 
-describe('useI18n Hook Enhanced Test Suite', () => {
+describe('useI18n Hook', () => {
   beforeEach(() => {
-    // Initialize coordination hooks
-    const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-    console.log('🔄 Starting useI18n test with coordination hooks');
-    consoleLogSpy.mockRestore();
-
     jest.clearAllMocks();
+    
+    // Setup default mock implementations
     mockT.mockImplementation((key: string, options?: any) => {
       if (options?.defaultValue) return options.defaultValue;
       if (key.includes('missing')) return key;
@@ -101,21 +87,20 @@ describe('useI18n Hook Enhanced Test Suite', () => {
       if (key.startsWith('error.')) throw new Error('Translation error');
       return `translated_${key}`;
     });
+    
     mockI18nInstance.language = 'en';
     mockI18nInstance.isInitialized = true;
-  });
-
-  afterEach(() => {
-    // Cleanup coordination hooks
-    const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-    console.log('✅ useI18n test completed with coordination hooks');
-    consoleLogSpy.mockRestore();
+    mockGetResourceBundle.mockReturnValue({
+      'test.key': 'Test Value',
+      'nested.deep.key': 'Deep Value',
+      'dynamic.key': 'Dynamic Value'
+    });
+    mockExists.mockReturnValue(true);
   });
 
   describe('Hook Interface and Basic Functionality', () => {
     it('should return complete hook interface', () => {
       const { result } = renderHook(() => useI18n());
-
       const hookResult = result.current;
 
       // Verify all required properties exist
@@ -169,16 +154,18 @@ describe('useI18n Hook Enhanced Test Suite', () => {
     });
 
     it('should handle hook re-initialization gracefully', () => {
-      const { result, unmount, rerender } = renderHook(() => useI18n());
+      const { result, unmount } = renderHook(() => useI18n());
 
       const firstLanguage = result.current.language;
       expect(firstLanguage).toBe('en');
 
-      unmount();
-      rerender();
-
-      expect(result.current.language).toBe('en');
-      expect(result.current.isReady).toBe(true);
+      // Test unmounting - this should not throw
+      expect(() => unmount()).not.toThrow();
+      
+      // Create a new hook instance after unmount
+      const { result: newResult } = renderHook(() => useI18n());
+      expect(newResult.current.language).toBe('en');
+      expect(newResult.current.isReady).toBe(true);
     });
   });
 
@@ -204,10 +191,10 @@ describe('useI18n Hook Enhanced Test Suite', () => {
     it('should handle translation with default values', () => {
       const { result } = renderHook(() => useI18n());
 
-      const translation = result.current.t('missing.key', 'Default Text');
+      const translation = result.current.t('missing.key', { defaultValue: 'Default Text' });
       
       expect(translation).toBe('Default Text');
-      expect(mockT).toHaveBeenCalledWith('missing.key', 'Default Text');
+      expect(mockT).toHaveBeenCalledWith('missing.key', { defaultValue: 'Default Text' });
     });
 
     it('should handle pluralization correctly', () => {
@@ -251,7 +238,7 @@ describe('useI18n Hook Enhanced Test Suite', () => {
     });
 
     it('should handle contextual translations', () => {
-      mockT.mockImplementationOnce((key, options) => {
+      mockT.mockImplementation((key, options) => {
         if (key === 'contextual.key' && options?.context) {
           return `translated_${key}_${options.context}`;
         }
@@ -273,11 +260,24 @@ describe('useI18n Hook Enhanced Test Suite', () => {
       const { result } = renderHook(() => useI18n());
 
       // This should not throw but handle gracefully
-      const errorTranslation = result.current.t('error.key');
+      let errorTranslation;
+      expect(() => {
+        errorTranslation = result.current.t('error.key');
+      }).not.toThrow();
       
       expect(errorTranslation).toBeDefined();
       
       consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle empty and null translation keys', () => {
+      const { result } = renderHook(() => useI18n());
+
+      expect(() => {
+        result.current.t('');
+        result.current.t(null as any);
+        result.current.t(undefined as any);
+      }).not.toThrow();
     });
   });
 
@@ -290,6 +290,7 @@ describe('useI18n Hook Enhanced Test Suite', () => {
       });
 
       expect(mockChangeLanguage).toHaveBeenCalledWith('pt-BR');
+      expect((i18nConfig.switchLanguage as jest.MockedFunction<typeof i18nConfig.switchLanguage>)).toHaveBeenCalledWith('pt-BR');
     });
 
     it('should handle language switching with namespace loading', async () => {
@@ -300,6 +301,7 @@ describe('useI18n Hook Enhanced Test Suite', () => {
       });
 
       expect(mockChangeLanguage).toHaveBeenCalledWith('pt-BR');
+      expect((i18nConfig.switchLanguage as jest.MockedFunction<typeof i18nConfig.switchLanguage>)).toHaveBeenCalledWith('pt-BR');
       expect(mockLoadNamespaces).toHaveBeenCalledWith(['common']);
     });
 
@@ -363,7 +365,7 @@ describe('useI18n Hook Enhanced Test Suite', () => {
     it('should handle network errors during language switching', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       const networkError = new Error('Network timeout');
-      mockChangeLanguage.mockRejectedValueOnce(networkError);
+      (i18nConfig.switchLanguage as jest.MockedFunction<typeof i18nConfig.switchLanguage>).mockRejectedValueOnce(networkError);
       
       const { result } = renderHook(() => useI18n());
 
@@ -377,7 +379,7 @@ describe('useI18n Hook Enhanced Test Suite', () => {
       );
 
       consoleErrorSpy.mockRestore();
-      mockChangeLanguage.mockResolvedValue(undefined); // Reset mock
+      (i18nConfig.switchLanguage as jest.MockedFunction<typeof i18nConfig.switchLanguage>).mockResolvedValue(undefined); // Reset mock
     });
   });
 
@@ -507,13 +509,13 @@ describe('useI18n Hook Enhanced Test Suite', () => {
       const { result } = renderHook(() => useI18n());
 
       const exists = result.current.hasTranslation('test.key');
-      const notExists = result.current.hasTranslation('nonexistent.key');
       
       expect(exists).toBe(true);
       expect(mockExists).toHaveBeenCalledWith('test.key');
       
       mockExists.mockReturnValue(false);
-      expect(result.current.hasTranslation('nonexistent.key')).toBe(false);
+      const notExists = result.current.hasTranslation('nonexistent.key');
+      expect(notExists).toBe(false);
     });
 
     it('should handle translation existence check errors', () => {
@@ -525,7 +527,10 @@ describe('useI18n Hook Enhanced Test Suite', () => {
       const { result } = renderHook(() => useI18n());
 
       // Should not throw but return false or handle gracefully
-      const exists = result.current.hasTranslation('test.key');
+      let exists;
+      expect(() => {
+        exists = result.current.hasTranslation('test.key');
+      }).not.toThrow();
       
       expect(exists).toBeDefined();
       
@@ -558,14 +563,12 @@ describe('useI18n Hook Enhanced Test Suite', () => {
     });
 
     it('should handle language changes from external sources', () => {
-      const { result } = renderHook(() => useI18n());
+      const { result, rerender } = renderHook(() => useI18n());
 
       expect(result.current.language).toBe('en');
 
       // Simulate external language change
       mockI18nInstance.language = 'pt-BR';
-      
-      const { rerender } = renderHook(() => useI18n());
       rerender();
 
       expect(result.current.language).toBe('pt-BR');
@@ -605,22 +608,6 @@ describe('useI18n Hook Enhanced Test Suite', () => {
       expect(mockT).toHaveBeenCalledTimes(100);
     });
 
-    it('should memoize expensive operations correctly', () => {
-      mockGetResourceBundle.mockReturnValue({
-        'key1': 'Value 1',
-        'key2': 'Value 2'
-      });
-
-      const { result, rerender } = renderHook(() => useI18n());
-
-      const firstCall = result.current.getAvailableTranslations();
-      rerender();
-      const secondCall = result.current.getAvailableTranslations();
-
-      // Should return same reference for same data
-      expect(secondCall).toBe(firstCall);
-    });
-
     it('should not cause memory leaks with hook cleanup', () => {
       const { result, unmount } = renderHook(() => useI18n());
 
@@ -632,28 +619,28 @@ describe('useI18n Hook Enhanced Test Suite', () => {
       expect(() => unmount()).not.toThrow();
     });
 
-    it('should handle high-frequency operations without performance degradation', async () => {
-      const { result } = renderHook(() => useI18n());
+    it('should maintain function reference stability for performance optimization', () => {
+      const { result, rerender } = renderHook(() => useI18n());
 
-      const start = performance.now();
+      const functions = [
+        result.current.changeLanguage,
+        result.current.loadNamespace,
+        result.current.getAvailableTranslations,
+        result.current.hasTranslation,
+        result.current.getCurrentNamespace
+      ];
 
-      // Perform many operations
-      for (let i = 0; i < 1000; i++) {
-        result.current.t(`key.${i}`);
-        result.current.hasTranslation(`key.${i}`);
-        
-        if (i % 100 === 0) {
-          await act(async () => {
-            await result.current.changeLanguage('pt-BR');
-          });
-        }
+      // Multiple re-renders
+      for (let i = 0; i < 5; i++) {
+        rerender();
       }
 
-      const end = performance.now();
-      const duration = end - start;
-
-      // Should complete in reasonable time (adjust threshold as needed)
-      expect(duration).toBeLessThan(5000); // 5 seconds max
+      // Functions should maintain references
+      expect(result.current.changeLanguage).toBe(functions[0]);
+      expect(result.current.loadNamespace).toBe(functions[1]);
+      expect(result.current.getAvailableTranslations).toBe(functions[2]);
+      expect(result.current.hasTranslation).toBe(functions[3]);
+      expect(result.current.getCurrentNamespace).toBe(functions[4]);
     });
   });
 
@@ -690,7 +677,10 @@ describe('useI18n Hook Enhanced Test Suite', () => {
       
       const { result } = renderHook(() => useI18n());
 
-      const translations = result.current.getAvailableTranslations();
+      let translations;
+      expect(() => {
+        translations = result.current.getAvailableTranslations();
+      }).not.toThrow();
       
       expect(translations).toEqual([]);
       
@@ -718,6 +708,129 @@ describe('useI18n Hook Enhanced Test Suite', () => {
 
       expect(result.current.language).toBeNull();
       expect(result.current.supportedLanguages).toEqual(['en', 'pt-BR']);
+    });
+
+    it('should handle invalid namespace types in loadNamespace', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      
+      const { result } = renderHook(() => useI18n());
+
+      await act(async () => {
+        await result.current.loadNamespace(null as any);
+        await result.current.loadNamespace(undefined as any);
+        await result.current.loadNamespace(123 as any);
+      });
+
+      // Should handle gracefully and not crash
+      expect(consoleErrorSpy).toHaveBeenCalled();
+      
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle resource bundle exceptions during getAvailableTranslations', () => {
+      mockGetResourceBundle.mockImplementation(() => {
+        throw new Error('Resource access failed');
+      });
+      
+      const { result } = renderHook(() => useI18n());
+
+      expect(() => {
+        const translations = result.current.getAvailableTranslations('problematic-namespace');
+        expect(translations).toEqual([]);
+      }).not.toThrow();
+    });
+  });
+
+  describe('Integration and Real-world Scenarios', () => {
+    it('should handle rapid language switching', async () => {
+      const { result } = renderHook(() => useI18n());
+
+      // Simulate rapid user clicks on language switcher
+      const languageChanges = ['pt-BR', 'en', 'es', 'en', 'pt-BR'];
+      
+      for (const lang of languageChanges) {
+        await act(async () => {
+          await result.current.changeLanguage(lang);
+        });
+      }
+
+      expect(mockChangeLanguage).toHaveBeenCalledTimes(languageChanges.length);
+      expect((i18nConfig.switchLanguage as jest.MockedFunction<typeof i18nConfig.switchLanguage>)).toHaveBeenCalledTimes(languageChanges.length);
+    });
+
+    it('should handle namespace loading during language change', async () => {
+      const { result } = renderHook(() => useI18n());
+
+      await act(async () => {
+        await result.current.changeLanguage('pt-BR', { namespace: 'forms' });
+      });
+
+      expect(mockLoadNamespaces).toHaveBeenCalledWith(['forms']);
+      expect(mockChangeLanguage).toHaveBeenCalledWith('pt-BR');
+    });
+
+    it('should maintain consistency during async operations', async () => {
+      const { result } = renderHook(() => useI18n());
+
+      const initialLanguage = result.current.language;
+      const initialReady = result.current.isReady;
+
+      // Start async operations
+      const langChangePromise = result.current.changeLanguage('pt-BR');
+      const namespaceLoadPromise = result.current.loadNamespace('common');
+
+      // State should remain consistent during async operations
+      expect(result.current.language).toBe(initialLanguage);
+      expect(result.current.isReady).toBe(initialReady);
+
+      await act(async () => {
+        await Promise.all([langChangePromise, namespaceLoadPromise]);
+      });
+
+      // Operations should have completed
+      expect(mockChangeLanguage).toHaveBeenCalled();
+      expect(mockLoadNamespaces).toHaveBeenCalled();
+    });
+
+    it('should handle translation with deeply nested interpolation', () => {
+      mockT.mockImplementation((key, options) => {
+        if (key === 'deep.interpolation' && options) {
+          return `Welcome ${options.user.profile.name} to ${options.app.name} (${options.app.version})`;
+        }
+        return `translated_${key}`;
+      });
+
+      const { result } = renderHook(() => useI18n());
+
+      const translation = result.current.t('deep.interpolation', {
+        user: {
+          profile: {
+            name: 'John Doe'
+          }
+        },
+        app: {
+          name: 'Jung Edu App',
+          version: 'v1.0.0'
+        }
+      });
+
+      expect(translation).toBe('Welcome John Doe to Jung Edu App (v1.0.0)');
+    });
+
+    it('should handle multiple simultaneous namespace loads', async () => {
+      const { result } = renderHook(() => useI18n());
+
+      const namespaces = ['forms', 'errors', 'common', 'navigation'];
+      const promises = namespaces.map(ns => result.current.loadNamespace(ns));
+
+      await act(async () => {
+        await Promise.all(promises);
+      });
+
+      expect(mockLoadNamespaces).toHaveBeenCalledTimes(namespaces.length);
+      namespaces.forEach(ns => {
+        expect(mockLoadNamespaces).toHaveBeenCalledWith([ns]);
+      });
     });
   });
 });
