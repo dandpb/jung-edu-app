@@ -46,19 +46,6 @@ Templates for creating assessment questions.
   - `objectives` - Learning objectives to assess (optional)
   - `contentSummary` - Content context summary (optional)
 
-### 🗺️ Mind Map Generation Category
-Templates for creating visual learning maps.
-
-#### 4. Estrutura de Mapa Mental (mindmap.structure)
-- **Purpose**: Generate mind map structures
-- **Variables**:
-  - `topic` - Central topic (required)
-  - `depth` - Depth levels (default: 3)
-  - `style` - Map style (default: abrangente)
-  - `concepts` - Key concepts to include (required)
-  - `minBranches` - Minimum sub-branches (default: 3)
-  - `maxBranches` - Maximum sub-branches (default: 5)
-
 ### 🎥 Video Curation Category
 Templates for finding educational videos.
 

@@ -831,7 +831,6 @@ export interface TemplateBuilderSettings {
   grid_enabled: boolean;
   snap_to_grid: boolean;
   zoom_level: number;
-  show_minimap: boolean;
   auto_save: boolean;
   validation_enabled: boolean;
 }

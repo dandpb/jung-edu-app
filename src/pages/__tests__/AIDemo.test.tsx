@@ -47,13 +47,6 @@ describe('AIDemo Component', () => {
     expect(ctaButton).toBeInTheDocument();
   });
 
-  test('renders alternative demo link', () => {
-    renderWithRouter(<AIDemo />);
-
-    const altLink = screen.getByRole('link', { name: /demonstração de setores do minimapa/i });
-    expect(altLink).toBeInTheDocument();
-    expect(altLink).toHaveAttribute('href', '/minimap-demo');
-  });
 
   test('renders configuration options section', () => {
     renderWithRouter(<AIDemo />);

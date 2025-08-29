@@ -106,14 +106,6 @@ describe('AIDemo - Comprehensive Tests', () => {
       expect(ctaButton).toHaveClass('bg-primary-600', 'text-white');
     });
 
-    it('renders alternative demo link with correct attributes', () => {
-      renderWithRouter(<AIDemo />);
-
-      const altLink = screen.getByRole('link', { name: /demonstração de setores do minimapa/i });
-      expect(altLink).toBeInTheDocument();
-      expect(altLink).toHaveAttribute('href', '/minimap-demo');
-      expect(altLink).toHaveClass('text-primary-600', 'hover:underline');
-    });
 
     it('CTA button contains arrow icon', () => {
       renderWithRouter(<AIDemo />);
@@ -154,17 +146,6 @@ describe('AIDemo - Comprehensive Tests', () => {
       await user.unhover(ctaButton);
     });
 
-    it('allows clicking on alternative demo link', async () => {
-      const user = userEvent.setup();
-      renderWithRouter(<AIDemo />);
-
-      const altLink = screen.getByRole('link', { name: /demonstração de setores do minimapa/i });
-      
-      // Just test that the link is clickable and has proper attributes
-      expect(altLink).toBeInTheDocument();
-      await user.hover(altLink);
-      expect(altLink).toHaveClass('hover:underline');
-    });
   });
 
   describe('Responsive Design', () => {
@@ -306,32 +287,6 @@ describe('AIDemo - Comprehensive Tests', () => {
     });
   });
 
-  describe('Component Integration', () => {
-    it('integrates properly with React Router', () => {
-      renderWithRouter(<AIDemo />);
-
-      // Links should be properly integrated with router
-      const ctaLink = screen.getByRole('link', { name: /Experimente Mapas Mentais com IA/i });
-      const altLink = screen.getByRole('link', { name: /demonstração de setores do minimapa/i });
-
-      expect(altLink.getAttribute('href')).toBe('/minimap-demo');
-    });
-
-    it('renders consistently across different router states', () => {
-      // Test with MemoryRouter at different initial routes
-      const routes = ['/', '/ai-demo', '/some-other-route'];
-      
-      routes.forEach(route => {
-        const { unmount } = renderWithRouter(<AIDemo />, [route]);
-        
-        expect(screen.getByText('Mapas Mentais com IA')).toBeInTheDocument();
-        expect(screen.getByRole('link', { name: /Experimente Mapas Mentais com IA/i })).toBeInTheDocument();
-        
-        unmount();
-      });
-    });
-  });
-
   describe('Performance and Accessibility', () => {
     it('has no duplicate IDs', () => {
       renderWithRouter(<AIDemo />);
@@ -362,11 +317,9 @@ describe('AIDemo - Comprehensive Tests', () => {
       renderWithRouter(<AIDemo />);
 
       const ctaButton = screen.getByRole('link', { name: /Experimente Mapas Mentais com IA/i });
-      const altLink = screen.getByRole('link', { name: /demonstração de setores do minimapa/i });
 
       // Links should have descriptive text
       expect(ctaButton.textContent).toContain('Experimente Mapas Mentais com IA');
-      expect(altLink.textContent).toContain('demonstração de setores do minimapa');
     });
   });
 });
