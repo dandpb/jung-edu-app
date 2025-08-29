@@ -3,11 +3,6 @@
  * Tests hook functionality, translation features, language switching, and edge cases
  */
 
-import { renderHook, act } from '@testing-library/react';
-import React from 'react';
-import { useI18n } from '../useI18n';
-import { I18nProvider } from '../../contexts/I18nContext';
-
 // Mock dependencies
 const mockT = jest.fn((key: string, options?: any) => {
   if (options?.defaultValue) return options.defaultValue;
@@ -66,6 +61,11 @@ jest.mock('../../config/i18n', () => ({
   getI18nInstance: jest.fn().mockReturnValue(mockI18nInstance),
   setupI18n: jest.fn().mockResolvedValue(undefined)
 }));
+
+import { renderHook, act } from '@testing-library/react';
+import React from 'react';
+import { useI18n } from '../useI18n';
+import { I18nProvider } from '../../contexts/I18nContext';
 
 // Test wrapper component
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {

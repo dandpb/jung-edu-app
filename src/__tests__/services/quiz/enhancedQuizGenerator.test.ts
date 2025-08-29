@@ -144,7 +144,7 @@ describe('EnhancedQuizGenerator', () => {
       );
       
       const call = mockProvider.generateStructuredOutput.mock.calls[0];
-      expect(call[0]).toContain('shadow');
+      expect(call[0].toLowerCase()).toContain('sombra');
     });
     
     it('should include essay questions when enabled', async () => {

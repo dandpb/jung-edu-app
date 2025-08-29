@@ -7,14 +7,14 @@ import { renderHook, act } from '@testing-library/react';
 import React from 'react';
 import { useI18n } from '../useI18n';
 
-// Mock coordination hooks
-jest.mock('@/hooks/coordination', () => ({
-  useCoordination: () => ({
-    reportProgress: jest.fn(),
-    updateMemory: jest.fn(),
-    notify: jest.fn()
-  })
-}));
+// Mock coordination hooks - this package doesn't exist in the project
+// jest.mock('@/hooks/coordination', () => ({
+//   useCoordination: () => ({
+//     reportProgress: jest.fn(),
+//     updateMemory: jest.fn(),
+//     notify: jest.fn()
+//   })
+// }));
 
 // Mock dependencies
 const mockT = jest.fn((key: string, options?: any) => {

@@ -1,15 +1,15 @@
+// Mock the content processor
+const mockProcessContentForMarkdown = jest.fn();
+jest.mock('../../../utils/contentProcessor', () => ({
+  processContentForMarkdown: mockProcessContentForMarkdown
+}));
+
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 import MarkdownContent from '../MarkdownContent';
 import { processContentForMarkdown } from '../../../utils/contentProcessor';
-
-// Mock the content processor
-const mockProcessContentForMarkdown = jest.fn();
-jest.mock('../../../utils/contentProcessor', () => ({
-  processContentForMarkdown: mockProcessContentForMarkdown
-}));
 
 // Mock react-markdown
 jest.mock('react-markdown', () => {

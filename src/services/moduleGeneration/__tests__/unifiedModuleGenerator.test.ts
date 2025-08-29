@@ -45,6 +45,7 @@ describe('UnifiedModuleGenerator', () => {
     }
   };
 
+  const mockMindMap = {
     nodes: [
       { id: '1', data: { label: 'Collective Unconscious' } },
       { id: '2', data: { label: 'Archetypes' } }
@@ -96,9 +97,6 @@ describe('UnifiedModuleGenerator', () => {
     } as any;
 
     mockModuleGenerator = {} as any;
-
-      generateFromModule: jest.fn()
-    } as any;
 
     mockQuizGenerator = {} as any;
 
@@ -444,7 +442,6 @@ describe('UnifiedModuleGenerator', () => {
       // Simulate delays to test concurrent execution
       mockOrchestrator.generateModule.mockImplementation(() => 
         new Promise(resolve => setTimeout(() => resolve(mockModuleStructure), 10))
-      );
       );
       mockOrchestrator.generateQuiz.mockImplementation(() =>
         new Promise(resolve => setTimeout(() => resolve(mockQuiz), 15))

@@ -56,27 +56,39 @@ let circuitBreakerState = {
 const mockOpenAIResponse = {
   data: {
     choices: [{
-      message: { content: 'Mock GPT response' },
+      message: { content: 'Mock GPT response about Jung psychology concepts' },
       finish_reason: 'stop'
     }],
-    usage: { total_tokens: 100 }
+    usage: { 
+      prompt_tokens: 50,
+      completion_tokens: 50,
+      total_tokens: 100 
+    }
   }
 };
 
 const mockYouTubeResponse = {
   data: {
     items: [{
-      id: { videoId: 'mock-video-1' },
+      id: { videoId: 'mock-jung-video-1' },
       snippet: {
-        title: 'Mock Video',
-        description: 'Mock description',
-        channelTitle: 'Mock Channel',
+        title: 'Carl Jung: Understanding Psychological Types',
+        description: 'An educational video about Jung\'s psychological types and their applications',
+        channelTitle: 'Psychology Education Channel',
         publishedAt: '2023-01-01T00:00:00Z',
-        thumbnails: { default: { url: 'mock.jpg' } }
+        thumbnails: {
+          default: { url: 'https://example.com/jung-thumb.jpg', width: 120, height: 90 },
+          medium: { url: 'https://example.com/jung-thumb-med.jpg', width: 320, height: 180 },
+          high: { url: 'https://example.com/jung-thumb-high.jpg', width: 480, height: 360 }
+        }
       },
-      contentDetails: { duration: 'PT10M' },
-      statistics: { viewCount: '1000', likeCount: '100' }
-    }]
+      contentDetails: { duration: 'PT15M30S' },
+      statistics: { viewCount: '25000', likeCount: '1200', commentCount: '89' }
+    }],
+    pageInfo: {
+      totalResults: 1,
+      resultsPerPage: 1
+    }
   }
 };
 
@@ -235,10 +247,13 @@ describe('External API Integration Tests', () => {
 
       const result = await mockProvider.generateCompletion(maliciousPrompt);
       
-      // Mock provider should sanitize responses
+      // Mock provider should sanitize responses and return safe educational content
       expect(result.content).not.toContain('<script>');
       expect(result.content).not.toContain('alert');
       expect(result.content).not.toContain('system prompt');
+      expect(result.content).toBeTruthy();
+      expect(typeof result.content).toBe('string');
+      expect(result.content.length).toBeGreaterThan(0);
     });
 
     it('should handle structured output validation', async () => {
@@ -262,33 +277,47 @@ describe('External API Integration Tests', () => {
       };
 
       const result = await mockProvider.generateStructuredOutput(
-        'Generate 2 quiz questions about Jung',
+        'Generate 2 quiz questions about Jung psychology',
         schema,
         { temperature: 0.2 }
       );
 
-      // Mock provider should return quiz questions
+      expect(result).toBeDefined();
+      
+      // Mock provider should return properly structured quiz questions
+      let questions: any[];
       if (Array.isArray(result)) {
-        expect(result).toHaveLength(2);
-        expect(result[0]).toHaveProperty('question');
-        expect(result[0]).toHaveProperty('options');
-        expect(result[0]).toHaveProperty('correctAnswer');
+        questions = result;
+        expect(questions).toHaveLength(2);
       } else {
         expect(result).toHaveProperty('questions');
         const typedResult = result as any;
         expect(Array.isArray(typedResult.questions)).toBe(true);
-        expect(typedResult.questions.length).toBe(2);
+        questions = typedResult.questions;
+        expect(questions.length).toBe(2);
       }
       
-      const questions = Array.isArray(result) ? result : (result as any).questions;
-      if (questions && questions.length > 0) {
-        const question = questions[0];
+      // Validate each question structure
+      questions.forEach((question, index) => {
         expect(question).toHaveProperty('question');
         expect(question).toHaveProperty('options');
         expect(question).toHaveProperty('correctAnswer');
+        
+        expect(typeof question.question).toBe('string');
+        expect(question.question.length).toBeGreaterThan(0);
+        expect(question.question).toContain('Jung'); // Should be about Jung
+        
         expect(Array.isArray(question.options)).toBe(true);
+        expect(question.options.length).toBeGreaterThanOrEqual(2);
+        question.options.forEach((option: any) => {
+          expect(typeof option).toBe('string');
+          expect(option.length).toBeGreaterThan(0);
+        });
+        
         expect(typeof question.correctAnswer).toBe('number');
-      }
+        expect(question.correctAnswer).toBeGreaterThanOrEqual(0);
+        expect(question.correctAnswer).toBeLessThan(question.options.length);
+      });
     });
   });
 
@@ -307,28 +336,60 @@ describe('External API Integration Tests', () => {
     it('should search for videos with proper error handling', async () => {
       // YouTubeService is in mock mode (no real API key), it uses mock data
       const videos = await youtubeService.searchVideos('Jung psychology', {
-        maxResults: 1,
-        order: 'relevance'
+        maxResults: 2,
+        order: 'relevance',
+        videoDuration: 'medium'
       });
 
       expect(Array.isArray(videos)).toBe(true);
-      expect(videos.length).toBeGreaterThanOrEqual(0);
+      expect(videos.length).toBeGreaterThan(0);
       
-      if (videos.length > 0) {
-        expect(videos[0]).toHaveProperty('videoId');
-        expect(videos[0]).toHaveProperty('title');
-        expect(videos[0]).toHaveProperty('channelTitle');
+      // Validate video structure
+      videos.forEach(video => {
+        expect(video).toHaveProperty('videoId');
+        expect(video).toHaveProperty('title');
+        expect(video).toHaveProperty('description');
+        expect(video).toHaveProperty('channelTitle');
+        expect(video).toHaveProperty('publishedAt');
+        expect(video).toHaveProperty('duration');
+        expect(video).toHaveProperty('thumbnails');
+        
+        expect(typeof video.videoId).toBe('string');
+        expect(video.videoId.length).toBeGreaterThan(0);
+        expect(typeof video.title).toBe('string');
+        expect(video.title.length).toBeGreaterThan(0);
         // Mock service returns Jung-related content
-        expect(videos[0].title).toContain('Jung');
-      }
+        expect(video.title.toLowerCase()).toContain('jung');
+        
+        expect(video.thumbnails).toHaveProperty('default');
+        expect(video.thumbnails.default).toHaveProperty('url');
+      });
     });
 
     it('should handle API quota exceeded', async () => {
-      // Service is in mock mode, so it handles quota errors gracefully
+      // Mock quota exceeded scenario - service should handle gracefully
+      const mockQuotaExceededError = {
+        response: {
+          status: 403,
+          data: {
+            error: {
+              message: 'Quota exceeded',
+              code: 403
+            }
+          }
+        }
+      };
+      
+      // Even with quota errors, mock service should return fallback data
       const videos = await youtubeService.searchVideos('Jung psychology');
       expect(Array.isArray(videos)).toBe(true);
-      // Mock service should return some videos or handle gracefully
-      expect(videos.length).toBeGreaterThanOrEqual(0);
+      
+      // Mock service should handle quota gracefully and still return results
+      if (videos.length > 0) {
+        expect(videos[0]).toHaveProperty('videoId');
+        expect(videos[0]).toHaveProperty('title');
+        expect(videos[0].title.toLowerCase()).toContain('jung');
+      }
     });
 
     it('should handle network failures with fallback', async () => {

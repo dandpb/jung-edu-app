@@ -4,12 +4,6 @@
  * Covers edge cases, error handling, and performance scenarios
  */
 
-import React from 'react';
-import { render, screen, waitFor, act, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { I18nProvider, useI18n } from '../I18nContext';
-import { setupI18n, switchLanguage } from '../../config/i18n';
-
 // Mock i18next and related modules
 const mockT = jest.fn((key: string, options?: any) => {
   if (options?.defaultValue) return options.defaultValue;
@@ -61,6 +55,12 @@ jest.mock('../../config/i18n', () => ({
   switchLanguage: jest.fn().mockResolvedValue(undefined),
   getI18nInstance: jest.fn().mockReturnValue(mockI18nInstance)
 }));
+
+import React from 'react';
+import { render, screen, waitFor, act, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { I18nProvider, useI18n } from '../I18nContext';
+import { setupI18n, switchLanguage } from '../../config/i18n';
 
 // Test components
 const TestComponent = () => {

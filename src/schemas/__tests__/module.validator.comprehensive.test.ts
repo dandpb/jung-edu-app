@@ -654,7 +654,7 @@ describe('ModuleValidator - Comprehensive Test Suite', () => {
     it('should handle modules with special characters in strings', () => {
       const moduleWithSpecialChars = createValidModule({
         title: 'Module with émojis 🎓 and spëcial chars: àáâãäåæç',
-        description: 'Description with symbols: !@#$%^&*()_+-=[]{}|;\\:"\\'<>?,./~`',
+        description: 'Description with symbols: !@#$%^&*()_+-=[]{}|;\\:"\'<>?,./~`',
         content: {
           introduction: 'Introduction with unicode: 中文, العربية, हिन्दी, русский',
           sections: [

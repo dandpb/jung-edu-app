@@ -23,6 +23,8 @@ jest.mock('../../common', () => ({
 jest.useFakeTimers();
 
 describe('ModulePreview', () => {
+  jest.setTimeout(10000); // 10 second timeout for these tests
+  
   beforeEach(() => {
     jest.clearAllTimers();
   });

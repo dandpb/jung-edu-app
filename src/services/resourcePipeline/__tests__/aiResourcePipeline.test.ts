@@ -88,6 +88,7 @@ describe('AIResourcePipeline', () => {
     }
   ];
 
+  const mockMindMap = {
     nodes: [
       { id: 'n1', data: { label: 'Archetypes' } },
       { id: 'n2', data: { label: 'Shadow' } }
@@ -334,11 +335,6 @@ describe('AIResourcePipeline', () => {
 
         expect(bibResource).toBeDefined();
         expect(bibResource?.content).toEqual(mockBibliography);
-      });
-    });
-
-        const resources = await pipeline.processModule(mockModule);
-
       });
     });
 

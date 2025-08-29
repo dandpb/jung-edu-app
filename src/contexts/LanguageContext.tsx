@@ -3,7 +3,7 @@
  * Manages language preference with localStorage persistence
  */
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
 
 export interface LanguageContextType {
   currentLanguage: string;
@@ -37,29 +37,38 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
 
   // Load language preference from localStorage on mount
   useEffect(() => {
-    const storedLanguage = localStorage.getItem('jung-edu-language');
-    if (storedLanguage && availableLanguages.includes(storedLanguage)) {
-      setCurrentLanguage(storedLanguage);
+    try {
+      const storedLanguage = localStorage.getItem('jung-edu-language');
+      if (storedLanguage && availableLanguages.includes(storedLanguage)) {
+        setCurrentLanguage(storedLanguage);
+      }
+    } catch (error) {
+      console.error('Failed to load language preference from localStorage:', error);
     }
   }, [availableLanguages]);
 
-  const setLanguage = (language: string) => {
+  const setLanguage = useCallback((language: string) => {
     if (availableLanguages.includes(language)) {
       setCurrentLanguage(language);
-      localStorage.setItem('jung-edu-language', language);
+      try {
+        localStorage.setItem('jung-edu-language', language);
+      } catch (error) {
+        console.error('Failed to save language preference to localStorage:', error);
+        // Continue operation - language is still updated in memory
+      }
     }
-  };
+  }, [availableLanguages]);
 
-  const isLanguageSupported = (language: string) => {
+  const isLanguageSupported = useCallback((language: string) => {
     return availableLanguages.includes(language);
-  };
+  }, [availableLanguages]);
 
-  const value: LanguageContextType = {
+  const value: LanguageContextType = useMemo(() => ({
     currentLanguage,
     availableLanguages,
     setLanguage,
     isLanguageSupported
-  };
+  }), [currentLanguage, availableLanguages, setLanguage, isLanguageSupported]);
 
   return (
     <LanguageContext.Provider value={value}>

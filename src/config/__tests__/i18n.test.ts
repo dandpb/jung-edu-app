@@ -3,18 +3,24 @@
  * Tests internationalization setup, language switching, and error handling
  */
 
-import { setupI18n, getI18nInstance, switchLanguage } from '../i18n';
-
 // Mock react-i18next
 const mockUse = jest.fn().mockReturnThis();
 const mockInit = jest.fn().mockResolvedValue(undefined);
 const mockChangeLanguage = jest.fn().mockResolvedValue(undefined);
 
-jest.mock('react-i18next', () => ({
-  use: mockUse,
-  init: mockInit,
-  changeLanguage: mockChangeLanguage,
-}));
+jest.mock('react-i18next', () => {
+  const actualMockUse = jest.fn().mockReturnThis();
+  const actualMockInit = jest.fn().mockResolvedValue(undefined);
+  const actualMockChangeLanguage = jest.fn().mockResolvedValue(undefined);
+  
+  return {
+    use: actualMockUse,
+    init: actualMockInit,
+    changeLanguage: actualMockChangeLanguage,
+  };
+});
+
+import { setupI18n, getI18nInstance, switchLanguage } from '../i18n';
 
 // Mock i18next-browser-languagedetector
 const mockLanguageDetector = {

@@ -405,31 +405,32 @@ describe('LanguageContext Comprehensive Test Suite', () => {
     });
 
     it('should provide stable function references', () => {
-      let contextValue: any;
+      let contextValues: any[] = [];
 
-      const StabilityComponent = () => {
-        contextValue = useLanguage();
-        return <div>Test</div>;
+      const StabilityComponent = ({ triggerRender }: { triggerRender: boolean }) => {
+        const contextValue = useLanguage();
+        contextValues.push(contextValue);
+        return <div data-testid="stability-test">{triggerRender ? 'rerendered' : 'initial'}</div>;
       };
 
       const { rerender } = render(
-        <LanguageProvider>
-          <StabilityComponent />
+        <LanguageProvider availableLanguages={['en', 'pt-BR']}>
+          <StabilityComponent triggerRender={false} />
         </LanguageProvider>
       );
 
-      const firstRender = contextValue;
-
+      // Force a re-render by changing props, but keep the same provider instance
       rerender(
-        <LanguageProvider>
-          <StabilityComponent />
+        <LanguageProvider availableLanguages={['en', 'pt-BR']}>
+          <StabilityComponent triggerRender={true} />
         </LanguageProvider>
       );
 
-      const secondRender = contextValue;
-
-      expect(secondRender.setLanguage).toBe(firstRender.setLanguage);
-      expect(secondRender.isLanguageSupported).toBe(firstRender.isLanguageSupported);
+      expect(contextValues).toHaveLength(2);
+      
+      // Check that functions are stable when the same provider is re-rendered with same props
+      expect(contextValues[1].setLanguage).toBe(contextValues[0].setLanguage);
+      expect(contextValues[1].isLanguageSupported).toBe(contextValues[0].isLanguageSupported);
     });
 
     it('should maintain context state during re-renders', () => {

@@ -250,9 +250,6 @@ describe('Types - schema.ts', () => {
           year: 2023,
           type: 'book'
         }],
-          nodes: [{ id: 'n1', label: 'Node', x: 0, y: 0 }],
-          edges: []
-        },
         videos: [{
           id: 'v2',
           title: 'Module Video',
@@ -270,7 +267,7 @@ describe('Types - schema.ts', () => {
           'Analyze case studies'
         ],
         metadata: {
-          generatedAt: new Date(),
+          generatedAt: new Date().toISOString(),
           difficulty: 'advanced',
           topic: 'Cognitive Psychology',
           pipelineProcessed: true,

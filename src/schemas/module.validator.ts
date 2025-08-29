@@ -19,8 +19,13 @@ export class ModuleValidator {
       errors.push('Time estimate must be non-negative');
     }
     
-    if (module.content && !module.content.introduction && !module.content.sections) {
-      errors.push('Module content must have introduction or sections');
+    if (module.content) {
+      const hasIntroduction = module.content.introduction && module.content.introduction.trim() !== '';
+      const hasSections = module.content.sections && module.content.sections.length > 0;
+      
+      if (!hasIntroduction && !hasSections) {
+        errors.push('Module content must have introduction or sections');
+      }
     }
 
     return {

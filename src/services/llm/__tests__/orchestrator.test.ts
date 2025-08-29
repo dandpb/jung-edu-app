@@ -225,6 +225,7 @@ describe('ModuleGenerationOrchestrator', () => {
       }
     ];
 
+    const mockMindMap = {
       nodes: [
         { id: 'root', label: 'Jungian Archetypes', type: 'root' },
         { id: 'shadow', label: 'Shadow', type: 'child' }

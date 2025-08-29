@@ -80,38 +80,163 @@ let testUser: any = null;
 
 // Mock ModuleService static methods
 const mockModuleService = {
-  createModule: jest.fn(async (data) => {
-    const id = `module-${Date.now()}`;
-    const module = createMockModule(data, id);
+  createModule: jest.fn().mockImplementation(async (data) => {
+    const id = `module-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const module = createMockModule({
+      title: data.title || 'Default Title',
+      description: data.description || 'Default description',
+      content: {
+        introduction: data.content?.introduction || 'Default introduction',
+        sections: data.content?.sections || []
+      },
+      videos: data.videos || [],
+      quiz: data.quiz || {
+        id: `quiz-${Date.now()}`,
+        title: 'Default Quiz',
+        description: 'Default quiz description',
+        questions: [],
+        passingScore: 70
+      },
+      bibliography: data.bibliography || [],
+      filmReferences: data.filmReferences || [],
+      tags: data.tags || [],
+      difficultyLevel: data.difficultyLevel || 'intermediate',
+      timeEstimate: data.timeEstimate || { hours: 1, minutes: 0 },
+      metadata: {
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        version: '1.0.0',
+        author: data.metadata?.author || {
+          id: 'mock-author',
+          name: 'Mock Author',
+          email: 'mock@example.com',
+          role: 'Instructor'
+        },
+        status: data.metadata?.status || 'draft',
+        language: data.metadata?.language || 'en'
+      },
+      ...data
+    }, id);
     mockModuleStore[id] = module;
     testModule = module; // Store for cross-test reference
     console.log('Mock createModule returning:', module);
     return module;
   }),
   getModuleById: jest.fn().mockImplementation(async (id) => {
-    const module = mockModuleStore[id] || createMockModule({ 
-      title: 'Test Module', 
-      content: { sections: [] },
-      quiz: { questions: [] },
+    if (mockModuleStore[id]) {
+      console.log('Mock getModuleById returning existing:', mockModuleStore[id]);
+      return mockModuleStore[id];
+    }
+    const module = createMockModule({
+      title: 'Test Module',
+      description: 'Test description',
+      content: {
+        introduction: 'Test introduction',
+        sections: []
+      },
       videos: [],
-      bibliography: []
+      quiz: {
+        id: `quiz-${id}`,
+        title: 'Test Quiz',
+        description: 'Test quiz description',
+        questions: [],
+        passingScore: 70
+      },
+      bibliography: [],
+      filmReferences: [],
+      tags: ['test'],
+      difficultyLevel: 'intermediate',
+      timeEstimate: { hours: 1, minutes: 0 },
+      metadata: {
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        version: '1.0.0',
+        author: {
+          id: 'mock-author',
+          name: 'Mock Author',
+          email: 'mock@example.com',
+          role: 'Instructor'
+        },
+        status: 'draft',
+        language: 'en'
+      }
     }, id);
-    console.log('Mock getModuleById returning:', module);
+    mockModuleStore[id] = module;
+    console.log('Mock getModuleById returning new:', module);
     return module;
   }),
-  updateModule: jest.fn(async (id, updates) => {
-    const existingModule = mockModuleStore[id] || createMockModule({ 
-      title: 'Base Module', 
-      content: { sections: [] } 
-    }, id);
-    const updatedModule = { ...existingModule, ...updates };
+  updateModule: jest.fn().mockImplementation(async (id, updates) => {
+    const existingModule = mockModuleStore[id];
+    if (!existingModule) {
+      throw new Error(`Module with id ${id} not found`);
+    }
+    
+    const updatedModule = {
+      ...existingModule,
+      ...updates,
+      id: existingModule.id, // Preserve original ID
+      createdAt: existingModule.createdAt, // Preserve creation date
+      updatedAt: new Date().toISOString(), // Update modification date
+      metadata: {
+        ...existingModule.metadata,
+        ...updates.metadata,
+        updatedAt: new Date().toISOString()
+      }
+    };
+    
     mockModuleStore[id] = updatedModule;
     testModule = updatedModule; // Update reference
     console.log('Mock updateModule returning:', updatedModule);
     return updatedModule;
   }),
-  searchModules: jest.fn().mockImplementation(async () => {
-    const results = [createMockModule({ title: 'Jung Module' }, 'search-result-1')];
+  searchModules: jest.fn().mockImplementation(async (searchParams = {}) => {
+    const allModules = Object.values(mockModuleStore);
+    const query = searchParams.query || '';
+    
+    // Simple search implementation
+    const results = allModules.filter((module: any) => 
+      !query || module.title.toLowerCase().includes(query.toLowerCase())
+    );
+    
+    if (results.length === 0) {
+      // Return a default search result
+      const defaultResult = createMockModule({
+        title: query ? `Jung Module for "${query}"` : 'Jung Module',
+        description: 'Default search result',
+        content: {
+          introduction: 'Search result introduction',
+          sections: []
+        },
+        videos: [],
+        quiz: {
+          id: 'search-quiz-1',
+          title: 'Search Quiz',
+          description: 'Quiz for search result',
+          questions: [],
+          passingScore: 70
+        },
+        bibliography: [],
+        filmReferences: [],
+        tags: ['jung', 'search'],
+        difficultyLevel: 'intermediate',
+        timeEstimate: { hours: 1, minutes: 0 },
+        metadata: {
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          version: '1.0.0',
+          author: {
+            id: 'search-author',
+            name: 'Search Author',
+            email: 'search@example.com',
+            role: 'Instructor'
+          },
+          status: 'published',
+          language: 'en'
+        }
+      }, 'search-result-1');
+      results.push(defaultResult);
+    }
+    
     console.log('Mock searchModules returning:', results);
     return results;
   }),
@@ -129,12 +254,89 @@ const mockModuleService = {
     return result;
   }),
   getAllModules: jest.fn().mockImplementation(async () => {
-    const modules = Object.values(mockModuleStore).length > 0 
-      ? Object.values(mockModuleStore)
-      : [
-          createMockModule({ title: 'All Module 1' }, 'all-1'),
-          createMockModule({ title: 'All Module 2' }, 'all-2')
-        ];
+    let modules = Object.values(mockModuleStore);
+    
+    if (modules.length === 0) {
+      // Create default modules if store is empty
+      const defaultModules = [
+        createMockModule({
+          title: 'All Module 1',
+          description: 'First default module',
+          content: {
+            introduction: 'Introduction for module 1',
+            sections: []
+          },
+          videos: [],
+          quiz: {
+            id: 'all-quiz-1',
+            title: 'Module 1 Quiz',
+            description: 'Quiz for module 1',
+            questions: [],
+            passingScore: 70
+          },
+          bibliography: [],
+          filmReferences: [],
+          tags: ['default'],
+          difficultyLevel: 'beginner',
+          timeEstimate: { hours: 1, minutes: 0 },
+          metadata: {
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            version: '1.0.0',
+            author: {
+              id: 'default-author',
+              name: 'Default Author',
+              email: 'default@example.com',
+              role: 'Instructor'
+            },
+            status: 'published',
+            language: 'en'
+          }
+        }, 'all-1'),
+        createMockModule({
+          title: 'All Module 2',
+          description: 'Second default module',
+          content: {
+            introduction: 'Introduction for module 2',
+            sections: []
+          },
+          videos: [],
+          quiz: {
+            id: 'all-quiz-2',
+            title: 'Module 2 Quiz',
+            description: 'Quiz for module 2',
+            questions: [],
+            passingScore: 70
+          },
+          bibliography: [],
+          filmReferences: [],
+          tags: ['default'],
+          difficultyLevel: 'intermediate',
+          timeEstimate: { hours: 1, minutes: 30 },
+          metadata: {
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            version: '1.0.0',
+            author: {
+              id: 'default-author',
+              name: 'Default Author',
+              email: 'default@example.com',
+              role: 'Instructor'
+            },
+            status: 'published',
+            language: 'en'
+          }
+        }, 'all-2')
+      ];
+      
+      // Store default modules
+      defaultModules.forEach(module => {
+        mockModuleStore[module.id] = module;
+      });
+      
+      modules = defaultModules;
+    }
+    
     console.log('Mock getAllModules returning:', modules);
     return modules;
   })
@@ -180,20 +382,39 @@ Object.defineProperty(ModuleService, 'getAllModules', {
 // Mock the imported classes
 const mockAuthService = {
   register: jest.fn().mockImplementation(async (userData: RegistrationData) => {
-    const mockUser = createMockUser(userData, `user-${Date.now()}`);
+    const id = `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const mockUser = createMockUser(userData, id);
+    mockUserStore[id] = mockUser;
+    testUser = mockUser; // Store for cross-test reference
     console.log('Mock register called with:', userData);
     console.log('Mock register returning:', mockUser);
     return mockUser;
   }),
   login: jest.fn().mockImplementation(async (credentials) => {
-    const user = createMockUser({ 
-      email: credentials.username + '@test.com', 
-      username: credentials.username,
-      password: 'mock',
-      firstName: 'Test',
-      lastName: 'User',
-      role: UserRole.INSTRUCTOR 
-    }, `user-${Date.now()}`);
+    // Try to find existing user first
+    let user = testUser;
+    if (!user) {
+      const users = Object.values(mockUserStore);
+      user = users.find((u: any) => 
+        u.username === credentials.username || u.email === credentials.username
+      ) as any;
+    }
+    
+    if (!user) {
+      // Create new user if not found
+      const id = `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      user = createMockUser({ 
+        email: credentials.username.includes('@') ? credentials.username : credentials.username + '@test.com', 
+        username: credentials.username,
+        password: 'mock',
+        firstName: 'Test',
+        lastName: 'User',
+        role: UserRole.INSTRUCTOR 
+      }, id);
+      mockUserStore[id] = user;
+      testUser = user;
+    }
+    
     const mockResponse = {
       user: user,
       accessToken: 'mock-jwt-token-12345',
@@ -202,22 +423,113 @@ const mockAuthService = {
     console.log('Mock login returning:', mockResponse);
     return mockResponse;
   }),
-  hasPermission: jest.fn().mockResolvedValue(true),
+  hasPermission: jest.fn().mockImplementation(async (userId, resource, action) => {
+    const user = mockUserStore[userId] || testUser;
+    if (!user) return false;
+    
+    // Implement basic permission logic
+    if (user.role === UserRole.INSTRUCTOR) {
+      return true; // Instructors have all permissions
+    } else if (user.role === UserRole.STUDENT) {
+      return action === 'read'; // Students can only read
+    }
+    return false;
+  }),
   logout: jest.fn().mockResolvedValue(undefined),
-  getCurrentUser: jest.fn().mockResolvedValue(null),
+  getCurrentUser: jest.fn().mockImplementation(async () => {
+    return testUser || null;
+  }),
   refreshToken: jest.fn().mockResolvedValue('new-token')
 };
 
 const mockQuizGenerator = {
-  generateEnhancedQuiz: jest.fn(),
-  analyzeUserPerformance: jest.fn(),
-  generateStudyGuide: jest.fn()
+  generateEnhancedQuiz: jest.fn().mockImplementation(async (moduleId, title, content, objectives, count, options) => {
+    const actualCount = Math.max(1, Math.min(count || 5, 10)); // Ensure reasonable count
+    const quiz = {
+      id: `quiz-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      moduleId,
+      title: title + ' Quiz',
+      description: 'Enhanced quiz for ' + title,
+      questions: Array(actualCount).fill(null).map((_, i) => ({
+        id: `q${i + 1}`,
+        question: `What is the ${i + 1} concept in ${title}?`,
+        options: [
+          { id: `q${i + 1}-a`, text: 'Option A', isCorrect: false },
+          { id: `q${i + 1}-b`, text: 'Correct Option B', isCorrect: true },
+          { id: `q${i + 1}-c`, text: 'Option C', isCorrect: false },
+          { id: `q${i + 1}-d`, text: 'Option D', isCorrect: false }
+        ],
+        correctAnswer: 1,
+        explanation: `This is the explanation for question ${i + 1}`,
+        type: 'multiple-choice',
+        difficulty: options?.userLevel || 'intermediate',
+        points: 1
+      })),
+      passingScore: 75
+    };
+    console.log('Mock generateEnhancedQuiz returning:', quiz);
+    return quiz;
+  }),
+  analyzeUserPerformance: jest.fn().mockResolvedValue({
+    overallScore: 85,
+    strengths: ['Jung concepts', 'Archetypes'],
+    weaknesses: ['Shadow work'],
+    recommendations: ['Study more about shadow integration']
+  }),
+  generateStudyGuide: jest.fn().mockResolvedValue({
+    id: `study-guide-${Date.now()}`,
+    title: 'Study Guide',
+    sections: [
+      {
+        title: 'Key Concepts',
+        content: 'Important concepts to review'
+      }
+    ]
+  })
 };
 
 const mockYouTubeService = {
-  searchVideos: jest.fn(),
-  suggestVideos: jest.fn(),
-  getChannelInfo: jest.fn()
+  searchVideos: jest.fn().mockImplementation(async (query, options = {}) => {
+    const maxResults = options.maxResults || 5;
+    return Array(Math.min(maxResults, 3)).fill(null).map((_, i) => ({
+      videoId: `mock-video-${i + 1}`,
+      title: `Carl Jung: ${query} - Part ${i + 1}`,
+      description: `Mock video description for ${query}`,
+      channelTitle: `Psychology Channel ${i + 1}`,
+      publishedAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
+      duration: `PT${10 + i * 5}M${30 - i * 10}S`,
+      viewCount: `${1000 + i * 500}`,
+      likeCount: `${100 + i * 50}`,
+      thumbnails: {
+        default: { url: `mock${i + 1}.jpg`, width: 120, height: 90 },
+        medium: { url: `mock${i + 1}_med.jpg`, width: 320, height: 180 },
+        high: { url: `mock${i + 1}_high.jpg`, width: 480, height: 360 }
+      }
+    }));
+  }),
+  suggestVideos: jest.fn().mockImplementation(async (topic) => {
+    return [
+      {
+        videoId: `suggest-${Date.now()}`,
+        title: `Suggested: ${topic} - Deep Dive`,
+        description: `Suggested video for ${topic}`,
+        channelTitle: 'Suggested Channel',
+        publishedAt: new Date().toISOString(),
+        duration: 'PT12M30S',
+        viewCount: '2500',
+        likeCount: '250',
+        thumbnails: {
+          default: { url: 'suggest.jpg', width: 120, height: 90 }
+        }
+      }
+    ];
+  }),
+  getChannelInfo: jest.fn().mockResolvedValue({
+    channelId: 'mock-channel-id',
+    title: 'Mock Psychology Channel',
+    description: 'Educational psychology content',
+    subscriberCount: '50000'
+  })
 };
 
 // Apply mocks to imported classes
@@ -267,103 +579,84 @@ describe('Integration Test Orchestrator', () => {
     (youtubeService as any).suggestVideos = mockYouTubeService.suggestVideos;
     (youtubeService as any).getChannelInfo = mockYouTubeService.getChannelInfo;
     
-    // Update mock implementations to use testUser for persistence
-    const originalRegister = mockAuthService.register.getMockImplementation();
-    mockAuthService.register.mockImplementation(async (userData: RegistrationData) => {
-      const mockUser = createMockUser(userData, `user-${Date.now()}`);
-      testUser = mockUser; // Assign to testUser for persistence
-      console.log('Mock register called with:', userData);
-      console.log('Mock register returning:', mockUser);
-      console.log('testUser assigned to:', testUser);
-      return mockUser;
-    });
-    
-    const originalLogin = mockAuthService.login.getMockImplementation();  
-    mockAuthService.login.mockImplementation(async (credentials) => {
-      const user = testUser || createMockUser({ 
-        email: credentials.username + '@test.com', 
-        username: credentials.username,
-        password: 'mock',
-        firstName: 'Test',
-        lastName: 'User',
-        role: UserRole.INSTRUCTOR 
-      }, `user-${Date.now()}`);
-      const mockResponse = {
-        user: user,
-        accessToken: 'mock-jwt-token-12345',
-        refreshToken: 'mock-refresh-token-67890'
-      };
-      console.log('Mock login returning:', mockResponse);
-      return mockResponse;
-    });
+    // Mock implementations are already set up with proper persistence above
 
     mockLLMProvider = {
       generateCompletion: jest.fn().mockResolvedValue('Mock LLM response'),
       generateStructuredOutput: jest.fn().mockResolvedValue({ mock: true })
     } as any;
 
-    mockQuizGenerator.generateEnhancedQuiz.mockImplementation(async (moduleId, title, content, objectives, count, options) => {
-      const quiz = {
-        id: `quiz-${Date.now()}`,
-        moduleId,
-        title: title + ' Quiz',
-        description: 'Enhanced quiz for ' + title,
-        questions: Array(count).fill(null).map((_, i) => ({
-          id: `q${i + 1}`,
-          question: `What is the ${i + 1} concept in ${title}?`,
-          options: [
-            { id: `q${i + 1}-a`, text: 'Option A', isCorrect: false },
-            { id: `q${i + 1}-b`, text: 'Correct Option B', isCorrect: true },
-            { id: `q${i + 1}-c`, text: 'Option C', isCorrect: false },
-            { id: `q${i + 1}-d`, text: 'Option D', isCorrect: false }
-          ],
-          correctAnswer: 1,
-          explanation: `This is the explanation for question ${i + 1}`
-        })),
-        passingScore: 75
-      };
-      testQuiz = quiz; // Store for cross-test reference
-      return quiz;
-    });
+    // Quiz generator mock is already properly implemented above
 
-    mockYouTubeService.searchVideos.mockResolvedValue([
-      {
-        videoId: 'mock-video-1',
-        title: 'Carl Jung: Understanding the Shadow',
-        description: 'Mock video description',
-        channelTitle: 'Mock Channel',
-        publishedAt: '2023-01-01T00:00:00Z',
-        duration: 'PT15M30S',
-        viewCount: '1000',
-        likeCount: '100',
-        thumbnails: { default: { url: 'mock.jpg', width: 120, height: 90 } }
-      },
-      {
-        videoId: 'mock-video-2',
-        title: 'The Structure of the Psyche - Jung\'s Model',
-        description: 'Mock video description 2',
-        channelTitle: 'Mock Channel 2',
-        publishedAt: '2023-01-02T00:00:00Z',
-        duration: 'PT12M00S',
-        viewCount: '2000',
-        likeCount: '200',
-        thumbnails: { default: { url: 'mock2.jpg', width: 120, height: 90 } }
-      }
-    ]);
+    // YouTube service mock is already properly implemented above
     
     console.log('🚀 Integration Test Orchestrator Started');
   });
 
   beforeEach(() => {
     localStorage.clear();
-    // Don't reset testModule and testUser - they need to persist across tests in the orchestrated workflow
-    // Only reset them if they're null (first test)
-    if (!testModule) {
-      mockModuleStore = {};
-    }
-    if (!testUser) {
-      mockUserStore = {};
-    }
+    
+    // Reset stores for fresh state in each test suite
+    // But preserve testModule and testUser for orchestrated workflow
+    mockModuleStore = {};
+    mockUserStore = {};
+    testModule = null;
+    testUser = null;
+    
+    // Re-apply all mock implementations
+    Object.defineProperty(ModuleService, 'createModule', {
+      value: mockModuleService.createModule,
+      writable: true,
+      configurable: true
+    });
+    Object.defineProperty(ModuleService, 'getModuleById', {
+      value: mockModuleService.getModuleById,
+      writable: true,
+      configurable: true
+    });
+    Object.defineProperty(ModuleService, 'updateModule', {
+      value: mockModuleService.updateModule,
+      writable: true,
+      configurable: true
+    });
+    Object.defineProperty(ModuleService, 'searchModules', {
+      value: mockModuleService.searchModules,
+      writable: true,
+      configurable: true
+    });
+    Object.defineProperty(ModuleService, 'getStatistics', {
+      value: mockModuleService.getStatistics,
+      writable: true,
+      configurable: true
+    });
+    Object.defineProperty(ModuleService, 'exportModules', {
+      value: mockModuleService.exportModules,
+      writable: true,
+      configurable: true
+    });
+    Object.defineProperty(ModuleService, 'getAllModules', {
+      value: mockModuleService.getAllModules,
+      writable: true,
+      configurable: true
+    });
+    
+    // Re-wire service instances with mocks
+    (authService as any).register = mockAuthService.register;
+    (authService as any).login = mockAuthService.login;
+    (authService as any).hasPermission = mockAuthService.hasPermission;
+    (authService as any).logout = mockAuthService.logout;
+    (authService as any).getCurrentUser = mockAuthService.getCurrentUser;
+    (authService as any).refreshToken = mockAuthService.refreshToken;
+    
+    (quizGenerator as any).generateEnhancedQuiz = mockQuizGenerator.generateEnhancedQuiz;
+    (quizGenerator as any).analyzeUserPerformance = mockQuizGenerator.analyzeUserPerformance;
+    (quizGenerator as any).generateStudyGuide = mockQuizGenerator.generateStudyGuide;
+    
+    (youtubeService as any).searchVideos = mockYouTubeService.searchVideos;
+    (youtubeService as any).suggestVideos = mockYouTubeService.suggestVideos;
+    (youtubeService as any).getChannelInfo = mockYouTubeService.getChannelInfo;
+    
+    // Clear mock call history but keep implementations
     jest.clearAllMocks();
   });
 
@@ -935,8 +1228,26 @@ describe('Integration Test Orchestrator', () => {
   });
 
   describe('Error Recovery and Resilience', () => {
+    beforeEach(() => {
+      // Re-apply mocks for this test suite
+      Object.defineProperty(ModuleService, 'createModule', {
+        value: mockModuleService.createModule,
+        writable: true,
+        configurable: true
+      });
+      Object.defineProperty(ModuleService, 'getAllModules', {
+        value: mockModuleService.getAllModules,
+        writable: true,
+        configurable: true
+      });
+    });
+
     it('should recover from storage corruption', async () => {
       console.log('🔧 Storage Corruption Recovery Test');
+      
+      // Ensure mock is properly set up
+      console.log('ModuleService.createModule:', typeof ModuleService.createModule);
+      console.log('Is it a mock?:', jest.isMockFunction(ModuleService.createModule));
       
       // Create valid data first
       const module = await ModuleService.createModule({
@@ -944,6 +1255,8 @@ describe('Integration Test Orchestrator', () => {
         description: 'Testing recovery from corruption'
       });
       
+      console.log('Module created:', module);
+      expect(module).toBeDefined();
       expect(module.id).toBeDefined();
       console.log('✅ Created module before corruption');
       
