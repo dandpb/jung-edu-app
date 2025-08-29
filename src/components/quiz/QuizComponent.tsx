@@ -159,7 +159,7 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
             Questão {currentQuestionIndex + 1} de {quiz.questions.length}
           </span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className="w-full bg-gray-200 rounded-full h-2" role="progressbar" aria-valuenow={currentQuestionIndex + 1} aria-valuemax={quiz.questions.length} aria-valuemin={1}>
           <div
             className="bg-primary-600 h-2 rounded-full transition-all duration-300"
             style={{ width: `${((currentQuestionIndex + 1) / quiz.questions.length) * 100}%` }}

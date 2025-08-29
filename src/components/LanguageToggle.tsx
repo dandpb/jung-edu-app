@@ -16,16 +16,30 @@ export const LanguageToggle: React.FC<LanguageToggleProps> = ({
 }) => {
   const { language, changeLanguage, supportedLanguages, t } = useI18n();
 
-  const handleToggleLanguage = () => {
-    if (supportedLanguages.length < 2) {
+  // Ensure supportedLanguages is an array
+  const safeLanguages = supportedLanguages || [];
+
+  const handleToggleLanguage = async () => {
+    if (safeLanguages.length < 2) {
       return; // Can't toggle with less than 2 languages
     }
 
-    const currentIndex = supportedLanguages.indexOf(language);
-    const nextIndex = (currentIndex + 1) % supportedLanguages.length;
-    const nextLanguage = supportedLanguages[nextIndex];
+    try {
+      const currentIndex = safeLanguages.indexOf(language);
+      const nextIndex = (currentIndex + 1) % safeLanguages.length;
+      const nextLanguage = safeLanguages[nextIndex];
 
-    changeLanguage(nextLanguage);
+      await changeLanguage(nextLanguage);
+    } catch (error) {
+      console.error('Failed to change language:', error);
+    }
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleToggleLanguage();
+    }
   };
 
   const getLanguageDisplayName = (languageCode: string): string => {
@@ -42,13 +56,14 @@ export const LanguageToggle: React.FC<LanguageToggleProps> = ({
   return (
     <button
       onClick={handleToggleLanguage}
+      onKeyDown={handleKeyDown}
       className={`language-toggle ${className}`.trim()}
       aria-label={ariaLabel}
       role="button"
       type="button"
-      disabled={supportedLanguages.length < 2}
+      disabled={safeLanguages.length < 2}
     >
-      {getLanguageDisplayName(language)}
+      {getLanguageDisplayName(language || 'en')}
     </button>
   );
 };

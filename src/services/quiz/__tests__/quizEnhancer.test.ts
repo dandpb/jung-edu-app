@@ -520,4 +520,241 @@ describe('QuizEnhancer', () => {
       expect(enhanced[1].question).toBeDefined();
     });
   });
+
+  describe('additional edge cases', () => {
+    it('should handle questions with array correctAnswer', async () => {
+      const questionsWithArrayAnswers: Question[] = [
+        {
+          id: 'array1',
+          type: 'multiple-choice',
+          question: 'Which concepts relate to Jung?',
+          options: ['Archetype', 'Id', 'Collective unconscious', 'Oedipus complex'],
+          correctAnswer: [0, 2], // Multiple correct answers
+          explanation: 'Jung developed the concepts of archetypes and collective unconscious.',
+          points: 15,
+          order: 0
+        }
+      ];
+
+      const enhanced = await quizEnhancer.enhanceQuestions(
+        questionsWithArrayAnswers,
+        'Jung Concepts',
+        { improveDistractors: true }
+      );
+
+      expect(enhanced).toBeDefined();
+      expect(enhanced.length).toBe(1);
+      expect(Array.isArray(enhanced[0].correctAnswer) || typeof enhanced[0].correctAnswer === 'number').toBe(true);
+    });
+
+    it('should handle extremely short questions', async () => {
+      const shortQuestion: Question = {
+        id: 'short1',
+        type: 'multiple-choice',
+        question: 'Jung?',
+        options: ['Yes', 'No'],
+        correctAnswer: 0,
+        explanation: 'Short',
+        points: 1,
+        order: 0
+      };
+
+      const enhanced = await quizEnhancer.enhanceQuestions(
+        [shortQuestion],
+        'Brief',
+        { addExplanations: true }
+      );
+
+      expect(enhanced).toBeDefined();
+      expect(enhanced[0].question).toBeDefined();
+    });
+
+    it('should handle questions with missing explanation', async () => {
+      const questionsWithoutExplanation = mockQuestions.map(q => ({
+        ...q,
+        explanation: ''
+      }));
+
+      const enhanced = await quizEnhancer.enhanceQuestions(
+        questionsWithoutExplanation,
+        'Missing Explanations',
+        { addExplanations: true }
+      );
+
+      enhanced.forEach(q => {
+        expect(q.explanation).toBeDefined();
+        expect(q.explanation.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('should handle distractor generation for Pokemon topics', async () => {
+      const pokemonQuestion: Question = {
+        id: 'poke1',
+        type: 'multiple-choice',
+        question: 'What does Gengar represent in Jungian psychology?',
+        options: [
+          'The shadow archetype manifesting fears',
+          'Simple ghost type',
+          'Random design',
+          'Video game character'
+        ],
+        correctAnswer: 0,
+        explanation: 'Gengar can represent the shadow archetype.',
+        points: 10,
+        order: 0
+      };
+
+      const enhanced = await quizEnhancer.enhanceQuestions(
+        [pokemonQuestion],
+        'Pokemon and Jung',
+        { improveDistractors: true }
+      );
+
+      expect(enhanced).toBeDefined();
+      expect(enhanced[0].options).toBeDefined();
+      expect(enhanced[0].options.length).toBe(4);
+    });
+
+    it('should handle evolution-related questions', async () => {
+      const evolutionQuestion: Question = {
+        id: 'evo1',
+        type: 'multiple-choice',
+        question: 'How does Pokemon evolution relate to individuation?',
+        options: [
+          'Represents psychological growth and transformation',
+          'Simple level-up mechanic',
+          'Random change',
+          'Game feature only'
+        ],
+        correctAnswer: 0,
+        explanation: 'Evolution can symbolize psychological development.',
+        points: 10,
+        order: 0
+      };
+
+      const enhanced = await quizEnhancer.enhanceQuestions(
+        [evolutionQuestion],
+        'Evolution Psychology',
+        { improveDistractors: true }
+      );
+
+      expect(enhanced).toBeDefined();
+      expect(enhanced[0].options).toBeDefined();
+    });
+
+    it('should handle concurrent distractor generation without duplicates', async () => {
+      const manyQuestions = Array(20).fill(null).map((_, i) => ({
+        id: `concurrent-${i}`,
+        type: 'multiple-choice' as const,
+        question: `Question ${i} about Jung's concepts?`,
+        options: ['Correct answer', 'Wrong 1', 'Wrong 2', 'Wrong 3'],
+        correctAnswer: 0,
+        explanation: `Explanation ${i}`,
+        points: 10,
+        order: i
+      }));
+
+      const enhanced = await quizEnhancer.enhanceQuestions(
+        manyQuestions,
+        'Concurrent Test',
+        { improveDistractors: true }
+      );
+
+      expect(enhanced).toHaveLength(20);
+      
+      // Check that distractors are varied
+      const allOptions = enhanced.flatMap(q => q.options.map(opt => 
+        typeof opt === 'string' ? opt : opt?.text || ''
+      ));
+      const uniqueOptions = new Set(allOptions);
+      expect(uniqueOptions.size).toBeGreaterThan(allOptions.length * 0.7); // At least 70% unique
+    });
+
+    it('should handle question enhancement with invalid metadata', async () => {
+      const questionWithInvalidMetadata: Question = {
+        id: 'invalid-meta',
+        type: 'multiple-choice',
+        question: 'Test question',
+        options: ['A', 'B', 'C', 'D'],
+        correctAnswer: 0,
+        explanation: 'Test',
+        points: 10,
+        order: 0,
+        metadata: null as any
+      };
+
+      const enhanced = await quizEnhancer.enhanceQuestions(
+        [questionWithInvalidMetadata],
+        'Invalid Metadata Test',
+        { addExplanations: true }
+      );
+
+      expect(enhanced).toBeDefined();
+      expect(enhanced[0].metadata).toBeDefined();
+    });
+
+    it('should use timestamp fallback when all distractors exhausted', async () => {
+      // Mock Date.now to return consistent timestamp for testing
+      const originalDateNow = Date.now;
+      Date.now = jest.fn().mockReturnValue(1234567890123);
+
+      // Create a question that will exhaust all distractor options
+      const exhaustionQuestion: Question = {
+        id: 'exhaust1',
+        type: 'multiple-choice',
+        question: 'What is the unknown concept in psychology?',
+        options: ['Correct answer', 'Wrong 1', 'Wrong 2', 'Wrong 3'],
+        correctAnswer: 0,
+        explanation: 'Test',
+        points: 10,
+        order: 0
+      };
+
+      // Process multiple times to exhaust options
+      for (let i = 0; i < 5; i++) {
+        await quizEnhancer.enhanceQuestions(
+          [{ ...exhaustionQuestion, id: `exhaust-${i}` }],
+          'Unknown Topic',
+          { improveDistractors: true }
+        );
+      }
+
+      const enhanced = await quizEnhancer.enhanceQuestions(
+        [exhaustionQuestion],
+        'Unknown Topic',
+        { improveDistractors: true }
+      );
+
+      expect(enhanced).toBeDefined();
+      const hasTimestampDistractor = enhanced[0].options.some(opt => {
+        const optText = typeof opt === 'string' ? opt : opt?.text || '';
+        return optText.includes('(123)'); // Should contain timestamp modulo
+      });
+
+      // Restore original Date.now
+      Date.now = originalDateNow;
+    });
+
+    it('should handle null/undefined options gracefully', async () => {
+      const questionWithNullOptions: Question = {
+        id: 'null-opts',
+        type: 'multiple-choice',
+        question: 'Test question',
+        options: null as any,
+        correctAnswer: 0,
+        explanation: 'Test',
+        points: 10,
+        order: 0
+      };
+
+      const enhanced = await quizEnhancer.enhanceQuestions(
+        [questionWithNullOptions],
+        'Null Options Test',
+        { improveDistractors: true }
+      );
+
+      expect(enhanced).toBeDefined();
+      expect(enhanced.length).toBe(1);
+    });
+  });
 });

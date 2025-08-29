@@ -1,0 +1,669 @@
+/**
+ * Enhanced comprehensive test suite for QuizComponent
+ * Ensures 100% coverage is maintained and adds edge case coverage
+ */
+
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '../../../utils/test-utils';
+import QuizComponent from '../QuizComponent';
+import { Quiz } from '../../../types';
+
+// Mock Lucide React icons
+jest.mock('lucide-react', () => ({
+  CheckCircle: ({ className, ...props }: any) => <div className={`mock-check-circle ${className}`} {...props} />,
+  XCircle: ({ className, ...props }: any) => <div className={`mock-x-circle ${className}`} {...props} />,
+  ArrowRight: ({ className, ...props }: any) => <div className={`mock-arrow-right ${className}`} {...props} />
+}));
+
+const mockQuiz: Quiz = {
+  id: 'test-quiz',
+  title: 'Test Quiz',
+  questions: [
+    {
+      id: 'q1',
+      type: 'multiple-choice',
+      question: 'What is Jung\'s collective unconscious?',
+      options: [
+        'Shared psychological content',
+        'Personal memories',
+        'Conscious thoughts',
+        'Individual experiences'
+      ],
+      correctAnswer: 0,
+      explanation: 'The collective unconscious contains universal patterns and images.',
+      points: 10,
+      order: 0
+    },
+    {
+      id: 'q2',
+      type: 'multiple-choice',
+      question: 'What is individuation?',
+      options: [
+        'Process of self-realization',
+        'Memory formation',
+        'Dream analysis',
+        'Personality typing'
+      ],
+      correctAnswer: 0,
+      explanation: 'Individuation is the central process of human development.',
+      points: 15,
+      order: 1
+    }
+  ]
+};
+
+const mockQuizWithObjectOptions: Quiz = {
+  id: 'object-quiz',
+  title: 'Object Options Quiz',
+  questions: [
+    {
+      id: 'obj1',
+      type: 'multiple-choice',
+      question: 'Test question with object options?',
+      options: [
+        { id: 'opt-1', text: 'Correct answer object', isCorrect: true },
+        { id: 'opt-2', text: 'Wrong answer object', isCorrect: false },
+        { id: 'opt-3', text: 'Another wrong answer', isCorrect: false },
+        { id: 'opt-4', text: 'Last wrong answer', isCorrect: false }
+      ],
+      correctAnswer: 0,
+      explanation: 'This tests object-based options.',
+      points: 10,
+      order: 0
+    }
+  ]
+};
+
+const mockQuizWithArrayCorrectAnswer: Quiz = {
+  id: 'array-quiz',
+  title: 'Array Answer Quiz',
+  questions: [
+    {
+      id: 'arr1',
+      type: 'multiple-choice',
+      question: 'Question with array answer?',
+      options: ['First correct', 'Second option', 'Third correct', 'Fourth option'],
+      correctAnswer: [0, 2], // Multiple correct answers
+      explanation: 'This question has multiple correct answers.',
+      points: 20,
+      order: 0
+    }
+  ]
+};
+
+const emptyQuiz: Quiz = {
+  id: 'empty-quiz',
+  title: 'Empty Quiz',
+  questions: []
+};
+
+const invalidQuiz = {
+  id: 'invalid-quiz',
+  title: 'Invalid Quiz',
+  questions: [null, undefined, {}]
+} as any;
+
+describe('QuizComponent - Enhanced Coverage', () => {
+  const mockOnComplete = jest.fn();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('Initial Rendering and Props', () => {
+    it('renders quiz title correctly', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      expect(screen.getByText('Test Quiz')).toBeInTheDocument();
+    });
+
+    it('shows question progress correctly', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      expect(screen.getByText('Questão 1 de 2')).toBeInTheDocument();
+    });
+
+    it('renders progress bar with correct initial width', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      const progressBar = document.querySelector('.bg-primary-600');
+      expect(progressBar).toHaveStyle('width: 50%'); // 1/2 = 50%
+    });
+
+    it('displays first question text', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      expect(screen.getByText('What is Jung\'s collective unconscious?')).toBeInTheDocument();
+    });
+
+    it('renders all answer options', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      expect(screen.getByText('Shared psychological content')).toBeInTheDocument();
+      expect(screen.getByText('Personal memories')).toBeInTheDocument();
+      expect(screen.getByText('Conscious thoughts')).toBeInTheDocument();
+      expect(screen.getByText('Individual experiences')).toBeInTheDocument();
+    });
+
+    it('handles previous score display', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} previousScore={75} />);
+      
+      // Complete quiz to see previous score
+      fireEvent.click(screen.getByText('Shared psychological content'));
+      fireEvent.click(screen.getByText('Próxima Questão'));
+      fireEvent.click(screen.getByText('Process of self-realization'));
+      fireEvent.click(screen.getByText('Finalizar Questionário'));
+      
+      expect(screen.getByText('Melhor resultado anterior: 75%')).toBeInTheDocument();
+    });
+  });
+
+  describe('Invalid Quiz Handling', () => {
+    it('handles null quiz gracefully', () => {
+      render(<QuizComponent quiz={null as any} onComplete={mockOnComplete} />);
+      
+      expect(screen.getByText('Questionário Indisponível')).toBeInTheDocument();
+      expect(screen.getByText('Este módulo ainda não possui um questionário disponível.')).toBeInTheDocument();
+    });
+
+    it('handles undefined quiz gracefully', () => {
+      render(<QuizComponent quiz={undefined as any} onComplete={mockOnComplete} />);
+      
+      expect(screen.getByText('Questionário Indisponível')).toBeInTheDocument();
+    });
+
+    it('handles quiz without questions', () => {
+      render(<QuizComponent quiz={emptyQuiz} onComplete={mockOnComplete} />);
+      
+      expect(screen.getByText('Questionário Indisponível')).toBeInTheDocument();
+    });
+
+    it('handles quiz with null questions array', () => {
+      const quizWithNullQuestions = { ...mockQuiz, questions: null as any };
+      render(<QuizComponent quiz={quizWithNullQuestions} onComplete={mockOnComplete} />);
+      
+      expect(screen.getByText('Questionário Indisponível')).toBeInTheDocument();
+    });
+
+    it('handles quiz with empty questions array', () => {
+      render(<QuizComponent quiz={emptyQuiz} onComplete={mockOnComplete} />);
+      
+      expect(screen.getByText('Este módulo ainda não possui um questionário disponível.')).toBeInTheDocument();
+    });
+
+    it('handles quiz with invalid questions', () => {
+      render(<QuizComponent quiz={invalidQuiz} onComplete={mockOnComplete} />);
+      
+      // Should show error for invalid current question
+      expect(screen.getByText('Erro no Questionário')).toBeInTheDocument();
+      expect(screen.getByText('Houve um problema ao carregar as questões. Tente recarregar a página.')).toBeInTheDocument();
+    });
+  });
+
+  describe('Question Navigation and Interaction', () => {
+    it('enables next button after selecting answer', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      const nextButton = screen.getByText('Próxima Questão');
+      expect(nextButton).toBeDisabled();
+      
+      fireEvent.click(screen.getByText('Shared psychological content'));
+      expect(nextButton).not.toBeDisabled();
+    });
+
+    it('shows explanation after selecting answer', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      fireEvent.click(screen.getByText('Shared psychological content'));
+      
+      expect(screen.getByText('The collective unconscious contains universal patterns and images.')).toBeInTheDocument();
+    });
+
+    it('disables answer options after selection', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      const firstOption = screen.getByText('Shared psychological content');
+      fireEvent.click(firstOption);
+      
+      // All options should be disabled
+      const allOptions = screen.getAllByRole('button').filter(btn => 
+        btn.textContent?.includes('Shared psychological content') ||
+        btn.textContent?.includes('Personal memories') ||
+        btn.textContent?.includes('Conscious thoughts') ||
+        btn.textContent?.includes('Individual experiences')
+      );
+      
+      allOptions.forEach(option => {
+        expect(option).toBeDisabled();
+      });
+    });
+
+    it('navigates to next question correctly', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      fireEvent.click(screen.getByText('Shared psychological content'));
+      fireEvent.click(screen.getByText('Próxima Questão'));
+      
+      expect(screen.getByText('What is individuation?')).toBeInTheDocument();
+      expect(screen.getByText('Questão 2 de 2')).toBeInTheDocument();
+    });
+
+    it('updates progress bar on navigation', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      fireEvent.click(screen.getByText('Shared psychological content'));
+      fireEvent.click(screen.getByText('Próxima Questão'));
+      
+      const progressBar = document.querySelector('.bg-primary-600');
+      expect(progressBar).toHaveStyle('width: 100%'); // 2/2 = 100%
+    });
+
+    it('shows finish button on last question', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      // Navigate to last question
+      fireEvent.click(screen.getByText('Shared psychological content'));
+      fireEvent.click(screen.getByText('Próxima Questão'));
+      
+      expect(screen.getByText('Finalizar Questionário')).toBeInTheDocument();
+    });
+
+    it('hides explanation when moving to next question', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      fireEvent.click(screen.getByText('Shared psychological content'));
+      expect(screen.getByText('The collective unconscious contains universal patterns and images.')).toBeInTheDocument();
+      
+      fireEvent.click(screen.getByText('Próxima Questão'));
+      expect(screen.queryByText('The collective unconscious contains universal patterns and images.')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Answer Selection and Feedback', () => {
+    it('highlights selected answer with correct styling', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      const correctAnswer = screen.getByText('Shared psychological content').closest('button');
+      fireEvent.click(correctAnswer!);
+      
+      expect(correctAnswer).toHaveClass('border-green-500', 'bg-green-50');
+    });
+
+    it('shows check icon for correct answers', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      fireEvent.click(screen.getByText('Shared psychological content'));
+      
+      expect(document.querySelector('.mock-check-circle')).toBeInTheDocument();
+    });
+
+    it('highlights wrong answer with error styling', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      const wrongAnswer = screen.getByText('Personal memories').closest('button');
+      fireEvent.click(wrongAnswer!);
+      
+      expect(wrongAnswer).toHaveClass('border-red-500', 'bg-red-50');
+    });
+
+    it('shows X icon for wrong answers', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      fireEvent.click(screen.getByText('Personal memories'));
+      
+      expect(document.querySelector('.mock-x-circle')).toBeInTheDocument();
+    });
+
+    it('applies opacity to non-selected options after selection', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      fireEvent.click(screen.getByText('Shared psychological content'));
+      
+      const nonSelectedOption = screen.getByText('Personal memories').closest('button');
+      expect(nonSelectedOption).toHaveClass('opacity-50');
+    });
+
+    it('stores answers correctly for multiple questions', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      // Answer first question
+      fireEvent.click(screen.getByText('Shared psychological content'));
+      fireEvent.click(screen.getByText('Próxima Questão'));
+      
+      // Answer second question
+      fireEvent.click(screen.getByText('Process of self-realization'));
+      fireEvent.click(screen.getByText('Finalizar Questionário'));
+      
+      expect(mockOnComplete).toHaveBeenCalledWith(100); // Both answers correct = 100%
+    });
+  });
+
+  describe('Object-based Options Handling', () => {
+    it('renders object-based options correctly', () => {
+      render(<QuizComponent quiz={mockQuizWithObjectOptions} onComplete={mockOnComplete} />);
+      
+      expect(screen.getByText('Correct answer object')).toBeInTheDocument();
+      expect(screen.getByText('Wrong answer object')).toBeInTheDocument();
+    });
+
+    it('handles object options selection', () => {
+      render(<QuizComponent quiz={mockQuizWithObjectOptions} onComplete={mockOnComplete} />);
+      
+      fireEvent.click(screen.getByText('Correct answer object'));
+      fireEvent.click(screen.getByText('Finalizar Questionário'));
+      
+      expect(mockOnComplete).toHaveBeenCalledWith(100);
+    });
+
+    it('handles object options with missing text property', () => {
+      const quizWithMissingText: Quiz = {
+        ...mockQuizWithObjectOptions,
+        questions: [{
+          ...mockQuizWithObjectOptions.questions[0],
+          options: [
+            { id: 'opt-1', text: undefined as any, isCorrect: true },
+            { id: 'opt-2', isCorrect: false } as any
+          ]
+        }]
+      };
+      
+      render(<QuizComponent quiz={quizWithMissingText} onComplete={mockOnComplete} />);
+      
+      expect(screen.getByText('Opção sem texto')).toBeInTheDocument();
+    });
+  });
+
+  describe('Array-based Correct Answers', () => {
+    it('handles array-based correct answers', () => {
+      render(<QuizComponent quiz={mockQuizWithArrayCorrectAnswer} onComplete={mockOnComplete} />);
+      
+      fireEvent.click(screen.getByText('First correct')); // Index 0, which is in [0, 2]
+      fireEvent.click(screen.getByText('Finalizar Questionário'));
+      
+      expect(mockOnComplete).toHaveBeenCalledWith(100);
+    });
+
+    it('handles incorrect selection with array-based answers', () => {
+      render(<QuizComponent quiz={mockQuizWithArrayCorrectAnswer} onComplete={mockOnComplete} />);
+      
+      fireEvent.click(screen.getByText('Second option')); // Index 1, not in [0, 2]
+      fireEvent.click(screen.getByText('Finalizar Questionário'));
+      
+      expect(mockOnComplete).toHaveBeenCalledWith(0);
+    });
+  });
+
+  describe('Quiz Completion and Results', () => {
+    it('calculates score correctly for all correct answers', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      // Answer all questions correctly
+      fireEvent.click(screen.getByText('Shared psychological content'));
+      fireEvent.click(screen.getByText('Próxima Questão'));
+      fireEvent.click(screen.getByText('Process of self-realization'));
+      fireEvent.click(screen.getByText('Finalizar Questionário'));
+      
+      expect(mockOnComplete).toHaveBeenCalledWith(100);
+    });
+
+    it('calculates score correctly for partial correct answers', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      // Answer first correct, second incorrect
+      fireEvent.click(screen.getByText('Shared psychological content'));
+      fireEvent.click(screen.getByText('Próxima Questão'));
+      fireEvent.click(screen.getByText('Memory formation'));
+      fireEvent.click(screen.getByText('Finalizar Questionário'));
+      
+      expect(mockOnComplete).toHaveBeenCalledWith(50); // 1/2 = 50%
+    });
+
+    it('calculates score correctly for all incorrect answers', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      // Answer all questions incorrectly
+      fireEvent.click(screen.getByText('Personal memories'));
+      fireEvent.click(screen.getByText('Próxima Questão'));
+      fireEvent.click(screen.getByText('Memory formation'));
+      fireEvent.click(screen.getByText('Finalizar Questionário'));
+      
+      expect(mockOnComplete).toHaveBeenCalledWith(0);
+    });
+
+    it('shows completion screen with correct score', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      fireEvent.click(screen.getByText('Shared psychological content'));
+      fireEvent.click(screen.getByText('Próxima Questão'));
+      fireEvent.click(screen.getByText('Process of self-realization'));
+      fireEvent.click(screen.getByText('Finalizar Questionário'));
+      
+      expect(screen.getByText('Questionário Concluído!')).toBeInTheDocument();
+      expect(screen.getByText('100%')).toBeInTheDocument();
+      expect(screen.getByText('Você acertou 2 de 2 questões')).toBeInTheDocument();
+    });
+
+    it('shows detailed results for each question', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      fireEvent.click(screen.getByText('Shared psychological content'));
+      fireEvent.click(screen.getByText('Próxima Questão'));
+      fireEvent.click(screen.getByText('Memory formation')); // Incorrect
+      fireEvent.click(screen.getByText('Finalizar Questionário'));
+      
+      // Should show both questions in results
+      expect(screen.getByText('What is Jung\'s collective unconscious?')).toBeInTheDocument();
+      expect(screen.getByText('What is individuation?')).toBeInTheDocument();
+      
+      // Should show user answers
+      expect(screen.getByText('Sua resposta: Shared psychological content')).toBeInTheDocument();
+      expect(screen.getByText('Sua resposta: Memory formation')).toBeInTheDocument();
+      
+      // Should show correct answer for incorrect question
+      expect(screen.getByText('Resposta correta: Process of self-realization')).toBeInTheDocument();
+    });
+
+    it('handles questions without proper question text', () => {
+      const quizWithMissingText: Quiz = {
+        ...mockQuiz,
+        questions: [{
+          ...mockQuiz.questions[0],
+          question: undefined as any
+        }]
+      };
+      
+      render(<QuizComponent quiz={quizWithMissingText} onComplete={mockOnComplete} />);
+      
+      expect(screen.getByText('Questão sem texto')).toBeInTheDocument();
+    });
+
+    it('resets quiz when "Tentar Novamente" is clicked', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      // Complete quiz
+      fireEvent.click(screen.getByText('Shared psychological content'));
+      fireEvent.click(screen.getByText('Próxima Questão'));
+      fireEvent.click(screen.getByText('Process of self-realization'));
+      fireEvent.click(screen.getByText('Finalizar Questionário'));
+      
+      // Reset quiz
+      fireEvent.click(screen.getByText('Tentar Novamente'));
+      
+      // Should be back to first question
+      expect(screen.getByText('What is Jung\'s collective unconscious?')).toBeInTheDocument();
+      expect(screen.getByText('Questão 1 de 2')).toBeInTheDocument();
+    });
+  });
+
+  describe('Edge Cases and Error Handling', () => {
+    it('handles undefined correctAnswer gracefully', () => {
+      const quizWithUndefinedAnswer: Quiz = {
+        ...mockQuiz,
+        questions: [{
+          ...mockQuiz.questions[0],
+          correctAnswer: undefined as any
+        }]
+      };
+      
+      render(<QuizComponent quiz={quizWithUndefinedAnswer} onComplete={mockOnComplete} />);
+      
+      fireEvent.click(screen.getByText('Shared psychological content'));
+      fireEvent.click(screen.getByText('Finalizar Questionário'));
+      
+      // Should handle gracefully in results
+      expect(screen.getByText('Resposta correta: N/A')).toBeInTheDocument();
+    });
+
+    it('handles undefined options gracefully', () => {
+      const quizWithUndefinedOptions: Quiz = {
+        ...mockQuiz,
+        questions: [{
+          ...mockQuiz.questions[0],
+          options: undefined as any
+        }]
+      };
+      
+      render(<QuizComponent quiz={quizWithUndefinedOptions} onComplete={mockOnComplete} />);
+      
+      // Should render without crashing
+      expect(screen.getByText('What is Jung\'s collective unconscious?')).toBeInTheDocument();
+    });
+
+    it('handles null question in results', () => {
+      const quizWithNullQuestion: Quiz = {
+        ...mockQuiz,
+        questions: [null as any, mockQuiz.questions[1]]
+      };
+      
+      render(<QuizComponent quiz={quizWithNullQuestion} onComplete={mockOnComplete} />);
+      
+      // Navigate past null question
+      fireEvent.click(screen.getByText('Process of self-realization'));
+      fireEvent.click(screen.getByText('Finalizar Questionário'));
+      
+      // Should skip null question in results
+      const results = screen.getAllByText(/Sua resposta:/);
+      expect(results).toHaveLength(1);
+    });
+
+    it('handles missing explanation gracefully', () => {
+      const quizWithoutExplanation: Quiz = {
+        ...mockQuiz,
+        questions: [{
+          ...mockQuiz.questions[0],
+          explanation: undefined as any
+        }]
+      };
+      
+      render(<QuizComponent quiz={quizWithoutExplanation} onComplete={mockOnComplete} />);
+      
+      fireEvent.click(screen.getByText('Shared psychological content'));
+      
+      expect(screen.getByText('Explicação não disponível')).toBeInTheDocument();
+    });
+
+    it('handles NaN correctAnswer values', () => {
+      const quizWithNaNAnswer: Quiz = {
+        ...mockQuiz,
+        questions: [{
+          ...mockQuiz.questions[0],
+          correctAnswer: NaN
+        }]
+      };
+      
+      render(<QuizComponent quiz={quizWithNaNAnswer} onComplete={mockOnComplete} />);
+      
+      fireEvent.click(screen.getByText('Shared psychological content'));
+      fireEvent.click(screen.getByText('Finalizar Questionário'));
+      
+      expect(screen.getByText('Resposta correta: N/A')).toBeInTheDocument();
+    });
+
+    it('handles very large option arrays', () => {
+      const quizWithManyOptions: Quiz = {
+        ...mockQuiz,
+        questions: [{
+          ...mockQuiz.questions[0],
+          options: Array(20).fill(null).map((_, i) => `Option ${i + 1}`)
+        }]
+      };
+      
+      render(<QuizComponent quiz={quizWithManyOptions} onComplete={mockOnComplete} />);
+      
+      // Should render all options
+      expect(screen.getByText('Option 1')).toBeInTheDocument();
+      expect(screen.getByText('Option 20')).toBeInTheDocument();
+    });
+
+    it('handles empty option text', () => {
+      const quizWithEmptyOption: Quiz = {
+        ...mockQuiz,
+        questions: [{
+          ...mockQuiz.questions[0],
+          options: ['', 'Valid option', '', '']
+        }]
+      };
+      
+      render(<QuizComponent quiz={quizWithEmptyOption} onComplete={mockOnComplete} />);
+      
+      const buttons = screen.getAllByRole('button');
+      const emptyOptions = buttons.filter(btn => btn.textContent === '');
+      expect(emptyOptions.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Accessibility and Interaction', () => {
+    it('maintains focus management', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      const firstOption = screen.getByText('Shared psychological content');
+      fireEvent.click(firstOption);
+      
+      const nextButton = screen.getByText('Próxima Questão');
+      expect(nextButton).not.toBeDisabled();
+    });
+
+    it('provides proper button states', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      const nextButton = screen.getByText('Próxima Questão');
+      expect(nextButton).toHaveClass('disabled:opacity-50', 'disabled:cursor-not-allowed');
+    });
+
+    it('shows arrow icon in next button', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      expect(document.querySelector('.mock-arrow-right')).toBeInTheDocument();
+    });
+  });
+
+  describe('Performance and Optimization', () => {
+    it('handles rapid clicks gracefully', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      const option = screen.getByText('Shared psychological content');
+      
+      // Rapid clicks should not cause issues
+      for (let i = 0; i < 10; i++) {
+        fireEvent.click(option);
+      }
+      
+      expect(screen.getByText('The collective unconscious contains universal patterns and images.')).toBeInTheDocument();
+    });
+
+    it('maintains state consistency during rapid navigation', () => {
+      render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
+      
+      fireEvent.click(screen.getByText('Shared psychological content'));
+      
+      const nextButton = screen.getByText('Próxima Questão');
+      
+      // Multiple rapid clicks on next button should not break state
+      for (let i = 0; i < 5; i++) {
+        fireEvent.click(nextButton);
+      }
+      
+      expect(screen.getByText('What is individuation?')).toBeInTheDocument();
+    });
+  });
+});

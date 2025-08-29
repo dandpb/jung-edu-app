@@ -442,12 +442,15 @@ describe('EnhancedDashboard Component', () => {
     });
 
     it('should show evening greeting', () => {
-      const eveningTime = new Date('2024-01-15T19:00:00Z');
+      // Create a date that's clearly evening (local time)
+      const eveningTime = new Date('2024-01-15T19:00:00'); // 7 PM local time
       jest.setSystemTime(eveningTime);
 
-      render(
+      // Force re-render by using a different key
+      const { rerender } = render(
         <DashboardWrapper>
           <EnhancedDashboard 
+            key="evening"
             modules={mockModules} 
             userProgress={mockUserProgress} 
           />
@@ -478,7 +481,7 @@ describe('EnhancedDashboard Component', () => {
         </DashboardWrapper>
       );
 
-      // Look for difficulty badges in the modules section
+      // Look for difficulty badges - they appear in the module cards
       expect(screen.getByText('Iniciante')).toBeInTheDocument();
       expect(screen.getByText('Intermediário')).toBeInTheDocument();
       expect(screen.getByText('Avançado')).toBeInTheDocument();
@@ -487,17 +490,23 @@ describe('EnhancedDashboard Component', () => {
 
   describe('Progress Calculation Edge Cases', () => {
     it('should handle empty modules array', () => {
+      const emptyUserProgress = createMockUserProgress({
+        completedModules: [] // Ensure no completed modules
+      });
+      
       render(
         <DashboardWrapper>
           <EnhancedDashboard 
             modules={[]} 
-            userProgress={mockUserProgress} 
+            userProgress={emptyUserProgress} 
           />
         </DashboardWrapper>
       );
 
-      // Should not crash and show 0% completion
-      expect(screen.getByText(/0 de 0 módulos/)).toBeInTheDocument();
+      // Should not crash - when modules array is empty, the percentage calculation should handle it
+      // Look for completion text that handles division by zero
+      const progressSection = screen.getByText('Progresso Geral').closest('.bg-white');
+      expect(within(progressSection!).getByText(/0 de 0 módulos/)).toBeInTheDocument();
     });
 
     it('should handle missing quiz scores', () => {

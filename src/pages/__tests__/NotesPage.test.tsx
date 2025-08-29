@@ -90,7 +90,7 @@ const renderWithRouter = (component: React.ReactElement) => {
   );
 };
 
-describe('NotesPage Component', () => {
+describe('NotesPage Component - Enhanced Coverage', () => {
   const mockUpdateProgress = jest.fn();
 
   beforeEach(() => {
@@ -365,5 +365,401 @@ describe('NotesPage Component', () => {
     expect(screen.getByText(/Jung foi aluno de Freud/)).toBeInTheDocument();
     expect(screen.queryByText(/Esta é uma nota sobre Jung/)).not.toBeInTheDocument();
     expect(screen.queryByText(/A sombra representa aspectos reprimidos/)).not.toBeInTheDocument();
+  });
+
+  // Additional comprehensive tests for enhanced coverage
+  describe('Edge Cases and Error Handling', () => {
+    test('handles empty notes gracefully when filtering', () => {
+      renderWithRouter(
+        <NotesPage
+          userProgress={{ ...mockUserProgress, notes: [] }}
+          updateProgress={mockUpdateProgress}
+          modules={mockModules}
+        />
+      );
+
+      const searchInput = screen.getByPlaceholderText('Buscar anotações...');
+      fireEvent.change(searchInput, { target: { value: 'test' } });
+
+      expect(screen.getByText(/Ainda não há anotações/)).toBeInTheDocument();
+    });
+
+    test('handles notes with empty content', () => {
+      const notesWithEmptyContent = {
+        ...mockUserProgress,
+        notes: [{
+          id: 'empty-note',
+          moduleId: 'intro-jung',
+          content: '',
+          timestamp: Date.now()
+        }]
+      };
+
+      renderWithRouter(
+        <NotesPage
+          userProgress={notesWithEmptyContent}
+          updateProgress={mockUpdateProgress}
+          modules={mockModules}
+        />
+      );
+
+      expect(screen.getByText('1 anotação encontrada')).toBeInTheDocument();
+    });
+
+    test('handles notes with special characters in search', () => {
+      renderWithRouter(
+        <NotesPage
+          userProgress={mockUserProgress}
+          updateProgress={mockUpdateProgress}
+          modules={mockModules}
+        />
+      );
+
+      const searchInput = screen.getByPlaceholderText('Buscar anotações...');
+      fireEvent.change(searchInput, { target: { value: '[special]' } });
+
+      expect(screen.getByText(/Nenhuma anotação encontrada/)).toBeInTheDocument();
+    });
+
+    test('handles case-insensitive search correctly', () => {
+      renderWithRouter(
+        <NotesPage
+          userProgress={mockUserProgress}
+          updateProgress={mockUpdateProgress}
+          modules={mockModules}
+        />
+      );
+
+      const searchInput = screen.getByPlaceholderText('Buscar anotações...');
+      fireEvent.change(searchInput, { target: { value: 'JUNG' } });
+
+      expect(screen.getByText(/Esta é uma nota sobre Jung/)).toBeInTheDocument();
+      expect(screen.getByText(/Jung foi aluno de Freud/)).toBeInTheDocument();
+    });
+  });
+
+  describe('Note Editing Edge Cases', () => {
+    test('handles editing when NoteEditor is unavailable', () => {
+      renderWithRouter(
+        <NotesPage
+          userProgress={mockUserProgress}
+          updateProgress={mockUpdateProgress}
+          modules={mockModules}
+        />
+      );
+
+      const editButtons = screen.getAllByTitle('Editar anotação');
+      fireEvent.click(editButtons[0]);
+
+      expect(screen.getByTestId('note-editor')).toBeInTheDocument();
+    });
+
+    test('updates note timestamp when editing', async () => {
+      const originalTime = Date.now() - 10000;
+      const notesWithOldTimestamp = {
+        ...mockUserProgress,
+        notes: [{
+          id: 'old-note',
+          moduleId: 'intro-jung',
+          content: 'Old content',
+          timestamp: originalTime
+        }]
+      };
+
+      renderWithRouter(
+        <NotesPage
+          userProgress={notesWithOldTimestamp}
+          updateProgress={mockUpdateProgress}
+          modules={mockModules}
+        />
+      );
+
+      const editButton = screen.getByTitle('Editar anotação');
+      fireEvent.click(editButton);
+
+      const saveButton = screen.getByTestId('save-button');
+      fireEvent.click(saveButton);
+
+      await waitFor(() => {
+        expect(mockUpdateProgress).toHaveBeenCalledWith({
+          notes: expect.arrayContaining([
+            expect.objectContaining({
+              id: 'old-note',
+              content: 'updated content',
+              timestamp: expect.any(Number)
+            })
+          ])
+        });
+      });
+
+      // Verify timestamp was updated (should be greater than original)
+      const callArgs = mockUpdateProgress.mock.calls[0][0];
+      expect(callArgs.notes[0].timestamp).toBeGreaterThan(originalTime);
+    });
+  });
+
+  describe('Module Integration', () => {
+    test('displays correct module icon for each note', () => {
+      renderWithRouter(
+        <NotesPage
+          userProgress={mockUserProgress}
+          updateProgress={mockUpdateProgress}
+          modules={mockModules}
+        />
+      );
+
+      // Check that module icons are displayed
+      expect(screen.getByText('🧠')).toBeInTheDocument(); // intro-jung icon
+      expect(screen.getByText('🌑')).toBeInTheDocument(); // shadow-concept icon
+    });
+
+    test('falls back to default icon when module not found', () => {
+      const notesWithUnknownModule = {
+        ...mockUserProgress,
+        notes: [{
+          id: 'unknown-module-note',
+          moduleId: 'non-existent-module',
+          content: 'Note with unknown module',
+          timestamp: Date.now()
+        }]
+      };
+
+      renderWithRouter(
+        <NotesPage
+          userProgress={notesWithUnknownModule}
+          updateProgress={mockUpdateProgress}
+          modules={mockModules}
+        />
+      );
+
+      expect(screen.getByText('📝')).toBeInTheDocument(); // default icon
+    });
+
+    test('handles module selection with all modules option', () => {
+      renderWithRouter(
+        <NotesPage
+          userProgress={mockUserProgress}
+          updateProgress={mockUpdateProgress}
+          modules={mockModules}
+        />
+      );
+
+      const moduleSelect = screen.getByRole('combobox');
+      expect(screen.getByText('Todos os Módulos')).toBeInTheDocument();
+      
+      // Select all modules
+      fireEvent.change(moduleSelect, { target: { value: 'all' } });
+      expect(screen.getByText('3 anotações encontradas')).toBeInTheDocument();
+    });
+  });
+
+  describe('Performance and Accessibility', () => {
+    test('handles large number of notes efficiently', () => {
+      const manyNotes = Array(100).fill(null).map((_, index) => ({
+        id: `note-${index}`,
+        moduleId: 'intro-jung',
+        content: `Note content ${index}`,
+        timestamp: Date.now() - (index * 1000),
+        tags: [`tag${index}`]
+      }));
+
+      const progressWithManyNotes = {
+        ...mockUserProgress,
+        notes: manyNotes
+      };
+
+      const startTime = performance.now();
+      renderWithRouter(
+        <NotesPage
+          userProgress={progressWithManyNotes}
+          updateProgress={mockUpdateProgress}
+          modules={mockModules}
+        />
+      );
+      const endTime = performance.now();
+
+      expect(endTime - startTime).toBeLessThan(200); // Should render quickly
+      expect(screen.getByText('100 anotações encontradas')).toBeInTheDocument();
+    });
+
+    test('maintains proper ARIA labels for interactive elements', () => {
+      renderWithRouter(
+        <NotesPage
+          userProgress={mockUserProgress}
+          updateProgress={mockUpdateProgress}
+          modules={mockModules}
+        />
+      );
+
+      const searchInput = screen.getByPlaceholderText('Buscar anotações...');
+      expect(searchInput).toBeInTheDocument();
+      expect(searchInput.tagName).toBe('INPUT');
+
+      const moduleSelect = screen.getByRole('combobox');
+      expect(moduleSelect).toBeInTheDocument();
+    });
+
+    test('provides proper button titles for accessibility', () => {
+      renderWithRouter(
+        <NotesPage
+          userProgress={mockUserProgress}
+          updateProgress={mockUpdateProgress}
+          modules={mockModules}
+        />
+      );
+
+      const editButtons = screen.getAllByTitle('Editar anotação');
+      const deleteButtons = screen.getAllByTitle('Excluir anotação');
+
+      expect(editButtons.length).toBeGreaterThan(0);
+      expect(deleteButtons.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Date Formatting', () => {
+    test('formats dates consistently across different locales', () => {
+      const specificTimestamp = new Date('2023-12-25T15:30:00').getTime();
+      const noteWithSpecificDate = {
+        ...mockUserProgress,
+        notes: [{
+          id: 'date-test',
+          moduleId: 'intro-jung',
+          content: 'Date formatting test',
+          timestamp: specificTimestamp
+        }]
+      };
+
+      renderWithRouter(
+        <NotesPage
+          userProgress={noteWithSpecificDate}
+          updateProgress={mockUpdateProgress}
+          modules={mockModules}
+        />
+      );
+
+      // Should display formatted date (exact format may vary by locale)
+      expect(screen.getByText(/15:30/)).toBeInTheDocument();
+    });
+
+    test('handles invalid timestamps gracefully', () => {
+      const noteWithInvalidDate = {
+        ...mockUserProgress,
+        notes: [{
+          id: 'invalid-date',
+          moduleId: 'intro-jung',
+          content: 'Invalid date test',
+          timestamp: NaN
+        }]
+      };
+
+      expect(() => {
+        renderWithRouter(
+          <NotesPage
+            userProgress={noteWithInvalidDate}
+            updateProgress={mockUpdateProgress}
+            modules={mockModules}
+          />
+        );
+      }).not.toThrow();
+    });
+  });
+
+  describe('Search and Filter Combinations', () => {
+    test('resets results when switching between filters', () => {
+      renderWithRouter(
+        <NotesPage
+          userProgress={mockUserProgress}
+          updateProgress={mockUpdateProgress}
+          modules={mockModules}
+        />
+      );
+
+      // First apply module filter
+      const moduleSelect = screen.getByRole('combobox');
+      fireEvent.change(moduleSelect, { target: { value: 'intro-jung' } });
+      expect(screen.getByText('2 anotações encontradas')).toBeInTheDocument();
+
+      // Then apply search
+      const searchInput = screen.getByPlaceholderText('Buscar anotações...');
+      fireEvent.change(searchInput, { target: { value: 'sombra' } });
+      expect(screen.getByText(/Nenhuma anotação encontrada/)).toBeInTheDocument();
+
+      // Clear search
+      fireEvent.change(searchInput, { target: { value: '' } });
+      expect(screen.getByText('2 anotações encontradas')).toBeInTheDocument();
+    });
+
+    test('handles rapid filter changes without errors', () => {
+      renderWithRouter(
+        <NotesPage
+          userProgress={mockUserProgress}
+          updateProgress={mockUpdateProgress}
+          modules={mockModules}
+        />
+      );
+
+      const searchInput = screen.getByPlaceholderText('Buscar anotações...');
+      const moduleSelect = screen.getByRole('combobox');
+
+      // Rapid changes
+      for (let i = 0; i < 10; i++) {
+        fireEvent.change(searchInput, { target: { value: `search${i}` } });
+        fireEvent.change(moduleSelect, { target: { value: i % 2 === 0 ? 'all' : 'intro-jung' } });
+      }
+
+      // Should not crash and should display final state
+      expect(screen.getByDisplayValue('search9')).toBeInTheDocument();
+    });
+  });
+
+  describe('Note Deletion Edge Cases', () => {
+    test('handles deletion of non-existent note gracefully', () => {
+      const mockUpdateProgressSpy = jest.fn();
+      
+      renderWithRouter(
+        <NotesPage
+          userProgress={mockUserProgress}
+          updateProgress={mockUpdateProgressSpy}
+          modules={mockModules}
+        />
+      );
+
+      const deleteButtons = screen.getAllByTitle('Excluir anotação');
+      fireEvent.click(deleteButtons[0]);
+
+      expect(mockUpdateProgressSpy).toHaveBeenCalledWith({
+        notes: expect.any(Array)
+      });
+    });
+
+    test('maintains note order after deletion', () => {
+      const notesInOrder = {
+        ...mockUserProgress,
+        notes: [
+          { id: '1', moduleId: 'intro-jung', content: 'First', timestamp: Date.now() - 3000 },
+          { id: '2', moduleId: 'intro-jung', content: 'Second', timestamp: Date.now() - 2000 },
+          { id: '3', moduleId: 'intro-jung', content: 'Third', timestamp: Date.now() - 1000 }
+        ]
+      };
+
+      renderWithRouter(
+        <NotesPage
+          userProgress={notesInOrder}
+          updateProgress={mockUpdateProgress}
+          modules={mockModules}
+        />
+      );
+
+      // Delete middle note
+      const deleteButtons = screen.getAllByTitle('Excluir anotação');
+      fireEvent.click(deleteButtons[1]); // Delete 'Second'
+
+      expect(mockUpdateProgress).toHaveBeenCalledWith({
+        notes: expect.arrayContaining([
+          expect.objectContaining({ content: 'First' }),
+          expect.objectContaining({ content: 'Third' })
+        ])
+      });
+    });
   });
 });

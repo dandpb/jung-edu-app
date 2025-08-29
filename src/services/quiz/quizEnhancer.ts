@@ -812,7 +812,7 @@ export class QuizEnhancer {
   }
 
   private determineCognitiveLevel(question: Question): string {
-    const q = question.question.toLowerCase();
+    const q = (question.question || '').toLowerCase();
     
     if (q.includes('define') || q.includes('what is') || q.includes('identify')) {
       return 'remember';

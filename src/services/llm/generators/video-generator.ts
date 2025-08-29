@@ -494,7 +494,7 @@ Response format:
     );
     
     const results = await Promise.all(searchPromises);
-    const allVideos = results.flat();
+    const allVideos = results.flat().filter(video => video != null);
     
     // Convert to legacy format for backward compatibility
     return allVideos.map(video => ({

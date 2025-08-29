@@ -181,7 +181,7 @@ describe('Module Generation Demo - Comprehensive Tests', () => {
     mockUnifiedModuleGenerator.mockImplementation(() => mockGeneratorInstance);
 
     // Import demo after mocking
-    demo = require('../demo.ts.bak');
+    demo = require('../demo');
   });
 
   describe('Quick Module Generation Demo', () => {
