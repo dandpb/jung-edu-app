@@ -1,4 +1,5 @@
 import React from 'react';
+import { setNodeEnv, restoreNodeEnv } from '../../test-utils/nodeEnvHelper';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ErrorBoundary from '../ErrorBoundary';
@@ -118,7 +119,7 @@ describe('ErrorBoundary Component', () => {
 
   test('shows error details in development mode', () => {
     const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'development';
+    setNodeEnv('development');
 
     render(
       <ErrorBoundary>
@@ -134,12 +135,12 @@ describe('ErrorBoundary Component', () => {
 
     expect(screen.getByText(/Error: Test error/)).toBeInTheDocument();
 
-    process.env.NODE_ENV = originalEnv;
+    restoreNodeEnv(originalEnv);
   });
 
   test('hides error details in production mode', () => {
     const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
+    setNodeEnv('production');
 
     render(
       <ErrorBoundary>
@@ -149,7 +150,7 @@ describe('ErrorBoundary Component', () => {
 
     expect(screen.queryByText('Error details (development only)')).not.toBeInTheDocument();
 
-    process.env.NODE_ENV = originalEnv;
+    restoreNodeEnv(originalEnv);
   });
 
   test('resets when resetKeys change', () => {
@@ -302,7 +303,7 @@ describe('ErrorBoundary Component', () => {
 
   test('componentDidCatch logs in development', () => {
     const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'development';
+    setNodeEnv('development');
 
     render(
       <ErrorBoundary>
@@ -316,12 +317,12 @@ describe('ErrorBoundary Component', () => {
       expect.any(Object)
     );
 
-    process.env.NODE_ENV = originalEnv;
+    restoreNodeEnv(originalEnv);
   });
 
   test('does not log in production', () => {
     const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
+    setNodeEnv('production');
     
     jest.clearAllMocks();
 
@@ -338,6 +339,6 @@ describe('ErrorBoundary Component', () => {
       expect.any(Object)
     );
 
-    process.env.NODE_ENV = originalEnv;
+    restoreNodeEnv(originalEnv);
   });
 });

@@ -44,7 +44,18 @@ describe('Navigation Component', () => {
         isAuthenticated: false,
         login: jest.fn(),
         logout: mockLogout,
-        loading: false
+        hasRole: jest.fn().mockReturnValue(false),
+        register: jest.fn(),
+        requestPasswordReset: jest.fn(),
+        resetPassword: jest.fn(),
+        changePassword: jest.fn(),
+        verifyEmail: jest.fn(),
+        resendVerificationEmail: jest.fn(),
+        hasPermission: jest.fn().mockReturnValue(false),
+        refreshSession: jest.fn(),
+        clearError: jest.fn(),
+        isLoading: false,
+        error: null
       });
     });
 
@@ -86,7 +97,7 @@ describe('Navigation Component', () => {
       email: 'test@example.com',
       name: 'Test User',
       role: 'user' as const
-    };
+    } as any;
 
     beforeEach(() => {
       mockUseAuth.mockReturnValue({
@@ -94,7 +105,18 @@ describe('Navigation Component', () => {
         isAuthenticated: true,
         login: jest.fn(),
         logout: mockLogout,
-        loading: false
+        hasRole: jest.fn().mockReturnValue(false),
+        register: jest.fn(),
+        requestPasswordReset: jest.fn(),
+        resetPassword: jest.fn(),
+        changePassword: jest.fn(),
+        verifyEmail: jest.fn(),
+        resendVerificationEmail: jest.fn(),
+        hasPermission: jest.fn().mockReturnValue(false),
+        refreshSession: jest.fn(),
+        clearError: jest.fn(),
+        isLoading: false,
+        error: null
       });
     });
 
@@ -128,7 +150,7 @@ describe('Navigation Component', () => {
       email: 'admin@example.com',
       name: 'Admin User',
       role: 'admin' as const
-    };
+    } as any;
 
     beforeEach(() => {
       mockUseAuth.mockReturnValue({
@@ -136,7 +158,18 @@ describe('Navigation Component', () => {
         isAuthenticated: true,
         login: jest.fn(),
         logout: mockLogout,
-        loading: false
+        hasRole: jest.fn().mockReturnValue(true), // Admin should return true
+        register: jest.fn(),
+        requestPasswordReset: jest.fn(),
+        resetPassword: jest.fn(),
+        changePassword: jest.fn(),
+        verifyEmail: jest.fn(),
+        resendVerificationEmail: jest.fn(),
+        hasPermission: jest.fn().mockReturnValue(true),
+        refreshSession: jest.fn(),
+        clearError: jest.fn(),
+        isLoading: false,
+        error: null
       });
     });
 
@@ -162,7 +195,18 @@ describe('Navigation Component', () => {
         isAuthenticated: false,
         login: jest.fn(),
         logout: mockLogout,
-        loading: true
+        hasRole: jest.fn().mockReturnValue(false),
+        register: jest.fn(),
+        requestPasswordReset: jest.fn(),
+        resetPassword: jest.fn(),
+        changePassword: jest.fn(),
+        verifyEmail: jest.fn(),
+        resendVerificationEmail: jest.fn(),
+        hasPermission: jest.fn().mockReturnValue(false),
+        refreshSession: jest.fn(),
+        clearError: jest.fn(),
+        isLoading: true,
+        error: null
       });
     });
 
@@ -188,7 +232,18 @@ describe('Navigation Component', () => {
         isAuthenticated: false,
         login: jest.fn(),
         logout: mockLogout,
-        loading: false
+        hasRole: jest.fn().mockReturnValue(false),
+        register: jest.fn(),
+        requestPasswordReset: jest.fn(),
+        resetPassword: jest.fn(),
+        changePassword: jest.fn(),
+        verifyEmail: jest.fn(),
+        resendVerificationEmail: jest.fn(),
+        hasPermission: jest.fn().mockReturnValue(false),
+        refreshSession: jest.fn(),
+        clearError: jest.fn(),
+        isLoading: false,
+        error: null
       });
     });
 
@@ -221,7 +276,18 @@ describe('Navigation Component', () => {
         isAuthenticated: false,
         login: jest.fn(),
         logout: mockLogout,
-        loading: false
+        hasRole: jest.fn().mockReturnValue(false),
+        register: jest.fn(),
+        requestPasswordReset: jest.fn(),
+        resetPassword: jest.fn(),
+        changePassword: jest.fn(),
+        verifyEmail: jest.fn(),
+        resendVerificationEmail: jest.fn(),
+        hasPermission: jest.fn().mockReturnValue(false),
+        refreshSession: jest.fn(),
+        clearError: jest.fn(),
+        isLoading: false,
+        error: null
       });
     });
 
@@ -240,7 +306,7 @@ describe('Navigation Component', () => {
         value: 768,
       });
 
-      renderWithRouter(<Navigation />);
+      const { rerender } = renderWithRouter(<Navigation />);
       
       const nav = screen.getByRole('navigation');
       expect(nav).toBeInTheDocument();
@@ -252,7 +318,7 @@ describe('Navigation Component', () => {
         value: 1024,
       });
 
-      const { rerender } = render(
+      rerender(
         <BrowserRouter>
           <Navigation />
         </BrowserRouter>
@@ -269,7 +335,18 @@ describe('Navigation Component', () => {
         isAuthenticated: false,
         login: jest.fn(),
         logout: mockLogout,
-        loading: false
+        hasRole: jest.fn().mockReturnValue(false),
+        register: jest.fn(),
+        requestPasswordReset: jest.fn(),
+        resetPassword: jest.fn(),
+        changePassword: jest.fn(),
+        verifyEmail: jest.fn(),
+        resendVerificationEmail: jest.fn(),
+        hasPermission: jest.fn().mockReturnValue(false),
+        refreshSession: jest.fn(),
+        clearError: jest.fn(),
+        isLoading: false,
+        error: null
       });
     });
 
@@ -303,11 +380,22 @@ describe('Navigation Component', () => {
           email: 'test@example.com',
           name: 'Test User',
           role: 'user' as const
-        },
+        } as any,
         isAuthenticated: true,
         login: jest.fn(),
         logout: mockLogout,
-        loading: false
+        hasRole: jest.fn().mockReturnValue(false),
+        register: jest.fn(),
+        requestPasswordReset: jest.fn(),
+        resetPassword: jest.fn(),
+        changePassword: jest.fn(),
+        verifyEmail: jest.fn(),
+        resendVerificationEmail: jest.fn(),
+        hasPermission: jest.fn().mockReturnValue(false),
+        refreshSession: jest.fn(),
+        clearError: jest.fn(),
+        isLoading: false,
+        error: null
       });
     });
 
@@ -342,7 +430,18 @@ describe('Navigation Component', () => {
         isAuthenticated: false,
         login: jest.fn(),
         logout: mockLogout,
-        loading: false
+        hasRole: jest.fn().mockReturnValue(false),
+        register: jest.fn(),
+        requestPasswordReset: jest.fn(),
+        resetPassword: jest.fn(),
+        changePassword: jest.fn(),
+        verifyEmail: jest.fn(),
+        resendVerificationEmail: jest.fn(),
+        hasPermission: jest.fn().mockReturnValue(false),
+        refreshSession: jest.fn(),
+        clearError: jest.fn(),
+        isLoading: false,
+        error: null
       });
 
       renderWithRouter(<Navigation />);
@@ -359,7 +458,18 @@ describe('Navigation Component', () => {
         isAuthenticated: false,
         login: jest.fn(),
         logout: mockLogout,
-        loading: false
+        hasRole: jest.fn().mockReturnValue(false),
+        register: jest.fn(),
+        requestPasswordReset: jest.fn(),
+        resetPassword: jest.fn(),
+        changePassword: jest.fn(),
+        verifyEmail: jest.fn(),
+        resendVerificationEmail: jest.fn(),
+        hasPermission: jest.fn().mockReturnValue(false),
+        refreshSession: jest.fn(),
+        clearError: jest.fn(),
+        isLoading: false,
+        error: null
       });
 
       const { rerender } = renderWithRouter(<Navigation />);
@@ -373,11 +483,22 @@ describe('Navigation Component', () => {
           email: 'test@example.com',
           name: 'Test User',
           role: 'user' as const
-        },
+        } as any,
         isAuthenticated: true,
         login: jest.fn(),
         logout: mockLogout,
-        loading: false
+        hasRole: jest.fn().mockReturnValue(false),
+        register: jest.fn(),
+        requestPasswordReset: jest.fn(),
+        resetPassword: jest.fn(),
+        changePassword: jest.fn(),
+        verifyEmail: jest.fn(),
+        resendVerificationEmail: jest.fn(),
+        hasPermission: jest.fn().mockReturnValue(false),
+        refreshSession: jest.fn(),
+        clearError: jest.fn(),
+        isLoading: false,
+        error: null
       });
 
       rerender(
@@ -397,11 +518,22 @@ describe('Navigation Component', () => {
           email: 'test@example.com',
           name: 'Test User',
           role: 'user' as const
-        },
+        } as any,
         isAuthenticated: true,
         login: jest.fn(),
         logout: mockLogout,
-        loading: false
+        hasRole: jest.fn().mockReturnValue(false),
+        register: jest.fn(),
+        requestPasswordReset: jest.fn(),
+        resetPassword: jest.fn(),
+        changePassword: jest.fn(),
+        verifyEmail: jest.fn(),
+        resendVerificationEmail: jest.fn(),
+        hasPermission: jest.fn().mockReturnValue(false),
+        refreshSession: jest.fn(),
+        clearError: jest.fn(),
+        isLoading: false,
+        error: null
       });
 
       const { rerender } = renderWithRouter(<Navigation />);
@@ -415,11 +547,22 @@ describe('Navigation Component', () => {
           email: 'test@example.com',
           name: 'Test User',
           role: 'admin' as const
-        },
+        } as any,
         isAuthenticated: true,
         login: jest.fn(),
         logout: mockLogout,
-        loading: false
+        hasRole: jest.fn().mockReturnValue(true),
+        register: jest.fn(),
+        requestPasswordReset: jest.fn(),
+        resetPassword: jest.fn(),
+        changePassword: jest.fn(),
+        verifyEmail: jest.fn(),
+        resendVerificationEmail: jest.fn(),
+        hasPermission: jest.fn().mockReturnValue(true),
+        refreshSession: jest.fn(),
+        clearError: jest.fn(),
+        isLoading: false,
+        error: null
       });
 
       rerender(

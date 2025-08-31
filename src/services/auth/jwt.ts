@@ -235,7 +235,7 @@ export function decodeToken<T = any>(token: string): T | null {
  */
 export function isTokenExpired(token: string): boolean {
   const payload = decodeToken<{ exp?: number }>(token);
-  if (!payload || !payload.exp) {
+  if (!payload || !payload.exp || typeof payload.exp !== 'number') {
     return true;
   }
   return payload.exp < Math.floor(Date.now() / 1000);

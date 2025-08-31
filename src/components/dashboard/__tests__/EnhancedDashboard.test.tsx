@@ -482,9 +482,9 @@ describe('EnhancedDashboard Component', () => {
       );
 
       // Look for difficulty badges - they appear in the module cards
-      expect(screen.getByText('Iniciante')).toBeInTheDocument();
-      expect(screen.getByText('Intermediário')).toBeInTheDocument();
-      expect(screen.getByText('Avançado')).toBeInTheDocument();
+      expect(screen.getAllByText('Iniciante').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('Intermediário').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('Avançado').length).toBeGreaterThanOrEqual(1);
     });
   });
 

@@ -512,11 +512,11 @@ describe('NotesPage Component - Enhanced Coverage', () => {
       );
 
       // Check that module icons are displayed - use more flexible matching
-      const brainIcon = screen.queryByText('🧠');
-      const moonIcon = screen.queryByText('🌑');
+      const brainIcons = screen.queryAllByText('🧠');
+      const moonIcons = screen.queryAllByText('🌑');
       
       // At least one of the expected icons should be present
-      const hasExpectedIcons = brainIcon || moonIcon;
+      const hasExpectedIcons = brainIcons.length > 0 || moonIcons.length > 0;
       expect(hasExpectedIcons).toBeTruthy();
       
       // Or alternatively, just verify that the notes are rendered with their module associations

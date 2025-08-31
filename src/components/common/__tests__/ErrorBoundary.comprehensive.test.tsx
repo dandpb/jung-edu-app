@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { setNodeEnv, restoreNodeEnv } from '../../test-utils/nodeEnvHelper';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ErrorBoundary from '../ErrorBoundary';
@@ -107,7 +108,7 @@ describe('ErrorBoundary Component', () => {
 
     it('should log error to console in development mode', () => {
       const originalNodeEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
+      setNodeEnv('development');
 
       render(
         <ErrorBoundary>
@@ -121,12 +122,12 @@ describe('ErrorBoundary Component', () => {
         expect.any(Object)
       );
 
-      process.env.NODE_ENV = originalNodeEnv;
+      restoreNodeEnv(originalNodeEnv);
     });
 
     it('should not log error to console in production mode', () => {
       const originalNodeEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
+      setNodeEnv('production');
 
       render(
         <ErrorBoundary>
@@ -138,7 +139,7 @@ describe('ErrorBoundary Component', () => {
         expect.stringContaining('ErrorBoundary caught an error:')
       );
 
-      process.env.NODE_ENV = originalNodeEnv;
+      restoreNodeEnv(originalNodeEnv);
     });
   });
 
@@ -268,7 +269,7 @@ describe('ErrorBoundary Component', () => {
   describe('Error Details Display', () => {
     it('should show error details in development mode', () => {
       const originalNodeEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
+      setNodeEnv('development');
 
       render(
         <ErrorBoundary>
@@ -283,12 +284,12 @@ describe('ErrorBoundary Component', () => {
       
       expect(screen.getByText(/Detailed error for dev/)).toBeInTheDocument();
 
-      process.env.NODE_ENV = originalNodeEnv;
+      restoreNodeEnv(originalNodeEnv);
     });
 
     it('should not show error details in production mode', () => {
       const originalNodeEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
+      setNodeEnv('production');
 
       render(
         <ErrorBoundary>
@@ -298,12 +299,12 @@ describe('ErrorBoundary Component', () => {
 
       expect(screen.queryByText('Detalhes do erro (apenas desenvolvimento)')).not.toBeInTheDocument();
 
-      process.env.NODE_ENV = originalNodeEnv;
+      restoreNodeEnv(originalNodeEnv);
     });
 
     it('should display component stack in error details', () => {
       const originalNodeEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
+      setNodeEnv('development');
 
       render(
         <ErrorBoundary>
@@ -317,7 +318,7 @@ describe('ErrorBoundary Component', () => {
       const errorDetails = screen.getByRole('group'); // details element
       expect(errorDetails).toBeInTheDocument();
 
-      process.env.NODE_ENV = originalNodeEnv;
+      restoreNodeEnv(originalNodeEnv);
     });
   });
 

@@ -78,7 +78,7 @@ describe('LoadingSpinner Component', () => {
     });
 
     it('should fallback to primary color for invalid color', () => {
-      render(<LoadingSpinner color="invalid-color" as any />);
+      render(<LoadingSpinner color={"invalid-color" as any} />);
 
       const spinner = screen.getByTestId('loading-spinner');
       expect(spinner).toHaveClass('text-primary-600');

@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import ErrorBoundary from '../../components/common/ErrorBoundary';
+import { setNodeEnv, restoreNodeEnv } from '../../test-utils/nodeEnvHelper';
 
 // Mock console methods to avoid noise in tests
 const originalError = console.error;
@@ -85,7 +86,7 @@ describe('ErrorBoundary Component', () => {
 
     it('logs error to console in development', () => {
       const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
+      setNodeEnv('development');
 
       render(
         <ErrorBoundary>
@@ -99,12 +100,12 @@ describe('ErrorBoundary Component', () => {
         expect.any(Object)
       );
 
-      process.env.NODE_ENV = originalEnv;
+      restoreNodeEnv(originalEnv);
     });
 
     it('does not log error in production', () => {
       const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
+      setNodeEnv('production');
 
       render(
         <ErrorBoundary>
@@ -115,7 +116,7 @@ describe('ErrorBoundary Component', () => {
       // Console.error should only be called by React itself, not our error handler
       expect(console.error).toHaveBeenCalled();
 
-      process.env.NODE_ENV = originalEnv;
+      restoreNodeEnv(originalEnv);
     });
   });
 
@@ -264,7 +265,7 @@ describe('ErrorBoundary Component', () => {
   describe('Development Mode Features', () => {
     it('shows error details in development mode', () => {
       const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
+      setNodeEnv('development');
 
       render(
         <ErrorBoundary>
@@ -276,12 +277,12 @@ describe('ErrorBoundary Component', () => {
       const detailsElement = screen.getByText('Detalhes do erro (apenas desenvolvimento)');
       expect(detailsElement).toBeInTheDocument();
 
-      process.env.NODE_ENV = originalEnv;
+      restoreNodeEnv(originalEnv);
     });
 
     it('hides error details in production mode', () => {
       const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
+      setNodeEnv('production');
 
       render(
         <ErrorBoundary>
@@ -291,7 +292,7 @@ describe('ErrorBoundary Component', () => {
 
       expect(screen.queryByText('Detalhes do erro (apenas desenvolvimento)')).not.toBeInTheDocument();
 
-      process.env.NODE_ENV = originalEnv;
+      restoreNodeEnv(originalEnv);
     });
   });
 

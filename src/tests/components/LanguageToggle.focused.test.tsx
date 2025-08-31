@@ -13,8 +13,22 @@ import { useI18n } from '../../contexts/I18nContext';
 const mockUseI18n = useI18n as jest.MockedFunction<typeof useI18n>;
 
 describe('LanguageToggle Component', () => {
-  const mockSetLanguage = jest.fn();
+  const mockChangeLanguage = jest.fn();
   const mockT = jest.fn((key: string) => key);
+
+  const createMockI18n = (overrides: any = {}) => ({
+    t: mockT,
+    language: 'en',
+    supportedLanguages: ['en', 'pt-BR'],
+    changeLanguage: mockChangeLanguage,
+    isLoading: false,
+    isReady: true,
+    getAvailableTranslations: jest.fn().mockReturnValue([]),
+    hasTranslation: jest.fn().mockReturnValue(true),
+    getCurrentNamespace: jest.fn().mockReturnValue('translation'),
+    loadNamespace: jest.fn().mockResolvedValue(undefined),
+    ...overrides
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -22,11 +36,7 @@ describe('LanguageToggle Component', () => {
 
   describe('Component Rendering', () => {
     it('renders language toggle component', () => {
-      mockUseI18n.mockReturnValue({
-        language: 'pt',
-        setLanguage: mockSetLanguage,
-        t: mockT
-      });
+      mockUseI18n.mockReturnValue(createMockI18n({ language: 'pt' }));
 
       render(<LanguageToggle />);
       
@@ -36,11 +46,7 @@ describe('LanguageToggle Component', () => {
     });
 
     it('displays current language', () => {
-      mockUseI18n.mockReturnValue({
-        language: 'pt',
-        setLanguage: mockSetLanguage,
-        t: mockT
-      });
+      mockUseI18n.mockReturnValue(createMockI18n({ language: 'pt' }));
 
       render(<LanguageToggle />);
       
@@ -49,11 +55,7 @@ describe('LanguageToggle Component', () => {
     });
 
     it('shows available language options', () => {
-      mockUseI18n.mockReturnValue({
-        language: 'en',
-        setLanguage: mockSetLanguage,
-        t: mockT
-      });
+      mockUseI18n.mockReturnValue(createMockI18n({ language: 'en' }));
 
       render(<LanguageToggle />);
       
@@ -73,11 +75,7 @@ describe('LanguageToggle Component', () => {
     it('switches from Portuguese to English', async () => {
       const user = userEvent.setup();
       
-      mockUseI18n.mockReturnValue({
-        language: 'pt',
-        setLanguage: mockSetLanguage,
-        t: mockT
-      });
+      mockUseI18n.mockReturnValue(createMockI18n({ language: 'pt' }));
 
       render(<LanguageToggle />);
       
@@ -93,11 +91,7 @@ describe('LanguageToggle Component', () => {
     it('switches from English to Portuguese', async () => {
       const user = userEvent.setup();
       
-      mockUseI18n.mockReturnValue({
-        language: 'en',
-        setLanguage: mockSetLanguage,
-        t: mockT
-      });
+      mockUseI18n.mockReturnValue(createMockI18n({ language: 'en' }));
 
       render(<LanguageToggle />);
       
@@ -110,11 +104,7 @@ describe('LanguageToggle Component', () => {
     it('calls setLanguage when switching languages', async () => {
       const user = userEvent.setup();
       
-      mockUseI18n.mockReturnValue({
-        language: 'pt',
-        setLanguage: mockSetLanguage,
-        t: mockT
-      });
+      mockUseI18n.mockReturnValue(createMockI18n({ language: 'pt' }));
 
       render(<LanguageToggle />);
       
@@ -129,11 +119,7 @@ describe('LanguageToggle Component', () => {
 
   describe('Accessibility', () => {
     it('has proper ARIA attributes', () => {
-      mockUseI18n.mockReturnValue({
-        language: 'pt',
-        setLanguage: mockSetLanguage,
-        t: mockT
-      });
+      mockUseI18n.mockReturnValue(createMockI18n({ language: 'pt' }));
 
       render(<LanguageToggle />);
       
@@ -149,11 +135,7 @@ describe('LanguageToggle Component', () => {
     it('is keyboard accessible', async () => {
       const user = userEvent.setup();
       
-      mockUseI18n.mockReturnValue({
-        language: 'pt',
-        setLanguage: mockSetLanguage,
-        t: mockT
-      });
+      mockUseI18n.mockReturnValue(createMockI18n({ language: 'pt' }));
 
       render(<LanguageToggle />);
       
@@ -169,11 +151,7 @@ describe('LanguageToggle Component', () => {
     });
 
     it('provides screen reader feedback', () => {
-      mockUseI18n.mockReturnValue({
-        language: 'pt',
-        setLanguage: mockSetLanguage,
-        t: mockT
-      });
+      mockUseI18n.mockReturnValue(createMockI18n({ language: 'pt' }));
 
       render(<LanguageToggle />);
       
@@ -184,11 +162,7 @@ describe('LanguageToggle Component', () => {
 
   describe('Visual States', () => {
     it('shows active state for current language', () => {
-      mockUseI18n.mockReturnValue({
-        language: 'pt',
-        setLanguage: mockSetLanguage,
-        t: mockT
-      });
+      mockUseI18n.mockReturnValue(createMockI18n({ language: 'pt' }));
 
       render(<LanguageToggle />);
       
@@ -202,11 +176,7 @@ describe('LanguageToggle Component', () => {
     it('shows hover states correctly', async () => {
       const user = userEvent.setup();
       
-      mockUseI18n.mockReturnValue({
-        language: 'pt',
-        setLanguage: mockSetLanguage,
-        t: mockT
-      });
+      mockUseI18n.mockReturnValue(createMockI18n({ language: 'pt' }));
 
       render(<LanguageToggle />);
       
@@ -219,11 +189,7 @@ describe('LanguageToggle Component', () => {
     it('shows focus states correctly', async () => {
       const user = userEvent.setup();
       
-      mockUseI18n.mockReturnValue({
-        language: 'pt',
-        setLanguage: mockSetLanguage,
-        t: mockT
-      });
+      mockUseI18n.mockReturnValue(createMockI18n({ language: 'pt' }));
 
       render(<LanguageToggle />);
       
@@ -246,11 +212,7 @@ describe('LanguageToggle Component', () => {
     });
 
     it('handles undefined language gracefully', () => {
-      mockUseI18n.mockReturnValue({
-        language: undefined as any,
-        setLanguage: mockSetLanguage,
-        t: mockT
-      });
+      mockUseI18n.mockReturnValue(createMockI18n({ language: undefined as any }));
 
       render(<LanguageToggle />);
       
@@ -261,15 +223,11 @@ describe('LanguageToggle Component', () => {
     it('handles setLanguage errors gracefully', async () => {
       const user = userEvent.setup();
       
-      mockSetLanguage.mockImplementation(() => {
+      mockChangeLanguage.mockImplementation(() => {
         throw new Error('Failed to set language');
       });
 
-      mockUseI18n.mockReturnValue({
-        language: 'pt',
-        setLanguage: mockSetLanguage,
-        t: mockT
-      });
+      mockUseI18n.mockReturnValue(createMockI18n({ language: 'pt' }));
 
       render(<LanguageToggle />);
       
@@ -290,11 +248,7 @@ describe('LanguageToggle Component', () => {
         return <LanguageToggle />;
       };
 
-      mockUseI18n.mockReturnValue({
-        language: 'pt',
-        setLanguage: mockSetLanguage,
-        t: mockT
-      });
+      mockUseI18n.mockReturnValue(createMockI18n({ language: 'pt' }));
 
       const { rerender } = render(<TestWrapper />);
       
@@ -307,22 +261,14 @@ describe('LanguageToggle Component', () => {
     });
 
     it('updates efficiently when language changes', () => {
-      mockUseI18n.mockReturnValue({
-        language: 'pt',
-        setLanguage: mockSetLanguage,
-        t: mockT
-      });
+      mockUseI18n.mockReturnValue(createMockI18n({ language: 'pt' }));
 
       const { rerender } = render(<LanguageToggle />);
       
       expect(screen.getByRole('button') || screen.getByRole('combobox')).toBeInTheDocument();
       
       // Change language
-      mockUseI18n.mockReturnValue({
-        language: 'en',
-        setLanguage: mockSetLanguage,
-        t: mockT
-      });
+      mockUseI18n.mockReturnValue(createMockI18n({ language: 'en' }));
 
       rerender(<LanguageToggle />);
       
@@ -332,11 +278,7 @@ describe('LanguageToggle Component', () => {
 
   describe('Integration with I18n System', () => {
     it('reflects i18n context state correctly', () => {
-      mockUseI18n.mockReturnValue({
-        language: 'en',
-        setLanguage: mockSetLanguage,
-        t: mockT
-      });
+      mockUseI18n.mockReturnValue(createMockI18n({ language: 'en' }));
 
       render(<LanguageToggle />);
       
@@ -347,11 +289,10 @@ describe('LanguageToggle Component', () => {
     it('uses translation function when available', () => {
       const mockTranslate = jest.fn((key: string) => `translated_${key}`);
       
-      mockUseI18n.mockReturnValue({
+      mockUseI18n.mockReturnValue(createMockI18n({ 
         language: 'pt',
-        setLanguage: mockSetLanguage,
         t: mockTranslate
-      });
+      }));
 
       render(<LanguageToggle />);
       
@@ -360,11 +301,10 @@ describe('LanguageToggle Component', () => {
     });
 
     it('handles missing translation function', () => {
-      mockUseI18n.mockReturnValue({
+      mockUseI18n.mockReturnValue(createMockI18n({
         language: 'pt',
-        setLanguage: mockSetLanguage,
         t: undefined as any
-      });
+      }));
 
       render(<LanguageToggle />);
       
@@ -382,11 +322,7 @@ describe('LanguageToggle Component', () => {
         value: 375,
       });
 
-      mockUseI18n.mockReturnValue({
-        language: 'pt',
-        setLanguage: mockSetLanguage,
-        t: mockT
-      });
+      mockUseI18n.mockReturnValue(createMockI18n({ language: 'pt' }));
 
       render(<LanguageToggle />);
       
@@ -402,11 +338,7 @@ describe('LanguageToggle Component', () => {
         value: 1200,
       });
 
-      mockUseI18n.mockReturnValue({
-        language: 'pt',
-        setLanguage: mockSetLanguage,
-        t: mockT
-      });
+      mockUseI18n.mockReturnValue(createMockI18n({ language: 'pt' }));
 
       render(<LanguageToggle />);
       

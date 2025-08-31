@@ -2,7 +2,7 @@
  * Mock AuthService for integration tests
  */
 
-import { UserRole, RegistrationData, LoginData, User } from '../../../types/auth';
+import { UserRole, RegistrationData, LoginData, User, Permission, ResourceType, Action } from '../../../types/auth';
 
 // Mock user store
 let mockUserStore: any = {};
@@ -15,7 +15,11 @@ const createMockUser = (userData: RegistrationData, id: string): User => ({
   passwordHash: 'mock-hash',
   salt: 'mock-salt',
   role: userData.role || UserRole.STUDENT,
-  permissions: ['read'],
+  permissions: [{
+    id: 'perm-1',
+    resource: ResourceType.MODULE,
+    actions: [Action.READ]
+  }],
   profile: {
     firstName: userData.firstName,
     lastName: userData.lastName,

@@ -5,6 +5,7 @@
  */
 
 import { OpenAIProvider } from '../openai';
+import { setNodeEnv, restoreNodeEnv } from '../../../test-utils/nodeEnvHelper';
 
 // Mock fetch globally
 global.fetch = jest.fn();
@@ -115,7 +116,7 @@ describe('OpenAIProvider', () => {
     });
 
     it('should allow test keys in test environment', () => {
-      process.env.NODE_ENV = 'test';
+      setNodeEnv('test');
       
       expect(() => {
         new OpenAIProvider('test-key-for-testing');
@@ -125,27 +126,27 @@ describe('OpenAIProvider', () => {
         new OpenAIProvider('mock-api-key-123');
       }).not.toThrow();
       
-      process.env.NODE_ENV = 'development';
+      setNodeEnv('development');
     });
 
     it('should reject invalid keys in non-test environments', () => {
-      process.env.NODE_ENV = 'production';
+      setNodeEnv('production');
       
       expect(() => {
         new OpenAIProvider('short-key');
       }).toThrow('OpenAI API key is required');
       
-      process.env.NODE_ENV = 'development';
+      setNodeEnv('development');
     });
 
     it('should validate key format for production keys', () => {
-      process.env.NODE_ENV = 'production';
+      setNodeEnv('production');
       
       expect(() => {
         new OpenAIProvider('not-sk-key-but-long-enough-for-length-validation');
       }).toThrow('OpenAI API key is required');
       
-      process.env.NODE_ENV = 'development';
+      setNodeEnv('development');
     });
   });
 

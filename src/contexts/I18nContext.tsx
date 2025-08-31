@@ -35,7 +35,7 @@ export interface I18nContextType {
   loadNamespace: (namespace: string | string[]) => Promise<void>;
 }
 
-const I18nContext = createContext<I18nContextType | undefined>(undefined);
+export const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
 export const useI18n = () => {
   const context = useContext(I18nContext);

@@ -13,7 +13,7 @@ jest.mock('../../contexts/AuthContext', () => ({
     isAuthenticated: false,
     login: jest.fn(),
     logout: jest.fn(),
-    loading: false
+    isLoading: false
   })
 }));
 

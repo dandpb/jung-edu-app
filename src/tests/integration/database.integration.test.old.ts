@@ -34,7 +34,7 @@ Object.defineProperty(window, 'localStorage', {
 
 import { AuthService } from '../../services/auth/authService';
 import { ModuleService } from '../../services/modules/moduleService';
-import { UserRole, RegistrationData } from '../../types/auth';
+import { UserRole, RegistrationData, Permission, ResourceType, Action } from '../../types/auth';
 import { DifficultyLevel, ModuleStatus, PublicationType } from '../../schemas/module.schema';
 import { setupCryptoMocks, cleanupCryptoMocks } from '../../test-utils/cryptoMocks';
 
@@ -50,7 +50,11 @@ const createMockUser = (userData: RegistrationData, id: string) => ({
   passwordHash: 'mock-hash',
   salt: 'mock-salt',
   role: userData.role || UserRole.STUDENT,
-  permissions: ['read'],
+  permissions: [{
+    id: 'perm-1',
+    resource: ResourceType.MODULE,
+    actions: [Action.READ]
+  }] as Permission[],
   profile: {
     firstName: userData.firstName,
     lastName: userData.lastName,

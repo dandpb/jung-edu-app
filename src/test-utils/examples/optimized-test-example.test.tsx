@@ -14,13 +14,7 @@ import {
   createMockQuestions,
   mockLLMResponses,
   
-  // Helpers
-  renderWithRouter,
-  waitForAsync,
-  localStorageUtils,
-  assertValidModule,
-  assertValidQuiz,
-  testConstants,
+  // Setup functions
   setupTest,
   testScenarios,
   
@@ -29,6 +23,16 @@ import {
   fireEvent,
   waitFor
 } from '../index';
+
+// Import directly from testHelpers for functions not re-exported
+import { 
+  renderWithRouter,
+  waitForAsync,
+  localStorageUtils,
+  assertValidModule,
+  assertValidQuiz,
+  testConstants
+} from '../helpers/testHelpers';
 
 import { ModuleService } from '../../services/modules/moduleService';
 import { EducationalModule } from '../../schemas/module.schema';

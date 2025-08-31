@@ -135,7 +135,7 @@ describe('LoadingSpinner Component', () => {
   });
 
   test('handles invalid color prop gracefully', () => {
-    render(<LoadingSpinner color="invalid-color" as any />);
+    render(<LoadingSpinner color={"invalid-color" as any} />);
     
     const spinner = screen.getByTestId('loading-spinner');
     // Should fall back to primary color

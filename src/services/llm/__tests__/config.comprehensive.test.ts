@@ -688,7 +688,7 @@ describe('LLM Configuration Utilities - Comprehensive Test Suite', () => {
 
       it('should handle development vs production configurations', () => {
         // Simulate development environment
-        process.env.NODE_ENV = 'development';
+        setNodeEnv('development');
         process.env.REACT_APP_OPENAI_API_KEY = 'dev-key';
 
         const devManager = ConfigManager.getInstance();
@@ -698,7 +698,7 @@ describe('LLM Configuration Utilities - Comprehensive Test Suite', () => {
 
         // Reset for production simulation
         (ConfigManager as any).instance = null;
-        process.env.NODE_ENV = 'production';
+        setNodeEnv('production');
         delete process.env.REACT_APP_OPENAI_API_KEY;
 
         const prodManager = ConfigManager.getInstance();

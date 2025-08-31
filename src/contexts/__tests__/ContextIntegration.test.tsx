@@ -147,7 +147,7 @@ describe('Context Integration Tests', () => {
       expect(screen.getByTestId('current-language')).toHaveTextContent('en');
       expect(screen.getByTestId('language-context-lang')).toHaveTextContent('en');
       expect(screen.getByTestId('admin-status')).toHaveTextContent('not-admin');
-      expect(screen.getByTestId('modules-count')).toHaveTextContent('2');
+      expect(screen.getByTestId('modules-count')).toHaveTextContent('6');
     });
 
     it('should handle nested provider initialization order', () => {
@@ -186,7 +186,7 @@ describe('Context Integration Tests', () => {
       );
 
       expect(screen.getByTestId('order-test')).toBeInTheDocument();
-      expect(initOrder.length).toBe(4);
+      expect(initOrder.length).toBe(5);
       expect(initOrder).toContain('auth');
       expect(initOrder).toContain('i18n');
       expect(initOrder).toContain('language');
@@ -408,6 +408,9 @@ describe('Context Integration Tests', () => {
       localStorageMock.getItem.mockImplementation(() => {
         throw new Error('localStorage access denied');
       });
+      localStorageMock.setItem.mockImplementation(() => {
+        throw new Error('localStorage access denied');
+      });
 
       render(
         <AllProvidersWrapper>
@@ -418,7 +421,7 @@ describe('Context Integration Tests', () => {
       // Should render with default values despite localStorage errors
       expect(screen.getByTestId('current-language')).toHaveTextContent('en');
       expect(screen.getByTestId('language-context-lang')).toHaveTextContent('en');
-      expect(screen.getByTestId('modules-count')).toHaveTextContent('2');
+      expect(screen.getByTestId('modules-count')).toHaveTextContent('6');
 
       consoleErrorSpy.mockRestore();
     });

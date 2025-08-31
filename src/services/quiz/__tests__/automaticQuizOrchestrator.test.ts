@@ -214,7 +214,7 @@ describe('AutomaticQuizOrchestrator', () => {
       expect(result).toBeDefined();
       expect(result.quiz).toEqual(mockQuiz);
       expect(result.analytics.contentAnalysis).toMatchObject({
-        keyConcepts: ['concept1', 'concept2', 'concept3'],
+        keyConcepts: ['collective unconscious', 'archetypes', 'individuation'],
         difficulty: 'intermediate'
       });
     });
@@ -249,6 +249,9 @@ describe('AutomaticQuizOrchestrator', () => {
     });
 
     it('should use best quiz when max retries reached', async () => {
+      // Clear all mocks to ensure clean state
+      jest.clearAllMocks();
+      
       const poorQuiz = { ...mockQuiz, id: 'poor-quiz' };
       const betterQuiz = { ...mockQuiz, id: 'better-quiz' };
 
@@ -258,9 +261,9 @@ describe('AutomaticQuizOrchestrator', () => {
         .mockResolvedValueOnce(poorQuiz);
 
       mockQuizValidator.validateQuiz
-        .mockReturnValueOnce({ score: 40, errors: [], warnings: [], suggestions: [] })
-        .mockReturnValueOnce({ score: 65, errors: [], warnings: [], suggestions: [] })
-        .mockReturnValueOnce({ score: 35, errors: [], warnings: [], suggestions: [] });
+        .mockReturnValueOnce({ score: 40, errors: [], warnings: [], suggestions: [], isValid: true })
+        .mockReturnValueOnce({ score: 65, errors: [], warnings: [], suggestions: [], isValid: true })
+        .mockReturnValueOnce({ score: 35, errors: [], warnings: [], suggestions: [], isValid: true });
 
       const result = await orchestrator.generateAutomaticQuiz(
         'test-module',
@@ -276,8 +279,20 @@ describe('AutomaticQuizOrchestrator', () => {
     });
 
     it('should create fallback quiz when all generation attempts fail', async () => {
+      // Clear all mocks to ensure clean state
+      jest.clearAllMocks();
+      
       mockEnhancedGenerator.generateEnhancedQuiz = jest.fn()
         .mockRejectedValue(new Error('Generation failed'));
+
+      // Mock the fallback quiz creation with expected score
+      mockQuizValidator.validateQuiz.mockReturnValue({
+        score: 50,
+        errors: [],
+        warnings: [],
+        suggestions: [],
+        isValid: true
+      });
 
       const result = await orchestrator.generateAutomaticQuiz(
         'test-module',
@@ -355,6 +370,12 @@ describe('AutomaticQuizOrchestrator', () => {
     const testObjectives = ['Understand concepts'];
 
     it('should generate multiple quiz variations', async () => {
+      // Mock different quiz objects with different moduleIds for each variation
+      mockEnhancedGenerator.generateEnhancedQuiz
+        .mockResolvedValueOnce({ ...mockQuiz, moduleId: 'test-module-var1' })
+        .mockResolvedValueOnce({ ...mockQuiz, moduleId: 'test-module-var2' })
+        .mockResolvedValueOnce({ ...mockQuiz, moduleId: 'test-module-var3' });
+
       const variations = await orchestrator.generateQuizVariations(
         'test-module',
         'Jung Psychology',

@@ -9,9 +9,11 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ modules, userProgress }) => {
-  const completionPercentage = Math.round(
-    (userProgress.completedModules.length / modules.length) * 100
-  );
+  // Filter out undefined/null modules and handle empty array
+  const validModules = modules.filter(Boolean);
+  const completionPercentage = validModules.length > 0 
+    ? Math.round((userProgress.completedModules.length / validModules.length) * 100)
+    : 0;
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -76,7 +78,7 @@ const Dashboard: React.FC<DashboardProps> = ({ modules, userProgress }) => {
             <CheckCircle className="w-5 h-5 text-green-600" />
           </div>
           <p className="text-3xl font-bold text-gray-900" data-testid="modules-completed-count">
-            {userProgress.completedModules.length} / {modules.length}
+            {userProgress.completedModules.length} / {validModules.length}
           </p>
         </div>
 
@@ -104,7 +106,7 @@ const Dashboard: React.FC<DashboardProps> = ({ modules, userProgress }) => {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="recent-modules-list">
-          {modules.map((module) => {
+          {validModules.map((module) => {
             const isCompleted = userProgress.completedModules.includes(module.id);
             const isLocked = module.prerequisites?.some(
               (req) => !userProgress.completedModules.includes(req)

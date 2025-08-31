@@ -66,11 +66,19 @@ export const formatters = {
   },
   
   mla: (ref: Reference): string => {
+    const formatAuthor = (author: string): string => {
+      if (!author || typeof author !== 'string') return 'Unknown Author'; const trimmed = author.trim(); if (!trimmed) return 'Unknown Author'; const parts = trimmed.split(' ');
+      if (parts.length < 2) return trimmed;
+      const lastName = parts[parts.length - 1];
+      const firstNames = parts.slice(0, -1).join(' ');
+      return `${lastName}, ${firstNames}`;
+    };
+    
     const authors = Array.isArray(ref.author)
       ? ref.author.length > 2
-        ? `${ref.author[0].split(' ').reverse().join(', ')}, et al.`
-        : ref.author.map((a, i) => i === 0 ? a.split(' ').reverse().join(', ') : a).join(', and ')
-      : ref.author.split(' ').reverse().join(', ');
+        ? `${formatAuthor(ref.author[0])}, et al.`
+        : ref.author.map((a, i) => i === 0 ? formatAuthor(a) : a).join(', and ')
+      : formatAuthor(ref.author);
     
     const title = ref.type === 'article'
       ? `"${ref.title}."`

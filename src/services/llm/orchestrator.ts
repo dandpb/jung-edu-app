@@ -367,10 +367,10 @@ export class ModuleGenerationOrchestrator extends EventEmitter {
       
       // Fall back to LLM generator
       const fullContent = [
-        content.introduction,
-        ...content.sections.map(s => s.content),
-        (content as any).summary || '',
-      ].join('\n\n');
+        content?.introduction || '',
+        ...(content?.sections || []).map(s => s?.content || ''),
+        (content as any)?.summary || '',
+      ].filter(Boolean).join('\n\n');
 
       const generatedQuiz = await this.quizGenerator.generateQuiz(
         module.id,
@@ -384,10 +384,10 @@ export class ModuleGenerationOrchestrator extends EventEmitter {
       
       // Transform to match the expected Quiz type
       const transformedQuiz = {
-        id: generatedQuiz.id,
-        title: generatedQuiz.title,
-        description: generatedQuiz.description || '',
-        questions: generatedQuiz.questions
+        id: generatedQuiz?.id || `quiz-${module.id}`,
+        title: generatedQuiz?.title || 'Generated Quiz',
+        description: generatedQuiz?.description || '',
+        questions: generatedQuiz?.questions || []
           .filter((q: any) => q.options && q.options.length > 0)
           .map((q: any) => ({
             id: q.id,
@@ -460,7 +460,7 @@ export class ModuleGenerationOrchestrator extends EventEmitter {
       
       // Transform videos to expected format
       // The video generator now returns real YouTube videos with valid IDs
-      return videos.map((video: any) => ({
+      return (videos || []).map((video: any) => ({
         id: video.id,
         title: video.title,
         youtubeId: video.youtubeId || this.extractYouTubeId(video.url) || undefined,

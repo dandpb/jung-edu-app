@@ -4,8 +4,7 @@ import { BrowserRouter, MemoryRouter } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthContext';
 import { AdminContext } from '../../contexts/AdminContext';
 import { I18nContext } from '../../contexts/I18nContext';
-import { Quiz } from '../../types/schema';
-import { Question, Module, Option, UserProgress } from '../../types';
+import { Question, Module, Option, UserProgress, Quiz, QuestionType } from '../../types';
 import { EducationalModule } from '../../schemas/module.schema';
 import { UserRole } from '../../types/auth';
 import { DifficultyLevel, ModuleStatus } from '../../schemas/module.schema';
@@ -292,7 +291,7 @@ export const measurePerformance = async (
 /**
  * Retry helper for flaky operations
  */
-export const retry = async <T>(
+export const retry = async <T,>(
   fn: () => Promise<T>,
   maxAttempts: number = 3,
   delay: number = 100
@@ -366,7 +365,7 @@ export const createMockUser = (overrides: Partial<any> = {}): any => ({
  */
 export const createMockQuestion = (overrides: Partial<Question> = {}): Question => ({
   id: `question-${Math.random().toString(36).substr(2, 9)}`,
-  type: 'multiple-choice',
+  type: 'multiple-choice' as QuestionType,
   question: 'What is the collective unconscious according to Jung?',
   options: [
     { id: '0', text: 'Personal memories and experiences', isCorrect: false, explanation: 'This describes the personal unconscious' },
@@ -430,7 +429,7 @@ export const createMockQuiz = (overrides: Partial<Quiz> = {}): Quiz => {
     id: `quiz-${Math.random().toString(36).substr(2, 9)}`,
     title: 'Introduction to Jungian Psychology',
     description: 'Test your understanding of basic Jungian concepts including the collective unconscious, archetypes, and individuation.',
-    questions: defaultQuestions,
+    questions: defaultQuestions as any,
     moduleId: `module-${Math.random().toString(36).substr(2, 9)}`,
     passingScore: 70,
     timeLimit: 30,
@@ -458,7 +457,7 @@ export const createMockQuiz = (overrides: Partial<Quiz> = {}): Quiz => {
       targetAccuracy: 0.7
     },
     ...overrides
-  };
+  } as any;
 };
 
 /**
@@ -531,9 +530,8 @@ export const createMockModule = (overrides: Partial<Module> = {}): Module => {
         'The collective unconscious contains universal patterns called archetypes',
         'Individuation is the process of psychological development toward wholeness',
         'Jung\'s concepts help explain universal human experiences and behaviors'
-      ]
-    },
-    videos: [
+      ],
+      videos: [
       {
         id: 'video-1',
         title: 'Introduction to Carl Jung',
@@ -555,7 +553,8 @@ export const createMockModule = (overrides: Partial<Module> = {}): Module => {
           }
         ]
       }
-    ],
+    ]
+    },
     quiz: createMockQuiz({ moduleId }),
     practicalExercises: [
       {
@@ -614,18 +613,30 @@ export const renderWithProviders = (
     user: isAuthenticated ? user : null,
     isAuthenticated,
     isLoading: false,
+    error: null,
     login: jest.fn().mockResolvedValue(user),
     logout: jest.fn().mockResolvedValue(undefined),
     register: jest.fn().mockResolvedValue(user),
     updateProfile: jest.fn().mockResolvedValue(user),
+    requestPasswordReset: jest.fn().mockResolvedValue(undefined),
     resetPassword: jest.fn().mockResolvedValue(undefined),
-    refreshSession: jest.fn().mockResolvedValue(user)
+    changePassword: jest.fn().mockResolvedValue(undefined),
+    verifyEmail: jest.fn().mockResolvedValue(undefined),
+    resendVerificationEmail: jest.fn().mockResolvedValue(undefined),
+    hasPermission: jest.fn().mockReturnValue(true),
+    hasRole: jest.fn().mockReturnValue(true),
+    refreshSession: jest.fn().mockResolvedValue(user),
+    clearError: jest.fn()
   };
 
   const mockAdminValue = {
     isAdmin,
+    currentAdmin: isAdmin ? { id: 'admin-1', username: 'admin', password: 'password', role: 'admin' as const } : null,
+    login: jest.fn().mockReturnValue(true),
+    logout: jest.fn(),
     users: [user],
     modules: [createMockModule()],
+    updateModules: jest.fn(),
     quizzes: [createMockQuiz()],
     analytics: {
       totalUsers: 100,
@@ -643,8 +654,6 @@ export const renderWithProviders = (
   };
 
   const mockI18nValue = {
-    language: 'en',
-    setLanguage: jest.fn(),
     t: (key: string, params?: Record<string, any>) => {
       // Simple mock translation that returns the key
       if (params) {
@@ -656,8 +665,15 @@ export const renderWithProviders = (
       }
       return key;
     },
+    language: 'en',
+    supportedLanguages: ['en', 'pt-BR'],
+    changeLanguage: jest.fn().mockResolvedValue(undefined),
     isLoading: false,
-    error: null
+    isReady: true,
+    getAvailableTranslations: jest.fn().mockReturnValue([]),
+    hasTranslation: jest.fn().mockReturnValue(true),
+    getCurrentNamespace: jest.fn().mockReturnValue('translation'),
+    loadNamespace: jest.fn().mockResolvedValue(undefined)
   };
 
   const Wrapper = ({ children }: { children: React.ReactNode }) => (

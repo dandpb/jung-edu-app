@@ -132,11 +132,11 @@ describe('AlertingService', () => {
       expect(service.getStatistics().isRunning).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith('🚀 Alerting service started in polling mode');
       
-      consoleSpy.mkRestore();
+      consoleSpy.mockRestore();
     });
 
     it('should not start service if already running', () => {
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mkImplementation();
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
       
       service.start();
       service.start(); // Second call should warn
@@ -147,7 +147,7 @@ describe('AlertingService', () => {
     });
 
     it('should stop service successfully', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mkImplementation();
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       
       service.start();
       service.stop();
@@ -274,7 +274,7 @@ describe('AlertingService', () => {
       const thresholdHandler = jest.fn();
       service.on('metric_threshold_exceeded', thresholdHandler);
       
-      mockMonitoringService.getMetrics.mkReturnValue({
+      mockMonitoringService.getMetrics.mockReturnValue({
         errorRate: 0.05,
         averageProcessingTime: 350000, // Above 300000 threshold
         qualityScores: { average: 0.8 }
@@ -599,7 +599,7 @@ describe('AlertingService', () => {
       
       expect(consoleSpy).toHaveBeenCalledWith('⚙️ Alerting service configuration updated');
       
-      consoleSpy.mkRestore();
+      consoleSpy.mockRestore();
     });
   });
 
@@ -643,7 +643,7 @@ describe('AlertingService', () => {
       );
       expect(consoleSpy).toHaveBeenCalledWith('🧪 Simulated memory alert');
       
-      consoleSpy.mkRestore();
+      consoleSpy.mockRestore();
     });
 
     it('should warn when test mode disabled', () => {
@@ -652,7 +652,7 @@ describe('AlertingService', () => {
         enableTestMode: false
       });
       
-      const consoleSpy = jest.spyOn(console, 'warn').mkImplementation();
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
       
       disabledService.triggerTestAlert();
       disabledService.simulateSystemAlert('cpu');
@@ -661,7 +661,7 @@ describe('AlertingService', () => {
       expect(consoleSpy).toHaveBeenCalledWith('⚠️ Test mode is disabled');
       
       disabledService.stop();
-      consoleSpy.mkRestore();
+      consoleSpy.mockRestore();
     });
 
     it('should simulate different system alert types', () => {
@@ -823,7 +823,7 @@ describe('AlertingService', () => {
 
     it('should handle alert acknowledged events', () => {
       const alertAcknowledgedHandler = jest.fn();
-      const consoleSpy = jest.spyOn(console, 'log').mkImplementation();
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       
       service.on('alert_acknowledged', alertAcknowledgedHandler);
       
@@ -854,7 +854,7 @@ describe('AlertingService', () => {
       expect(consoleSpy).toHaveBeenCalledWith('📈 Alert escalated: Engine generated alert to level 2');
       expect(alertEscalatedHandler).toHaveBeenCalledWith(escalationData);
       
-      consoleSpy.mkRestore();
+      consoleSpy.mockRestore();
     });
 
     it('should handle in-app notification events', () => {
@@ -870,7 +870,7 @@ describe('AlertingService', () => {
 
     it('should handle evaluation error events', () => {
       const evaluationErrorHandler = jest.fn();
-      const consoleSpy = jest.spyOn(console, 'error').mkImplementation();
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
       
       service.on('evaluation_error', evaluationErrorHandler);
       

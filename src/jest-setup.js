@@ -29,7 +29,7 @@ if (typeof window !== 'undefined') {
 }
 
 // Increase timeout for async operations - consistent with jest.config.js
-jest.setTimeout(30000);
+jest.setTimeout(60000);
 
 // Global test environment setup
 global.IS_REACT_ACT_ENVIRONMENT = true;

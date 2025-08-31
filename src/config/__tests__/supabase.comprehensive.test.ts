@@ -4,6 +4,7 @@
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { setNodeEnv, restoreNodeEnv } from '../../../test-utils/nodeEnvHelper';
 import { supabase, SupabaseConfig, createSupabaseClient, validateSupabaseConfig } from '../supabase';
 
 // Mock Supabase client
@@ -202,7 +203,7 @@ describe('Supabase Configuration Utilities - Comprehensive Test Suite', () => {
     });
 
     it('should reject non-HTTPS URLs in production', () => {
-      process.env.NODE_ENV = 'production';
+      setNodeEnv('production');
 
       const httpConfig: SupabaseConfig = {
         url: 'http://test.supabase.co',
@@ -213,7 +214,7 @@ describe('Supabase Configuration Utilities - Comprehensive Test Suite', () => {
     });
 
     it('should accept HTTPS URLs in production', () => {
-      process.env.NODE_ENV = 'production';
+      setNodeEnv('production');
 
       const httpsConfig: SupabaseConfig = {
         url: 'https://test.supabase.co',
@@ -727,11 +728,11 @@ describe('Supabase Configuration Utilities - Comprehensive Test Suite', () => {
       };
 
       // Development should allow HTTP
-      process.env.NODE_ENV = 'development';
+      setNodeEnv('development');
       expect(() => validateSupabaseConfig(developmentConfig)).not.toThrow();
 
       // Production should require HTTPS
-      process.env.NODE_ENV = 'production';
+      setNodeEnv('production');
       expect(() => validateSupabaseConfig(productionConfig)).not.toThrow();
     });
   });

@@ -120,6 +120,15 @@ export function validatePassword(
   const errors: string[] = [];
   let strengthScore = 0;
   
+  // Handle null/undefined password
+  if (!password || typeof password !== 'string') {
+    return {
+      valid: false,
+      errors: ['Password is required'],
+      strength: 'weak'
+    };
+  }
+  
   // Length check
   if (password.length < ADMIN_CONFIG.security.minPasswordLength) {
     errors.push(`Password must be at least ${ADMIN_CONFIG.security.minPasswordLength} characters long`);

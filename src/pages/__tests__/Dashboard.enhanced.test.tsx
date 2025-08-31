@@ -210,10 +210,14 @@ describe('Dashboard Component - Enhanced Coverage', () => {
     it('shows estimated time for each module', () => {
       render(<Dashboard modules={mockModules} userProgress={mockUserProgress} />);
       
-      expect(screen.getByText('45 min')).toBeInTheDocument();
-      expect(screen.getByText('60 min')).toBeInTheDocument();
-      expect(screen.getByText('90 min')).toBeInTheDocument();
-      expect(screen.getByText('30 min')).toBeInTheDocument();
+      // Use more specific queries to avoid conflicts with study time display
+      const moduleTimeElements = document.querySelectorAll('.flex.items-center.text-gray-500');
+      const moduleTimeTexts = Array.from(moduleTimeElements).map(el => el.textContent?.trim());
+      
+      expect(moduleTimeTexts).toContain('45 min');
+      expect(moduleTimeTexts).toContain('60 min');
+      expect(moduleTimeTexts).toContain('90 min');
+      expect(moduleTimeTexts).toContain('30 min');
     });
   });
 
@@ -374,6 +378,7 @@ describe('Dashboard Component - Enhanced Coverage', () => {
     it('handles empty modules array', () => {
       render(<Dashboard modules={[]} userProgress={mockEmptyProgress} />);
       
+      // When no modules exist, completion should be 0% (not NaN)
       expect(screen.getByTestId('completion-percentage')).toHaveTextContent('0%');
       expect(screen.getByTestId('modules-completed-count')).toHaveTextContent('0 / 0');
     });
@@ -381,10 +386,14 @@ describe('Dashboard Component - Enhanced Coverage', () => {
     it('handles modules array with undefined elements', () => {
       const modulesWithUndefined = [mockModules[0], undefined as any, mockModules[1]];
       
-      // Should not crash
+      // Should not crash and should render only valid modules
       expect(() => {
         render(<Dashboard modules={modulesWithUndefined} userProgress={mockEmptyProgress} />);
       }).not.toThrow();
+      
+      // Should still show valid modules
+      expect(screen.getByText('Introduction to Jung')).toBeInTheDocument();
+      expect(screen.getByText('Collective Unconscious')).toBeInTheDocument();
     });
 
     it('handles very large completion percentages gracefully', () => {
@@ -482,10 +491,17 @@ describe('Dashboard Component - Enhanced Coverage', () => {
     it('ensures proper color contrast for difficulty badges', () => {
       render(<Dashboard modules={mockModules} userProgress={mockUserProgress} />);
       
-      // Test that difficulty badges have appropriate color classes
-      expect(screen.getByText('Iniciante')).toHaveClass('text-green-600');
-      expect(screen.getByText('Intermediário')).toHaveClass('text-yellow-600');
-      expect(screen.getByText('Avançado')).toHaveClass('text-red-600');
+      // Test that difficulty badges have appropriate color classes - use getAllByText for multiple instances
+      const beginnerBadges = screen.getAllByText('Iniciante');
+      beginnerBadges.forEach(badge => {
+        expect(badge).toHaveClass('text-green-600');
+      });
+      
+      const intermediateBadge = screen.getByText('Intermediário');
+      expect(intermediateBadge).toHaveClass('text-yellow-600');
+      
+      const advancedBadge = screen.getByText('Avançado');
+      expect(advancedBadge).toHaveClass('text-red-600');
     });
   });
 
