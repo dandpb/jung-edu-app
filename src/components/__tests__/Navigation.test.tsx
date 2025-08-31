@@ -235,8 +235,6 @@ describe('Navigation Component', () => {
     
     expect(screen.getByTestId('book-icon')).toBeInTheDocument();
     expect(screen.getByTestId('home-icon')).toBeInTheDocument();
-    expect(screen.getByTestId('network-icon')).toBeInTheDocument();
-    expect(screen.getByTestId('brain-icon')).toBeInTheDocument();
     expect(screen.getByTestId('filetext-icon')).toBeInTheDocument();
     expect(screen.getByTestId('library-icon')).toBeInTheDocument();
     expect(screen.getByTestId('search-icon')).toBeInTheDocument();

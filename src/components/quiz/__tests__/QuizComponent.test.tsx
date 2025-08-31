@@ -117,7 +117,7 @@ describe('QuizComponent', () => {
   test('disables next button until answer is selected', () => {
     render(<QuizComponent quiz={mockQuiz} onComplete={mockOnComplete} />);
     
-    const nextButton = screen.getByRole('button', { name: /próxima questão/i });
+    const nextButton = screen.getByText('Próxima Questão').closest('button');
     expect(nextButton).toBeDisabled();
     
     fireEvent.click(screen.getByText('4'));
@@ -150,6 +150,9 @@ describe('QuizComponent', () => {
     
     expect(screen.getByText('What is 2 + 2?')).toBeInTheDocument();
     expect(screen.getByText('Questão 1 de 2')).toBeInTheDocument();
+    // Verify state is fully reset
+    const nextButton = screen.getByText('Próxima Questão').closest('button');
+    expect(nextButton).toBeDisabled();
   });
 
   test('shows detailed results for each question', () => {

@@ -594,7 +594,7 @@ describe('Integration Test Orchestrator', () => {
   });
 
   beforeEach(() => {
-    localStorage.clear();
+    localStorageMock.clear();
     
     // Reset stores for fresh state in each test suite
     // But preserve testModule and testUser for orchestrated workflow
@@ -1315,7 +1315,7 @@ describe('Integration Test Orchestrator', () => {
   });
 
   afterAll(() => {
-    localStorage.clear();
+    localStorageMock.clear();
     console.log('🏁 Integration Test Orchestrator Completed');
     
     // Print final summary

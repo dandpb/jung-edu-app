@@ -137,7 +137,9 @@ describe('EnhancedQuizGenerator', () => {
     
     // Setup prompt service mocks
     (quizPromptService.getTopicConcepts as jest.Mock) = jest.fn().mockReturnValue(mockTopicConcepts);
-    (quizPromptService.getQuizGenerationPrompt as jest.Mock) = jest.fn().mockResolvedValue('Test quiz prompt');
+    (quizPromptService.getQuizGenerationPrompt as jest.Mock) = jest.fn().mockImplementation((moduleId: string, topic: string) => 
+      Promise.resolve(`Quiz generation prompt for ${topic}`)
+    );
     
     // Mock module values directly through the mock
     const mockModule = require('../quizTemplates');
@@ -733,7 +735,7 @@ describe('EnhancedQuizGenerator', () => {
       );
 
       expect(mockProvider.generateStructuredOutput).toHaveBeenCalledWith(
-        expect.stringContaining('Complex Topic'),
+        expect.stringContaining('Quiz generation prompt for Complex Topic'),
         expect.any(Array),
         expect.objectContaining({
           temperature: expect.any(Number),

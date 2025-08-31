@@ -15,24 +15,11 @@ import {
 } from '../crypto';
 import { ADMIN_CONFIG } from '../../../config/admin';
 
-// Mock Web Crypto API for testing environment
-const mockCrypto = {
-  subtle: {
-    importKey: jest.fn(),
-    deriveBits: jest.fn(),
-    sign: jest.fn(),
-  },
-  getRandomValues: jest.fn(),
-};
+// Use the global crypto mock from setupTests.ts
+// No need to redefine as it's already available globally
 
-// Setup global crypto mock
-Object.defineProperty(global, 'crypto', {
-  value: mockCrypto,
-});
-
-// Mock btoa/atob for Node.js environment
-global.btoa = jest.fn((str) => Buffer.from(str, 'binary').toString('base64'));
-global.atob = jest.fn((str) => Buffer.from(str, 'base64').toString('binary'));
+// Get reference to the global crypto mock for test control
+const mockCrypto = global.crypto;
 
 describe('crypto.ts - hashPassword', () => {
   const mockHashBuffer = new ArrayBuffer(32);

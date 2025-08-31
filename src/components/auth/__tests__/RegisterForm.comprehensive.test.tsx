@@ -261,12 +261,12 @@ describe('RegisterForm Component', () => {
       );
 
       // Fill form with invalid email
-      await user.type(screen.getByLabelText(/nome/i), 'João');
-      await user.type(screen.getByLabelText(/sobrenome/i), 'Silva');
-      await user.type(screen.getByLabelText(/email/i), 'invalid-email');
-      await user.type(screen.getByLabelText(/usuário/i), 'joao');
+      await user.type(screen.getByLabelText('Nome'), 'João');
+      await user.type(screen.getByLabelText('Sobrenome'), 'Silva');
+      await user.type(screen.getByLabelText('Email'), 'invalid-email');
+      await user.type(screen.getByLabelText('Usuário'), 'joao');
       await user.type(screen.getByLabelText(/^senha$/i), 'ValidPass123!');
-      await user.type(screen.getByLabelText(/confirmar senha/i), 'ValidPass123!');
+      await user.type(screen.getByLabelText('Confirmar Senha'), 'ValidPass123!');
 
       // Submit form
       await user.click(screen.getByRole('button', { name: /criar conta/i }));
@@ -283,7 +283,7 @@ describe('RegisterForm Component', () => {
       );
 
       // Test short username
-      await user.type(screen.getByLabelText(/usuário/i), 'ab');
+      await user.type(screen.getByLabelText('Usuário'), 'ab');
       await user.click(screen.getByRole('button', { name: /criar conta/i }));
 
       expect(screen.getByText('Usuário deve ter pelo menos 3 caracteres')).toBeInTheDocument();
@@ -299,7 +299,7 @@ describe('RegisterForm Component', () => {
 
       // Fill passwords that don't match
       await user.type(screen.getByLabelText(/^senha$/i), 'Password123!');
-      await user.type(screen.getByLabelText(/confirmar senha/i), 'DifferentPass123!');
+      await user.type(screen.getByLabelText('Confirmar Senha'), 'DifferentPass123!');
 
       await user.click(screen.getByRole('button', { name: /criar conta/i }));
 
@@ -316,7 +316,7 @@ describe('RegisterForm Component', () => {
 
       const password = 'MatchingPass123!';
       await user.type(screen.getByLabelText(/^senha$/i), password);
-      await user.type(screen.getByLabelText(/confirmar senha/i), password);
+      await user.type(screen.getByLabelText('Confirmar Senha'), password);
 
       expect(screen.getByText('Senhas coincidem')).toBeInTheDocument();
     });
@@ -330,8 +330,8 @@ describe('RegisterForm Component', () => {
       );
 
       // Test short names
-      await user.type(screen.getByLabelText(/nome/i), 'A');
-      await user.type(screen.getByLabelText(/sobrenome/i), 'B');
+      await user.type(screen.getByLabelText('Nome'), 'A');
+      await user.type(screen.getByLabelText('Sobrenome'), 'B');
 
       await user.click(screen.getByRole('button', { name: /criar conta/i }));
 
@@ -356,13 +356,13 @@ describe('RegisterForm Component', () => {
       );
 
       // Fill valid form data
-      await user.type(screen.getByLabelText(/nome/i), 'João');
-      await user.type(screen.getByLabelText(/sobrenome/i), 'Silva');
-      await user.type(screen.getByLabelText(/email/i), 'joao@example.com');
-      await user.type(screen.getByLabelText(/usuário/i), 'joaosilva');
-      await user.selectOptions(screen.getByLabelText(/tipo de conta/i), UserRole.INSTRUCTOR);
+      await user.type(screen.getByLabelText('Nome'), 'João');
+      await user.type(screen.getByLabelText('Sobrenome'), 'Silva');
+      await user.type(screen.getByLabelText('Email'), 'joao@example.com');
+      await user.type(screen.getByLabelText('Usuário'), 'joaosilva');
+      await user.selectOptions(screen.getByLabelText('Tipo de Conta'), UserRole.INSTRUCTOR);
       await user.type(screen.getByLabelText(/^senha$/i), 'SecurePass123!');
-      await user.type(screen.getByLabelText(/confirmar senha/i), 'SecurePass123!');
+      await user.type(screen.getByLabelText('Confirmar Senha'), 'SecurePass123!');
 
       // Submit form
       await user.click(screen.getByRole('button', { name: /criar conta/i }));
@@ -399,12 +399,12 @@ describe('RegisterForm Component', () => {
       );
 
       // Fill valid form and submit
-      await user.type(screen.getByLabelText(/nome/i), 'João');
-      await user.type(screen.getByLabelText(/sobrenome/i), 'Silva');
-      await user.type(screen.getByLabelText(/email/i), 'joao@example.com');
-      await user.type(screen.getByLabelText(/usuário/i), 'joaosilva');
+      await user.type(screen.getByLabelText('Nome'), 'João');
+      await user.type(screen.getByLabelText('Sobrenome'), 'Silva');
+      await user.type(screen.getByLabelText('Email'), 'joao@example.com');
+      await user.type(screen.getByLabelText('Usuário'), 'joaosilva');
       await user.type(screen.getByLabelText(/^senha$/i), 'SecurePass123!');
-      await user.type(screen.getByLabelText(/confirmar senha/i), 'SecurePass123!');
+      await user.type(screen.getByLabelText('Confirmar Senha'), 'SecurePass123!');
 
       const submitButton = screen.getByRole('button', { name: /criar conta/i });
       await user.click(submitButton);
@@ -416,7 +416,7 @@ describe('RegisterForm Component', () => {
       // Resolve registration
       resolveRegister!();
       await waitFor(() => {
-        expect(screen.getByText('Criar Conta')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /criar conta/i })).toBeInTheDocument();
         expect(submitButton).not.toBeDisabled();
       });
     });
@@ -442,9 +442,9 @@ describe('RegisterForm Component', () => {
       );
 
       // Fill form with validation errors
-      await user.type(screen.getByLabelText(/email/i), 'invalid-email');
+      await user.type(screen.getByLabelText('Email'), 'invalid-email');
       await user.type(screen.getByLabelText(/^senha$/i), 'weak');
-      await user.type(screen.getByLabelText(/confirmar senha/i), 'different');
+      await user.type(screen.getByLabelText('Confirmar Senha'), 'different');
 
       await user.click(screen.getByRole('button', { name: /criar conta/i }));
 
@@ -463,13 +463,13 @@ describe('RegisterForm Component', () => {
       );
 
       // Create validation error
-      await user.type(screen.getByLabelText(/email/i), 'invalid');
+      await user.type(screen.getByLabelText('Email'), 'invalid');
       await user.click(screen.getByRole('button', { name: /criar conta/i }));
       expect(screen.getByText('Email inválido')).toBeInTheDocument();
 
       // Correct the error
-      await user.clear(screen.getByLabelText(/email/i));
-      await user.type(screen.getByLabelText(/email/i), 'valid@example.com');
+      await user.clear(screen.getByLabelText('Email'));
+      await user.type(screen.getByLabelText('Email'), 'valid@example.com');
 
       expect(screen.queryByText('Email inválido')).not.toBeInTheDocument();
     });
@@ -489,18 +489,18 @@ describe('RegisterForm Component', () => {
       );
 
       // Fill valid form
-      await user.type(screen.getByLabelText(/nome/i), 'João');
-      await user.type(screen.getByLabelText(/sobrenome/i), 'Silva');
-      await user.type(screen.getByLabelText(/email/i), 'joao@example.com');
-      await user.type(screen.getByLabelText(/usuário/i), 'joaosilva');
+      await user.type(screen.getByLabelText('Nome'), 'João');
+      await user.type(screen.getByLabelText('Sobrenome'), 'Silva');
+      await user.type(screen.getByLabelText('Email'), 'joao@example.com');
+      await user.type(screen.getByLabelText('Usuário'), 'joaosilva');
       await user.type(screen.getByLabelText(/^senha$/i), 'SecurePass123!');
-      await user.type(screen.getByLabelText(/confirmar senha/i), 'SecurePass123!');
+      await user.type(screen.getByLabelText('Confirmar Senha'), 'SecurePass123!');
 
       await user.click(screen.getByRole('button', { name: /criar conta/i }));
 
       // Should reset loading state even on error
       await waitFor(() => {
-        expect(screen.getByText('Criar Conta')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /criar conta/i })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /criar conta/i })).not.toBeDisabled();
       });
     });
@@ -515,13 +515,13 @@ describe('RegisterForm Component', () => {
       );
 
       // Check that all inputs have associated labels
-      expect(screen.getByLabelText(/nome/i)).toHaveAttribute('id', 'firstName');
-      expect(screen.getByLabelText(/sobrenome/i)).toHaveAttribute('id', 'lastName');
-      expect(screen.getByLabelText(/email/i)).toHaveAttribute('id', 'email');
-      expect(screen.getByLabelText(/usuário/i)).toHaveAttribute('id', 'username');
-      expect(screen.getByLabelText(/tipo de conta/i)).toHaveAttribute('id', 'role');
+      expect(screen.getByLabelText('Nome')).toHaveAttribute('id', 'firstName');
+      expect(screen.getByLabelText('Sobrenome')).toHaveAttribute('id', 'lastName');
+      expect(screen.getByLabelText('Email')).toHaveAttribute('id', 'email');
+      expect(screen.getByLabelText('Usuário')).toHaveAttribute('id', 'username');
+      expect(screen.getByLabelText('Tipo de Conta')).toHaveAttribute('id', 'role');
       expect(screen.getByLabelText(/^senha$/i)).toHaveAttribute('id', 'password');
-      expect(screen.getByLabelText(/confirmar senha/i)).toHaveAttribute('id', 'confirmPassword');
+      expect(screen.getByLabelText('Confirmar Senha')).toHaveAttribute('id', 'confirmPassword');
     });
 
     it('should be keyboard navigable', async () => {
@@ -534,16 +534,16 @@ describe('RegisterForm Component', () => {
 
       // Tab through form elements
       await user.tab(); // firstName
-      expect(screen.getByLabelText(/nome/i)).toHaveFocus();
+      expect(screen.getByLabelText('Nome')).toHaveFocus();
 
       await user.tab(); // lastName  
-      expect(screen.getByLabelText(/sobrenome/i)).toHaveFocus();
+      expect(screen.getByLabelText('Sobrenome')).toHaveFocus();
 
       await user.tab(); // email
-      expect(screen.getByLabelText(/email/i)).toHaveFocus();
+      expect(screen.getByLabelText('Email')).toHaveFocus();
 
       await user.tab(); // username
-      expect(screen.getByLabelText(/usuário/i)).toHaveFocus();
+      expect(screen.getByLabelText('Usuário')).toHaveFocus();
     });
 
     it('should have proper error messaging', async () => {
@@ -573,7 +573,7 @@ describe('RegisterForm Component', () => {
       );
 
       // Username with invalid characters
-      await user.type(screen.getByLabelText(/usuário/i), 'user@name');
+      await user.type(screen.getByLabelText('Usuário'), 'user@name');
       await user.click(screen.getByRole('button', { name: /criar conta/i }));
 
       expect(screen.getByText('Usuário deve conter apenas letras, números, - e _')).toBeInTheDocument();
@@ -588,9 +588,9 @@ describe('RegisterForm Component', () => {
       );
 
       const longName = 'A'.repeat(100);
-      await user.type(screen.getByLabelText(/nome/i), longName);
+      await user.type(screen.getByLabelText('Nome'), longName);
 
-      expect(screen.getByLabelText(/nome/i)).toHaveValue(longName);
+      expect(screen.getByLabelText('Nome')).toHaveValue(longName);
     });
 
     it('should prevent form submission during loading state', async () => {
@@ -613,12 +613,12 @@ describe('RegisterForm Component', () => {
       );
 
       // Fill valid form
-      await user.type(screen.getByLabelText(/nome/i), 'João');
-      await user.type(screen.getByLabelText(/sobrenome/i), 'Silva');
-      await user.type(screen.getByLabelText(/email/i), 'joao@example.com');
-      await user.type(screen.getByLabelText(/usuário/i), 'joaosilva');
+      await user.type(screen.getByLabelText('Nome'), 'João');
+      await user.type(screen.getByLabelText('Sobrenome'), 'Silva');
+      await user.type(screen.getByLabelText('Email'), 'joao@example.com');
+      await user.type(screen.getByLabelText('Usuário'), 'joaosilva');
       await user.type(screen.getByLabelText(/^senha$/i), 'SecurePass123!');
-      await user.type(screen.getByLabelText(/confirmar senha/i), 'SecurePass123!');
+      await user.type(screen.getByLabelText('Confirmar Senha'), 'SecurePass123!');
 
       const submitButton = screen.getByRole('button', { name: /criar conta/i });
       

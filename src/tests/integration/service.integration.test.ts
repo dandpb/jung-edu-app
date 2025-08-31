@@ -435,18 +435,7 @@ const mockYouTubeService = {
   })
 };
 
-// Apply mocks to service classes - mock the constructors to return objects with our mock methods
-(AuthService as jest.MockedClass<typeof AuthService>).mockImplementation(() => {
-  return mockAuthService as any;
-});
-
-(EnhancedQuizGenerator as jest.MockedClass<typeof EnhancedQuizGenerator>).mockImplementation(() => {
-  return mockQuizGenerator as any;
-});
-
-(YouTubeService as jest.MockedClass<typeof YouTubeService>).mockImplementation(() => {
-  return mockYouTubeService as any;
-});
+// Service classes will use automatic mocks from __mocks__ folders
 
 // Apply mocks to static methods using Object.defineProperty
 Object.defineProperty(ModuleService, 'createModule', {
@@ -561,7 +550,7 @@ describe('Service Integration Tests', () => {
 
   beforeEach(() => {
     // Clear localStorage before each test
-    localStorage.clear();
+    localStorageMock.clear();
     
     // Reset test state
     testModule = null;
@@ -1294,6 +1283,6 @@ describe('Service Integration Tests', () => {
   });
 
   afterEach(() => {
-    localStorage.clear();
+    localStorageMock.clear();
   });
 });

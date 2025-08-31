@@ -222,4 +222,175 @@ export const supabaseUtils = {
   },
 } as const;
 
+// Additional utility functions for testing and configuration
+
+/**
+ * Supabase configuration interface
+ */
+export interface SupabaseConfig {
+  url: string;
+  anonKey: string;
+  options?: {
+    auth?: {
+      autoRefreshToken?: boolean;
+      persistSession?: boolean;
+      detectSessionInUrl?: boolean;
+      flowType?: 'implicit' | 'pkce';
+    };
+    realtime?: {
+      params?: {
+        eventsPerSecond?: number;
+      };
+    };
+    global?: {
+      headers?: Record<string, string>;
+    };
+  };
+}
+
+/**
+ * Creates a Supabase client with custom configuration
+ * Useful for testing and custom client setups
+ */
+export const createSupabaseClient = (config: SupabaseConfig): SupabaseClient<Database> => {
+  return createClient(config.url, config.anonKey, config.options);
+};
+
+/**
+ * Validates Supabase configuration
+ * Throws error if configuration is invalid
+ */
+export const validateSupabaseConfig = (config: SupabaseConfig): void => {
+  if (!config) {
+    throw new Error('Supabase configuration is required');
+  }
+
+  if (!config.url) {
+    throw new Error('Supabase URL is required');
+  }
+
+  if (!config.anonKey) {
+    throw new Error('Supabase anonymous key is required');
+  }
+
+  // Validate URL format
+  try {
+    const url = new URL(config.url);
+    
+    // Check for valid Supabase URL patterns
+    if (!url.hostname.includes('supabase') && 
+        !url.hostname.includes('localhost') && 
+        !url.hostname.match(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/)) {
+      throw new Error('Invalid Supabase URL format');
+    }
+
+    // In production, ensure HTTPS is used (except for localhost/IP)
+    if (process.env.NODE_ENV === 'production' && 
+        url.protocol === 'http:' && 
+        !url.hostname.includes('localhost') && 
+        !url.hostname.match(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/)) {
+      throw new Error('Supabase URL must use HTTPS in production');
+    }
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new Error('Invalid Supabase URL format');
+    }
+    throw error;
+  }
+
+  // Validate anonymous key format (basic check)
+  if (config.anonKey.length < 20) {
+    throw new Error('Invalid Supabase anonymous key format');
+  }
+};
+
+/**
+ * Gets the Supabase URL from environment or throws error
+ */
+export const getSupabaseUrl = (): string => {
+  const url = process.env.REACT_APP_SUPABASE_URL;
+  if (!url) {
+    if (process.env.NODE_ENV === 'test') {
+      return 'https://test.supabase.co';
+    }
+    throw new Error('REACT_APP_SUPABASE_URL environment variable is not set');
+  }
+  return url;
+};
+
+/**
+ * Gets the Supabase anonymous key from environment or throws error
+ */
+export const getSupabaseAnonKey = (): string => {
+  const anonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
+  if (!anonKey) {
+    if (process.env.NODE_ENV === 'test') {
+      return 'test-anon-key-12345678901234567890';
+    }
+    throw new Error('REACT_APP_SUPABASE_ANON_KEY environment variable is not set');
+  }
+  return anonKey;
+};
+
+/**
+ * Creates a test Supabase client with mock configuration
+ * Useful for unit tests
+ */
+export const createTestSupabaseClient = (): SupabaseClient<Database> => {
+  const testConfig: SupabaseConfig = {
+    url: 'https://test.supabase.co',
+    anonKey: 'test-anon-key-12345678901234567890',
+    options: {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+        detectSessionInUrl: false
+      }
+    }
+  };
+  
+  return createSupabaseClient(testConfig);
+};
+
+/**
+ * Environment-aware Supabase configuration
+ */
+export const getSupabaseConfig = (): SupabaseConfig => {
+  return {
+    url: getSupabaseUrl(),
+    anonKey: getSupabaseAnonKey(),
+    options: {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+        flowType: 'pkce'
+      },
+      realtime: {
+        params: {
+          eventsPerSecond: 10
+        }
+      },
+      global: {
+        headers: {
+          'X-Client-Info': 'jaqedu-web-app'
+        }
+      }
+    }
+  };
+};
+
+/**
+ * Checks if the current environment is configured for Supabase
+ */
+export const isSupabaseConfigured = (): boolean => {
+  try {
+    getSupabaseUrl();
+    getSupabaseAnonKey();
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export default supabase;

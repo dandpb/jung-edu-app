@@ -127,7 +127,7 @@ describe('Demo Module Tests', () => {
         expect(mockConsoleLog).toHaveBeenCalledWith('Components: module, quiz, videos, bibliography');
       });
 
-      it('should execute demo with custom configuration (ignores custom config)', async () => {
+      it('should execute demo with custom configuration', async () => {
         const customConfig: ModuleGenerationConfig = {
           topic: 'Custom Topic',
           difficulty: 'advanced',
@@ -138,19 +138,8 @@ describe('Demo Module Tests', () => {
 
         await runCompleteDemo(customConfig);
 
-        // The function ignores custom config and uses hardcoded demo config
-        expect(mockGeneratorInstance.generateCompleteModule).toHaveBeenCalledWith({
-          topic: 'Jungian Psychology Demo',
-          objectives: [
-            'Understand basic Jung concepts',
-            'Explore archetypal patterns',
-            'Apply psychological insights'
-          ],
-          targetAudience: 'Psychology students',
-          duration: 60,
-          difficulty: 'intermediate',
-          language: 'pt-BR'
-        });
+        // The function now uses the provided custom config
+        expect(mockGeneratorInstance.generateCompleteModule).toHaveBeenCalledWith(customConfig);
         expect(mockConsoleLog).toHaveBeenCalledWith('Generated module: Jungian Psychology Demo');
       });
 
@@ -614,7 +603,7 @@ describe('Demo Module Tests', () => {
   });
 
   describe('Real-world Usage Scenarios', () => {
-    it('should handle production-like configuration (ignores custom config)', async () => {
+    it('should handle production-like configuration', async () => {
       const prodConfig: ModuleGenerationConfig = {
         topic: 'Carl Jung\'s Analytical Psychology: A Comprehensive Introduction',
         difficulty: 'intermediate',
@@ -629,23 +618,12 @@ describe('Demo Module Tests', () => {
 
       await runCompleteDemo(prodConfig);
 
-      // Function uses hardcoded demo config, not the passed config
-      expect(mockGeneratorInstance.generateCompleteModule).toHaveBeenCalledWith({
-        topic: 'Jungian Psychology Demo',
-        objectives: [
-          'Understand basic Jung concepts',
-          'Explore archetypal patterns',
-          'Apply psychological insights'
-        ],
-        targetAudience: 'Psychology students',
-        duration: 60,
-        difficulty: 'intermediate',
-        language: 'pt-BR'
-      });
+      // Function now uses the passed production config
+      expect(mockGeneratorInstance.generateCompleteModule).toHaveBeenCalledWith(prodConfig);
       expect(mockConsoleLog).toHaveBeenCalledWith('✅ Demo completed successfully!');
     });
 
-    it('should handle development/testing configuration (ignores custom config)', async () => {
+    it('should handle development/testing configuration', async () => {
       const devConfig: ModuleGenerationConfig = {
         topic: 'Test Module',
         difficulty: 'beginner',
@@ -657,19 +635,8 @@ describe('Demo Module Tests', () => {
 
       await runCompleteDemo(devConfig);
 
-      // Function uses hardcoded demo config, not the passed config
-      expect(mockGeneratorInstance.generateCompleteModule).toHaveBeenCalledWith({
-        topic: 'Jungian Psychology Demo',
-        objectives: [
-          'Understand basic Jung concepts',
-          'Explore archetypal patterns',
-          'Apply psychological insights'
-        ],
-        targetAudience: 'Psychology students',
-        duration: 60,
-        difficulty: 'intermediate',
-        language: 'pt-BR'
-      });
+      // Function now uses the passed development config
+      expect(mockGeneratorInstance.generateCompleteModule).toHaveBeenCalledWith(devConfig);
     });
 
     it('should demonstrate typical error recovery', async () => {

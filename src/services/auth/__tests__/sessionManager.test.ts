@@ -1,26 +1,7 @@
 import { SessionManager } from '../sessionManager';
 
-// Mock localStorage
-const localStorageMock = (() => {
-  let store: Record<string, string> = {};
-  
-  return {
-    getItem: jest.fn((key: string) => store[key] || null),
-    setItem: jest.fn((key: string, value: string) => {
-      store[key] = value;
-    }),
-    removeItem: jest.fn((key: string) => {
-      delete store[key];
-    }),
-    clear: jest.fn(() => {
-      store = {};
-    })
-  };
-})();
-
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
-});
+// Use the localStorage mock from setupTests.ts (jest-localstorage-mock)
+// No need to redefine it here as it's already available globally
 
 describe('SessionManager', () => {
   let sessionManager: SessionManager;
@@ -38,7 +19,10 @@ describe('SessionManager', () => {
 
   beforeEach(() => {
     sessionManager = new SessionManager();
-    localStorage.clear();
+    // Use the safe method from setupTests.ts to clear localStorage
+    if (typeof localStorage !== 'undefined' && localStorage && typeof localStorage.clear === 'function') {
+      localStorage.clear();
+    }
     jest.clearAllMocks();
   });
 

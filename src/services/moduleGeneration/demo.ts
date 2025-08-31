@@ -10,7 +10,7 @@ export async function runCompleteDemo(config?: ModuleGenerationConfig): Promise<
   
   const generator = new UnifiedModuleGenerator();
   
-  const demoConfig = {
+  const demoConfig = config || {
     topic: 'Jungian Psychology Demo',
     objectives: [
       'Understand basic Jung concepts',
@@ -29,7 +29,10 @@ export async function runCompleteDemo(config?: ModuleGenerationConfig): Promise<
     
     console.log('✅ Demo completed successfully!');
     console.log(`Generated module: ${result.module.title}`);
-    console.log(`Components: ${result.metadata.componentsIncluded.join(', ')}`);
+    
+    // Safe access to componentsIncluded in case metadata is null or undefined
+    const components = result.metadata?.componentsIncluded || [];
+    console.log(`Components: ${components.join(', ')}`);
     
     return;
   } catch (error) {

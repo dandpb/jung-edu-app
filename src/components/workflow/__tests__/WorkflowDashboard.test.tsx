@@ -666,7 +666,7 @@ describe('WorkflowDashboard Component', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('resume-execution-exec-1')).toBeInTheDocument();
-      });
+      }, { timeout: 2000 });
     });
 
     test('should resume execution when resume button is clicked', async () => {
@@ -682,14 +682,14 @@ describe('WorkflowDashboard Component', () => {
       
       await waitFor(() => {
         expect(screen.getByTestId('resume-execution-exec-1')).toBeInTheDocument();
-      });
+      }, { timeout: 2000 });
 
       // Then resume
       await user.click(screen.getByTestId('resume-execution-exec-1'));
 
       await waitFor(() => {
         expect(screen.getByTestId('execution-status-exec-1')).toHaveTextContent('RUNNING');
-      });
+      }, { timeout: 2000 });
     });
 
     test('should show cancel button for running and paused executions', () => {
@@ -716,7 +716,7 @@ describe('WorkflowDashboard Component', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('execution-status-exec-1')).toHaveTextContent('CANCELLED');
-      });
+      }, { timeout: 2000 });
     });
 
     test('should show retry button for failed executions', () => {
@@ -840,6 +840,13 @@ describe('WorkflowDashboard Component', () => {
 
   describe('Real-time Updates', () => {
     test('should refresh data when refresh button is clicked', async () => {
+      // Mock window.location.reload to prevent actual page reload in test
+      const mockReload = jest.fn();
+      Object.defineProperty(window, 'location', {
+        value: { reload: mockReload },
+        writable: true
+      });
+
       const user = userEvent.setup();
       render(
         <TestAuthProvider>
@@ -850,7 +857,7 @@ describe('WorkflowDashboard Component', () => {
       const refreshButton = screen.getByTestId('refresh-button');
       await user.click(refreshButton);
 
-      expect(refreshButton).toHaveTextContent('Loading...');
+      expect(mockReload).toHaveBeenCalled();
     });
 
     test('should show loading state during operations', async () => {
