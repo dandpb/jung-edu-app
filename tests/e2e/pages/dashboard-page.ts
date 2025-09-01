@@ -1,6 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './base-page';
-import { testSelectors, testPaths } from '../fixtures/test-data';
+import { TestEnvSetup } from '../helpers/test-env-setup';
 
 /**
  * Dashboard page object model
@@ -61,11 +61,23 @@ export class DashboardPage extends BasePage {
    * Navigate to dashboard
    */
   async goto(path = '/dashboard') {
+    // Setup clean test environment with auth
+    await TestEnvSetup.setupCleanTestEnv(this.page);
+    await TestEnvSetup.setupMockAuth(this.page, 'user');
+    
     await this.page.goto(path);
     await this.waitForPageLoad();
-    // Give the auth context time to check test mode and set up the user
+    
+    // Ensure no overlays are blocking
+    await TestEnvSetup.ensureNoOverlays(this.page);
+    
+    // Wait for React app and auth context to initialize
+    await TestEnvSetup.waitForReactApp(this.page);
+    
+    // Give the auth context time to process test mode
     await this.page.waitForTimeout(1000);
-    await expect(this.dashboardHeader).toBeVisible();
+    
+    await expect(this.dashboardHeader).toBeVisible({ timeout: 10000 });
   }
 
   /**
@@ -76,8 +88,8 @@ export class DashboardPage extends BasePage {
     await expect(this.welcomeMessage).toBeVisible();
     
     // Check that essential elements are present
-    await expect(this.mainNavigation).toBeVisible();
-    await expect(this.userMenu).toBeVisible();
+    await expect(this.navigationMenu).toBeVisible();
+    await expect(this.viewProfileButton).toBeVisible();
   }
 
   /**

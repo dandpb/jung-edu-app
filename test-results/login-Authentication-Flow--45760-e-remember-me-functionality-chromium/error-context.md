@@ -1,0 +1,102 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e6]:
+      - link "Psicologia de Jung" [ref=e7] [cursor=pointer]:
+        - /url: /dashboard
+        - img [ref=e8] [cursor=pointer]
+        - heading "Psicologia de Jung" [level=1] [ref=e11] [cursor=pointer]
+      - generic [ref=e12]:
+        - link "Painel" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e14] [cursor=pointer]
+          - generic [ref=e17] [cursor=pointer]: Painel
+        - link "Anotações" [ref=e18] [cursor=pointer]:
+          - /url: /notes
+          - img [ref=e19] [cursor=pointer]
+          - generic [ref=e22] [cursor=pointer]: Anotações
+        - link "Recursos" [ref=e23] [cursor=pointer]:
+          - /url: /bibliography
+          - img [ref=e24] [cursor=pointer]
+          - generic [ref=e26] [cursor=pointer]: Recursos
+        - link "Buscar" [ref=e27] [cursor=pointer]:
+          - /url: /search
+          - img [ref=e28] [cursor=pointer]
+          - generic [ref=e31] [cursor=pointer]: Buscar
+        - generic [ref=e32]:
+          - img [ref=e33]
+          - generic [ref=e36]: Test User User
+        - button "Sair" [ref=e37] [cursor=pointer]:
+          - img [ref=e38] [cursor=pointer]
+          - generic [ref=e41] [cursor=pointer]: Sair
+  - main [ref=e42]:
+    - generic [ref=e43]:
+      - generic [ref=e44]:
+        - heading "Bem-vindo à Psicologia Analítica de Jung" [level=1] [ref=e45]
+        - paragraph [ref=e46]: Explore as profundezas da psique humana através das teorias revolucionárias de Carl Jung
+      - generic [ref=e47]:
+        - generic [ref=e48]:
+          - generic [ref=e49]:
+            - heading "Progresso Geral" [level=3] [ref=e50]
+            - img [ref=e51]
+          - generic [ref=e54]:
+            - generic [ref=e55]: Conclusão
+            - generic [ref=e56]: 33%
+        - generic [ref=e59]:
+          - generic [ref=e60]:
+            - heading "Módulos Concluídos" [level=3] [ref=e61]
+            - img [ref=e62]
+          - paragraph [ref=e65]: 1 / 3
+        - generic [ref=e66]:
+          - generic [ref=e67]:
+            - heading "Tempo de Estudo" [level=3] [ref=e68]
+            - img [ref=e69]
+          - paragraph [ref=e72]: 60 min
+      - generic [ref=e73]:
+        - generic [ref=e74]:
+          - heading "Módulos de Aprendizagem" [level=2] [ref=e75]
+          - generic [ref=e76]:
+            - button "Pesquisar" [ref=e77] [cursor=pointer]
+            - button "Progresso" [ref=e78] [cursor=pointer]
+        - generic [ref=e79]:
+          - link "🧠 Introdução à Psicologia Jungiana Conceitos básicos da psicologia analítica de Carl Jung 45 min Iniciante" [ref=e80] [cursor=pointer]:
+            - /url: /module/intro-psychology
+            - generic [ref=e81] [cursor=pointer]:
+              - generic [ref=e82] [cursor=pointer]: 🧠
+              - img [ref=e83] [cursor=pointer]
+            - heading "Introdução à Psicologia Jungiana" [level=3] [ref=e86] [cursor=pointer]
+            - paragraph [ref=e87] [cursor=pointer]: Conceitos básicos da psicologia analítica de Carl Jung
+            - generic [ref=e88] [cursor=pointer]:
+              - generic [ref=e89] [cursor=pointer]:
+                - generic [ref=e90] [cursor=pointer]:
+                  - img [ref=e91] [cursor=pointer]
+                  - text: 45 min
+                - generic [ref=e94] [cursor=pointer]: Iniciante
+              - img [ref=e95] [cursor=pointer]
+          - link "🎭 Arquétipos Fundamentais Explorando os arquétipos principais na obra de Jung 60 min Intermediário" [ref=e97] [cursor=pointer]:
+            - /url: /module/archetypes-study
+            - generic [ref=e99] [cursor=pointer]: 🎭
+            - heading "Arquétipos Fundamentais" [level=3] [ref=e100] [cursor=pointer]
+            - paragraph [ref=e101] [cursor=pointer]: Explorando os arquétipos principais na obra de Jung
+            - generic [ref=e102] [cursor=pointer]:
+              - generic [ref=e103] [cursor=pointer]:
+                - generic [ref=e104] [cursor=pointer]:
+                  - img [ref=e105] [cursor=pointer]
+                  - text: 60 min
+                - generic [ref=e108] [cursor=pointer]: Intermediário
+              - img [ref=e109] [cursor=pointer]
+          - link "🌟 Processo de Individuação O caminho para a completude psíquica 90 min Avançado" [ref=e111] [cursor=pointer]:
+            - /url: /module/individuation-process
+            - generic [ref=e113] [cursor=pointer]: 🌟
+            - heading "Processo de Individuação" [level=3] [ref=e114] [cursor=pointer]
+            - paragraph [ref=e115] [cursor=pointer]: O caminho para a completude psíquica
+            - generic [ref=e116] [cursor=pointer]:
+              - generic [ref=e117] [cursor=pointer]:
+                - generic [ref=e118] [cursor=pointer]:
+                  - img [ref=e119] [cursor=pointer]
+                  - text: 90 min
+                - generic [ref=e122] [cursor=pointer]: Avançado
+              - img [ref=e123] [cursor=pointer]
+```

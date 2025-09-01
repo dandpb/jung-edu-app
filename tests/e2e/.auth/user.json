@@ -1,35 +1,32 @@
 {
-  "cookies": [
-    {
-      "name": "auth_session",
-      "value": "mock_user_session_token",
-      "domain": "localhost",
-      "path": "/",
-      "expires": 1767091200,
-      "httpOnly": false,
-      "secure": false,
-      "sameSite": "Lax"
-    }
-  ],
+  "cookies": [],
   "origins": [
     {
       "origin": "http://localhost:3000",
       "localStorage": [
         {
+          "name": "test-mode",
+          "value": "true"
+        },
+        {
+          "name": "disable-dev-overlay",
+          "value": "true"
+        },
+        {
           "name": "auth_user",
-          "value": "{\"id\":2,\"email\":\"user@jaquedu.com\",\"role\":\"user\",\"name\":\"Test User\",\"isAuthenticated\":true}"
+          "value": "{\"id\":\"user-test-user\",\"role\":\"user\",\"email\":\"user@jaquedu.com\",\"username\":\"testuser\",\"name\":\"Test User\",\"permissions\":[\"view_content\",\"take_quizzes\",\"view_progress\"]}"
         },
         {
           "name": "auth_token",
-          "value": "mock_user_jwt_token"
+          "value": "mock_user_token_1756687906589"
         },
         {
-          "name": "user_preferences",
-          "value": "{\"theme\":\"light\",\"language\":\"en\"}"
+          "name": "auth_refresh_token",
+          "value": "mock_user_refresh_token_1756687906589"
         },
         {
-          "name": "test_mode",
-          "value": "true"
+          "name": "jungAppProgress",
+          "value": "{\"userId\":\"user-test-user\",\"completedModules\":[\"intro-psychology\"],\"quizScores\":{\"intro-psychology\":85},\"totalTime\":3600,\"lastAccessed\":1756687906589,\"notes\":[{\"id\":\"1\",\"moduleId\":\"intro-psychology\",\"content\":\"Test note\",\"timestamp\":1756687906589}]}"
         }
       ]
     }

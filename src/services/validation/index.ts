@@ -37,7 +37,8 @@ export type {
   ValidationSummary
 } from './endToEndValidator';
 
-export { ValidationTestUtils } from './__tests__/validationSystem.test';
+// Temporarily disabled to prevent compilation errors during E2E tests
+// export { ValidationTestUtils } from './__tests__/validationSystem.test';
 
 import { EducationalModule } from '../../schemas/module.schema';
 import { systemValidator } from './systemValidator';

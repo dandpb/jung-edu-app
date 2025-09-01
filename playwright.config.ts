@@ -36,6 +36,14 @@ export default defineConfig({
     /* Global timeout for each test */
     actionTimeout: 30 * 1000,
     navigationTimeout: 30 * 1000,
+    
+    /* Disable webpack dev server overlay that intercepts clicks */
+    launchOptions: {
+      env: {
+        REACT_APP_DISABLE_DEV_OVERLAY: 'true',
+        NODE_ENV: 'test'
+      }
+    }
   },
 
   /* Configure global setup and teardown */
@@ -105,11 +113,15 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  // webServer disabled for mock-based E2E tests
-  // webServer: process.env.CI ? undefined : {
-  //   command: 'npm start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  //   timeout: 120 * 1000,
-  // },
+  webServer: {
+    command: 'REACT_APP_DISABLE_DEV_OVERLAY=true DISABLE_ESLINT_PLUGIN=true npm start',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000,
+    env: {
+      REACT_APP_DISABLE_DEV_OVERLAY: 'true',
+      NODE_ENV: 'development', // Keep as development but with overlay disabled
+      DISABLE_ESLINT_PLUGIN: 'true'
+    }
+  },
 });

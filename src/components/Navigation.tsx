@@ -42,7 +42,7 @@ const Navigation: React.FC = () => {
     <nav className="bg-white shadow-sm border-b border-gray-200" data-testid="main-navigation">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link to="/dashboard" className="flex items-center space-x-3">
+          <Link to="/dashboard" className="flex items-center space-x-3" data-testid="nav-brand">
             <BookOpen className="w-8 h-8 text-primary-600" />
             <h1 className="text-xl font-display font-bold text-gray-900">
               Psicologia de Jung
@@ -58,6 +58,7 @@ const Navigation: React.FC = () => {
                 <Link
                   key={item.path}
                   to={item.path}
+                  data-testid={`nav-link-${item.path.replace('/', '')}`}
                   className={`
                     flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium
                     transition-all duration-200
@@ -79,6 +80,7 @@ const Navigation: React.FC = () => {
                   <>
                     <Link
                       to="/admin"
+                      data-testid="nav-link-admin"
                       className={`
                         flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium
                         transition-all duration-200
@@ -93,6 +95,7 @@ const Navigation: React.FC = () => {
                     </Link>
                     <Link
                       to="/monitoring"
+                      data-testid="nav-link-monitoring"
                       className={`
                         flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium
                         transition-all duration-200
@@ -127,6 +130,7 @@ const Navigation: React.FC = () => {
             ) : (
               <Link
                 to="/login"
+                data-testid="nav-link-login"
                 className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200"
               >
                 <LogIn className="w-4 h-4" />

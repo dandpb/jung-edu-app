@@ -11,7 +11,8 @@ export * from './builders/moduleBuilder';
 export * from './builders/quizBuilder';
 
 // Test helpers and utilities
-export * from './helpers/testHelpers';
+// Temporarily disabled to prevent compilation errors during E2E tests
+// export * from './helpers/testHelpers';
 
 // Common test setup
 export const setupTest = () => {

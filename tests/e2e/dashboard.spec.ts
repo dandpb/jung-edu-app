@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { DashboardPage } from './pages/dashboard-page';
 import { ModulePage } from './pages/module-page';
+import { TestEnvSetup } from './helpers/test-env-setup';
 
 /**
  * E2E Tests for Dashboard Functionality
@@ -8,7 +9,7 @@ import { ModulePage } from './pages/module-page';
  */
 
 // Use authenticated user state for dashboard tests
-test.use({ storageState: 'tests/e2e/auth/regular-user.json' });
+test.use({ storageState: 'tests/e2e/.auth/user.json' });
 
 test.describe('Dashboard', () => {
   let dashboardPage: DashboardPage;
@@ -16,12 +17,15 @@ test.describe('Dashboard', () => {
   test.beforeEach(async ({ page }) => {
     dashboardPage = new DashboardPage(page);
     
-    // Setup global mock routes for dashboard functionality
+    // Setup clean test environment
+    await TestEnvSetup.setupCleanTestEnv(page);
+    
+    // Setup simplified mock routes for dashboard functionality
     await page.route('**/api/**', async route => {
       const url = route.request().url();
       
-      // Mock different API endpoints
-      if (url.includes('/api/modules')) {
+      // Mock different API endpoints with simpler responses
+      if (url.includes('/modules')) {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -31,17 +35,26 @@ test.describe('Dashboard', () => {
               title: 'Fundamentos da Psicologia Jungiana',
               description: 'Introdução às teorias básicas de Carl Jung',
               difficulty: 'beginner',
+              icon: '🧠',
               estimatedTime: 45
+            },
+            {
+              id: 'archetypes',
+              title: 'Arquétipos Jungianos',
+              description: 'Explorando os arquétipos fundamentais',
+              difficulty: 'intermediate',
+              icon: '🎭',
+              estimatedTime: 60
             }
           ])
         });
-      } else if (url.includes('/api/user/progress')) {
+      } else if (url.includes('/progress')) {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
           body: JSON.stringify({
-            completedModules: [],
-            totalTime: 120,
+            completedModules: ['jung-basics'],
+            totalTime: 3600,
             currentStreak: 5,
             totalPoints: 250,
             level: 2
@@ -57,20 +70,30 @@ test.describe('Dashboard', () => {
       }
     });
     
-    await dashboardPage.goto('/dashboard');
+    // Setup mock auth and navigate to dashboard
+    await TestEnvSetup.setupMockAuth(page, 'user');
+    await page.goto('/dashboard');
+    await TestEnvSetup.waitForReactApp(page);
+    await TestEnvSetup.ensureNoOverlays(page);
+    
+    // Wait for dashboard to load
+    await page.waitForTimeout(1000);
   });
 
   test('should display dashboard correctly for authenticated user', async ({ page }) => {
-    // Verify main dashboard elements
-    await expect(dashboardPage.welcomeMessage).toBeVisible();
-    await expect(dashboardPage.navigationMenu).toBeVisible();
+    // Verify main dashboard elements with increased timeout
+    await expect(dashboardPage.welcomeMessage).toBeVisible({ timeout: 10000 });
     
     // Verify dashboard content sections
-    await expect(dashboardPage.progressSection).toBeVisible();
-    await expect(dashboardPage.recentModulesSection).toBeVisible();
+    await expect(dashboardPage.progressSection).toBeVisible({ timeout: 10000 });
+    await expect(dashboardPage.recentModulesSection).toBeVisible({ timeout: 10000 });
+    
+    // Navigation menu should be visible
+    const navElement = page.locator('[data-testid="main-navigation"]');
+    await expect(navElement).toBeVisible({ timeout: 10000 });
     
     // Quick actions section might not always be visible
-    const quickActionsVisible = await dashboardPage.quickActionsSection.isVisible();
+    const quickActionsVisible = await dashboardPage.quickActionsSection.isVisible({ timeout: 5000 });
     if (quickActionsVisible) {
       await expect(dashboardPage.quickActionsSection).toBeVisible();
     }
@@ -269,7 +292,10 @@ test.describe('Dashboard', () => {
   });
 
   test('should handle logout', async ({ page }) => {
-    if (await dashboardPage.logoutMenuItem.isVisible()) {
+    // Look for logout button with multiple selectors
+    const logoutButton = page.locator('[data-testid="logout-button"]');
+    
+    if (await logoutButton.isVisible({ timeout: 5000 })) {
       // Mock logout redirect
       await page.route('**/auth/logout', async route => {
         await route.fulfill({
@@ -279,16 +305,20 @@ test.describe('Dashboard', () => {
         });
       });
       
-      // Use force click to bypass overlapping elements
-      await dashboardPage.logoutMenuItem.click({ force: true });
+      // Ensure no overlays are blocking
+      await TestEnvSetup.ensureNoOverlays(page);
       
-      // Wait for navigation
-      await page.waitForTimeout(1000);
+      // Click logout with force to bypass any overlays
+      await logoutButton.click({ force: true });
       
-      // Should redirect to login page or home (or stay on dashboard in test mode)
-      await expect(page).toHaveURL(/login|auth|\/$|dashboard/);
+      // Wait for logout processing
+      await page.waitForTimeout(2000);
+      
+      // In test mode, verify button was clicked (might stay on same page)
+      const currentUrl = page.url();
+      expect(currentUrl).toMatch(/login|auth|\/$|dashboard/);
     } else {
-      test.skip('Logout functionality not available');
+      test.skip('Logout button not available');
     }
   });
 

@@ -1,35 +1,28 @@
 {
-  "cookies": [
-    {
-      "name": "auth_session",
-      "value": "mock_admin_session_token",
-      "domain": "localhost",
-      "path": "/",
-      "expires": 1767091200,
-      "httpOnly": false,
-      "secure": false,
-      "sameSite": "Lax"
-    }
-  ],
+  "cookies": [],
   "origins": [
     {
       "origin": "http://localhost:3000",
       "localStorage": [
         {
+          "name": "test-mode",
+          "value": "true"
+        },
+        {
+          "name": "disable-dev-overlay",
+          "value": "true"
+        },
+        {
           "name": "auth_user",
-          "value": "{\"id\":1,\"email\":\"admin@jaquedu.com\",\"role\":\"admin\",\"name\":\"Test Admin\",\"isAuthenticated\":true,\"permissions\":[\"manage_users\",\"manage_content\",\"view_analytics\"]}"
+          "value": "{\"id\":\"admin-test-user\",\"role\":\"admin\",\"email\":\"admin@jaquedu.com\",\"username\":\"admin\",\"name\":\"Test Admin\",\"permissions\":[\"manage_users\",\"manage_modules\",\"manage_content\",\"view_analytics\"]}"
         },
         {
           "name": "auth_token",
-          "value": "mock_admin_jwt_token"
+          "value": "mock_admin_token_1756687906588"
         },
         {
-          "name": "admin_preferences",
-          "value": "{\"theme\":\"dark\",\"language\":\"en\",\"dashboard_layout\":\"grid\"}"
-        },
-        {
-          "name": "test_mode",
-          "value": "true"
+          "name": "auth_refresh_token",
+          "value": "mock_admin_refresh_token_1756687906588"
         }
       ]
     }

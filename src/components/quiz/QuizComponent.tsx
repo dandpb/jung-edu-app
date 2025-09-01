@@ -53,16 +53,31 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
     }
   };
 
+  // Helper function to handle both single and array correct answers
+  const isAnswerCorrect = (selectedAnswer: number | undefined, correctAnswer: number | number[] | string | undefined): boolean => {
+    if (selectedAnswer === undefined || correctAnswer === undefined) return false;
+    if (Array.isArray(correctAnswer)) {
+      return correctAnswer.includes(selectedAnswer);
+    }
+    // Convert string correctAnswer to number if needed
+    const correctAnswerNum = typeof correctAnswer === 'string' ? parseInt(correctAnswer, 10) : correctAnswer;
+    return selectedAnswer === correctAnswerNum;
+  };
+
   const calculateScore = () => {
     let correct = 0;
     quiz.questions.forEach((question, index) => {
-      if (question && selectedAnswers[index] === question.correctAnswer) {
+      if (question && isAnswerCorrect(selectedAnswers[index], question.correctAnswer)) {
         correct++;
       }
     });
     const score = Math.round((correct / quiz.questions.length) * 100);
     setShowResult(true);
-    onComplete(score);
+    try {
+      onComplete(score);
+    } catch (error) {
+      console.error('Error in onComplete callback:', error);
+    }
   };
 
   const resetQuiz = () => {
@@ -75,7 +90,7 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
   if (showResult) {
     const score = Math.round(
       (selectedAnswers.filter((answer, index) => 
-        quiz.questions[index] && answer === quiz.questions[index].correctAnswer
+        quiz.questions[index] && isAnswerCorrect(answer, quiz.questions[index].correctAnswer)
       ).length / quiz.questions.length) * 100
     );
 
@@ -91,7 +106,7 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
           </div>
           <p className="text-gray-600">
             Você acertou {selectedAnswers.filter((answer, index) => 
-              quiz.questions[index] && answer === quiz.questions[index].correctAnswer
+              quiz.questions[index] && isAnswerCorrect(answer, quiz.questions[index].correctAnswer)
             ).length} de {quiz.questions.length} questões
           </p>
         </div>
@@ -107,7 +122,7 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
             // Skip rendering if question is undefined
             if (!question) return null;
             
-            const isCorrect = selectedAnswers[index] === question.correctAnswer;
+            const isCorrect = isAnswerCorrect(selectedAnswers[index], question.correctAnswer);
             return (
               <div key={question.id || index} className="text-left p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-start space-x-2">
@@ -175,7 +190,14 @@ const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, previou
         <div className="space-y-3">
           {(currentQuestion.options || []).map((option, index) => {
             const isSelected = selectedAnswers[currentQuestionIndex] === index;
-            const isCorrect = index === currentQuestion.correctAnswer;
+            const isCorrect = (() => {
+              const correctAnswer = currentQuestion.correctAnswer;
+              if (Array.isArray(correctAnswer)) {
+                return correctAnswer.includes(index);
+              }
+              const correctAnswerNum = typeof correctAnswer === 'string' ? parseInt(correctAnswer, 10) : correctAnswer;
+              return index === correctAnswerNum;
+            })();
             const showFeedback = showExplanation && isSelected;
 
             return (

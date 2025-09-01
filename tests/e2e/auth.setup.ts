@@ -1,14 +1,18 @@
 import { test as setup, expect } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
+import { TestEnvSetup } from './helpers/test-env-setup';
 
-const adminAuthFile = 'tests/e2e/auth/admin-user.json';
-const userAuthFile = 'tests/e2e/auth/regular-user.json';
+const adminAuthFile = 'tests/e2e/.auth/admin.json';
+const userAuthFile = 'tests/e2e/.auth/user.json';
 
 setup('authenticate as admin', async ({ page }) => {
   console.log('Creating admin authentication state...');
   
-  // Create mock authentication state for test mode
+  // Setup clean test environment (no navigation needed for pure auth setup)
+  await TestEnvSetup.setupCleanTestEnv(page);
+  
+  // Create mock authentication state for Playwright
   const mockAuthState = {
     cookies: [],
     origins: [
@@ -16,12 +20,14 @@ setup('authenticate as admin', async ({ page }) => {
         origin: 'http://localhost:3000',
         localStorage: [
           { name: 'test-mode', value: 'true' },
+          { name: 'disable-dev-overlay', value: 'true' },
           { 
             name: 'auth_user', 
             value: JSON.stringify({ 
               id: 'admin-test-user', 
               role: 'admin', 
               email: 'admin@jaquedu.com',
+              username: 'admin',
               name: 'Test Admin',
               permissions: ['manage_users', 'manage_modules', 'manage_content', 'view_analytics']
             }) 
@@ -45,7 +51,10 @@ setup('authenticate as admin', async ({ page }) => {
 setup('authenticate as regular user', async ({ page }) => {
   console.log('Creating regular user authentication state...');
   
-  // Create mock authentication state for test mode
+  // Setup clean test environment (no navigation needed for pure auth setup)
+  await TestEnvSetup.setupCleanTestEnv(page);
+  
+  // Create mock authentication state for Playwright
   const mockAuthState = {
     cookies: [],
     origins: [
@@ -53,12 +62,14 @@ setup('authenticate as regular user', async ({ page }) => {
         origin: 'http://localhost:3000',
         localStorage: [
           { name: 'test-mode', value: 'true' },
+          { name: 'disable-dev-overlay', value: 'true' },
           { 
             name: 'auth_user', 
             value: JSON.stringify({ 
               id: 'user-test-user', 
               role: 'user', 
               email: 'user@jaquedu.com',
+              username: 'testuser',
               name: 'Test User',
               permissions: ['view_content', 'take_quizzes', 'view_progress']
             }) 
