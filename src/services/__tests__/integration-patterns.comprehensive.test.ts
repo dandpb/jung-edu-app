@@ -1,6 +1,12 @@
 /**
  * Comprehensive Integration Patterns Tests
  * Validates integration patterns and mocking strategies across all service modules
+ *
+ * OPTIMIZED FOR PERFORMANCE:
+ * - Reduced timeout overhead
+ * - Efficient async handling
+ * - Minimal mock setup
+ * - Fast cleanup patterns
  */
 
 import 'jest-extended';
@@ -24,12 +30,22 @@ jest.mock('../llm/orchestrator');
 jest.mock('../llm/providers/openai');
 jest.mock('../moduleGeneration/index');
 
+// Optimized test timeout
+jest.setTimeout(15000);
+
 describe('Integration Patterns and Mocking Strategies', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.clearAllTimers();
+    // Suppress console output for cleaner test runs
     console.log = jest.fn();
     console.error = jest.fn();
     console.warn = jest.fn();
+  });
+
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
   });
 
   describe('Service Composition Patterns', () => {
@@ -56,9 +72,12 @@ describe('Integration Patterns and Mocking Strategies', () => {
         ) {}
 
         async generateContent(topic: string) {
-          const videos = await this.videoService.searchVideos(topic);
+          // Use Promise.all for parallel execution to reduce test time
+          const [videos, summary] = await Promise.all([
+            this.videoService.searchVideos(topic),
+            this.llmProvider.generateCompletion(`Summarize: ${topic}`)
+          ]);
           const bibliography = this.bibliographyService.generateBibliography({ topic });
-          const summary = await this.llmProvider.generateCompletion(`Summarize: ${topic}`);
 
           return {
             topic,
@@ -206,13 +225,13 @@ describe('Integration Patterns and Mocking Strategies', () => {
           try {
             // Simulate module generation steps
             this.emit('generation.progress', { step: 'content', progress: 25 });
-            await new Promise(resolve => setTimeout(resolve, 10));
-            
+            await Promise.resolve();
+
             this.emit('generation.progress', { step: 'quiz', progress: 50 });
-            await new Promise(resolve => setTimeout(resolve, 10));
-            
+            await Promise.resolve();
+
             this.emit('generation.progress', { step: 'videos', progress: 75 });
-            await new Promise(resolve => setTimeout(resolve, 10));
+            await Promise.resolve();
             
             this.emit('generation.progress', { step: 'bibliography', progress: 100 });
             
@@ -347,8 +366,8 @@ describe('Integration Patterns and Mocking Strategies', () => {
           this.state = 'processing';
 
           try {
-            // Simulate processing
-            await new Promise(resolve => setTimeout(resolve, 10));
+            // Fast simulation for tests
+            await Promise.resolve();
 
             // Introduce errors after certain number of calls
             if (this.callCount > 5) {
@@ -408,9 +427,9 @@ describe('Integration Patterns and Mocking Strategies', () => {
       // Mock patterns for different async scenarios
       const createAsyncMocks = () => {
         return {
-          // Delayed response mock
-          delayed: jest.fn().mockImplementation(async (delay: number = 100) => {
-            await new Promise(resolve => setTimeout(resolve, delay));
+          // Fast delayed response mock for tests
+          delayed: jest.fn().mockImplementation(async (delay: number = 1) => {
+            await new Promise(resolve => setTimeout(resolve, Math.min(delay, 5)));
             return { delayed: true, delay };
           }),
 
@@ -419,7 +438,7 @@ describe('Integration Patterns and Mocking Strategies', () => {
             let result = { initial: true };
             
             for (const step of steps) {
-              await new Promise(resolve => setTimeout(resolve, 10));
+              await Promise.resolve();
               result = { ...result, [step]: true };
             }
             
@@ -429,7 +448,7 @@ describe('Integration Patterns and Mocking Strategies', () => {
           // Concurrent operation mock
           concurrent: jest.fn().mockImplementation(async (operations: number) => {
             const promises = Array(operations).fill(null).map(async (_, i) => {
-              await new Promise(resolve => setTimeout(resolve, Math.random() * 50));
+              await Promise.resolve();
               return { operation: i, completed: true };
             });
             
@@ -731,7 +750,7 @@ describe('Integration Patterns and Mocking Strategies', () => {
       const searchStage: PipelineStage<string, any[]> = {
         name: 'video-search',
         transform: async (topic: string) => {
-          await new Promise(resolve => setTimeout(resolve, 10));
+          await Promise.resolve();
           return [{ id: '1', title: `Video about ${topic}` }];
         },
         validate: (videos: any[]) => Array.isArray(videos) && videos.length > 0
@@ -903,7 +922,7 @@ describe('Integration Patterns and Mocking Strategies', () => {
             } else if (!this.batchTimer) {
               this.batchTimer = setTimeout(() => {
                 this.processBatch();
-              }, this.batchTimeout);
+              }, Math.min(this.batchTimeout, 10)); // Faster batching for tests
             }
           });
         }
@@ -927,18 +946,23 @@ describe('Integration Patterns and Mocking Strategies', () => {
             const results = await this.processor(currentBatch);
             
             results.forEach((result, index) => {
-              currentResolvers[index](result);
+              if (currentResolvers[index]) {
+                currentResolvers[index](result);
+              }
             });
           } catch (error) {
             currentRejecters.forEach(reject => {
-              reject(error as Error);
+              if (reject) {
+                reject(error as Error);
+              }
             });
           }
         }
       }
 
       const mockBatchProcessor = async (items: string[]): Promise<string[]> => {
-        await new Promise(resolve => setTimeout(resolve, 50));
+        // Fast processing for tests
+        await Promise.resolve();
         return items.map(item => `processed-${item}`);
       };
 

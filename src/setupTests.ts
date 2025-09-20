@@ -48,43 +48,41 @@ if (process.env.SKIP_INTEGRATION === 'true') {
   const State = expect.getState();
   if (State && State.testPath) {
     const testPath = State.testPath;
-    const isIntegrationTest = 
+    const isIntegrationTest =
       testPath.includes('integrationValidator') ||
       testPath.includes('endToEndValidator') ||
       testPath.includes('/integration/') ||
       testPath.includes('integration.test') ||
       testPath.includes('e2e.test');
-    
+
     if (isIntegrationTest) {
       // Log integration test skipping but don't globally disable tests
       beforeAll(() => {
         console.log(`⏭️  Skipping integration test: ${testPath}`);
         console.log('   Use "npm run test:integration" to run integration tests');
       });
-      
-      // Note: Individual tests should handle their own skipping based on environment
-      // Removed global test.skip and it.skip assignment to prevent all tests from being disabled
     }
   }
 }
 
 // When running integration tests, ensure proper environment setup
 if (process.env.SKIP_INTEGRATION !== 'true') {
-  // When running integration tests, ensure proper environment setup
   const State = expect.getState();
   if (State && State.testPath) {
     const testPath = State.testPath;
-    const isIntegrationTest = 
+    const isIntegrationTest =
       testPath.includes('integrationValidator') ||
       testPath.includes('endToEndValidator') ||
       testPath.includes('/integration/') ||
       testPath.includes('integration.test') ||
       testPath.includes('e2e.test');
-    
+
     if (isIntegrationTest) {
       beforeAll(() => {
-        console.log(`🧪 Running integration test: ${testPath}`);
-        // Ensure localStorage is cleared before each integration test suite
+        if (!process.env.CI) {
+          console.log(`🧪 Running integration test: ${testPath}`);
+        }
+        // Fast cleanup for integration tests
         try {
           if (typeof localStorage !== 'undefined' && localStorage !== null && typeof localStorage.clear === 'function') {
             localStorage.clear();
@@ -96,9 +94,11 @@ if (process.env.SKIP_INTEGRATION !== 'true') {
           // Storage might be disabled or mocked
         }
       });
-      
+
       afterEach(() => {
-        // Clean up after each integration test
+        // Fast cleanup after each integration test
+        jest.clearAllMocks();
+        jest.clearAllTimers();
         try {
           if (typeof localStorage !== 'undefined' && localStorage !== null && typeof localStorage.clear === 'function') {
             localStorage.clear();
@@ -109,22 +109,45 @@ if (process.env.SKIP_INTEGRATION !== 'true') {
         } catch (e) {
           // Storage might be disabled or mocked
         }
-        jest.clearAllMocks();
       });
     }
   }
 }
 
-// Mock console.log to suppress service initialization messages
+// Optimized console output for tests
 const originalLog = console.log;
+const suppressedPatterns = [
+  'Using OpenAI provider',
+  'YouTube Service:',
+  'No API key found',
+  '=== Bibliography',
+  '=== Reading Paths',
+  '=== Film References',
+  '=== Alchemy References',
+  '=== Contemporary Research',
+  '=== Prerequisites',
+  'No references found',
+  'No reading paths found',
+  'No contemporary',
+  'URL:',
+  'Matter of Heart',
+  'Psychology and Alchemy',
+  'Processing batch of',
+  'Cache hit for query:',
+  'Cache miss for query:'
+];
+
 console.log = jest.fn((...args) => {
-  // Suppress specific service initialization logs
-  if (typeof args[0] === 'string' && 
-      (args[0].includes('Using OpenAI provider') || 
-       args[0].includes('YouTube Service:') ||
-       args[0].includes('No API key found'))) {
+  // In CI mode, suppress all console output except errors
+  if (process.env.CI && !args[0]?.includes('🧪') && !args[0]?.includes('⏭️')) {
     return;
   }
+
+  // Suppress specific service initialization logs
+  if (typeof args[0] === 'string' && suppressedPatterns.some(pattern => args[0].includes(pattern))) {
+    return;
+  }
+
   originalLog.call(console, ...args);
 });
 
@@ -134,51 +157,45 @@ console.log = jest.fn((...args) => {
 // The localStorage and sessionStorage are already mocked by jest-localstorage-mock
 // Just ensure we have the clear method available
 beforeEach(() => {
-  // Use the methods from jest-localstorage-mock - safely check for methods
+  // Fast cleanup for all tests
+  jest.clearAllMocks();
+  jest.clearAllTimers();
+
+  // Clear storage safely and efficiently
   try {
     if (typeof localStorage !== 'undefined' && localStorage !== null && typeof localStorage.clear === 'function') {
       localStorage.clear();
     }
-  } catch (e) {
-    // localStorage might be disabled or mocked without clear method
-  }
-  
-  try {
     if (typeof sessionStorage !== 'undefined' && sessionStorage !== null && typeof sessionStorage.clear === 'function') {
       sessionStorage.clear();
     }
   } catch (e) {
-    // sessionStorage might be disabled or mocked without clear method
+    // Storage might be disabled or mocked without clear method
   }
-  jest.clearAllMocks();
-  
-  // Ensure all fetch mocks are reset
+
+  // Reset fetch mocks efficiently
   if (global.fetch && typeof global.fetch === 'function' && global.fetch.mockClear) {
     global.fetch.mockClear();
   }
 });
 
 afterEach(() => {
-  // Clear all mocks after each test to prevent state leakage
+  // Optimized cleanup after each test
   jest.clearAllMocks();
-  
-  // Clear storage if available - safely check for methods
+  jest.runOnlyPendingTimers();
+
+  // Fast storage cleanup
   try {
     if (typeof localStorage !== 'undefined' && localStorage !== null && typeof localStorage.clear === 'function') {
       localStorage.clear();
     }
-  } catch (e) {
-    // localStorage might be disabled or mocked without clear method
-  }
-  
-  try {
     if (typeof sessionStorage !== 'undefined' && sessionStorage !== null && typeof sessionStorage.clear === 'function') {
       sessionStorage.clear();
     }
   } catch (e) {
-    // sessionStorage might be disabled or mocked without clear method
+    // Storage might be disabled or mocked without clear method
   }
-  
+
   // Reset fetch mocks
   if (global.fetch && typeof global.fetch === 'function' && global.fetch.mockClear) {
     global.fetch.mockClear();

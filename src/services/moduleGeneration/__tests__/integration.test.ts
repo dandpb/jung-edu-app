@@ -10,11 +10,15 @@ jest.mock('../../video/youtubeService');
 jest.mock('../../llm/orchestrator');
 jest.mock('../../modules/moduleService');
 
+// Optimized timeout for module generation tests
+jest.setTimeout(10000);
+
 describe('UnifiedModuleGenerator Integration Tests', () => {
   let generator: UnifiedModuleGenerator;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.clearAllTimers();
     
     // Create a mock implementation that skips the constructor logic
     generator = Object.create(UnifiedModuleGenerator.prototype);
@@ -107,6 +111,11 @@ describe('UnifiedModuleGenerator Integration Tests', () => {
         componentsIncluded: ['module']
       }
     });
+  });
+
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
   });
 
   describe('Complete Module Generation', () => {

@@ -317,42 +317,46 @@ export class ModuleGenerationOrchestrator extends EventEmitter {
         const enhancedQuestions = await this.quizEnhancer.enhanceQuestions(generatedQuiz.questions, options.topic);
         const enhancedQuiz = { ...generatedQuiz, questions: enhancedQuestions };
         
-        // Convert to expected format
+        // Convert to expected format with enhanced null safety
         const quizResult = {
           id: `quiz-${module.id}`,
           title: `Assessment: ${options.topic}`,
           description: `Test your understanding of ${options.topic}`,
-          questions: enhancedQuiz.questions
+          questions: (enhancedQuiz?.questions || [])
             .map((q: any, index: number) => {
               // Ensure questions have proper structure
               const questionBase = {
-                id: q.id || `q-${index + 1}`,
-                question: q.question || `Questão sobre ${options.topic}`,
-                correctAnswer: q.correctAnswer || 0,
-                explanation: q.explanation || `Explicação sobre ${options.topic}`
+                id: q?.id || `q-${index + 1}`,
+                question: q?.question || `Question about ${options.topic}`,
+                correctAnswer: q?.correctAnswer ?? 0,
+                explanation: q?.explanation || `Explanation about ${options.topic}`
               };
 
-              // Handle options with more flexibility
-              if (q.options && Array.isArray(q.options) && q.options.length >= 2) {
+              // Handle options with more flexibility and null safety
+              if (q?.options && Array.isArray(q.options) && q.options.length >= 2) {
                 return {
                   ...questionBase,
-                  options: q.options
+                  options: q.options.map((opt: any, optIndex: number) => ({
+                    id: opt?.id || `opt-${optIndex + 1}`,
+                    text: opt?.text || `Option ${optIndex + 1}`,
+                    isCorrect: opt?.isCorrect ?? false
+                  }))
                 };
               } else {
                 // Provide fallback options if missing
-                console.warn(`Questão ${questionBase.id} sem opções válidas, criando opções de fallback`);
+                console.warn(`Question ${questionBase.id} has no valid options, creating fallback options`);
                 return {
                   ...questionBase,
                   options: [
-                    { id: 'opt-1', text: 'Conceito fundamental da teoria junguiana', isCorrect: true },
-                    { id: 'opt-2', text: 'Aspecto secundário da personalidade', isCorrect: false },
-                    { id: 'opt-3', text: 'Elemento não relacionado ao tema', isCorrect: false },
-                    { id: 'opt-4', text: 'Conceito da psicologia comportamental', isCorrect: false }
+                    { id: 'opt-1', text: 'Core concept in Jungian theory', isCorrect: true },
+                    { id: 'opt-2', text: 'Secondary personality aspect', isCorrect: false },
+                    { id: 'opt-3', text: 'Unrelated element', isCorrect: false },
+                    { id: 'opt-4', text: 'Behavioral psychology concept', isCorrect: false }
                   ]
                 };
               }
             })
-            .filter(q => q && q.question) // Only filter out questions without content
+            .filter(q => q?.question) // Only filter out questions without content
         } as Quiz;
         
         // Add extra properties that may be used elsewhere
@@ -382,20 +386,29 @@ export class ModuleGenerationOrchestrator extends EventEmitter {
       
       this.rateLimiter.recordRequest(2500);
       
-      // Transform to match the expected Quiz type
+      // Transform to match the expected Quiz type with null safety
       const transformedQuiz = {
         id: generatedQuiz?.id || `quiz-${module.id}`,
         title: generatedQuiz?.title || 'Generated Quiz',
         description: generatedQuiz?.description || '',
-        questions: generatedQuiz?.questions || []
-          .filter((q: any) => q.options && q.options.length > 0)
+        questions: (generatedQuiz?.questions || [])
           .map((q: any) => ({
-            id: q.id,
-            question: q.question,
-            options: q.options!,
-            correctAnswer: q.correctAnswer || 0,
-            explanation: q.explanation || ''
+            id: q?.id || `q-${Math.random().toString(36).substr(2, 9)}`,
+            question: q?.question || 'Sample question',
+            options: (q?.options && Array.isArray(q.options) && q.options.length > 0)
+              ? q.options.map((opt: any, optIndex: number) => ({
+                  id: opt?.id || `opt-${optIndex + 1}`,
+                  text: opt?.text || `Option ${optIndex + 1}`,
+                  isCorrect: opt?.isCorrect ?? false
+                }))
+              : [
+                  { id: 'opt-1', text: 'Default correct option', isCorrect: true },
+                  { id: 'opt-2', text: 'Default incorrect option', isCorrect: false }
+                ],
+            correctAnswer: q?.correctAnswer ?? 0,
+            explanation: q?.explanation || 'Default explanation'
           }))
+          .filter(q => q?.question) // Only filter out questions without content
       } as Quiz;
       
       // Add extra properties
@@ -438,15 +451,20 @@ export class ModuleGenerationOrchestrator extends EventEmitter {
           options.videoCount || 5
         );
         
-        // Convert to expected Video format
-        return mockVideos.slice(0, options.videoCount || 5).map((video: any) => ({
-          id: video.id,
-          title: video.title,
-          youtubeId: this.extractYouTubeId(video.url) || 'dQw4w9WgXcQ',
-          description: video.description,
-          duration: typeof video.duration === 'object' ? video.duration.minutes : video.duration || 15,
-          url: video.url // Keep original url for reference
-        }));
+        // Convert to expected Video format with null safety
+        return (mockVideos || []).slice(0, options.videoCount || 5).map((video: any) => {
+          const youtubeId = this.extractYouTubeId(video?.url) || 'dQw4w9WgXcQ';
+          return {
+            id: video?.id || `video-${Math.random().toString(36).substr(2, 9)}`,
+            title: video?.title || 'Untitled Video',
+            youtubeId: youtubeId,
+            description: video?.description || 'No description available',
+            duration: typeof video?.duration === 'object'
+              ? (video.duration?.minutes ?? 15)
+              : (video?.duration ?? 15),
+            url: video?.url || '' // Keep original url for reference
+          };
+        }).filter(v => v.youtubeId && v.youtubeId.length > 0);
       }
       
       // Use LLM generator to get real YouTube videos
@@ -459,16 +477,21 @@ export class ModuleGenerationOrchestrator extends EventEmitter {
       
       this.rateLimiter.recordRequest(1000);
       
-      // Transform videos to expected format
+      // Transform videos to expected format with null safety
       // The video generator now returns real YouTube videos with valid IDs
-      return (videos || []).map((video: any) => ({
-        id: video.id,
-        title: video.title,
-        youtubeId: video.youtubeId || this.extractYouTubeId(video.url) || undefined,
-        description: video.description,
-        duration: typeof video.duration === 'object' ? video.duration.minutes : video.duration || 15,
-        url: video.url // Keep original url for reference
-      })).filter(v => v.youtubeId); // Only include videos with valid YouTube IDs
+      return (videos || []).map((video: any) => {
+        const youtubeId = video?.youtubeId || this.extractYouTubeId(video?.url);
+        return {
+          id: video?.id || `video-${Math.random().toString(36).substr(2, 9)}`,
+          title: video?.title || 'Untitled Video',
+          youtubeId: youtubeId,
+          description: video?.description || 'No description available',
+          duration: typeof video?.duration === 'object'
+            ? (video.duration?.minutes ?? 15)
+            : (video?.duration ?? 15),
+          url: video?.url || '' // Keep original url for reference
+        };
+      }).filter(v => v.youtubeId && v.youtubeId.length > 0); // Only include videos with valid YouTube IDs
     } finally {
       this.rateLimiter.decrementActive();
     }
@@ -621,21 +644,21 @@ export class ModuleGenerationOrchestrator extends EventEmitter {
   }
 
   private extractJungianConcepts(content: ModuleContent): string[] {
-    // Extract Jungian concepts from generated content
+    // Extract Jungian concepts from generated content with enhanced null safety
     if (!content) {
       return [];
     }
-    
+
     const textParts = [
-      content.introduction || '',
-      ...(content.sections || []).map(s => s?.content || ''),
-      (content as any).summary || '',
-    ].filter(text => text.length > 0);
-    
+      content?.introduction || '',
+      ...(content?.sections || []).map(s => s?.content || '').filter(Boolean),
+      (content as any)?.summary || '',
+    ].filter(text => text && text.length > 0);
+
     if (textParts.length === 0) {
       return [];
     }
-    
+
     const allText = textParts.join(' ').toLowerCase();
 
     const concepts = new Set<string>();
@@ -649,9 +672,17 @@ export class ModuleGenerationOrchestrator extends EventEmitter {
     ];
 
     conceptPatterns.forEach(pattern => {
-      const matches = allText.match(pattern);
-      if (matches) {
-        matches.forEach(match => concepts.add(match.trim()));
+      try {
+        const matches = allText.match(pattern);
+        if (matches) {
+          matches.forEach(match => {
+            if (match && match.trim()) {
+              concepts.add(match.trim());
+            }
+          });
+        }
+      } catch (error) {
+        console.warn('Error extracting concepts with pattern:', pattern, error);
       }
     });
 
@@ -660,8 +691,12 @@ export class ModuleGenerationOrchestrator extends EventEmitter {
 
   async checkProviderAvailability(): Promise<boolean> {
     try {
+      if (!this.provider) {
+        return false;
+      }
       return await this.provider.isAvailable();
-    } catch {
+    } catch (error) {
+      console.warn('Provider availability check failed:', error);
       return false;
     }
   }

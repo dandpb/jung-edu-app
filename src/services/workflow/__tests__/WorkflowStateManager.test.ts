@@ -3,55 +3,58 @@
  * Tests state persistence, real-time updates, progress tracking and concurrent modifications
  */
 
+// Mock Supabase first before any imports
+jest.mock('@supabase/supabase-js', () => {
+  const mockRealtimeChannel = {
+    on: jest.fn().mockReturnThis(),
+    subscribe: jest.fn(),
+    unsubscribe: jest.fn(),
+    send: jest.fn()
+  };
+
+  const mockSupabaseClient = {
+    from: jest.fn().mockReturnThis(),
+    select: jest.fn().mockReturnThis(),
+    insert: jest.fn().mockReturnThis(),
+    update: jest.fn().mockReturnThis(),
+    delete: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockReturnThis(),
+    neq: jest.fn().mockReturnThis(),
+    gt: jest.fn().mockReturnThis(),
+    lt: jest.fn().mockReturnThis(),
+    gte: jest.fn().mockReturnThis(),
+    lte: jest.fn().mockReturnThis(),
+    like: jest.fn().mockReturnThis(),
+    ilike: jest.fn().mockReturnThis(),
+    in: jest.fn().mockReturnThis(),
+    order: jest.fn().mockReturnThis(),
+    limit: jest.fn().mockReturnThis(),
+    range: jest.fn().mockReturnThis(),
+    single: jest.fn(),
+    maybeSingle: jest.fn(),
+    channel: jest.fn(() => mockRealtimeChannel),
+    on: jest.fn().mockReturnThis(),
+    subscribe: jest.fn()
+  };
+
+  return {
+    createClient: jest.fn(() => mockSupabaseClient)
+  };
+});
+
 import { WorkflowStateManager } from '../WorkflowStateManager';
-import { 
-  WorkflowExecution, 
-  ExecutionStatus, 
+import {
+  WorkflowExecution,
+  ExecutionStatus,
   ExecutionEvent,
   ListExecutionsQuery,
-  WorkflowEvent 
+  WorkflowEvent
 } from '../../../types/workflow';
 import { createClient } from '@supabase/supabase-js';
 
-// Mock Supabase client
-const mockSupabaseClient = {
-  from: jest.fn(() => mockSupabaseClient),
-  select: jest.fn(() => mockSupabaseClient),
-  insert: jest.fn(() => mockSupabaseClient),
-  update: jest.fn(() => mockSupabaseClient),
-  delete: jest.fn(() => mockSupabaseClient),
-  eq: jest.fn(() => mockSupabaseClient),
-  neq: jest.fn(() => mockSupabaseClient),
-  gt: jest.fn(() => mockSupabaseClient),
-  lt: jest.fn(() => mockSupabaseClient),
-  gte: jest.fn(() => mockSupabaseClient),
-  lte: jest.fn(() => mockSupabaseClient),
-  like: jest.fn(() => mockSupabaseClient),
-  ilike: jest.fn(() => mockSupabaseClient),
-  in: jest.fn(() => mockSupabaseClient),
-  order: jest.fn(() => mockSupabaseClient),
-  limit: jest.fn(() => mockSupabaseClient),
-  range: jest.fn(() => mockSupabaseClient),
-  single: jest.fn(),
-  maybeSingle: jest.fn(),
-  channel: jest.fn(),
-  on: jest.fn(() => mockSupabaseClient),
-  subscribe: jest.fn()
-};
-
-// Mock WebSocket for real-time functionality
-const mockRealtimeChannel = {
-  on: jest.fn(() => mockRealtimeChannel),
-  subscribe: jest.fn(),
-  unsubscribe: jest.fn(),
-  send: jest.fn()
-};
-
-mockSupabaseClient.channel.mockReturnValue(mockRealtimeChannel);
-
-jest.mock('@supabase/supabase-js', () => ({
-  createClient: jest.fn(() => mockSupabaseClient)
-}));
+// Access the mocked client for test assertions
+const mockCreateClient = createClient as jest.MockedFunction<typeof createClient>;
+let mockSupabaseClient: any;
 
 describe('WorkflowStateManager', () => {
   let stateManager: WorkflowStateManager;
@@ -60,8 +63,10 @@ describe('WorkflowStateManager', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
-    stateManager = new WorkflowStateManager(mockSupabaseClient as any);
+
+    // Get the mock client instance
+    mockSupabaseClient = mockCreateClient();
+    stateManager = new WorkflowStateManager();
 
     sampleExecution = {
       id: 'execution-1',

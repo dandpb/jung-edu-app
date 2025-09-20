@@ -3,15 +3,24 @@
  * Essential tests only for performance optimization
  */
 
-// Import the actual implementation, not mocks
-jest.unmock('../systemValidator');
-jest.unmock('../integrationValidator');
-jest.unmock('../endToEndValidator');
-
 import { systemValidator } from '../systemValidator';
-import { integrationValidator } from '../integrationValidator';
-import { endToEndValidator } from '../endToEndValidator';
 import { EducationalModule, DifficultyLevel, ModuleStatus } from '../../../schemas/module.schema';
+
+// Mock console to reduce test noise
+const consoleMocks = {
+  log: jest.spyOn(console, 'log').mockImplementation(() => {}),
+  warn: jest.spyOn(console, 'warn').mockImplementation(() => {}),
+  error: jest.spyOn(console, 'error').mockImplementation(() => {})
+};
+
+// Mock performance API for consistent timing
+const mockPerformance = {
+  now: jest.fn(() => 1000)
+};
+Object.defineProperty(global, 'performance', {
+  value: mockPerformance,
+  writable: true
+});
 
 // Simplified mock data for testing
 const createMockModule = (id: string, overrides: Partial<EducationalModule> = {}): EducationalModule => {
@@ -106,44 +115,58 @@ describe('jaqEdu Validation System', () => {
   let mockModules: EducationalModule[];
 
   beforeEach(() => {
+    jest.clearAllMocks();
+    mockPerformance.now.mockReturnValue(1000);
     mockModules = createMockModules();
+  });
+
+  afterAll(() => {
+    Object.values(consoleMocks).forEach(mock => mock.mockRestore());
   });
 
   describe('SystemValidator', () => {
     it('should validate system successfully', async () => {
       const result = await systemValidator.validateSystem(mockModules);
-      
+
       expect(result).toBeDefined();
-      expect(result.overall).toBeDefined();
-      expect(result.overall.score).toBeGreaterThan(0);
-      expect(result.modules).toHaveLength(mockModules.length);
-    }, 5000);
+      expect(result.summary).toBeDefined();
+      expect(typeof result.summary.score).toBe('number');
+      expect(result.summary.score).toBeGreaterThanOrEqual(0);
+      expect(result.summary.score).toBeLessThanOrEqual(100);
+      expect(result.moduleResults).toHaveLength(mockModules.length);
+    });
 
     it('should handle basic validation', async () => {
       const result = await systemValidator.validateSystem(mockModules);
-      
+
       // Just check basic structure without asserting specific validation logic
-      expect(result.modules).toHaveLength(2);
-      expect(result.modules[0]).toBeDefined();
-      expect(result.modules[1]).toBeDefined();
-    }, 5000);
+      expect(result.moduleResults).toHaveLength(2);
+      expect(result.moduleResults[0]).toBeDefined();
+      expect(result.moduleResults[0].moduleId).toBeDefined();
+      expect(result.moduleResults[1]).toBeDefined();
+      expect(result.moduleResults[1].moduleId).toBeDefined();
+    });
   });
 
   describe('Basic Validation', () => {
     it('should handle empty modules gracefully', async () => {
       const emptyModules: EducationalModule[] = [];
-      
+
       const systemResult = await systemValidator.validateSystem(emptyModules);
-      expect(systemResult.modules).toHaveLength(0);
-    }, 3000);
+      expect(systemResult.moduleResults).toHaveLength(0);
+      expect(systemResult.summary.totalModules).toBe(0);
+      expect(systemResult.summary.passed).toBe(false);
+    });
 
     it('should validate single module', async () => {
       const singleModule = [createMockModule('single-test')];
-      
+
       const result = await systemValidator.validateSystem(singleModule);
-      expect(result.modules).toHaveLength(1);
-      expect(result.modules[0]).toBeDefined();
-    }, 3000);
+      expect(result.moduleResults).toHaveLength(1);
+      expect(result.moduleResults[0]).toBeDefined();
+      expect(result.moduleResults[0].moduleId).toBe('single-test');
+      expect(typeof result.moduleResults[0].passed).toBe('boolean');
+    });
   });
 });
 

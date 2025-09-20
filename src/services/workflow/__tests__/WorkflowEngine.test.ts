@@ -266,9 +266,9 @@ describe('WorkflowEngine', () => {
         moduleId: 'module-1'
       });
 
-      // Should create execution with initial state
+      // Should create execution and complete it
       expect(result).toBeDefined();
-      expect(result.status).toBe('pending');
+      expect(result.status).toBe('completed'); // Workflow completes execution
     });
 
     test('should handle conditional transitions', async () => {

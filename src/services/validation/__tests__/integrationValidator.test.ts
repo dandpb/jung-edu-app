@@ -3,17 +3,56 @@
  * Tests API integration, module relationships, data flow, and system components
  */
 
-// Mock the integrationValidator module
-jest.mock('../integrationValidator');
-
-import { integrationValidator } from '../integrationValidator';
+import { IntegrationValidator } from '../integrationValidator';
 import { EducationalModule } from '../../../schemas/module.schema';
-import { setupIntegrationTestEnvironment } from '../test-utils/setupIntegrationTests';
 
-// Setup test environment with proper mocks
-setupIntegrationTestEnvironment();
+// Mock external dependencies
+jest.mock('../../modules/moduleService', () => ({
+  ModuleService: jest.fn().mockImplementation(() => ({
+    createModule: jest.fn().mockResolvedValue(true),
+    getModuleById: jest.fn().mockResolvedValue({}),
+    updateModule: jest.fn().mockResolvedValue(true),
+    deleteModule: jest.fn().mockResolvedValue(true)
+  }))
+}));
+
+jest.mock('../../video/youtubeService', () => ({
+  YouTubeService: jest.fn().mockImplementation(() => ({
+    getVideoDetails: jest.fn().mockResolvedValue({ title: 'Test Video', duration: 300 })
+  }))
+}));
+
+jest.mock('../../quiz/quizValidator', () => ({
+  QuizValidator: jest.fn().mockImplementation(() => ({
+    validateQuiz: jest.fn().mockReturnValue({ isValid: true, errors: [] })
+  }))
+}));
+
+jest.mock('../../llm/orchestrator', () => ({
+  ModuleGenerationOrchestrator: jest.fn().mockImplementation(() => ({
+    generateModule: jest.fn().mockResolvedValue({
+      module: { title: 'Generated Module', content: { introduction: 'Generated content' } }
+    })
+  }))
+}));
+
+// Mock performance for consistent timing
+const mockPerformance = {
+  now: jest.fn(() => 1000)
+};
+Object.defineProperty(global, 'performance', {
+  value: mockPerformance,
+  writable: true
+});
 
 describe('IntegrationValidator', () => {
+  let integrationValidator: IntegrationValidator;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockPerformance.now.mockReturnValue(1000);
+    integrationValidator = new IntegrationValidator();
+  });
   const mockModule: EducationalModule = {
     id: 'test-module-1',
     title: 'Introduction to Jungian Psychology',
@@ -77,35 +116,39 @@ describe('IntegrationValidator', () => {
 
       expect(result).toBeDefined();
       expect(result.overall).toBeDefined();
-      expect(result.overall.passed).toBeDefined();
+      expect(typeof result.overall.passed).toBe('boolean');
       expect(result.overall.totalTests).toBeGreaterThan(0);
-    }, 10000);
+      expect(result.categories).toBeDefined();
+      expect(result.categories.moduleIntegration).toBeInstanceOf(Array);
+      expect(result.categories.serviceIntegration).toBeInstanceOf(Array);
+      expect(result.categories.dataIntegration).toBeInstanceOf(Array);
+      expect(result.categories.apiIntegration).toBeInstanceOf(Array);
+      expect(result.categories.performanceIntegration).toBeInstanceOf(Array);
+    });
 
     it('should run API integration tests', async () => {
       const result = await integrationValidator.validateIntegration([mockModule]);
 
-      expect(result.categories).toBeDefined();
       expect(result.categories.apiIntegration).toBeDefined();
       expect(Array.isArray(result.categories.apiIntegration)).toBe(true);
       expect(result.categories.apiIntegration.length).toBeGreaterThan(0);
-    }, 10000);
+
+      // Check specific API integration tests
+      const testNames = result.categories.apiIntegration.map(t => t.testName);
+      expect(testNames).toContain('YouTube API Integration');
+      expect(testNames).toContain('OpenAI API Integration');
+    });
 
     it('should validate module relationships', async () => {
       const result = await integrationValidator.validateIntegration([mockModule]);
 
-      const allTests = [
-        ...result.categories.moduleIntegration,
-        ...result.categories.serviceIntegration,
-        ...result.categories.dataIntegration,
-        ...result.categories.apiIntegration,
-        ...result.categories.performanceIntegration
-      ];
+      const moduleTests = result.categories.moduleIntegration;
+      expect(moduleTests).toBeDefined();
 
-      const relationshipTests = allTests.filter(t => 
-        t.testName.includes('relationship') || t.testName.includes('reference')
-      );
-      expect(relationshipTests.length).toBeGreaterThan(0);
-    }, 10000);
+      const relationshipTestNames = moduleTests.map(t => t.testName);
+      expect(relationshipTestNames).toContain('Cross-Module References');
+      expect(relationshipTestNames).toContain('Module Prerequisite Chain Validation');
+    });
 
     it('should validate data flow', async () => {
       const result = await integrationValidator.validateIntegration([mockModule]);
@@ -113,75 +156,94 @@ describe('IntegrationValidator', () => {
       expect(result.categories.dataIntegration).toBeDefined();
       expect(Array.isArray(result.categories.dataIntegration)).toBe(true);
       expect(result.categories.dataIntegration.length).toBeGreaterThan(0);
-    }, 10000);
+
+      const testNames = result.categories.dataIntegration.map(t => t.testName);
+      expect(testNames).toContain('Data Schema Consistency');
+      expect(testNames).toContain('Data Relationship Integrity');
+    });
 
     it('should handle empty module array', async () => {
       const result = await integrationValidator.validateIntegration([]);
 
       expect(result.overall.passed).toBe(false);
       expect(result.overall.totalTests).toBeGreaterThan(0);
-      expect(result.overall.failedTests).toBeGreaterThan(0);
-    }, 10000);
+      expect(result.criticalIssues).toBeDefined();
+      expect(result.criticalIssues.length).toBeGreaterThan(0);
+      expect(result.criticalIssues[0]).toContain('No modules provided');
+    });
 
     it('should handle module with missing components', async () => {
       const incompleteModule = {
         ...mockModule,
-        quiz: undefined
-      };
+        quiz: undefined,
+        content: undefined
+      } as any;
 
       const result = await integrationValidator.validateIntegration([incompleteModule]);
 
       expect(result.overall.passed).toBe(false);
-      
-      const allTests = [
-        ...result.categories.moduleIntegration,
-        ...result.categories.serviceIntegration,
-        ...result.categories.dataIntegration,
-        ...result.categories.apiIntegration,
-        ...result.categories.performanceIntegration
-      ];
-      
-      expect(allTests.some(t => !t.passed)).toBe(true);
-    }, 10000);
+      expect(result.criticalIssues.length).toBeGreaterThan(0);
+
+      // Should have structural issues noted
+      const hasStructuralIssue = result.criticalIssues.some(issue =>
+        issue.includes('content') || issue.includes('missing')
+      );
+      expect(hasStructuralIssue).toBe(true);
+    });
 
     it('should calculate integration score', async () => {
       const result = await integrationValidator.validateIntegration([mockModule]);
 
       expect(result.overall.score).toBeDefined();
+      expect(typeof result.overall.score).toBe('number');
       expect(result.overall.score).toBeGreaterThanOrEqual(0);
       expect(result.overall.score).toBeLessThanOrEqual(100);
-    }, 10000);
+      expect(result.overall.passedTests + result.overall.failedTests).toBe(result.overall.totalTests);
+    });
 
     it('should provide recommendations', async () => {
       const result = await integrationValidator.validateIntegration([mockModule]);
 
       expect(result.recommendations).toBeDefined();
       expect(Array.isArray(result.recommendations)).toBe(true);
-    }, 10000);
+      expect(result.recommendations.length).toBeGreaterThan(0);
+
+      // Should contain integration-specific recommendations
+      const hasIntegrationRec = result.recommendations.some(rec =>
+        rec.toLowerCase().includes('integration')
+      );
+      expect(hasIntegrationRec).toBe(true);
+    });
   });
 
   describe('API Integration Tests', () => {
     it('should validate module CRUD operations', async () => {
       const result = await integrationValidator.validateIntegration([mockModule]);
-      const apiTests = result.categories.apiIntegration;
+      const serviceTests = result.categories.serviceIntegration;
 
-      expect(apiTests).toBeDefined();
-      expect(apiTests.some(t => t.testName.includes('YouTube API'))).toBe(true);
+      expect(serviceTests).toBeDefined();
+      const moduleServiceTest = serviceTests.find(t => t.testName === 'Module Service Integration');
+      expect(moduleServiceTest).toBeDefined();
+      expect(moduleServiceTest?.details).toContain('operations');
     });
 
     it('should validate quiz submission', async () => {
       const result = await integrationValidator.validateIntegration([mockModule]);
       const serviceTests = result.categories.serviceIntegration;
 
-      expect(serviceTests.some(t => t.testName.includes('Quiz'))).toBe(true);
+      const quizTest = serviceTests.find(t => t.testName === 'Quiz Service Integration');
+      expect(quizTest).toBeDefined();
+      expect(quizTest?.passed).toBe(true);
     });
 
     it('should validate authentication flow', async () => {
       const result = await integrationValidator.validateIntegration([mockModule]);
       const apiTests = result.categories.apiIntegration;
 
-      // Since authentication is handled at the API level
       expect(apiTests.length).toBeGreaterThan(0);
+      // Authentication validation is part of API error handling
+      const errorHandlingTest = apiTests.find(t => t.testName === 'API Error Handling');
+      expect(errorHandlingTest).toBeDefined();
     });
   });
 
@@ -190,38 +252,47 @@ describe('IntegrationValidator', () => {
       const result = await integrationValidator.validateIntegration([mockModule]);
       const moduleTests = result.categories.moduleIntegration;
 
-      const relationshipTests = moduleTests.filter(t => 
-        t.testName.includes('Cross-Module References') || 
-        t.testName.includes('Navigation Flow')
-      );
-      expect(relationshipTests.length).toBeGreaterThan(0);
+      const crossRefTest = moduleTests.find(t => t.testName === 'Cross-Module References');
+      expect(crossRefTest).toBeDefined();
+
+      const navTest = moduleTests.find(t => t.testName === 'Module Navigation Flow');
+      expect(navTest).toBeDefined();
     });
 
     it('should validate module integration properly', async () => {
       const result = await integrationValidator.validateIntegration([mockModule]);
       const moduleTests = result.categories.moduleIntegration;
 
-      expect(moduleTests.length).toBeGreaterThan(0);
+      expect(moduleTests.length).toBe(5); // Should have exactly 5 module integration tests
+
+      const expectedTests = [
+        'Module Prerequisite Chain Validation',
+        'Module Content Consistency',
+        'Module Navigation Flow',
+        'Cross-Module References',
+        'Module Difficulty Progression'
+      ];
+
+      expectedTests.forEach(testName => {
+        const test = moduleTests.find(t => t.testName === testName);
+        expect(test).toBeDefined();
+      });
     });
 
     it('should detect broken relationships', async () => {
       const brokenModule = {
         ...mockModule,
-        quiz: {
-          ...mockModule.quiz!,
-          moduleId: 'wrong-module-id'
-        }
+        prerequisites: ['non-existent-module']
       };
 
       const result = await integrationValidator.validateIntegration([brokenModule]);
-      const allTests = [
-        ...result.categories.moduleIntegration,
-        ...result.categories.serviceIntegration,
-        ...result.categories.dataIntegration
-      ];
 
-      // The integration validator should detect mismatched IDs
-      expect(result.overall.passed).toBe(false);
+      const prereqTest = result.categories.moduleIntegration.find(
+        t => t.testName === 'Module Prerequisite Chain Validation'
+      );
+      expect(prereqTest).toBeDefined();
+      expect(prereqTest?.passed).toBe(false);
+      expect(prereqTest?.errors.some(e => e.includes('missing prerequisites'))).toBe(true);
     });
   });
 
@@ -230,21 +301,28 @@ describe('IntegrationValidator', () => {
       const result = await integrationValidator.validateIntegration([mockModule]);
       const dataTests = result.categories.dataIntegration;
 
-      expect(dataTests.some(t => t.testName.includes('Data Schema Consistency'))).toBe(true);
+      const schemaTest = dataTests.find(t => t.testName === 'Data Schema Consistency');
+      expect(schemaTest).toBeDefined();
+      expect(schemaTest?.passed).toBe(true);
     });
 
     it('should validate data transformations', async () => {
       const result = await integrationValidator.validateIntegration([mockModule]);
       const dataTests = result.categories.dataIntegration;
 
-      expect(dataTests.some(t => t.testName.includes('Serialization'))).toBe(true);
+      const serializationTest = dataTests.find(t => t.testName === 'Data Serialization/Deserialization');
+      expect(serializationTest).toBeDefined();
+      expect(serializationTest?.details).toContain('serialization');
     });
 
     it('should validate data validation', async () => {
       const result = await integrationValidator.validateIntegration([mockModule]);
       const dataTests = result.categories.dataIntegration;
 
-      expect(dataTests.length).toBeGreaterThan(0);
+      expect(dataTests.length).toBe(5); // Should have exactly 5 data integration tests
+
+      const relationshipTest = dataTests.find(t => t.testName === 'Data Relationship Integrity');
+      expect(relationshipTest).toBeDefined();
     });
   });
 
@@ -253,22 +331,39 @@ describe('IntegrationValidator', () => {
       const result = await integrationValidator.validateIntegration([mockModule]);
       const serviceTests = result.categories.serviceIntegration;
 
-      // Service tests include UI component interactions
-      expect(serviceTests.length).toBeGreaterThan(0);
+      expect(serviceTests.length).toBe(5); // Should have exactly 5 service integration tests
+
+      const moduleServiceTest = serviceTests.find(t => t.testName === 'Module Service Integration');
+      expect(moduleServiceTest).toBeDefined();
     });
 
     it('should validate service integration', async () => {
       const result = await integrationValidator.validateIntegration([mockModule]);
       const serviceTests = result.categories.serviceIntegration;
 
-      expect(serviceTests.some(t => t.testName.includes('Service Integration'))).toBe(true);
+      const expectedServices = [
+        'Module Service Integration',
+        'Video Service Integration',
+        'Quiz Service Integration',
+        'LLM Service Integration',
+        'Bibliography Service Integration'
+      ];
+
+      expectedServices.forEach(serviceName => {
+        const test = serviceTests.find(t => t.testName === serviceName);
+        expect(test).toBeDefined();
+      });
     });
 
     it('should validate external service integration', async () => {
       const result = await integrationValidator.validateIntegration([mockModule]);
       const apiTests = result.categories.apiIntegration;
 
-      expect(apiTests.some(t => t.testName.includes('YouTube') || t.testName.includes('OpenAI'))).toBe(true);
+      const youtubeTest = apiTests.find(t => t.testName === 'YouTube API Integration');
+      expect(youtubeTest).toBeDefined();
+
+      const openaiTest = apiTests.find(t => t.testName === 'OpenAI API Integration');
+      expect(openaiTest).toBeDefined();
     });
   });
 
@@ -277,13 +372,16 @@ describe('IntegrationValidator', () => {
       const result = await integrationValidator.validateIntegration(null as any);
 
       expect(result.overall.passed).toBe(false);
-      expect(result.overall.totalTests).toBeGreaterThan(0);
-    }, 10000);
+      expect(result.criticalIssues).toBeDefined();
+      expect(result.criticalIssues.length).toBeGreaterThan(0);
+      expect(result.criticalIssues[0]).toContain('null or undefined');
+    });
 
     it('should handle validation errors gracefully', async () => {
       const errorModule = {
         ...mockModule,
-        id: null as any // Invalid ID
+        id: null as any, // Invalid ID
+        title: null as any // Invalid title
       };
 
       const result = await integrationValidator.validateIntegration([errorModule]);
@@ -291,30 +389,24 @@ describe('IntegrationValidator', () => {
       expect(result).toBeDefined();
       expect(result.overall).toBeDefined();
       expect(result.overall.passed).toBe(false);
-    }, 10000);
+      expect(result.criticalIssues.some(issue => issue.includes('missing required fields'))).toBe(true);
+    });
 
     it('should provide detailed error messages', async () => {
       const invalidModule = {
         ...mockModule,
-        quiz: {
-          ...mockModule.quiz!,
-          questions: [] // Empty questions array
-        }
+        content: null as any // This will cause validation errors
       };
 
       const result = await integrationValidator.validateIntegration([invalidModule]);
 
-      const allTests = [
-        ...result.categories.moduleIntegration,
-        ...result.categories.serviceIntegration,
-        ...result.categories.dataIntegration,
-        ...result.categories.apiIntegration,
-        ...result.categories.performanceIntegration
-      ];
+      expect(result.criticalIssues.length).toBeGreaterThan(0);
 
-      const failedTests = allTests.filter(t => !t.passed);
-      expect(failedTests.length).toBeGreaterThan(0);
-      expect(failedTests[0].errors.length).toBeGreaterThan(0);
-    }, 10000);
+      // Check that error messages are descriptive
+      const hasDescriptiveError = result.criticalIssues.some(issue =>
+        issue.includes('content') && issue.includes(mockModule.id)
+      );
+      expect(hasDescriptiveError).toBe(true);
+    });
   });
 });

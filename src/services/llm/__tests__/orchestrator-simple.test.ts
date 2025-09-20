@@ -30,6 +30,12 @@ describe('ModuleGenerationOrchestrator - Simple Tests', () => {
       orchestrator = new ModuleGenerationOrchestrator(false); // Use mock services
     });
 
+    afterEach(() => {
+      if (orchestrator && typeof orchestrator.removeAllListeners === 'function') {
+        orchestrator.removeAllListeners();
+      }
+    });
+
     it('should handle basic module generation options structure', () => {
       const options = {
         topic: 'Test Topic',
@@ -62,23 +68,47 @@ describe('ModuleGenerationOrchestrator - Simple Tests', () => {
       };
 
       let eventReceived = false;
-      
+      let timeoutId: NodeJS.Timeout;
+
+      const cleanup = () => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+        orchestrator.removeAllListeners();
+      };
+
       orchestrator.on('progress', (progress) => {
         if (!eventReceived) {
           eventReceived = true;
-          expect(progress).toBeDefined();
-          expect(typeof progress.progress).toBe('number');
-          expect(typeof progress.message).toBe('string');
-          done();
+          try {
+            expect(progress).toBeDefined();
+            expect(typeof progress.progress).toBe('number');
+            expect(typeof progress.message).toBe('string');
+            expect(progress.stage).toBeDefined();
+            cleanup();
+            done();
+          } catch (error) {
+            cleanup();
+            done(error);
+          }
         }
       });
 
-      // Start generation to trigger progress events
-      orchestrator.generateModule(options).catch(() => {
-        // Expected to potentially fail in test environment,
-        // we're just testing that events are emitted
+      // Set a timeout to avoid hanging tests
+      timeoutId = setTimeout(() => {
         if (!eventReceived) {
-          done();
+          cleanup();
+          done(new Error('No progress events were emitted within timeout'));
+        }
+      }, 5000);
+
+      // Start generation to trigger progress events
+      orchestrator.generateModule(options).catch((error) => {
+        // Expected to potentially fail in test environment,
+        // but we should still get progress events
+        if (!eventReceived) {
+          cleanup();
+          done(new Error(`Generation failed without progress events: ${error.message}`));
         }
       });
     });
@@ -150,6 +180,34 @@ describe('LLMOrchestrator - Simple Interface', () => {
       const orchestratorModule = require('../orchestrator');
       expect(orchestratorModule).toBeDefined();
       expect(orchestratorModule.ModuleGenerationOrchestrator).toBeDefined();
+      expect(orchestratorModule.LLMOrchestrator).toBeDefined();
+    }).not.toThrow();
+  });
+
+  it('should handle LLMOrchestrator instantiation', () => {
+    const { LLMOrchestrator } = require('../orchestrator');
+
+    expect(() => {
+      const llmOrchestrator = new LLMOrchestrator();
+      expect(llmOrchestrator).toBeDefined();
+      expect(typeof llmOrchestrator.generateModule).toBe('function');
+      expect(typeof llmOrchestrator.generateQuiz).toBe('function');
+      expect(typeof llmOrchestrator.generateBibliography).toBe('function');
+    }).not.toThrow();
+  });
+
+  it('should handle async method calls gracefully', async () => {
+    const { LLMOrchestrator } = require('../orchestrator');
+    const llmOrchestrator = new LLMOrchestrator();
+
+    // Test that methods can be called without immediately throwing
+    await expect(async () => {
+      try {
+        await llmOrchestrator.generateModule({ topic: 'Test Topic' });
+      } catch (error) {
+        // Expected in test environment - just verify it doesn't crash
+        expect(error).toBeDefined();
+      }
     }).not.toThrow();
   });
 });

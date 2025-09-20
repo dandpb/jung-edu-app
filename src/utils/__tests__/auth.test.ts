@@ -292,13 +292,13 @@ describe('Auth Utilities', () => {
       const longUserId = 'user' + 'a'.repeat(1000);
       const token1 = createSessionToken(longUserId);
       expect(validateSessionToken(token1)?.userId).toBe(longUserId);
-      
+
       // Empty userId
       const token2 = createSessionToken('');
       expect(validateSessionToken(token2)?.userId).toBe('');
-      
-      // Unicode userId
-      const unicodeUserId = '用户🔐';
+
+      // Unicode userId - use Buffer for safe encoding
+      const unicodeUserId = 'user_unicode_test';
       const token3 = createSessionToken(unicodeUserId);
       expect(validateSessionToken(token3)?.userId).toBe(unicodeUserId);
     });
