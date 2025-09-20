@@ -5,7 +5,7 @@
  */
 
 import { OpenAIProvider } from '../openai';
-import { setNodeEnv, restoreNodeEnv } from '../../../test-utils/nodeEnvHelper';
+import { setNodeEnv, restoreNodeEnv } from '../../../../test-utils/nodeEnvHelper';
 
 // Mock fetch globally
 global.fetch = jest.fn();
@@ -443,15 +443,15 @@ describe('OpenAIProvider', () => {
     it('should handle malformed JSON with recovery patterns', async () => {
       const almostValidJson = '{"name": "test", "value": ';
       const validJson = '{"recovered": "data"}';
-      
+
       const response = {
         ok: true,
         status: 200,
         json: jest.fn().mockResolvedValue({
-          choices: [{ 
-            message: { 
-              content: `Some text ${almostValidJson} more text ```json\n${validJson}\n``` end text` 
-            } 
+          choices: [{
+            message: {
+              content: 'Some text ' + almostValidJson + ' more text ```json\n' + validJson + '\n``` end text'
+            }
           }]
         })
       };
@@ -566,7 +566,7 @@ describe('OpenAIProvider', () => {
         }
       };
 
-      mockFetch.mkResolvedValue(malformedStreamResponse as any);
+      mockFetch.mockResolvedValue(malformedStreamResponse as any);
 
       const chunks: string[] = [];
       await provider.streamCompletion('test', (chunk) => chunks.push(chunk));

@@ -204,12 +204,39 @@ export class AdaptiveQuizEngine {
     count: number
   ): Promise<Question[]> {
     try {
+      // Create mock previous responses for difficulty-based generation
+      const mockResponses: Array<{ correct: boolean; difficulty: string }> = [];
+
+      // Simulate responses based on target difficulty
+      if (difficulty === 'hard') {
+        // High performance to trigger hard questions
+        for (let i = 0; i < 5; i++) {
+          mockResponses.push({ correct: true, difficulty: 'medium' });
+        }
+      } else if (difficulty === 'easy') {
+        // Low performance to trigger easy questions
+        for (let i = 0; i < 5; i++) {
+          mockResponses.push({ correct: false, difficulty: 'medium' });
+        }
+      } else {
+        // Medium performance for medium questions
+        for (let i = 0; i < 4; i++) {
+          mockResponses.push({ correct: i % 2 === 0, difficulty: 'medium' });
+        }
+      }
+
       // Use the existing quiz generator with adaptive parameters
       const questions = await this.quizGenerator.generateAdaptiveQuestions(
         topic,
-        [], // No previous responses for initial generation
+        mockResponses,
         count
       );
+
+      // Ensure we have questions
+      if (!questions || questions.length === 0) {
+        console.warn('No questions returned from adaptive generator, using fallback');
+        return this.generateFallbackQuestions(topic, difficulty, count);
+      }
 
       // Enhance questions with adaptive metadata
       return questions.map((q, index) => ({

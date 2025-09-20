@@ -135,7 +135,16 @@ IMPORTANTE: Responda em JSON no formato:
         }
       });
 
-      return result;
+      // Ensure we always have valid arrays
+      if (!result || typeof result !== 'object') {
+        return this.generateFallbackConceptAnalysis(topic, language);
+      }
+
+      return {
+        concepts: Array.isArray(result.concepts) ? result.concepts : [],
+        cognitivelevels: Array.isArray(result.cognitivelevels) ? result.cognitivelevels : ['compreensão'],
+        objectives: Array.isArray(result.objectives) ? result.objectives : []
+      };
     } catch (error) {
       console.error('Error in concept analysis:', error);
       // Fallback analysis
@@ -176,7 +185,7 @@ Responda em JSON:
 `;
 
     try {
-      return await this.provider.generateStructuredOutput(prompt, {
+      const result = await this.provider.generateStructuredOutput(prompt, {
         type: "object",
         properties: {
           mainTopics: { type: "array", items: { type: "string" } },
@@ -184,7 +193,15 @@ Responda em JSON:
           examples: { type: "array", items: { type: "string" } },
           definitions: { type: "array", items: { type: "string" } }
         }
-      });
+      }) as any;
+
+      // Ensure all fields are arrays
+      return {
+        mainTopics: Array.isArray(result?.mainTopics) ? result.mainTopics : ['Conceitos fundamentais'],
+        subtopics: Array.isArray(result?.subtopics) ? result.subtopics : ['Definições básicas'],
+        examples: Array.isArray(result?.examples) ? result.examples : ['Exemplo prático'],
+        definitions: Array.isArray(result?.definitions) ? result.definitions : ['Definição principal']
+      };
     } catch (error) {
       console.error('Error in structure analysis:', error);
       return {

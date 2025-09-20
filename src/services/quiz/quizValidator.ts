@@ -35,7 +35,7 @@ export class QuizValidator {
     };
 
     // Basic structure validation
-    if (!quiz.questions || quiz.questions.length === 0) {
+    if (!quiz.questions || !Array.isArray(quiz.questions) || quiz.questions.length === 0) {
       result.errors.push('Quiz has no questions');
       result.isValid = false;
       result.score = 0;
@@ -147,10 +147,10 @@ export class QuizValidator {
 
     const options = question.options;
     // Handle different types of correctAnswer
-    const correctAnswerIndex = typeof question.correctAnswer === 'number' ? 
-      question.correctAnswer : 
+    const correctAnswerIndex = typeof question.correctAnswer === 'number' ?
+      question.correctAnswer :
       (Array.isArray(question.correctAnswer) ? question.correctAnswer[0] : 0);
-    const correctAnswer = options[correctAnswerIndex];
+    // const correctAnswer = options[correctAnswerIndex]; // Could be used for advanced validation
 
     // Check for generic or low-quality distractors
     const genericPatterns = [

@@ -50,13 +50,26 @@ class MockLLMProvider implements ILLMProvider {
   }
 
   async generateStructuredOutput<T>(prompt: string, schema: any, options?: any): Promise<T> {
-    const response = this.mockResponses[this.responseIndex % this.mockResponses.length];
+    let response = this.mockResponses[this.responseIndex % this.mockResponses.length];
     this.responseIndex++;
-    
+
     if (!response) {
-      throw new Error('No mock response configured');
+      // Return default question structure if no response configured
+      response = [{
+        question: "O que caracteriza este conceito na psicologia junguiana?",
+        options: [
+          "Conceito fundamental da teoria",
+          "Aspecto secundário",
+          "Elemento dispensável",
+          "Fator irrelevante"
+        ],
+        correctAnswer: 0,
+        explanation: "Este é um conceito fundamental na psicologia de Jung.",
+        difficulty: "medium",
+        cognitiveLevel: "understanding"
+      }];
     }
-    
+
     return response as T;
   }
 

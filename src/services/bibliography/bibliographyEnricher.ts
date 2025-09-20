@@ -4,8 +4,6 @@
 import {
   Reference,
   allReferences,
-  findReferencesByKeywords,
-  findReferencesByCategory,
   keywordGroups
 } from './referenceDatabase';
 

@@ -9,7 +9,7 @@ import { switchLanguage } from '../config/i18n';
 
 export interface UseI18nReturn {
   // Core translation
-  t: (key: string, options?: any) => string;
+  t: (key: string | null | undefined, options?: any) => string | null | undefined;
   
   // Language management
   language: string;
@@ -98,9 +98,16 @@ export const useI18n = (): UseI18nReturn => {
   }, []);
 
   // Wrap the t function to ensure it always returns a string
-  const wrappedT = useCallback((key: string, options?: any): string => {
-    const result = t(key, options);
-    // Ensure we always return a string
+  const wrappedT = useCallback((key: string | null | undefined, options?: any): string | null | undefined => {
+    if (key === null) {
+      return null;
+    }
+
+    if (typeof key === 'undefined') {
+      return undefined;
+    }
+
+    const result = options === undefined ? t(key) : t(key, options);
     return typeof result === 'string' ? result : String(result);
   }, [t]);
 

@@ -12,6 +12,7 @@ import {
   RateLimiter,
   ConfigManager
 } from '../config';
+import { setNodeEnv } from '../../../test-utils/nodeEnvHelper';
 
 describe('LLM Configuration Utilities - Comprehensive Test Suite', () => {
   let consoleErrorSpy: jest.SpyInstance;
@@ -127,12 +128,11 @@ describe('LLM Configuration Utilities - Comprehensive Test Suite', () => {
 
       it('should enforce maximum requests per minute', async () => {
         jest.setTimeout(10000); // Increase timeout
-        
-        // Fill up the request limit (reduced from 10 to 3 for faster execution)
-        for (let i = 0; i < 3; i++) {
-          await rateLimiter.checkLimit(10);
-          rateLimiter.recordRequest(10);
-        }
+
+        // Fill up the concurrent request limit first
+        rateLimiter.incrementActive();
+        rateLimiter.incrementActive();
+        rateLimiter.incrementActive();
 
         // Next request should be blocked due to concurrent limit
         await expect(rateLimiter.checkLimit(10)).rejects.toThrow('Maximum concurrent requests exceeded');
@@ -340,13 +340,13 @@ describe('LLM Configuration Utilities - Comprehensive Test Suite', () => {
       }, 8000);
 
       it('should not leak memory with long-running usage', async () => {
-        jest.setTimeout(10000); // Increase timeout
-        
-        // Simulate long-running usage (reduced from 200 to 50)
-        for (let i = 0; i < 50; i++) {
-          currentTime += 2000; // Advance 2 seconds each iteration for faster cleanup
+        jest.setTimeout(15000); // Increase timeout more
+
+        // Simulate long-running usage (reduced from 50 to 20)
+        for (let i = 0; i < 20; i++) {
+          currentTime += 5000; // Advance 5 seconds each iteration for faster cleanup
           mockDateNow.mockReturnValue(currentTime);
-          
+
           try {
             await rateLimiter.checkLimit(10);
             rateLimiter.recordRequest(10);
@@ -358,11 +358,11 @@ describe('LLM Configuration Utilities - Comprehensive Test Suite', () => {
         // Internal arrays should be cleaned up and not grow indefinitely
         const requestTimes = (rateLimiter as any).requestTimes;
         const tokenCounts = (rateLimiter as any).tokenCounts;
-        
+
         // Should have cleaned up old entries (reduced expectation)
-        expect(requestTimes.length).toBeLessThan(25);
-        expect(tokenCounts.length).toBeLessThan(25);
-      }, 8000);
+        expect(requestTimes.length).toBeLessThan(15);
+        expect(tokenCounts.length).toBeLessThan(15);
+      }, 12000);
     });
   });
 

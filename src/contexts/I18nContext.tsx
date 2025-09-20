@@ -15,7 +15,7 @@ export interface I18nOptions {
 
 export interface I18nContextType {
   // Translation function
-  t: (key: string, options?: any) => string;
+  t: (key: string | null | undefined, options?: any) => string | null | undefined;
   
   // Language management
   language: string;
@@ -134,9 +134,16 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
   }, [currentNamespace]);
 
   // Wrap the t function to ensure it always returns a string
-  const wrappedT = useCallback((key: string, options?: any): string => {
-    const result = t(key, options);
-    // Ensure we always return a string
+  const wrappedT = useCallback((key: string | null | undefined, options?: any): string | null | undefined => {
+    if (key === null) {
+      return null;
+    }
+
+    if (typeof key === 'undefined') {
+      return undefined;
+    }
+
+    const result = options === undefined ? t(key) : t(key, options);
     return typeof result === 'string' ? result : String(result);
   }, [t]);
 

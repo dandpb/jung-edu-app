@@ -568,7 +568,7 @@ export class EducationalWorkflowService {
         variables: updatedData
       });
       
-      const nextQuestion = updatedData.questions[updatedData.currentQuestion];
+      const nextQuestion = updatedData.questions[updatedData.currentQuestion] || null;
       return { success: true, nextQuestion };
     } catch (error) {
       return { success: false };

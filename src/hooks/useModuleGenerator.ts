@@ -6,7 +6,7 @@ import { ModuleGenerationOrchestrator, GenerationOptions, GenerationProgress } f
 
 // Função auxiliar para extrair ID do vídeo do YouTube da URL
 const extractYouTubeId = (url: string): string | null => {
-  const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+  const regex = /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/;
   const match = url.match(regex);
   return match ? match[1] : null;
 };

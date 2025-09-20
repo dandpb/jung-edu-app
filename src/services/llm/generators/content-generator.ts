@@ -55,9 +55,10 @@ export class ContentGenerator {
     const lang = options?.language || language;
     const sections = await this.generateSections(topic, validObjectives, audience, durationMinutes, options, lang);
     
-    const conclusion = await this.generateConclusion(topic, validObjectives, lang);
+    // Generate conclusion but don't include in return since it's not in ModuleContent type
+    await this.generateConclusion(topic, validObjectives, lang);
     const keyTakeaways = await this.generateKeyTakeaways(topic, validObjectives, sections, lang);
-    
+
     return {
       introduction: await this.generateIntroduction(topic, validObjectives, audience, lang),
       sections,

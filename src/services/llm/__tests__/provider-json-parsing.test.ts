@@ -2,51 +2,28 @@
  * Test JSON parsing improvements for OpenAI provider
  */
 
-import { OpenAIProvider } from '../provider';
+import { OpenAIProvider } from '../providers/openai';
+
+// Mock fetch globally
+global.fetch = jest.fn();
+const mockFetch = fetch as jest.MockedFunction<typeof fetch>;
 
 describe('OpenAIProvider JSON Parsing', () => {
   let provider: OpenAIProvider;
-  let mockCreate: jest.Mock;
-  let mockList: jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
-    // Create mocks
-    mockCreate = jest.fn();
-    mockList = jest.fn().mockResolvedValue({ data: [] });
-    
-    // Mock the OpenAI module
-    jest.doMock('openai', () => ({
-      OpenAI: jest.fn().mockImplementation(() => ({
-        chat: {
-          completions: {
-            create: mockCreate
-          }
-        },
-        models: {
-          list: mockList
-        }
-      }))
-    }));
-    
-    // Clear module cache to ensure fresh mock
-    jest.resetModules();
-    
-    // Import after mocking
-    const { OpenAIProvider: Provider } = require('../provider');
-    provider = new Provider('test-key');
-  });
-
-  afterEach(() => {
-    jest.resetModules();
+    provider = new OpenAIProvider('test-key', 'gpt-4');
   });
 
   it('should parse JSON wrapped in markdown code blocks', async () => {
     const mockResponse = '```json\n{"test": "value"}\n```';
-    mockCreate.mockResolvedValue({
-      choices: [{ message: { content: mockResponse } }]
-    });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: mockResponse } }]
+      })
+    } as any);
 
     const result = await provider.generateStructuredOutput<{ test: string }>('test prompt', {});
     expect(result).toEqual({ test: 'value' });
@@ -54,9 +31,12 @@ describe('OpenAIProvider JSON Parsing', () => {
 
   it('should parse JSON arrays wrapped in code blocks', async () => {
     const mockResponse = '```json\n[{"title": "Test", "concepts": ["concept1"]}]\n```';
-    mockCreate.mockResolvedValue({
-      choices: [{ message: { content: mockResponse } }]
-    });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: mockResponse } }]
+      })
+    } as any);
 
     const result = await provider.generateStructuredOutput<Array<{ title: string; concepts: string[] }>>('test prompt', []);
     expect(result).toEqual([{ title: 'Test', concepts: ['concept1'] }]);
@@ -64,9 +44,12 @@ describe('OpenAIProvider JSON Parsing', () => {
 
   it('should parse plain JSON without code blocks', async () => {
     const mockResponse = '{"test": "value"}';
-    mockCreate.mockResolvedValue({
-      choices: [{ message: { content: mockResponse } }]
-    });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: mockResponse } }]
+      })
+    } as any);
 
     const result = await provider.generateStructuredOutput<{ test: string }>('test prompt', {});
     expect(result).toEqual({ test: 'value' });
@@ -74,25 +57,40 @@ describe('OpenAIProvider JSON Parsing', () => {
 
   it('should extract JSON from response with extra text', async () => {
     const mockResponse = 'Here is the JSON you requested:\n\n{"test": "value"}\n\nI hope this helps!';
-    mockCreate.mockResolvedValue({
-      choices: [{ message: { content: mockResponse } }]
-    });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: mockResponse } }]
+      })
+    } as any);
 
     const result = await provider.generateStructuredOutput<{ test: string }>('test prompt', {});
     expect(result).toEqual({ test: 'value' });
   });
 
-  it('should retry on parse failures', async () => {
-    mockCreate
-      .mockResolvedValueOnce({
-        choices: [{ message: { content: 'invalid json' } }]
+  it('should handle invalid JSON gracefully', async () => {
+    const mockResponse = 'invalid json content';
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: mockResponse } }]
       })
-      .mockResolvedValueOnce({
-        choices: [{ message: { content: '{"test": "success"}' } }]
-      });
+    } as any);
 
-    const result = await provider.generateStructuredOutput<{ test: string }>('test prompt', {}, { retries: 2 });
-    expect(result).toEqual({ test: 'success' });
-    expect(mockCreate).toHaveBeenCalledTimes(2);
+    await expect(provider.generateStructuredOutput<{ test: string }>('test prompt', {}))
+      .rejects.toThrow('Nenhum JSON válido encontrado na resposta');
+  });
+
+  it('should handle multiple JSON blocks and extract the first valid one', async () => {
+    const mockResponse = 'Some description\n\n```json\n{"test": "value"}\n```\n\nMore text';
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: mockResponse } }]
+      })
+    } as any);
+
+    const result = await provider.generateStructuredOutput<{ test: string }>('test prompt', {});
+    expect(result).toEqual({ test: 'value' });
   });
 });

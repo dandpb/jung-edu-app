@@ -18,17 +18,7 @@ import reportWebVitals from './reportWebVitals';
   };
   
   // Suppress the specific error message from appearing
-  const debounce = (callback: Function, delay: number) => {
-    let timeoutId: NodeJS.Timeout | null = null;
-    return (...args: any[]) => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      timeoutId = setTimeout(() => {
-        callback(...args);
-      }, delay);
-    };
-  };
+  // Removed unused debounce function
 })();
 
 // ===================================================================

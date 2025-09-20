@@ -6,7 +6,7 @@ import { ContentGenerator } from './generators/content-generator';
 import { QuizGenerator } from './generators/quiz-generator';
 import { VideoGenerator } from './generators/video-generator';
 import { BibliographyGenerator } from './generators/bibliography-generator';
-import { Module, ModuleContent, Quiz, Video, Bibliography, Film } from '../../types/index';
+import { Module, ModuleContent, Quiz, Video } from '../../types/index';
 
 // Import real services for integration
 import { EnhancedQuizGenerator } from '../quiz/enhancedQuizGenerator';
@@ -166,7 +166,7 @@ export class ModuleGenerationOrchestrator extends EventEmitter {
       return null;
     }
     
-    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const regex = /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/;
     const match = url.match(regex);
     return match ? match[1] : null;
   }
@@ -399,8 +399,8 @@ export class ModuleGenerationOrchestrator extends EventEmitter {
       } as Quiz;
       
       // Add extra properties
-      (transformedQuiz as any).passingScore = generatedQuiz.passingScore || 70;
-      (transformedQuiz as any).timeLimit = generatedQuiz.timeLimit;
+      (transformedQuiz as any).passingScore = generatedQuiz?.passingScore || 70;
+      (transformedQuiz as any).timeLimit = generatedQuiz?.timeLimit || (transformedQuiz.questions.length * 2);
       
       return transformedQuiz;
     } finally {
@@ -421,14 +421,15 @@ export class ModuleGenerationOrchestrator extends EventEmitter {
       
       // Use real video enricher if available and enabled
       if (options.useRealServices && this.videoEnricher) {
-        const moduleStructure = {
-          title: options.topic,
-          sections: workingConcepts.map(concept => ({
-            title: concept,
-            content: `Content about ${concept}`
-          }))
-        };
-        
+        // Module structure could be used for enrichment in the future
+        // const moduleStructure = {
+        //   title: options.topic,
+        //   sections: workingConcepts.map(concept => ({
+        //     title: concept,
+        //     content: `Content about ${concept}`
+        //   }))
+        // };
+
         // Use fallback method since enrichModuleWithVideos doesn't exist
         const mockVideos = await this.videoGenerator.generateVideos(
           options.topic,

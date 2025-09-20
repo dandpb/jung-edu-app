@@ -654,7 +654,14 @@ export const renderWithProviders = (
   };
 
   const mockI18nValue = {
-    t: (key: string, params?: Record<string, any>) => {
+    t: (key: string | null | undefined, params?: Record<string, any>): string | null | undefined => {
+      // Handle null and undefined cases
+      if (key === null) {
+        return null;
+      }
+      if (typeof key === 'undefined') {
+        return undefined;
+      }
       // Simple mock translation that returns the key
       if (params) {
         let result = key;

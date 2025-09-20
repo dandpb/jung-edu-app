@@ -2,7 +2,7 @@ import { ILLMProvider } from '../types';
 import { Quiz, Question } from '../../../types';
 import { quizEnhancer } from '../../quiz/quizEnhancer';
 import { quizValidator } from '../../quiz/quizValidator';
-import { randomizeAllQuestionOptions, ensureVariedCorrectAnswerPositions } from '../../../utils/quizUtils';
+import { ensureVariedCorrectAnswerPositions } from '../../../utils/quizUtils';
 
 export class QuizGenerator {
   constructor(protected provider: ILLMProvider) {}
@@ -11,12 +11,32 @@ export class QuizGenerator {
     moduleId: string,
     topic: string,
     content: string,
-    objectives: string[],
+    objectives: string[] = [],
     questionCount: number = 10,
     language: string = 'pt-BR'
   ): Promise<Quiz> {
-    const questions = await this.generateQuestions(topic, content, objectives, questionCount, language);
-    
+    let questions = await this.generateQuestions(topic, content, objectives, questionCount, language);
+
+    // Ensure questions array is not empty
+    if (!questions || questions.length === 0) {
+      console.warn('No questions generated, creating fallback question');
+      questions = [{
+        id: `fallback-${Date.now()}`,
+        type: 'multiple-choice',
+        question: `Qual é um aspecto importante de ${topic} na psicologia junguiana?`,
+        options: [
+          { id: 'opt-1', text: `Conceito fundamental de ${topic}`, isCorrect: true },
+          { id: 'opt-2', text: 'Aspecto secundário da teoria', isCorrect: false },
+          { id: 'opt-3', text: 'Elemento dispensável', isCorrect: false },
+          { id: 'opt-4', text: 'Fator irrelevante', isCorrect: false }
+        ],
+        correctAnswer: 0,
+        explanation: `${topic} é um conceito importante na psicologia analítica de Jung.`,
+        points: 10,
+        order: 0
+      }];
+    }
+
     return {
       id: `quiz-${moduleId}`,
       moduleId,
@@ -219,33 +239,48 @@ Respond with exactly ${count} questions following the good example format:`;
     let questions = rawQuestions;
     if (!Array.isArray(questions)) {
       console.error('Raw questions is not an array:', questions);
-      
+
       // Try to handle if questions are wrapped in an object
       if (typeof questions === 'object' && questions !== null && 'questions' in questions && Array.isArray((questions as any).questions)) {
         console.log('Found questions in wrapper object, using those');
         questions = (questions as any).questions;
       } else {
         console.warn('Using fallback quiz questions due to invalid response');
-        // Create fallback questions
-        questions = [
-          {
-            question: `Qual é um conceito-chave em ${topic}?`,
-            options: ['Opção A', 'Opção B', 'Opção C', 'Opção D'],
-            correctAnswer: 1,
-            explanation: 'Este é um conceito fundamental no tópico.',
-            difficulty: 'medium',
-            cognitiveLevel: 'understanding'
-          },
-          {
-            question: `Como ${topic} se relaciona com a psicologia junguiana?`,
-            options: ['Opção A', 'Opção B', 'Opção C', 'Opção D'],
-            correctAnswer: 0,
-            explanation: 'Isso demonstra a conexão com a teoria junguiana.',
-            difficulty: 'medium',
-            cognitiveLevel: 'application'
-          }
-        ];
+        // Create fallback questions based on count
+        const fallbackCount = Math.max(1, count || 2);
+        questions = Array.from({ length: fallbackCount }, (_, i) => ({
+          question: `Qual é um conceito-chave relacionado a ${topic} na psicologia junguiana?`,
+          options: [
+            `Conceito específico de ${topic} segundo Jung`,
+            'Princípio da psicologia comportamental',
+            'Técnica da terapia cognitiva',
+            'Abordagem da psicologia humanista'
+          ],
+          correctAnswer: 0,
+          explanation: `Este conceito é fundamental para compreender ${topic} na teoria analítica de Jung.`,
+          difficulty: 'medium',
+          cognitiveLevel: 'understanding'
+        }));
       }
+    }
+
+    // Ensure we have questions and they match expected count
+    if (!questions || questions.length === 0) {
+      console.warn('No questions generated, creating fallback');
+      const fallbackCount = Math.max(1, count || 2);
+      questions = Array.from({ length: fallbackCount }, (_, i) => ({
+        question: `Qual é uma característica importante de ${topic} na psicologia junguiana?`,
+        options: [
+          `Aspecto fundamental de ${topic} na teoria de Jung`,
+          'Conceito da psicologia cognitiva',
+          'Princípio da psicologia social',
+          'Método da psicologia experimental'
+        ],
+        correctAnswer: 0,
+        explanation: `Esta característica é essencial para entender ${topic} no contexto da psicologia analítica.`,
+        difficulty: 'medium',
+        cognitiveLevel: 'understanding'
+      }));
     }
 
     // Pre-validate and clean questions before conversion
@@ -439,8 +474,6 @@ Respond with exactly ${count} questions following the good example format:`;
     language: string,
     issues: string[]
   ): Promise<Question | null> {
-    const isPortuguese = language === 'pt-BR';
-    
     const issueDescription = issues.join(', ');
     
     const prompt = `

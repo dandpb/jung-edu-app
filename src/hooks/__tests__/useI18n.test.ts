@@ -58,11 +58,11 @@ const mockI18nInstance = {
 
 // Mock react-i18next
 jest.mock('react-i18next', () => ({
-  useTranslation: () => ({
+  useTranslation: jest.fn(() => ({
     t: mockT,
     i18n: mockI18nInstance,
     ready: true
-  })
+  }))
 }));
 
 // Mock i18n config
@@ -75,7 +75,16 @@ jest.mock('../../config/i18n', () => ({
 describe('useI18n Hook', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
+    // Reset mock implementations to ensure consistent state
+    const { useTranslation } = require('react-i18next');
+    useTranslation.mockClear();
+    useTranslation.mockReturnValue({
+      t: mockT,
+      i18n: mockI18nInstance,
+      ready: true
+    });
+
     // Setup default mock implementations
     mockT.mockImplementation((key: string, options?: any) => {
       // Handle null/undefined keys safely
@@ -96,7 +105,7 @@ describe('useI18n Hook', () => {
       if (safeKey.startsWith('error.')) return `error_fallback_${safeKey}`;
       return `translated_${safeKey}`;
     });
-    
+
     mockI18nInstance.language = 'en';
     mockI18nInstance.isInitialized = true;
     mockGetResourceBundle.mockReturnValue({

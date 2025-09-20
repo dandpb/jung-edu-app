@@ -1,7 +1,7 @@
 import { ILLMProvider } from '../types';
 import { Video } from '../../../types'; // Use the simpler Video type from types
 import { YouTubeService, YouTubeVideo } from '../../video/youtubeService';
-import { VideoEnricher, VideoMetadata } from '../../video/videoEnricher';
+import { VideoEnricher } from '../../video/videoEnricher';
 
 export interface YouTubeSearchResult {
   videoId: string;
@@ -148,7 +148,8 @@ export class VideoGenerator {
       
       // Convert to Video format with actual YouTube IDs
       return selectedVideos.map((video) => {
-        const { metadata, ...videoResource } = video;
+        // Metadata could be used for advanced video properties in the future
+        // const { metadata } = video;
         // Get YouTube ID from enriched video URL first
         let youtubeId: string | undefined = this.extractYouTubeIdFromUrl(video.url) || undefined;
         
@@ -864,13 +865,14 @@ Response format:
     );
     
     // Extract common themes and channels
-    const watchedChannels = new Set(watchedVideos.filter(v => v).map(v => v!.channelId));
-    const watchedTags = new Set(
-      watchedVideos
-        .filter(v => v?.tags)
-        .flatMap(v => v!.tags!)
-    );
-    
+    // These could be used for recommendation filtering in the future
+    // const watchedChannels = new Set(watchedVideos.filter(v => v).map(v => v!.channelId));
+    // const watchedTags = new Set(
+    //   watchedVideos
+    //     .filter(v => v?.tags)
+    //     .flatMap(v => v!.tags!)
+    // );
+
     // Generate personalized search queries
     const prompt = `
 Based on these watched videos about Jungian psychology:

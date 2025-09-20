@@ -3,7 +3,6 @@
  * Integrates templates and enhancement features for better educational quizzes
  */
 
-import { ILLMProvider } from '../llm/types';
 import { Quiz, Question } from '../../types';
 import { QuizGenerator } from '../llm/generators/quiz-generator';
 import { quizEnhancer, EnhancementOptions } from './quizEnhancer';
@@ -237,11 +236,11 @@ export class EnhancedQuizGenerator extends QuizGenerator {
             'Um fenômeno da psicologia social',
             'Uma abordagem da psicologia humanista'
           ];
-          
+
           // Inserir a resposta correta na posição aleatória
           options.splice(correctPosition, 0, `Um conceito fundamental em ${topic} segundo Jung`);
           options.pop(); // Remove o último para manter 4 opções
-          
+
           return {
             question: `Qual é um aspecto fundamental de ${topic} na psicologia junguiana?`,
             type: 'multiple-choice',
@@ -253,6 +252,25 @@ export class EnhancedQuizGenerator extends QuizGenerator {
         });
         return fallbackQuestions.map((q, index) => this.formatTemplatedQuestion(q, index, difficulty));
       }
+    }
+
+    // Ensure we have the expected number of questions
+    if (!questionsArray || questionsArray.length === 0) {
+      console.warn('No questions returned from provider, using fallback');
+      const fallbackQuestions = Array.from({ length: count }, (_, i) => ({
+        question: `O que caracteriza ${topic} na psicologia junguiana?`,
+        type: 'multiple-choice',
+        options: [
+          `Conceito central de ${topic} na teoria de Jung`,
+          'Princípio da psicologia comportamental',
+          'Método da terapia cognitiva',
+          'Abordagem da psicologia humanista'
+        ],
+        correctAnswer: 0,
+        explanation: `${topic} é um conceito importante na psicologia analítica de Jung.`,
+        difficulty: difficulty
+      }));
+      return fallbackQuestions.map((q, index) => this.formatTemplatedQuestion(q, index, difficulty));
     }
 
     return questionsArray.map((q: any, index: number) => this.formatTemplatedQuestion(q, index, difficulty));
@@ -293,17 +311,17 @@ export class EnhancedQuizGenerator extends QuizGenerator {
     difficulty: string
   ): Question {
     // Garantir que sempre haja uma explicação
-    const explanation = rawQuestion.explanation || 
+    const explanation = rawQuestion.explanation ||
       `Esta questão avalia sua compreensão sobre ${rawQuestion.question?.substring(0, 50)}... ` +
       `A resposta correta demonstra conhecimento dos princípios fundamentais da psicologia junguiana. ` +
       `É importante compreender como este conceito se relaciona com outros aspectos da teoria de Jung.`;
-    
+
     const baseQuestion: Question = {
       id: `q-${difficulty}-${index + 1}`,
       type: rawQuestion.type || 'multiple-choice',
-      question: rawQuestion.question,
-      options: [], // Default empty array, will be overridden below
-      correctAnswer: 0, // Default value, will be overridden below
+      question: rawQuestion.question || '',
+      options: [], // Will be populated below
+      correctAnswer: 0, // Will be set below
       explanation,
       points: difficulty === 'hard' ? 15 : difficulty === 'medium' ? 10 : 5,
       order: index,
@@ -317,25 +335,40 @@ export class EnhancedQuizGenerator extends QuizGenerator {
     if (rawQuestion.type === 'multiple-choice' || !rawQuestion.type) {
       // Normalizar opções - remover prefixos como "A)", "B)", etc.
       let normalizedOptions = rawQuestion.options;
-      
+
       if (Array.isArray(rawQuestion.options)) {
-        normalizedOptions = rawQuestion.options.map((opt: any) => {
+        normalizedOptions = rawQuestion.options.map((opt: any, optIndex: number) => {
+          let text = opt;
           if (typeof opt === 'string') {
             // Remover prefixos como "A)", "B)", "1.", etc.
-            return opt.replace(/^[A-D]\)\s*|^[1-4]\.\s*|^\d+\)\s*/i, '').trim();
+            text = opt.replace(/^[A-D]\)\s*|^[1-4]\.\s*|^\d+\)\s*/i, '').trim();
           }
-          return opt;
+          return {
+            id: `${baseQuestion.id}-opt-${optIndex + 1}`,
+            text,
+            isCorrect: optIndex === (rawQuestion.correctAnswer || 0)
+          };
         });
+      } else {
+        // Fallback options if none provided
+        normalizedOptions = [
+          { id: `${baseQuestion.id}-opt-1`, text: 'Opção A', isCorrect: true },
+          { id: `${baseQuestion.id}-opt-2`, text: 'Opção B', isCorrect: false },
+          { id: `${baseQuestion.id}-opt-3`, text: 'Opção C', isCorrect: false },
+          { id: `${baseQuestion.id}-opt-4`, text: 'Opção D', isCorrect: false }
+        ];
       }
-      
+
       return {
         ...baseQuestion,
-        options: normalizedOptions || [],
+        options: normalizedOptions,
         correctAnswer: rawQuestion.correctAnswer || 0
       };
     } else if (rawQuestion.type === 'short-answer' || rawQuestion.type === 'essay') {
       return {
         ...baseQuestion,
+        options: [], // Essays and short answers don't have options
+        correctAnswer: rawQuestion.type === 'essay' ? -1 : rawQuestion.correctAnswer || '',
         expectedKeywords: rawQuestion.expectedKeywords,
         rubric: rawQuestion.rubric
       };

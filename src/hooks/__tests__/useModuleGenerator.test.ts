@@ -8,7 +8,7 @@ import { Module } from '../../types';
 jest.mock('../../services/llm/orchestrator');
 
 // Mock timers for testing async operations
-jest.useFakeTimers();
+jest.useFakeTimers('modern');
 
 describe('useModuleGenerator', () => {
   const mockOrchestrator = {
@@ -115,7 +115,6 @@ describe('useModuleGenerator', () => {
   afterEach(() => {
     jest.runOnlyPendingTimers();
     jest.useRealTimers();
-    jest.useFakeTimers();
   });
 
   describe('Initial State', () => {
@@ -353,12 +352,15 @@ describe('useModuleGenerator', () => {
 
   describe('regenerateSection', () => {
     it('should regenerate a section', async () => {
-      jest.useRealTimers();
-      
       const { result } = renderHook(() => useModuleGenerator());
 
       act(() => {
         result.current.updateGeneratedModule(mockModule);
+      });
+
+      // Fast-forward through the regeneration timeout
+      act(() => {
+        jest.advanceTimersByTime(1500);
       });
 
       await act(async () => {
@@ -375,8 +377,6 @@ describe('useModuleGenerator', () => {
         term: 'Novo Conceito',
         definition: 'Um aspecto recém-descoberto da regeneração'
       });
-      
-      jest.useFakeTimers();
     });
 
     it('should do nothing if no module is generated', async () => {
@@ -390,8 +390,6 @@ describe('useModuleGenerator', () => {
     });
 
     it('should handle section regeneration for non-existent section', async () => {
-      jest.useRealTimers();
-      
       const { result } = renderHook(() => useModuleGenerator());
 
       act(() => {
@@ -404,8 +402,6 @@ describe('useModuleGenerator', () => {
 
       const sections = result.current.generatedModule?.content?.sections;
       expect(sections?.[0].content).not.toContain('[Regenerado]');
-      
-      jest.useFakeTimers();
     });
 
     it('should handle regeneration when module has no content', () => {

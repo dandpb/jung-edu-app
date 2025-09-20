@@ -71,7 +71,7 @@ describe('useMonitoringWebSocket', () => {
   });
 
   afterEach(() => {
-    jest.clearAllTimers();
+    jest.runOnlyPendingTimers();
     jest.useRealTimers();
   });
 

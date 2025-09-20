@@ -659,7 +659,7 @@ export class QuizEnhancer {
 
   private buildEnhancedExplanation(question: Question, topic: string): string {
     const base = question.explanation || '';
-    const concepts = quizPromptService.getTopicConcepts(topic);
+    // const concepts = quizPromptService.getTopicConcepts(topic); // Could be used for concept-based explanations
     
     // Structure: Why correct + Why others wrong + Key insight + Application
     let enhanced = base;
