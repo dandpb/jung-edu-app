@@ -26,7 +26,7 @@ export class AlertingService extends EventEmitter {
   private pollingTimer?: NodeJS.Timeout;
   private alertHistory: Map<string, PerformanceAlert[]> = new Map();
 
-  constructor(config: Partial<AlertingServiceConfig> = {}) {
+  constructor(config: Partial<AlertingServiceConfig> = {}, alertingEngine?: AlertingEngine) {
     super();
     
     this.config = {
@@ -38,7 +38,7 @@ export class AlertingService extends EventEmitter {
       ...config
     };
 
-    this.alertingEngine = new AlertingEngine();
+    this.alertingEngine = alertingEngine || new AlertingEngine();
     this.setupEventHandlers();
     
     if (this.config.enableAutoStart) {
@@ -86,9 +86,7 @@ export class AlertingService extends EventEmitter {
     this.monitoringService = monitoringService;
 
     // Listen to monitoring events for real-time alerting
-    if (this.config.integrationMode === 'real-time' || this.config.integrationMode === 'hybrid') {
-      this.setupMonitoringEventHandlers();
-    }
+    this.setupMonitoringEventHandlers();
 
     console.log('🔗 Connected alerting service to monitoring system');
   }
@@ -226,7 +224,7 @@ export class AlertingService extends EventEmitter {
    */
   private handleMonitoringEvent(event: any): void {
     // Process monitoring events for real-time alerting
-    if (event.type === 'error' && this.shouldCreateAlert(event)) {
+    if (this.shouldCreateAlert(event)) {
       this.createAlertFromEvent(event);
     }
   }
@@ -365,7 +363,13 @@ export class AlertingService extends EventEmitter {
    */
   private shouldCreateAlert(event: any): boolean {
     // Logic to determine if an event should create an alert
-    return event.type === 'error' || event.type === 'pipeline_failure';
+    const alertTypes = new Set([
+      'error',
+      'pipeline_failure',
+      'critical_error',
+      'system_failure'
+    ]);
+    return alertTypes.has(event.type);
   }
 
   private determineSeverityFromEvent(event: any): PerformanceAlert['severity'] {

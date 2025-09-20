@@ -57,6 +57,12 @@ export const useI18n = (): UseI18nReturn => {
   // Load additional namespaces
   const loadNamespace = useCallback(async (namespace: string | string[]) => {
     try {
+      // Validate input
+      if (!namespace || (typeof namespace !== 'string' && !Array.isArray(namespace))) {
+        console.error('Invalid namespace parameter:', namespace);
+        return;
+      }
+
       const namespaces = Array.isArray(namespace) ? namespace : [namespace];
       await i18n.loadNamespaces(namespaces);
     } catch (error) {
@@ -66,14 +72,24 @@ export const useI18n = (): UseI18nReturn => {
 
   // Get available translations for current language and namespace
   const getAvailableTranslations = useCallback((namespace?: string) => {
-    const ns = namespace || 'translation';
-    const resourceBundle = i18n.getResourceBundle(i18n.language, ns);
-    return resourceBundle ? Object.keys(resourceBundle) : [];
+    try {
+      const ns = namespace || 'translation';
+      const resourceBundle = i18n.getResourceBundle(i18n.language, ns);
+      return resourceBundle ? Object.keys(resourceBundle) : [];
+    } catch (error) {
+      console.error('Error getting available translations:', error);
+      return [];
+    }
   }, [i18n]);
 
   // Check if translation exists
   const hasTranslation = useCallback((key: string) => {
-    return i18n.exists(key);
+    try {
+      return i18n.exists(key);
+    } catch (error) {
+      console.error('Error checking translation existence:', error);
+      return false;
+    }
   }, [i18n]);
 
   // Get current namespace
@@ -81,8 +97,15 @@ export const useI18n = (): UseI18nReturn => {
     return 'translation'; // Default namespace
   }, []);
 
+  // Wrap the t function to ensure it always returns a string
+  const wrappedT = useCallback((key: string, options?: any): string => {
+    const result = t(key, options);
+    // Ensure we always return a string
+    return typeof result === 'string' ? result : String(result);
+  }, [t]);
+
   return {
-    t,
+    t: wrappedT,
     language: i18n.language,
     supportedLanguages: ['en', 'pt-BR'], // Based on app config
     changeLanguage,

@@ -57,6 +57,13 @@ export function loadNotes(): Note[] {
 
 export function saveModuleProgress(moduleId: string, completed: boolean, score?: number): void {
   try {
+    const normalizedModuleId = moduleId?.trim();
+
+    // Ignore empty or whitespace-only identifiers to avoid corrupt entries
+    if (!normalizedModuleId) {
+      return;
+    }
+
     const progress = loadUserProgress() || {
       userId: 'default-user',
       completedModules: [],
@@ -66,12 +73,12 @@ export function saveModuleProgress(moduleId: string, completed: boolean, score?:
       notes: []
     };
 
-    if (completed && !progress.completedModules.includes(moduleId)) {
-      progress.completedModules.push(moduleId);
+    if (completed && !progress.completedModules.includes(normalizedModuleId)) {
+      progress.completedModules.push(normalizedModuleId);
     }
 
     if (score !== undefined) {
-      progress.quizScores[moduleId] = score;
+      progress.quizScores[normalizedModuleId] = score;
     }
 
     progress.lastAccessed = Date.now();
@@ -84,7 +91,8 @@ export function saveModuleProgress(moduleId: string, completed: boolean, score?:
 export function loadModuleProgress(moduleId: string): { completed: boolean; score?: number } {
   try {
     // Handle null/undefined/empty moduleId
-    if (!moduleId) {
+    const normalizedModuleId = moduleId?.trim();
+    if (!normalizedModuleId) {
       return { completed: false };
     }
 
@@ -98,8 +106,8 @@ export function loadModuleProgress(moduleId: string): { completed: boolean; scor
     const quizScores = progress.quizScores || {};
 
     return {
-      completed: completedModules.includes(moduleId),
-      score: quizScores[moduleId]
+      completed: completedModules.includes(normalizedModuleId),
+      score: quizScores[normalizedModuleId]
     };
   } catch (error) {
     console.error('Failed to load module progress:', error);

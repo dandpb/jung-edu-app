@@ -134,7 +134,7 @@ export const useMonitoringWebSocket = ({
   }, [url, onMetricsUpdate, onStatusUpdate, onAlertsUpdate]);
 
   const attemptReconnect = () => {
-    if (reconnectTimeoutRef.current) {
+    if (reconnectTimeoutRef.current && typeof clearTimeout !== 'undefined') {
       clearTimeout(reconnectTimeoutRef.current);
     }
 
@@ -164,7 +164,7 @@ export const useMonitoringWebSocket = ({
 
     // Cleanup on unmount
     return () => {
-      if (reconnectTimeoutRef.current) {
+      if (reconnectTimeoutRef.current && typeof clearTimeout !== 'undefined') {
         clearTimeout(reconnectTimeoutRef.current);
       }
       if (socketRef.current) {
@@ -176,9 +176,9 @@ export const useMonitoringWebSocket = ({
 
   // Simulate periodic data updates when WebSocket is not available
   useEffect(() => {
-    if (!connected && !error?.includes('Reconnecting')) {
+    if (!connected && !error?.includes('Reconnecting') && process.env.NODE_ENV !== 'test') {
       console.log('📡 WebSocket not available, using mock data simulation');
-      
+
       const interval = setInterval(() => {
         // Generate mock metrics with some variation
         const mockMetrics: PipelineMetrics = {
@@ -215,7 +215,11 @@ export const useMonitoringWebSocket = ({
         onMetricsUpdate?.(mockMetrics);
       }, 5000); // Update every 5 seconds
 
-      return () => clearInterval(interval);
+      return () => {
+        if (interval && typeof clearInterval !== 'undefined') {
+          clearInterval(interval);
+        }
+      };
     }
   }, [connected, error, onMetricsUpdate]);
 

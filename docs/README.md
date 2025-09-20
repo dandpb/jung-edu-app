@@ -1,6 +1,6 @@
-# 📚 jaqEdu Documentation
+# 📚 jung-edu-app Documentation
 
-Welcome to the comprehensive documentation for jaqEdu - an interactive educational platform for learning Carl Jung's analytical psychology concepts.
+Welcome to the comprehensive documentation for jung-edu-app - an interactive educational platform for learning Carl Jung's analytical psychology concepts.
 
 ## 📖 Documentation Structure
 
@@ -23,13 +23,13 @@ Welcome to the comprehensive documentation for jaqEdu - an interactive education
 
 ## 🚀 Quick Links
 
-- **Repository**: [jaqEdu on GitHub](#)
-- **Live Demo**: [Try jaqEdu](#)
+- **Repository**: [jung-edu-app on GitHub](#)
+- **Live Demo**: [Try jung-edu-app](#)
 - **Support**: [Get Help](#)
 
 ## 🎯 Project Overview
 
-jaqEdu is a modern educational platform built with React and TypeScript, featuring:
+jung-edu-app is a modern educational platform built with React and TypeScript, featuring:
 - 🧠 Interactive learning modules on Jung's psychology
 - 🤖 AI-powered content generation
 - 📊 Progress tracking and analytics
@@ -40,17 +40,17 @@ jaqEdu is a modern educational platform built with React and TypeScript, featuri
 ## 📋 Documentation Status
 
 | Document | Status | Last Updated |
-|----------|--------|--------------|
-| User Guide | ✅ Complete | 2025-08-02 |
-| Technical Documentation | ✅ Complete | 2025-08-02 |
-| API Reference | ✅ Complete | 2025-08-02 |
-| Database Schema | ✅ Complete | 2025-08-02 |
-| Development Guide | ✅ Complete | 2025-08-02 |
-| Testing Guide | ✅ Complete | 2025-08-02 |
-| Admin Guide | ✅ Complete | 2025-08-02 |
-| Configuration Guide | ✅ Complete | 2025-08-02 |
-| Deployment Guide | ✅ Complete | 2025-08-02 |
-| Troubleshooting | ✅ Complete | 2025-08-02 |
+|---|---|---|
+| User Guide | ✅ Complete | 2025-09-07 |
+| Technical Documentation | ✅ Complete | 2025-09-07 |
+| API Reference | ✅ Complete | 2025-09-07 |
+| Database Schema | ✅ Complete | 2025-09-07 |
+| Development Guide | ✅ Complete | 2025-09-07 |
+| Testing Guide | ✅ Complete | 2025-09-07 |
+| Admin Guide | ✅ Complete | 2025-09-07 |
+| Configuration Guide | ✅ Complete | 2025-09-07 |
+| Deployment Guide | ✅ Complete | 2025-09-07 |
+| Troubleshooting | ✅ Complete | 2025-09-07 |
 
 ## 🤝 Contributing to Documentation
 
@@ -58,4 +58,4 @@ We welcome contributions to improve our documentation! Please see our [Developme
 
 ---
 
-*Last updated: August 2, 2025*
+*Last updated: September 7, 2025*

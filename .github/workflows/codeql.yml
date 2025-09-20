@@ -59,7 +59,7 @@ jobs:
 
     - name: Install dependencies
       if: matrix.language == 'javascript'
-      run: npm ci
+      run: npm ci --legacy-peer-deps
 
     - name: Build application
       if: matrix.language == 'javascript'

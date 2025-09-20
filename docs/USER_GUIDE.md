@@ -1,13 +1,13 @@
-# 📚 jaqEdu User Guide
+# 📚 jung-edu-app User Guide
 
-Welcome to jaqEdu - your interactive journey into Carl Jung's analytical psychology!
+Welcome to jung-edu-app - your interactive journey into Carl Jung's analytical psychology!
 
 ## 🎯 Getting Started
 
 ### Creating Your Account
 
 1. **Visit the Registration Page**
-   - Navigate to the jaqEdu platform
+   - Navigate to the jung-edu-app platform
    - Click "Register" or "Create Account"
 
 2. **Fill in Your Information**
@@ -128,7 +128,7 @@ Each module contains four main sections:
 
 3. **Saving**
    - Click "Salvar" (Save) to store your note
-   - Click "Cancelar" (Cancel) to discard
+   - Click "Cancel" to discard
 
 ### Managing Notes
 
@@ -297,7 +297,7 @@ Customize your experience:
    - Symbol analysis
    - Practical applications
 
-## 🏆 Making the Most of jaqEdu
+## 🏆 Making the Most of jung-edu-app
 
 ### Best Practices
 

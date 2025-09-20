@@ -39,6 +39,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     if: github.event_name == 'workflow_dispatch'
+
+    permissions:
+      contents: write
+      packages: write
+
     outputs:
       new_version: ${{ steps.version.outputs.new_version }}
       release_notes: ${{ steps.notes.outputs.release_notes }}
@@ -57,7 +62,7 @@ jobs:
           cache: 'npm'
           
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
         
       - name: Run comprehensive tests
         run: |
@@ -168,7 +173,7 @@ jobs:
           cache: 'npm'
           
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
         
       - name: Build production assets
         run: npm run build
@@ -270,7 +275,7 @@ jobs:
           cache: 'npm'
           
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
         
       - name: Security audit
         run: |

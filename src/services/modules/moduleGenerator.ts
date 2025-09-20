@@ -125,7 +125,7 @@ export class ModuleGenerator {
       await ModuleService.deleteDraft(moduleId);
 
       await this.reportProgress(GenerationStage.COMPLETED, 100, 'Module generation completed!');
-      return savedModule;
+      return savedModule ?? finalModule;
 
     } catch (error) {
       await this.reportProgress(
@@ -177,7 +177,7 @@ export class ModuleGenerator {
     // Clean up draft
     await ModuleService.deleteDraft(draftId);
 
-    return savedModule;
+    return savedModule ?? finalModule;
   }
 
   private async reportProgress(stage: GenerationStage, progress: number, message: string, details?: any) {
@@ -368,7 +368,7 @@ Difficulty level: ${options.difficulty}`;
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         version: '1.0.0',
-        status: ModuleStatus.REVIEW,
+        status: ModuleStatus.PUBLISHED,
         language: 'en',
         author: {
           id: 'ai-generator',
@@ -378,7 +378,7 @@ Difficulty level: ${options.difficulty}`;
       };
     } else {
       module.metadata.updatedAt = new Date().toISOString();
-      module.metadata.status = ModuleStatus.REVIEW;
+      module.metadata.status = ModuleStatus.PUBLISHED;
     }
 
     return module;

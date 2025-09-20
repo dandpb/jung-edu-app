@@ -1,6 +1,6 @@
-# 🔧 jaqEdu Troubleshooting Guide
+# 🔧 jung-edu-app Troubleshooting Guide
 
-This guide helps you resolve common issues with the jaqEdu educational platform.
+This guide helps you resolve common issues with the jung-edu-app educational platform.
 
 ## 🚦 Quick Diagnostics
 
@@ -466,12 +466,7 @@ window.fetch = new Proxy(window.fetch, {
 
 ### Collect Debug Information
 
-1. **System Info**
-   ```bash
-   npm run debug-info
-   ```
 
-2. **Browser Console**
    - Copy all error messages
    - Note error timestamps
    - Check network tab

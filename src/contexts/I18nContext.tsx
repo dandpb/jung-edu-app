@@ -133,8 +133,15 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
     return currentNamespace;
   }, [currentNamespace]);
 
+  // Wrap the t function to ensure it always returns a string
+  const wrappedT = useCallback((key: string, options?: any): string => {
+    const result = t(key, options);
+    // Ensure we always return a string
+    return typeof result === 'string' ? result : String(result);
+  }, [t]);
+
   const value: I18nContextType = {
-    t,
+    t: wrappedT,
     language: i18n.language,
     supportedLanguages: ['en', 'pt-BR'], // Based on config
     changeLanguage,

@@ -68,9 +68,10 @@ const AllTheProviders: React.FC<AllTheProvidersProps> = ({ children, options = {
     ? { initialEntries } 
     : { future: { v7_startTransition: true, v7_relativeSplatPath: true } };
   
-  // If AuthProvider is mocked in the test, just render children in AdminProvider
-  const isAuthMocked = jest.mocked(AuthProvider).mock?.calls?.length > 0;
-  
+  // Check if AuthProvider is mocked by checking if it's a jest mock function
+  const isAuthMocked = typeof AuthProvider === 'function' &&
+    AuthProvider.hasOwnProperty('_isMockFunction');
+
   if (isAuthMocked) {
     return (
       <Router {...routerProps}>
